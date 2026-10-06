@@ -32,9 +32,10 @@ class TerrainModelTest {
     @Test
     void regionsShapeTheLand() {
         assertTrue(avg(5700, -500, 5950, 500) < TerrainModel.SEA_LEVEL - 10, "동쪽 바다는 해수면 아래");
-        assertTrue(spread(-200, -200, 200, 200) <= 6, "도시(하르덴)는 거의 평평");
-        assertTrue(avg(-3500, -4500, -2500, -3500) > avg(-1500, 800, 300, 2000) + 20, "산(깊은 망치)이 들판보다 높다");
-        assertTrue(avg(1650, 850, 1750, 950) < avg(1250, 450, 1300, 500) - 20, "분화구 가운데가 꺼져 있다");
+        assertTrue(spread(-1200, -200, -800, 200) <= 6, "도시(하르덴)는 거의 평평");
+        assertTrue(avg(2000, -4500, 2900, -3500) > avg(-3000, 2400, -1000, 3500) + 20, "산(깊은 망치)이 들판(세르벤)보다 높다");
+        assertTrue(avg(1250, -1500, 1550, 1500) > avg(-2000, -1500, -800, 1500) + 15, "바로크 산맥이 하벤 들판보다 높다");
+        assertTrue(avg(2450, 1250, 2550, 1350) < avg(2050, 850, 2100, 900) - 20, "분화구 가운데가 꺼져 있다");
         assertEquals(TerrainModel.Surface.SAND, t.surface(0, 5200, t.height(0, 5200)).name().equals("RED_SAND") ? TerrainModel.Surface.SAND : t.surface(0, 5200, t.height(0, 5200)));
         assertEquals(TerrainModel.Surface.SNOW, t.surface(0, -5500, 80));
     }
@@ -50,17 +51,18 @@ class TerrainModelTest {
         }
         assertTrue(diff > 100, "다른 시드는 다른 지형");
         // 경계를 건너도 한 블록에 급경사(절벽 > 6)가 거의 없다
-        int cliffs = 0;
-        for (int x = -2600; x < 2600; x += 3) if (Math.abs(t.height(x, -2000) - t.height(x + 1, -2000)) > 6) cliffs++;
-        assertTrue(cliffs < 5, "경계가 부드럽다: " + cliffs);
+        int cliffs = 0, checked = 0;
+        for (int z : new int[]{-2000, -800, 700, 2400})   // 하벤 · 브리튼 · 바로크 산맥 · 브렌트 · 로자임 경계를 가로지름
+            for (int x = -5000; x < 5500; x += 3, checked++) if (Math.abs(t.height(x, z) - t.height(x + 1, z)) > 6) cliffs++;
+        assertTrue(cliffs < checked / 500, "경계가 부드럽다: " + cliffs + "/" + checked);
     }
 
     @Test
     void ruinsGetPillarsOnlyInRuins() {
         int inRuins = 0;
-        for (int cx = -12; cx < 6; cx++) for (int cz = 37; cz < 53; cz++) if (t.ruinPillar(cx, cz) != null) inRuins++;
+        for (int cx = -69; cx < -50; cx++) for (int cz = 3; cz < 19; cz++) if (t.ruinPillar(cx, cz) != null) inRuins++;
         assertTrue(inRuins > 20, "칼라모르 유적에는 기둥이 있다: " + inRuins);
-        for (int cx = -4; cx < 4; cx++) for (int cz = -4; cz < 4; cz++) assertNull(t.ruinPillar(cx, cz), "도시에는 없다");
+        for (int cx = -20; cx < -11; cx++) for (int cz = -4; cz < 4; cz++) assertNull(t.ruinPillar(cx, cz), "도시(하르덴)에는 없다");
     }
 
     @Test

@@ -34,9 +34,12 @@ class GrowthAndWorldTest {
     @Test
     void regionsResolveMostSpecificAndUndergroundSeparately() throws Exception {
         try (TestWorld w = new TestWorld()) {
-            assertEquals("harden", w.s.regions.at("world", 0, 70, 0).id());
-            assertEquals("emperor_aqueduct", w.s.regions.at("world", 0, 0, 0).id(), "도시 아래 지하는 수로");
-            assertEquals("central_plains", w.s.regions.at("world", 1000, 70, -1000).id());
+            assertEquals("harden", w.s.regions.at("world", -1000, 70, 0).id());
+            assertEquals("emperor_aqueduct", w.s.regions.at("world", -1000, 0, 0).id(), "도시 아래 지하는 수로");
+            assertEquals("central_plains", w.s.regions.at("world", 500, 70, -2000).id());
+            assertEquals("rosenheim", w.s.regions.at("world", 2000, 70, 3000).id());
+            assertEquals("lavias", w.s.regions.at("world", 3800, 210, 1600).id(), "하늘섬은 로자임 위 하늘");
+            assertEquals("serabourg", w.s.regions.at("world", 3100, 70, 2500).id());
             assertEquals("nehales_bastion", w.s.regions.at("world", 3400, 80, -700).id());
             assertNull(w.s.regions.at("world_nether", 0, 70, 0));
             for (Region r : w.s.regions.all()) {

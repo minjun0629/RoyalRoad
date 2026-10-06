@@ -1,78 +1,49 @@
-# 지역 (02_WORLD.md). min/max: [x, y, z]. 겹치면 priority 가 높은 지역이 이긴다.
+# 지역 (02_WORLD.md). min/max: [x, y, z] — x 는 동쪽(+), z 는 남쪽(+). 겹치면 priority 가 높은 지역이 이긴다.
 # purpose(존재 이유)는 필수, 원작 지명(source: CANON)은 changed(후대의 변화)도 필수 — 없으면 로드 실패.
+#
+# 배치는 원작(『달빛조각사』 베르사 대륙)의 상대 위치를 따른다 — 조사 근거는 docs/01_RESEARCH.md §지리.
+#   북부(니플하임 옛 땅 · 모라타 · 토르 드워프 산맥 · 센데임 계곡)  /  바로크 산맥(중앙과 북부 · 브리튼과 로자임 사이)
+#   중앙: 서쪽 바다 ─ 칼라모르(서해안) ─ 하벤(가운데) ─ 브리튼 연합(가운데, 루카 강) ─ 로자임(남동) · 브렌트(로자임 북쪽) ─ 절망의 평원(동쪽 끝)
+#   칼라모르 북쪽 = 옛 브레멘 땅, 칼라모르 · 하벤 남쪽 = 그라디안 들판, 중앙과 남부 사이 = 마법 공국 지대, 남부 = 사막
+#   라비아스(하늘섬)는 로자임 위 하늘
+# "조금 바뀐 지리"(후대 설정, ORIGINAL)는 각 지역 changed 에 적었다: 라비아스 파편 추락 → 분화구, 절망의 평원 동쪽 침강 → 로자임 항,
+#   칼라모르 해안 침식, 니플하임 결빙 확대, 바로크 고갯길 터널, 서쪽 바다의 안개 장벽 등.
 regions:
-  central_plains:
-    name: 중앙 평원
-    source: SOURCE-BASED
-    danger: 1
-    min: [-2500, -64, -2000]
-    max: [2500, 320, 2400]
-    priority: 0
-    tags: [plains]
-    purpose: 황제의 길이 지나는 넓은 평원. 도시 사이를 오가는 이동 자체가 탐험이 되도록 일부러 비워 둔 공간
-    resources: [oak_timber, flax_fiber]
-  harden:
-    name: 하르덴 교역시
-    danger: 0
-    min: [-300, 40, -300]
-    max: [300, 320, 300]
-    priority: 20
-    parent: central_plains
-    tags: [city, market]
-    purpose: 황제의 길 세 갈래가 만나는 옛 역참이 커진 대륙 최대 시장. 모든 재료가 모이지만 산지보다 비싸다
-    factions: [harden_merchants]
-  serven_granary:
-    name: 세르벤 곡창
-    danger: 1
-    min: [-1500, -64, 600]
-    max: [500, 320, 2200]
-    priority: 10
-    parent: central_plains
-    tags: [farmland, plains, river]
-    purpose: 대륙의 식량 창고. 요리 재료와 초보 사냥터
-    resources: [wheat_sheaf, flax_fiber, salmon]
-  calamor_ruins:
-    name: 칼라모르 폐도
-    source: CANON
-    danger: 3
-    min: [-800, 40, 2400]
-    max: [400, 320, 3400]
-    priority: 10
-    parent: central_plains
-    tags: [ruins]
-    purpose: 무너진 왕도의 발굴 현장. 역사 기록 발견 · 고고학 의뢰 · 거대 보스 「무너진 파수거상」
-    changed: 원작에서 하벤 제국에 멸망한 왕국의 도읍이, 대분열 때 다시 전쟁터가 되어 완전한 폐허가 됨. 지금은 새벽 기록관이 발굴 중
-    resources: [sandstone_block, raw_gem]
-    factions: [dawn_archive]
-  fallen_crater:
-    name: 추락 분화구
-    danger: 4
-    min: [1200, -64, 400]
-    max: [2200, 320, 1400]
-    priority: 10
-    parent: central_plains
-    tags: [sky, crater]
-    purpose: 하늘섬 파편이 떨어진 둥근 호수와 기울어진 섬 조각 — 대륙 어디서나 보이는 랜드마크. 하늘 금속 산지
-    resources: [sky_metal]
-  emperor_aqueduct:
-    name: 황제의 수로
-    danger: 3
-    min: [-1200, -64, -400]
-    max: [1200, 39, 4600]
-    priority: 12
-    tags: [underground, ruins, deep]
-    purpose: 통일 제국이 만든 지하 물길 · 창고 · 피난처. 하르덴 · 칼라모르 · 아스트라 아래를 잇는 수직 탐험 공간
-    resources: [silver_ore, raw_gem]
+  # ================================================================ 북부
   north_reach:
-    name: 북부 고지
-    source: SOURCE-BASED
+    name: 북부 (옛 니플하임 · 아르펜 땅)
+    source: CANON
     danger: 2
-    min: [-3000, -64, -5000]
-    max: [3000, 320, -2001]
+    min: [-5400, -64, -5000]
+    max: [5000, 320, -2301]
     priority: 0
     tags: [highland, forest]
-    purpose: 잿빛 겨울 뒤 다시 사람이 살기 시작한 서늘한 고지대. 목재 · 사냥
+    purpose: 잿빛 겨울 뒤 다시 사람이 살기 시작한 서늘한 고지대. 목재 · 사냥 · 북부 탐험
+    changed: 원작에서 니플하임 제국이 무너진 뒤 아르펜 왕국이 일으킨 북부가, 수백 년 뒤 잿빛 겨울로 다시 비었다가 개척민이 돌아오는 땅이 됨
     resources: [highland_timber, hide]
+  niflheim_wastes:
+    name: 니플하임 빙원 폐허
+    source: CANON
+    danger: 5
+    min: [-5400, -64, -6000]
+    max: [5000, 320, -5001]
+    priority: 5
+    tags: [frozen, ruins]
+    purpose: 얼음에 묻힌 옛 제국 도시. 서리 수정 · 고대 생물 · 거대 보스 「서리 군주의 껍데기」
+    changed: 원작의 북부 제국 옛 땅 북쪽 끝이 잿빛 겨울로 빙원이 되어 남쪽으로 넓어짐. 얼음 위로 첨탑 꼭대기만 보인다
+    resources: [frost_crystal]
+  sendeim_valley:
+    name: 센데임 계곡 (죽음의 계곡)
+    source: CANON
+    danger: 5
+    min: [-2600, -64, -5000]
+    max: [-1600, 320, -4300]
+    priority: 12
+    parent: north_reach
+    tags: [ruins, valley]
+    purpose: 마지막 황제가 쓰러진 계곡. 무덤 돌 고리 · 언데드 · 북부 역사 기록
+    changed: 원작에서 니플하임 마지막 황제가 최후를 맞은 계곡이, 얼음이 녹으며 깊게 패여 순례지 겸 위험 지대가 됨
+    resources: [frost_crystal, raw_gem]
   morata_free_city:
     name: 모라타 자유시
     source: CANON
@@ -83,43 +54,188 @@ regions:
     parent: north_reach
     tags: [city, artisan]
     purpose: 장인과 예술가의 도시. 생산 길드 · 염료 · 대리석 거래, 북부 탐험 보급
-    changed: 원작의 북부 마을이 잿빛 겨울의 피난민을 받아들이며 커져 어느 나라에도 속하지 않은 자유시가 됨. 옛 광장의 조각상은 풍화되어 「풍화의 정원」이 됨
+    changed: 원작에서 북부의 중심이자 아르펜 왕국의 첫 수도였던 도시가, 잿빛 겨울의 피난민을 받아들이며 어느 나라에도 속하지 않은 자유시가 됨. 옛 광장의 조각상은 풍화되어 「풍화의 정원」이 됨
     resources: [marble_block, indigo_dye, madder_dye]
     factions: [northern_artisans]
   thor_deep_hammer:
     name: 깊은 망치 (토르 산맥)
     source: CANON
     danger: 2
-    min: [-3600, -64, -4600]
-    max: [-2400, 320, -3400]
+    min: [1800, -64, -4600]
+    max: [3000, 320, -3400]
     priority: 15
     parent: north_reach
     tags: [mountain, city, deep]
     purpose: 계단식으로 파 들어간 광산 도시. 금속 · 보석 생산과 대장 기술의 중심
-    changed: 원작의 드워프 왕국이 「망치 맹약」이라는 광산 도시 연합이 됨. 산 하나가 통째로 파였고 폐광은 몬스터 서식지
+    changed: 원작에서 북부 아르펜 가까이(모라타 동쪽 산지) 있던 드워프 왕국 토르가 「망치 맹약」이라는 광산 도시 연합이 됨. 산 하나가 통째로 파였고 폐광은 몬스터 서식지
     resources: [iron_ore, copper_ore, silver_ore, raw_gem]
     factions: [hammer_pact]
-  niflheim_wastes:
-    name: 니플하임 빙원 폐허
+
+  # ================================================================ 바로크 산맥 (북부 길목 · 브리튼과 로자임 사이)
+  baroque_range:
+    name: 바로크 산맥
     source: CANON
-    danger: 5
-    min: [-3000, -64, -6000]
-    max: [3000, 320, -5001]
-    priority: 5
-    tags: [frozen, ruins]
-    purpose: 얼음에 묻힌 옛 제국 도시. 서리 수정 · 고대 생물 · 거대 보스 「서리 군주의 껍데기」
-    changed: 원작의 옛 제국 역사가 남은 땅이 잿빛 겨울로 얼음에 덮임. 얼음 위로 첨탑 꼭대기만 보인다
-    resources: [frost_crystal]
+    danger: 3
+    min: [1100, -64, -2300]
+    max: [1700, 320, 2600]
+    priority: 4
+    tags: [mountain]
+    purpose: 중앙과 북부를 가르는 긴 산줄기. 북부로 넘어가는 고갯길과 망루
+    changed: 원작에서 로자임과 브리튼 연합의 경계였던 산맥에, 후대 상인들이 고갯길 터널을 뚫어 북부로 가는 지름길이 생김
+    resources: [iron_ore, copper_ore]
+
+  # ================================================================ 중앙 대륙
+  central_plains:
+    name: 중앙 대륙
+    source: CANON
+    danger: 1
+    min: [-5400, -64, -2300]
+    max: [5600, 320, 3700]
+    priority: 0
+    tags: [plains]
+    purpose: 왕국들이 흥하고 망한 대륙의 중심. 황제의 길이 지나는 넓은 들판 — 도시 사이 이동 자체가 탐험
+    changed: 원작에서 인구 · 경제력이 가장 컸던 중앙 대륙이, 대분열 뒤 왕국 대신 도시 · 연합 · 폐허로 나뉨
+    resources: [oak_timber, flax_fiber]
+  western_sea:
+    name: 서쪽 바다
+    source: SOURCE-BASED
+    danger: 3
+    min: [-6000, -64, -6000]
+    max: [-5401, 320, 6000]
+    priority: 1
+    tags: [sea]
+    purpose: 칼라모르 서해안 밖의 바다. 끝에는 안개 장벽
+    resources: [deep_eel, sea_salt]
+  mist_wall:
+    name: 안개 장벽
+    danger: 6
+    min: [-6000, -64, -2000]
+    max: [-5800, 320, 2600]
+    priority: 10
+    parent: western_sea
+    tags: [mist]
+    purpose: 서쪽 바다 끝을 가리는 이상한 안개. 현재 버전에서는 넘을 수 없는 경계 (향후 확장)
+  west_frontier:
+    name: 서부 변경 (옛 브레멘 땅)
+    source: SOURCE-BASED
+    danger: 4
+    min: [-5400, -64, -2300]
+    max: [-2601, 320, -801]
+    priority: 3
+    parent: central_plains
+    tags: [forest, frontier]
+    purpose: 칼라모르 북쪽의 옛 왕국 땅이 숲으로 덮인 미개척지. 지도에 없는 길을 처음 밟는 탐험 콘텐츠
+    resources: [highland_timber, moonleaf]
+  risvel_outpost:
+    name: 개척지 리스벨
+    danger: 1
+    min: [-4200, 40, -1800]
+    max: [-3800, 320, -1400]
+    priority: 20
+    parent: west_frontier
+    tags: [outpost]
+    purpose: 서부 변경의 목책 마을. 개척 의뢰와 보급
+    factions: [settlers_council]
+  kallamore_lands:
+    name: 칼라모르 옛 영토
+    source: CANON
+    danger: 2
+    min: [-5400, -64, -800]
+    max: [-2601, 320, 2200]
+    priority: 3
+    parent: central_plains
+    tags: [plains]
+    purpose: 서해안을 낀 옛 대왕국 땅. 폐도 발굴 · 해안 마을 · 옛 기사단 유적
+    changed: 원작에서 중앙 대륙 둘째 강국이었다가 하벤에 멸망한 칼라모르의 땅. 후대에 서해안이 침식되어 바다가 안쪽으로 들어옴
+    resources: [oak_timber, sandstone_block]
+  calamor_ruins:
+    name: 칼라모르 폐도
+    source: CANON
+    danger: 3
+    min: [-4400, 40, 200]
+    max: [-3200, 320, 1200]
+    priority: 10
+    parent: kallamore_lands
+    tags: [ruins]
+    purpose: 무너진 왕도의 발굴 현장. 역사 기록 발견 · 고고학 의뢰 · 거대 보스 「무너진 파수거상」
+    changed: 원작에서 하벤 제국에 멸망한 왕국의 도읍이, 대분열 때 다시 전쟁터가 되어 완전한 폐허가 됨. 지금은 새벽 기록관이 발굴 중
+    resources: [sandstone_block, raw_gem]
+    factions: [dawn_archive]
+  haven_lands:
+    name: 하벤 옛 영토
+    source: CANON
+    danger: 1
+    min: [-2600, -64, -2300]
+    max: [-201, 320, 2200]
+    priority: 3
+    parent: central_plains
+    tags: [plains]
+    purpose: 대륙을 통일했던 제국의 심장부. 지금은 교역 도시 하르덴과 지하 수로가 남음
+    changed: 원작에서 중앙 대륙을 휘어잡은 하벤 제국이 무너진 뒤, 옛 수도권은 국경 없는 교역 지대가 됨
+    resources: [wheat_sheaf, oak_timber]
+  harden:
+    name: 하르덴 교역시
+    danger: 0
+    min: [-1300, 40, -300]
+    max: [-700, 320, 300]
+    priority: 20
+    parent: haven_lands
+    tags: [city, market]
+    purpose: 황제의 길 세 갈래가 만나는 옛 역참이 커진 대륙 최대 시장. 모든 재료가 모이지만 산지보다 비싸다
+    factions: [harden_merchants]
+  emperor_aqueduct:
+    name: 황제의 수로
+    danger: 3
+    min: [-2400, -64, -1500]
+    max: [1000, 39, 3500]
+    priority: 12
+    tags: [underground, ruins, deep]
+    purpose: 통일 제국이 만든 지하 물길 · 창고 · 피난처. 하르덴 · 브리튼 · 그라디안 아래를 잇는 수직 탐험 공간
+    resources: [silver_ore, raw_gem]
+  britten_alliance:
+    name: 브리튼 연합 (루카 강)
+    source: CANON
+    danger: 1
+    min: [-200, -64, -1500]
+    max: [1099, 320, 2600]
+    priority: 3
+    parent: central_plains
+    tags: [plains, river]
+    purpose: 대륙 한가운데 루카 강을 따라 이어진 작은 도시들. 강 교역 · 낚시 · 학술
+    changed: 원작에서 일곱 왕국이 혼인으로 묶인 연합이, 후대에는 루카 강의 자유 도시 동맹이 됨
+    resources: [salmon, flax_fiber, moonleaf]
+  gradian_lands:
+    name: 그라디안 들판
+    source: SOURCE-BASED
+    danger: 1
+    min: [-5400, -64, 2201]
+    max: [-201, 320, 3700]
+    priority: 3
+    parent: central_plains
+    tags: [farmland, plains, river]
+    purpose: 칼라모르 · 하벤 남쪽의 옛 왕국 땅이 넓은 곡창이 됨 (한국어 표기는 원작 확인 필요)
+    resources: [wheat_sheaf, flax_fiber, salmon]
+  serven_granary:
+    name: 세르벤 곡창
+    danger: 1
+    min: [-3000, -64, 2400]
+    max: [-1000, 320, 3500]
+    priority: 10
+    parent: gradian_lands
+    tags: [farmland, plains, river]
+    purpose: 대륙의 식량 창고. 요리 재료와 초보 사냥터
+    resources: [wheat_sheaf, flax_fiber, salmon]
   brent_highlands:
     name: 브렌트 고원
     source: CANON
     danger: 2
-    min: [2500, -64, -1500]
-    max: [4200, 320, 500]
-    priority: 5
+    min: [1700, -64, -2300]
+    max: [5000, 320, 599]
+    priority: 3
+    parent: central_plains
     tags: [highland, forest]
-    purpose: 동로를 따라 펼쳐진 고원 숲. 목재 · 가죽 산지
-    changed: 원작의 브렌트 왕국은 사라졌고, 고원 숲은 벌목 개척지가 됨
+    purpose: 로자임 북쪽의 고원 숲. 목재 · 가죽 산지와 옛 왕도
+    changed: 원작에서 로자임 북쪽에 있던 브렌트 왕국은 사라졌고, 고원 숲은 벌목 개척지가 됨
     resources: [highland_timber, hide]
   nehales_bastion:
     name: 네할레스 성채
@@ -132,16 +248,84 @@ regions:
     tags: [fortress]
     purpose: 동로를 지키는 요새이자 옛 왕도를 보러 오는 순례지
     changed: 원작에서 브렌트 왕국의 수도였던 성이 왕국이 사라진 뒤 교역로 요새로 바뀜
+  rosenheim:
+    name: 로자임 옛 왕국
+    source: CANON
+    danger: 1
+    min: [1700, -64, 600]
+    max: [5000, 320, 3700]
+    priority: 3
+    parent: central_plains
+    tags: [plains]
+    purpose: 대륙 남동쪽의 들판 왕국. 모험가들이 처음 길을 나서던 땅 — 세라보그 · 바란 · 하늘섬 아래
+    changed: 원작에서 많은 모험가가 시작한 로자임 왕국은 왕가가 끊겨 도시들의 땅이 되었고, 하늘섬 파편이 떨어져 북쪽에 분화구가 생김
+    resources: [wheat_sheaf, oak_timber, hide]
+  serabourg:
+    name: 세라보그 성
+    source: CANON
+    danger: 0
+    min: [2900, 40, 2300]
+    max: [3300, 320, 2700]
+    priority: 20
+    parent: rosenheim
+    tags: [city, fortress]
+    purpose: 옛 왕도의 성벽 도시. 수련관 터 · 초보 모험가 보급 · 로자임 기록
+    changed: 원작에서 로자임 왕국의 수도였던 성이, 왕가가 끊긴 뒤 시민 의회가 다스리는 성벽 도시가 됨. 수련관은 박물관이 됨
+  baran_village:
+    name: 바란 마을
+    source: CANON
+    danger: 0
+    min: [3800, 40, 3000]
+    max: [4000, 320, 3200]
+    priority: 20
+    parent: rosenheim
+    tags: [city]
+    purpose: 로자임 남쪽의 작은 마을. 조용한 시작 지점 · 농사 의뢰
+    changed: 원작에서 로자임의 작은 마을이었던 곳이, 후대에는 남쪽 사막 길목의 쉼터 마을이 됨
+  fallen_crater:
+    name: 추락 분화구
+    danger: 4
+    min: [2000, -64, 800]
+    max: [3000, 320, 1800]
+    priority: 10
+    parent: rosenheim
+    tags: [sky, crater]
+    purpose: 라비아스 하늘섬 파편이 떨어진 둥근 호수와 기울어진 섬 조각 — 대륙 어디서나 보이는 랜드마크. 하늘 금속 산지
+    resources: [sky_metal]
+  lavias:
+    name: 라비아스 (하늘섬)
+    source: CANON
+    danger: 3
+    min: [3400, 200, 1200]
+    max: [4200, 320, 2000]
+    priority: 25
+    parent: rosenheim
+    tags: [sky]
+    purpose: 로자임 하늘에 떠 있는 새들의 섬. 높은 곳에 오를 방법을 찾은 사람만 닿는 발견 콘텐츠
+    changed: 원작에서 로자임 하늘에 숨어 있던 하늘섬이, 후대에 가장자리가 부서져 파편이 땅으로 떨어짐(추락 분화구). 섬은 더 작아지고 낮아짐
+  plains_of_despair:
+    name: 절망의 평원
+    source: CANON
+    danger: 4
+    min: [5001, -64, -2300]
+    max: [5600, 320, 3700]
+    priority: 3
+    parent: central_plains
+    tags: [plains, frontier]
+    purpose: 로자임 동쪽의 거친 평원. 오크 부족 · 협곡 · 강한 사냥감
+    changed: 원작에서 오크 땅이 있던 로자임 동쪽 평원이, 후대에 동쪽 끝이 내려앉아 바다가 들어옴 (로자임 항)
+    resources: [hide, iron_ore]
   rosaim_harbor:
     name: 로자임 항만 연합
     source: CANON
     danger: 1
-    min: [4600, 40, -800]
-    max: [5600, 320, 800]
+    min: [4600, 40, 1600]
+    max: [5600, 320, 2600]
     priority: 10
+    parent: rosenheim
     tags: [city, coast, river]
     purpose: 어업 · 해상 교역 · 조선. 군도 · 난파선 탐험의 출발점
-    changed: 원작의 동부 왕국이 무역으로 바닷가 항구 도시들의 연합이 됨
+    changed: 원작의 로자임은 바다가 없었지만, 절망의 평원 동쪽이 내려앉아 생긴 만에 로자임 항구 도시들의 연합이 생김
     resources: [salmon, sea_salt]
     factions: [rosaim_ports]
   eastern_sea:
@@ -153,6 +337,18 @@ regions:
     tags: [sea]
     purpose: 군도 · 난파선 · 해저 유적과 해양 보스 「심해 갑각왕」
     resources: [deep_eel, sea_salt]
+
+  # ================================================================ 남부
+  southern_duchies:
+    name: 남부 공국 지대
+    source: SOURCE-BASED
+    danger: 1
+    min: [-5400, -64, 3701]
+    max: [5600, 320, 4400]
+    priority: 2
+    tags: [plains, scholar]
+    purpose: 중앙과 남부 사막 사이 완충 지대. 마법이 발달한 작은 공국들과 학술 도시
+    resources: [moonleaf, glass_sand]
   astra_academy:
     name: 아스트라 학술도시
     source: SOURCE-BASED
@@ -160,19 +356,20 @@ regions:
     min: [-1200, 40, 3800]
     max: [-400, 320, 4600]
     priority: 20
+    parent: southern_duchies
     tags: [city, scholar]
     purpose: 공국 연맹이 세운 연구 도시. 연금 · 시약 · 유적 연구
     resources: [moonleaf, glass_sand]
     factions: [astra_academy]
   sand_sea:
-    name: 모래바다
+    name: 남부 사막 (모래바다)
     source: SOURCE-BASED
     danger: 3
-    min: [-3000, -64, 4401]
-    max: [3000, 320, 6000]
+    min: [-5400, -64, 4401]
+    max: [5600, 320, 6000]
     priority: 2
     tags: [desert]
-    purpose: 남부의 사막. 소금 · 유리 모래 · 사막 가죽, 모래폭풍 이벤트와 보스 「사구 갈퀴웜」
+    purpose: 대륙 남쪽의 사막. 오아시스 부족 · 소금 · 유리 모래 · 사막 가죽, 모래폭풍 이벤트와 보스 「사구 갈퀴웜」
     resources: [sandstone_block, glass_sand, saltroot]
   azil_oasis:
     name: 아질 오아시스
@@ -192,31 +389,4 @@ regions:
     priority: 15
     parent: sand_sea
     tags: [ruins, desert, deep]
-    purpose: 사구 아래 묻힌 옛 도시. 바람이 모래를 걷어 낼 때만 입구가 드러나는 발견 콘텐츠
-  west_frontier:
-    name: 서부 변경
-    danger: 4
-    min: [-6000, -64, -2000]
-    max: [-2501, 320, 2600]
-    priority: 2
-    tags: [forest, frontier]
-    purpose: 원작 자료가 부족한 서부를 새로 만든 미개척지. 지도에 없는 땅을 처음 밟는 탐험 콘텐츠
-    resources: [highland_timber, moonleaf]
-  risvel_outpost:
-    name: 개척지 리스벨
-    danger: 1
-    min: [-2900, 40, -200]
-    max: [-2500, 320, 200]
-    priority: 20
-    tags: [outpost]
-    purpose: 문명의 서쪽 끝 목책 마을. 개척 의뢰와 보급
-    factions: [settlers_council]
-  mist_wall:
-    name: 안개 장벽
-    danger: 6
-    min: [-6000, -64, -2000]
-    max: [-5600, 320, 2600]
-    priority: 10
-    parent: west_frontier
-    tags: [mist]
-    purpose: 서쪽 끝을 가리는 이상한 안개. 현재 버전에서는 넘을 수 없는 경계 (향후 확장)
+    purpose: 사구 아래 묻힌 옛 사막 왕국의 도시. 바람이 모래를 걷어 낼 때만 입구가 드러나는 발견 콘텐츠

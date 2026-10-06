@@ -87,25 +87,35 @@ public final class TerrainModel {
     // ------------------------------------------------------------------ 높이 · 표면
     private static final int BLEND = 24;
 
-    public int height(int x, int z) {
-        double base = 0, amp = 0, rough = 0;
+    private static final int GRID = 32;
+
+    /** 격자점의 지형 성격 = 주변 5 표본의 가중 평균 → {기본 높이, 진폭, 거칠기} */
+    private double[] blendAt(int gx, int gz) {
+        double base = 0, amp = 0, rough = 0, total = 0;
         int[][] samples = {{0, 0}, {BLEND, 0}, {-BLEND, 0}, {0, BLEND}, {0, -BLEND}};
         double[] weight = {2, 1, 1, 1, 1};
-        double total = 0;
         for (int i = 0; i < samples.length; i++) {
-            Shape s = shape(regionAt(x + samples[i][0], z + samples[i][1]));
+            Shape s = shape(regionAt(gx + samples[i][0], gz + samples[i][1]));
             base += s.base() * weight[i];
             amp += s.amp() * weight[i];
             rough += s.rough() * weight[i];
             total += weight[i];
         }
-        base /= total;
-        amp /= total;
-        rough /= total;
+        return new double[]{base / total, amp / total, rough / total};
+    }
+
+    public int height(int x, int z) {
+        // 32 블록 격자점의 성격을 겹선형으로 이어 경계에서 높이가 계단처럼 튀지 않게 한다
+        int gx = Math.floorDiv(x, GRID) * GRID, gz = Math.floorDiv(z, GRID) * GRID;
+        double fx = (x - gx) / (double) GRID, fz = (z - gz) / (double) GRID;
+        double[] a = blendAt(gx, gz), b = blendAt(gx + GRID, gz), c = blendAt(gx, gz + GRID), d = blendAt(gx + GRID, gz + GRID);
+        double[] p = new double[3];
+        for (int i = 0; i < 3; i++) p[i] = (a[i] * (1 - fx) + b[i] * fx) * (1 - fz) + (c[i] * (1 - fx) + d[i] * fx) * fz;
+        double base = p[0], amp = p[1], rough = p[2];
         double h = base + amp * noise(x, z, rough);
         Region r = regionAt(x, z);
         if (r != null && r.tags().contains("crater")) h -= craterDepth(r, x, z);
-        if (r != null && r.tags().contains("river")) h = riverCarve(x, z, h);
+        if (r != null && r.tags().contains("river")) h = riverCarve(r, x, z, h);
         return (int) Math.round(Math.max(-50, Math.min(250, h)));
     }
 
@@ -119,11 +129,21 @@ public final class TerrainModel {
         return 46 * (1 - d * d);
     }
 
-    /** 강: 노이즈의 0 근처 띠를 해수면 아래로 판다 */
-    private double riverCarve(int x, int z, double h) {
-        double n = Math.abs(noise(x + 9000, z - 9000, 0.0025));
-        if (n > 0.06) return h;
-        double k = n / 0.06;
+    /**
+     * 강: 지역의 긴 방향을 따라 굽이치는 물길 하나 (예: 브리튼 연합의 루카 강은 남북, 그라디안 들판의 강은 동서).
+     * 폭 약 16 블록, 가장자리는 완만한 둑.
+     */
+    private double riverCarve(Region r, int x, int z, double h) {
+        boolean northSouth = (r.maxZ() - r.minZ()) >= (r.maxX() - r.minX());
+        double cx = (r.minX() + r.maxX()) / 2.0, cz = (r.minZ() + r.maxZ()) / 2.0;
+        double phase = (r.id().hashCode() & 1023) / 163.0;
+        double amp = Math.min(160, (northSouth ? r.maxX() - r.minX() : r.maxZ() - r.minZ()) / 5.0);
+        double dist = northSouth
+                ? Math.abs(x - (cx + amp * Math.sin(z / 420.0 + phase) + amp * 0.3 * Math.sin(z / 130.0)))
+                : Math.abs(z - (cz + amp * Math.sin(x / 420.0 + phase) + amp * 0.3 * Math.sin(x / 130.0)));
+        if (dist > 14) return h;
+        if (dist <= 8) return Math.min(h, SEA_LEVEL - 3);
+        double k = (dist - 8) / 6.0;   // 둑
         return Math.min(h, SEA_LEVEL - 3 + k * (h - SEA_LEVEL + 3));
     }
 

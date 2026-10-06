@@ -34,6 +34,16 @@
 | **헤르메스 길드**의 **하벤 제국**이 톨렌 · 칼라모르 등을 멸망시켰다 | CANON | 위키백과 요약 |
 | 결말: 주인공이 중앙 · 북부 · 남부를 아우르고 동부를 합병해 **베르사 대륙 최초의 황제**가 된다 | CANON | 위키백과 요약 |
 | **천공도시 라비아스**: 하늘의 조인족 도시. 던전 · 사냥터 · 상점이 있어 작은 대륙에 가깝다 | CANON | 나무위키 「로열 로드」 요약 |
+| 로자임: 북쪽 **브렌트**, 서쪽(북서) **브리튼 연합**, 남서 사막(Desert of Tranquility), 동쪽 **절망의 평원**(오크 땅). 수도 **세라보그 성**, **바란 마을** | CANON | Legendary Moonlight Sculptor Wiki 「Rosenheim Kingdom」 · 「Plains of Despair」 검색 요약, 달빛조각사 게임 공식카페 검색 요약 |
+| 로자임의 방향: 한 자료는 "동쪽 변경 왕국", 다른 자료는 "대륙 남쪽" → **남동쪽**에 둠 | CANON (자료 차이) | 위 두 자료 |
+| **바로크 산맥**은 로자임과 브리튼 연합의 경계, 그 너머가 북부로 가는 길 | CANON | 검색 요약 (Rosenheim 지역 목록 · Morata 문서) |
+| **브리튼 연합**: 일곱 작은 왕국의 연합, 대륙 가운데, **루카 강**(시슬리 성) | CANON | 「Britten Alliance」 · 「Other places」 검색 요약 |
+| **칼라모르**: 중앙 대륙 둘째 강국, 서쪽은 바다, 동쪽 **하벤**, 남쪽 그라디안, 북쪽 수바인 · 브레멘 | CANON | 「Kallamore Kingdom」 검색 요약 |
+| **하벤**: 칼라모르 멸망 뒤 중앙 대륙의 패권 국가, 서쪽 브레멘, 남쪽 그라디안 | CANON | 「Haven Kingdom」 검색 요약 |
+| **라비아스**: 로자임 하늘에 숨어 있던 떠 있는 섬 (조인족) | CANON | 「Lavias」 검색 요약 |
+| **토르**: 북부, 아르펜 가까이의 드워프 왕국 (큰 산맥 3개) · 모라타 서쪽은 안개 협곡, 동쪽은 산 | CANON | 「Thor Kingdom」 · 「Morata」 검색 요약 |
+| **센데임 계곡**(죽음의 계곡): 니플하임 마지막 황제가 죽은 북부 계곡 | CANON | 「Valley of Death」 검색 요약 |
+| 그라디안 · 브레멘 · 고요의 사막 등 일부 지명의 **한국어 표기** | RESEARCH_REQUIRED | 영어 위키 요약만 확인 — 게임 안 이름은 SOURCE-BASED 로 표시 |
 | 서부 대륙의 구체적인 지리 | RESEARCH_REQUIRED | 확인 못 함 |
 | 결말 이후 수십 ~ 수백 년의 역사 | RESEARCH_REQUIRED | 원작에 없음. 이 게임은 `ORIGINAL` 로 새로 만든다 (02_WORLD.md) |
 
@@ -127,4 +137,15 @@
 - [나무위키 「모라타(달빛조각사)」](https://namu.wiki/w/%EB%AA%A8%EB%9D%BC%ED%83%80(%EB%8B%AC%EB%B9%9B%EC%A1%B0%EA%B0%81%EC%82%AC))
 - [나무위키 「아르펜 제국」](https://namu.wiki/w/%EC%95%84%EB%A5%B4%ED%8E%9C%20%EC%A0%9C%EA%B5%AD)
 - [위키백과 「달빛조각사」](https://ko.wikipedia.org/wiki/%EB%8B%AC%EB%B9%9B%EC%A1%B0%EA%B0%81%EC%82%AC)
+- [Legendary Moonlight Sculptor Wiki — Rosenheim Kingdom](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Rosenheim_Kingdom)
+- [Legendary Moonlight Sculptor Wiki — Kallamore Kingdom](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Kallamore_Kingdom)
+- [Legendary Moonlight Sculptor Wiki — Haven Kingdom](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Haven_Kingdom)
+- [Legendary Moonlight Sculptor Wiki — Britten Alliance](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Britten_Alliance)
+- [Legendary Moonlight Sculptor Wiki — Plains of Despair](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Plains_of_Despair)
+- [Legendary Moonlight Sculptor Wiki — Lavias](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Lavias)
+- [Legendary Moonlight Sculptor Wiki — Thor Kingdom](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Thor_Kingdom)
+- [Legendary Moonlight Sculptor Wiki — Morata](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Morata)
+- [Legendary Moonlight Sculptor Wiki — Valley of Death](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Valley_of_Death)
+- [달빛조각사 게임 공식카페 — 지역별 히든퀘스트 정리](https://m.cafe.daum.net/moonlight-rpg/qEZQ/116)
+- (지도 작업 때 위 문서 본문은 개발 환경에서 열 수 없어 **검색 결과 요약**으로만 확인했습니다. 원작 지도 그림은 쓰지 않았습니다.)
 - [Legendary Moonlight Sculptor Wiki — Character Stats](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Character_Stats)

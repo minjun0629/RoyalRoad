@@ -265,7 +265,7 @@ public final class SettlementPlanner {
     }
 
     // ------------------------------------------------------------------ 랜드마크
-    enum Shape { TOWER, LIGHTHOUSE, SPIRE, STATUE, ANVIL, OASIS, KEEP, WATCHTOWER, COLOSSUS_HEAD, ARCH, ICE_SPIRE, OBELISK, STONE_CIRCLE, WINDMILL }
+    enum Shape { FLOATING_ISLAND, TOWER, LIGHTHOUSE, SPIRE, STATUE, ANVIL, OASIS, KEEP, WATCHTOWER, COLOSSUS_HEAD, ARCH, ICE_SPIRE, OBELISK, STONE_CIRCLE, WINDMILL }
 
     private static final Map<String, Shape> LANDMARKS = Map.ofEntries(
             Map.entry("harden", Shape.TOWER), Map.entry("morata_free_city", Shape.STATUE), Map.entry("thor_deep_hammer", Shape.ANVIL),
@@ -273,7 +273,10 @@ public final class SettlementPlanner {
             Map.entry("nehales_bastion", Shape.KEEP), Map.entry("risvel_outpost", Shape.WATCHTOWER), Map.entry("fallen_crater", Shape.COLOSSUS_HEAD),
             Map.entry("calamor_ruins", Shape.ARCH), Map.entry("niflheim_wastes", Shape.ICE_SPIRE), Map.entry("buried_city", Shape.OBELISK),
             Map.entry("mist_wall", Shape.ARCH), Map.entry("serven_granary", Shape.WINDMILL), Map.entry("north_reach", Shape.STONE_CIRCLE),
-            Map.entry("brent_highlands", Shape.STONE_CIRCLE), Map.entry("west_frontier", Shape.STONE_CIRCLE), Map.entry("sand_sea", Shape.OBELISK));
+            Map.entry("brent_highlands", Shape.STONE_CIRCLE), Map.entry("west_frontier", Shape.STONE_CIRCLE), Map.entry("sand_sea", Shape.OBELISK),
+            Map.entry("lavias", Shape.FLOATING_ISLAND), Map.entry("sendeim_valley", Shape.STONE_CIRCLE), Map.entry("baroque_range", Shape.WATCHTOWER),
+            Map.entry("plains_of_despair", Shape.OBELISK), Map.entry("serabourg", Shape.TOWER), Map.entry("baran_village", Shape.WINDMILL),
+            Map.entry("britten_alliance", Shape.STATUE));
 
     public static Set<String> landmarkRegions() {
         return LANDMARKS.keySet();
@@ -285,6 +288,7 @@ public final class SettlementPlanner {
         // 도시는 광장 북동쪽 길 사이 칸 가운데, 그 밖은 지역 가운데
         int x = town ? cx + 16 : cx, z = town ? cz - 16 : cz;
         int half = switch (shape) {
+            case FLOATING_ISLAND -> 40;
             case COLOSSUS_HEAD -> 14;
             case STONE_CIRCLE, OASIS -> 9;
             case ARCH -> 8;
@@ -317,6 +321,14 @@ public final class SettlementPlanner {
             int y0 = ground.at(cx, cz), dx = x - cx, dz = z - cz;
             double d = Math.hypot(dx, dz);
             switch (shape) {
+                case FLOATING_ISLAND -> { // 하늘섬 라비아스: 땅에서 떨어진 높이(210)에 떠 있는 섬 + 가운데 탑. 가장자리는 부서져 있다 (파편이 분화구로 떨어짐)
+                    double e = Math.hypot(dx, dz * 1.2);
+                    boolean broken = dx > 28 && Math.floorMod(dz * 7 + dx * 3, 5) == 0;
+                    if (e <= 40 && !broken) { int top = 212, depth = (int) Math.round((1 - (e * e) / 1600.0) * 18);
+                        for (int y = top - depth; y < top; y++) s.set(x, y, z, y >= top - 3 ? "DIRT" : "STONE");
+                        s.set(x, top, z, e > 38 ? "STONE" : "GRASS_BLOCK");
+                        if (Math.abs(dx) <= 2 && Math.abs(dz) <= 2) fill(s, x, z, top + 1, top + 16, Math.abs(dx) == 2 || Math.abs(dz) == 2 ? "QUARTZ_BRICKS" : "AIR");
+                        if (dx == 0 && dz == 0) s.set(x, top + 17, z, "SEA_LANTERN"); } }
                 case TOWER -> { if (Math.abs(dx) <= 3 && Math.abs(dz) <= 3) { boolean shell = Math.abs(dx) == 3 || Math.abs(dz) == 3;
                     fill(s, x, z, y0, y0 + 24, shell ? (Math.abs(dx) == 3 && Math.abs(dz) == 3 ? st.corner() : st.wall()) : "AIR");
                     s.set(x, y0, z, st.floor()); s.set(x, y0 + 25, z, st.roof()); if (dx == 0 && dz == 0) s.set(x, y0 + 26, z, "BELL"); } }
