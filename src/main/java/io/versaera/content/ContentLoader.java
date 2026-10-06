@@ -285,6 +285,32 @@ public final class ContentLoader {
         return new io.versaera.domain.market.MarketCatalog(markets, prices, shops);
     }
 
+    /** npc → 장소 키 → 좌표 */
+    public static Map<String, Map<String, io.versaera.domain.npc.NpcSchedule.Point>> places(Map<String, Object> root, String file) {
+        Map<String, Map<String, io.versaera.domain.npc.NpcSchedule.Point>> out = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> e : section(root, "places", file).entrySet()) {
+            Map<String, io.versaera.domain.npc.NpcSchedule.Point> m = new LinkedHashMap<>();
+            for (Map.Entry<String, Object> p : map(e.getValue()).entrySet()) {
+                if (!(p.getValue() instanceof List<?> l) || l.size() != 2) throw new ContentException(file + " / " + e.getKey() + "." + p.getKey() + ": [x, z]");
+                m.put(p.getKey(), new io.versaera.domain.npc.NpcSchedule.Point(((Number) l.get(0)).doubleValue(), ((Number) l.get(1)).doubleValue()));
+            }
+            out.put(e.getKey(), m);
+        }
+        return out;
+    }
+
+    public static List<io.versaera.domain.dungeon.DungeonDefinition> dungeons(Map<String, Object> root, String file) {
+        return each(root, "dungeons", file, (id, m) -> {
+            List<String> party = list(m, "party");
+            if (party.size() != 2) throw new IllegalArgumentException("party 는 [최소, 최대]");
+            return new io.versaera.domain.dungeon.DungeonDefinition(id, req(m, "name"), req(m, "region"), i(m, "danger", 1), i(m, "rooms", 9),
+                    Integer.parseInt(party.get(0)), Integer.parseInt(party.get(1)), l(m, "time_limit_minutes", 30) * 60_000L, i(m, "levers", 4),
+                    list(m, "palette"), list(m, "monsters"), i(m, "monsters_per_room", 4), d(m, "monster_health", 1.5), str(m, "boss", null),
+                    str(m, "boss_mob", null), d(m, "boss_health", 5), reward(m.get("reward")), reward(m.get("hidden_reward")),
+                    l(m, "cooldown_hours", 20) * 3_600_000L, str(m, "source", "ORIGINAL"));
+        });
+    }
+
     // ------------------------------------------------------------------ 히든 규칙 (봉인을 연 뒤의 YAML)
     public static List<HiddenRule> hidden(Map<String, Object> root, String file) {
         return each(root, "hidden", file, (id, m) -> new HiddenRule(id, req(m, "title"), condition(m.get("when")), str(m, "rumor", ""),

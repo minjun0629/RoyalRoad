@@ -53,7 +53,7 @@ public final class QuestService {
         this.zone = zone;
     }
 
-    private static void checkReward(QuestDefinition.Reward r, String id, GameServices s) {
+    static void checkReward(QuestDefinition.Reward r, String id, GameServices s) {
         for (String it : r.items()) s.items.types().get(it.split(":")[0]);
         for (String d : r.xp().keySet()) s.growth.discipline(d);
         for (String n : r.affinity().keySet()) s.relations.npc(n);
@@ -214,17 +214,21 @@ public final class QuestService {
         });
         paid[0] = true;
         after.publish(bus);
-        for (var e : q.reward().xp().entrySet()) s.growth.addXp(uuid, e.getKey(), e.getValue(), 1);
-        if (picked != null) for (var e : picked.reward().xp().entrySet()) s.growth.addXp(uuid, e.getKey(), e.getValue(), 1);
-        for (var e : q.reward().affinity().entrySet()) s.relations.adjust(uuid, e.getKey(), e.getValue());
-        if (picked != null) for (var e : picked.reward().affinity().entrySet()) s.relations.adjust(uuid, e.getKey(), e.getValue());
+        grantAfterCommit(uuid, q.reward());
+        if (picked != null) grantAfterCommit(uuid, picked.reward());
         s.growth.record(uuid, "quest.completed", 1);
         bus.publish(new GameEvents.QuestCompleted(uuid, questId, picked == null ? null : picked.id()));
         return q.reward();
     }
 
-    /** 돈 · 아이템 · 평판 · 명성 · 해금 (트랜잭션 안) — 경험치 · 호감은 커밋 뒤 */
-    private void pay(String uuid, String name, QuestDefinition.Reward r, String key, AfterCommit after) {
+    /** 경험치 · 호감 (커밋 뒤 — 각자 트랜잭션) */
+    void grantAfterCommit(String uuid, QuestDefinition.Reward r) {
+        for (var e : r.xp().entrySet()) s.growth.addXp(uuid, e.getKey(), e.getValue(), 1);
+        for (var e : r.affinity().entrySet()) s.relations.adjust(uuid, e.getKey(), e.getValue());
+    }
+
+    /** 돈 · 아이템 · 평판 · 명성 · 해금 (트랜잭션 안) — 경험치 · 호감은 커밋 뒤. 던전 · 보스 보상도 이 경로를 쓴다 */
+    void pay(String uuid, String name, QuestDefinition.Reward r, String key, AfterCommit after) {
         if (r.money() > 0) s.economy.depositInTx(uuid, r.money(), "quest", key, after);
         int n = 0;
         for (String it : r.items()) {
