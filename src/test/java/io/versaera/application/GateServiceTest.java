@@ -58,9 +58,13 @@ class GateServiceTest {
     @Test
     void badGatesAreRejected() {
         assertThrows(DomainException.class, () -> new GateService(List.of(new Gate("x", "x", "nowhere", "world", 0, 0, 1, "ORIGINAL", "")), regions, (u, d) -> 1));
-        assertThrows(DomainException.class, () -> new GateService(List.of(new Gate("x", "x", "spirit_spring", "world", -1600, -3480, 1, "ORIGINAL", "")), regions, (u, d) -> 1),
+        assertThrows(DomainException.class, () -> new GateService(List.of(new Gate("x", "x", "spirit_spring", "world", center(regions.byId("spirit_spring"))[0], center(regions.byId("spirit_spring"))[1], 1, "ORIGINAL", "")), regions, (u, d) -> 1),
                 "도착점이 문 안이면 왕복 반복");
         assertThrows(DomainException.class, () -> new Gate("x", "x", "spirit_spring", "world", 0, 0, 40, "ORIGINAL", ""));
+    }
+
+    private static int[] center(Region r) {
+        return new int[]{(r.minX() + r.maxX()) / 2, (r.minZ() + r.maxZ()) / 2};
     }
 
     private Region top(Region r) {

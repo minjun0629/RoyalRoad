@@ -15,10 +15,10 @@ gates:
   to_divine:    {name: 신들의 문,        region: divine_gate,    to: [versa_realms, -2700, -1600], min_exploration: 31, note: "파수꾼이 지키는 문 — 탐험 마스터만"}
   # ---------------------------------------------------------------- 돌아오는 문 (누구나)
   from_divine:    {name: 신계 내려가는 문,   region: divine_return,    to: [versa_realms, -3400, -1600]}
-  from_giant:     {name: 거인계 귀환의 배터, region: giant_return,     to: [world, -4720, 2602]}
-  from_spirit:    {name: 정령계 귀환의 샘,   region: spirit_return,    to: [world, -1560, -3480]}
-  from_fairy:     {name: 요정계 귀환의 고리, region: fairy_return,     to: [world, 5710, -488]}
-  from_todum:     {name: 토둠 귀환의 굴,     region: todum_return,     to: [world, -5650, 2000]}
-  from_demonkind: {name: 마계 귀환의 문,     region: demonkind_return, to: [world, -5250, -2000]}
-  from_hell:      {name: 지옥 귀환의 틈,     region: hell_return,      to: [world, -1560, -1808]}
-  from_devil:     {name: 악마계 귀환의 문,   region: devil_return,     to: [world, -3850, -3750]}
+  from_giant:     {name: 거인계 귀환의 배터, region: giant_return,     to: [world, -8850, 4879]}
+  from_spirit:    {name: 정령계 귀환의 샘,   region: spirit_return,    to: [world, -2925, -6525]}
+  from_fairy:     {name: 요정계 귀환의 고리, region: fairy_return,     to: [world, 10706, -915]}
+  from_todum:     {name: 토둠 귀환의 굴,     region: todum_return,     to: [world, -10594, 3750]}
+  from_demonkind: {name: 마계 귀환의 문,     region: demonkind_return, to: [world, -9844, -3750]}
+  from_hell:      {name: 지옥 귀환의 틈,     region: hell_return,      to: [world, -2925, -3390]}
+  from_devil:     {name: 악마계 귀환의 문,   region: devil_return,     to: [world, -7219, -7031]}

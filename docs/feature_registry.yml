@@ -373,7 +373,7 @@ features:
     source: 02_WORLD
     source_type: 원작 지리 + 후대 설계
     classification: ORIGINAL
-    description: 지역 262곳(원작 지명은 후대 변화 필수, 세계 world · versa_realms), 위험도 0 ~ 6, 128 블록 격자 인덱스, 지하 수로는 높이로 구분
+    description: 지역 262곳(원작 지명은 후대 변화 필수, 세계 world 30000 × 30000 · versa_realms), 위험도 0 ~ 6, 128 블록 격자 인덱스, 지하 수로는 높이로 구분
     player_experience: 지역에 들어서면 이름 · 위험도
     dependencies: [CONT-01]
     implementation: domain.world.* · RegionTracker

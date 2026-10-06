@@ -47,7 +47,7 @@ gradle buildPack                     # 리소스팩을 pack/VersaEra-pack.zip (+
 | `secret.key` | 히든 콘텐츠 봉인 키 · 월드 이벤트 시간표 시드 — **백업하고, 공유하지 마세요** |
 | `hidden.sealed` | 봉인된 히든 규칙 (`/va hidden generate` 또는 `/va seal`) |
 
-3. 지역 좌표(`content/regions.yml`)는 16000 × 16000 월드 기준입니다 (가운데 12000 × 12000 이 베르사 대륙, 바깥은 신대륙 · 극지). 다른 차원(거인계 · 신계 등)은 플러그인이 시작할 때 세계 `versa_realms` 를 자동으로 만듭니다 (`config.yml` 의 `realms.enabled`). 지역에 맞는 땅을 만들려면 **새 세계**를 VersaEra 생성기로 만듭니다:
+3. 지역 좌표(`content/regions.yml`)는 30000 × 30000 월드 기준입니다 (가운데 22500 × 22500 이 베르사 대륙, 바깥은 신대륙 · 극지). 다른 차원(거인계 · 신계 등)은 플러그인이 시작할 때 세계 `versa_realms` 를 자동으로 만듭니다 (`config.yml` 의 `realms.enabled`). 지역에 맞는 땅을 만들려면 **새 세계**를 VersaEra 생성기로 만듭니다:
 
 ```yaml
 # bukkit.yml

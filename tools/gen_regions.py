@@ -1,6 +1,7 @@
 """regions.yml 생성기 — 나무위키 「로열 로드/지리」 목차 · 본문의 위치 관계를 좌표로 옮긴다.
 사용: python3 tools/gen_regions.py  (src/main/resources/content/regions.yml 을 덮어쓴다)
-좌표: x 동쪽(+) · z 남쪽(+). 베르사 대륙 -6000 ~ 6000, 바깥 바다 · 신대륙 · 극지 -8000 ~ 8000, 다른 차원은 세계 versa_realms.
+좌표: x 동쪽(+) · z 남쪽(+). 아래 숫자는 16000 판 기준이고, 세계 world 는 출력할 때 SCALE(1.875)배 → 30000 × 30000 (-15000 ~ 15000).
+베르사 대륙 ±6000 → ±11250. 다른 차원(versa_realms)은 늘리지 않는다.
 """
 import json, os
 
@@ -17,8 +18,19 @@ SECTION = [""]
 def sec(title):
     SECTION[0] = title
 
+SCALE = 30000 / 16000   # 세계 world 의 가로 · 세로 배율 (높이는 그대로)
+
+def _lo(v):
+    return int(round(v * SCALE))
+
+def _hi(v):
+    # 이웃 상자가 v + 1 에서 시작하면 늘린 뒤에도 틈 없이 맞닿도록
+    return 15000 if v >= 8000 else int(round((v + 1) * SCALE)) - 1
+
 def r(id, name, src, danger, box, prio, tags, purpose, parent=None, changed=None, y=(-64, 320), resources=None, factions=None, world="world"):
     x1, z1, x2, z2 = box
+    if world == "world":
+        x1, z1, x2, z2 = _lo(x1), _lo(z1), _hi(x2), _hi(z2)
     d = dict(id=id, name=name, source=src, danger=danger, min=[x1, y[0], z1], max=[x2, y[1], z2], priority=prio,
              parent=parent, tags=tags, purpose=purpose, changed=changed, world=world)
     k = KEEP.get(id, {})
@@ -581,6 +593,7 @@ def lst(v):
 
 lines = ["# 지역 — tools/gen_regions.py 로 생성 (손으로 고치면 다음 생성 때 덮어씀).",
          "# 근거: 나무위키 「로열 로드/지리」 (2026 사용자 제공 본문) · 01_RESEARCH.md. x 동쪽(+) · z 남쪽(+). 겹치면 priority 가 높은 지역이 이긴다.",
+         "# 세계 world 는 30000 × 30000 (-15000 ~ 15000, 베르사 대륙 ±11250). versa_realms 는 ±8000.",
          "# 원작 지명(CANON)은 changed(후대의 변화)가 필수. tags: landmark · dungeon_site · wall 은 지형을 바꾸지 않고 구조물만 세운다.",
          "# 원작에 위치가 없는 곳(카올랴 · 신대륙 · 극지 · 이름 없는 미궁/비경 · 수련관 · 다른 차원)은 이 게임이 정한 자리 — purpose · changed 에 그렇게 적었다.",
          "# portal 태그 = 문 (content/gates.yml). 다른 차원은 world: versa_realms.",

@@ -1,5 +1,6 @@
 # 지역 — tools/gen_regions.py 로 생성 (손으로 고치면 다음 생성 때 덮어씀).
 # 근거: 나무위키 「로열 로드/지리」 (2026 사용자 제공 본문) · 01_RESEARCH.md. x 동쪽(+) · z 남쪽(+). 겹치면 priority 가 높은 지역이 이긴다.
+# 세계 world 는 30000 × 30000 (-15000 ~ 15000, 베르사 대륙 ±11250). versa_realms 는 ±8000.
 # 원작 지명(CANON)은 changed(후대의 변화)가 필수. tags: landmark · dungeon_site · wall 은 지형을 바꾸지 않고 구조물만 세운다.
 # 원작에 위치가 없는 곳(카올랴 · 신대륙 · 극지 · 이름 없는 미궁/비경 · 수련관 · 다른 차원)은 이 게임이 정한 자리 — purpose · changed 에 그렇게 적었다.
 # portal 태그 = 문 (content/gates.yml). 다른 차원은 world: versa_realms.
@@ -10,8 +11,8 @@ regions:
     name: 북부 (옛 니플하임 · 아르펜 땅)
     source: CANON
     danger: 2
-    min: [-5400, -64, -5000]
-    max: [5000, 320, -3200]
+    min: [-10125, -64, -9375]
+    max: [9376, 320, -5999]
     priority: 0
     tags: [highland, forest]
     purpose: 잿빛 겨울 뒤 다시 사람이 사는 서늘한 고지대. 목재 · 사냥 · 북부 탐험
@@ -21,8 +22,8 @@ regions:
     name: 니플하임 빙원 폐허
     source: CANON
     danger: 5
-    min: [-5400, -64, -6000]
-    max: [5000, 320, -5001]
+    min: [-10125, -64, -11250]
+    max: [9376, 320, -9376]
     priority: 5
     tags: [frozen, ruins]
     purpose: 얼음에 묻힌 옛 제국 도시. 서리 수정 · 고대 생물 · 거대 보스 「서리 군주의 껍데기」
@@ -32,8 +33,8 @@ regions:
     name: 지골라스 (열화의 땅)
     source: CANON
     danger: 6
-    min: [1200, -64, -6000]
-    max: [2600, 320, -5300]
+    min: [2250, -64, -11250]
+    max: [4876, 320, -9937]
     priority: 15
     tags: [volcano]
     purpose: "대륙 극북부의 화산 금역. 지진 · 분화 · 극열 몬스터, 보석과 희귀 금속"
@@ -43,8 +44,8 @@ regions:
     name: 얼지 않는 강
     source: CANON
     danger: 5
-    min: [1250, -64, -5450]
-    max: [2550, 320, -5310]
+    min: [2344, -64, -10219]
+    max: [4782, 320, -9955]
     priority: 18
     parent: jigolas
     tags: [river]
@@ -54,8 +55,8 @@ regions:
     name: 인페르노
     source: CANON
     danger: 6
-    min: [1600, -64, -6000]
-    max: [1900, 320, -5800]
+    min: [3000, -64, -11250]
+    max: [3563, 320, -10874]
     priority: 20
     parent: jigolas
     tags: [volcano]
@@ -65,8 +66,8 @@ regions:
     name: 임벌의 마법진
     source: CANON
     danger: 5
-    min: [1400, -64, -5900]
-    max: [1500, 320, -5800]
+    min: [2625, -64, -11062]
+    max: [2813, 320, -10874]
     priority: 22
     parent: jigolas
     tags: [landmark]
@@ -76,8 +77,8 @@ regions:
     name: 화산 심장
     source: CANON
     danger: 6
-    min: [1800, -64, -5700]
-    max: [2000, 320, -5550]
+    min: [3375, -64, -10688]
+    max: [3751, 320, -10405]
     priority: 22
     parent: jigolas
     tags: [dungeon_site]
@@ -87,8 +88,8 @@ regions:
     name: 영웅을 기다리는 고요한 탑
     source: CANON
     danger: 6
-    min: [2300, -64, -5900]
-    max: [2400, 320, -5800]
+    min: [4312, -64, -11062]
+    max: [4501, 320, -10874]
     priority: 22
     parent: jigolas
     tags: [landmark]
@@ -98,8 +99,8 @@ regions:
     name: 센데임 계곡 (죽음의 계곡)
     source: CANON
     danger: 5
-    min: [-2600, -64, -5000]
-    max: [-1600, 320, -4300]
+    min: [-4875, -64, -9375]
+    max: [-2999, 320, -8062]
     priority: 12
     parent: north_reach
     tags: [valley, ruins]
@@ -110,8 +111,8 @@ regions:
     name: 푸르골 요새 터
     source: CANON
     danger: 4
-    min: [-5300, -64, -4900]
-    max: [-4700, 320, -4300]
+    min: [-9938, -64, -9188]
+    max: [-8812, 320, -8062]
     priority: 12
     parent: north_reach
     tags: [ruins]
@@ -122,8 +123,8 @@ regions:
     name: 모라타 자유시
     source: CANON
     danger: 0
-    min: [-400, 40, -4300]
-    max: [400, 320, -3700]
+    min: [-750, 40, -8062]
+    max: [751, 320, -6937]
     priority: 20
     parent: north_reach
     tags: [city, artisan]
@@ -135,8 +136,8 @@ regions:
     name: 안개 협곡 숲
     source: CANON
     danger: 3
-    min: [-1500, -64, -4300]
-    max: [-500, 320, -3500]
+    min: [-2812, -64, -8062]
+    max: [-937, 320, -6562]
     priority: 10
     parent: north_reach
     tags: [canyon, forest]
@@ -147,8 +148,8 @@ regions:
     name: 새벽의 도시
     source: CANON
     danger: 0
-    min: [1000, 40, -4100]
-    max: [1600, 320, -3500]
+    min: [1875, 40, -7688]
+    max: [3001, 320, -6562]
     priority: 20
     parent: north_reach
     tags: [city, market]
@@ -158,8 +159,8 @@ regions:
     name: 항구 바르나
     source: CANON
     danger: 0
-    min: [4400, 40, -4500]
-    max: [5000, 320, -4000]
+    min: [8250, 40, -8438]
+    max: [9376, 320, -7499]
     priority: 20
     parent: north_reach
     tags: [city, coast]
@@ -169,8 +170,8 @@ regions:
     name: 벤트 성
     source: CANON
     danger: 0
-    min: [-2400, 40, -3900]
-    max: [-2000, 320, -3500]
+    min: [-4500, 40, -7312]
+    max: [-3749, 320, -6562]
     priority: 20
     parent: north_reach
     tags: [city, fortress]
@@ -180,8 +181,8 @@ regions:
     name: 바르고 성채
     source: CANON
     danger: 1
-    min: [2600, 40, -3700]
-    max: [3000, 320, -3300]
+    min: [4875, 40, -6938]
+    max: [5626, 320, -6187]
     priority: 20
     parent: north_reach
     tags: [fortress]
@@ -191,8 +192,8 @@ regions:
     name: 천공도시 라비아스
     source: CANON
     danger: 3
-    min: [1300, 200, -4700]
-    max: [2100, 320, -3900]
+    min: [2438, 200, -8812]
+    max: [3938, 320, -7312]
     priority: 25
     parent: north_reach
     tags: [sky]
@@ -202,8 +203,8 @@ regions:
     name: 빛의 탑
     source: CANON
     danger: 0
-    min: [1700, -64, -3700]
-    max: [1760, 320, -3640]
+    min: [3188, -64, -6938]
+    max: [3301, 320, -6824]
     priority: 25
     parent: north_reach
     tags: [landmark]
@@ -213,8 +214,8 @@ regions:
     name: 프레야 여신상
     source: CANON
     danger: 0
-    min: [500, -64, -3650]
-    max: [560, 320, -3590]
+    min: [938, -64, -6844]
+    max: [1051, 320, -6730]
     priority: 25
     parent: north_reach
     tags: [landmark]
@@ -224,8 +225,8 @@ regions:
     name: 모라타 예술회관
     source: CANON
     danger: 0
-    min: [-560, -64, -3700]
-    max: [-480, 320, -3620]
+    min: [-1050, -64, -6938]
+    max: [-899, 320, -6787]
     priority: 25
     parent: north_reach
     tags: [landmark]
@@ -235,8 +236,8 @@ regions:
     name: 신들의 정원
     source: CANON
     danger: 0
-    min: [-200, -64, -3620]
-    max: [200, 320, -3450]
+    min: [-375, -64, -6788]
+    max: [376, 320, -6468]
     priority: 25
     parent: north_reach
     tags: [landmark]
@@ -246,8 +247,8 @@ regions:
     name: 알카사르의 다리
     source: CANON
     danger: 0
-    min: [600, -64, -4000]
-    max: [800, 320, -3960]
+    min: [1125, -64, -7500]
+    max: [1501, 320, -7424]
     priority: 25
     parent: north_reach
     tags: [landmark]
@@ -257,8 +258,8 @@ regions:
     name: 북동쪽 바다
     source: SOURCE-BASED
     danger: 3
-    min: [5001, -64, -6000]
-    max: [5850, 320, -1501]
+    min: [9377, -64, -11250]
+    max: [10970, 320, -2813]
     priority: 1
     tags: [sea]
     purpose: 북부 동해안 밖의 차가운 바다
@@ -268,8 +269,8 @@ regions:
     name: 중앙 대륙
     source: CANON
     danger: 1
-    min: [-4400, -64, -3199]
-    max: [4850, 320, 3700]
+    min: [-8250, -64, -5998]
+    max: [9095, 320, 6938]
     priority: 0
     tags: [plains]
     purpose: 왕국들이 흥하고 망한 대륙의 중심. 인구 · 경제력이 가장 큰 땅
@@ -279,8 +280,8 @@ regions:
     name: 토르 왕국 (드워프 연합)
     source: CANON
     danger: 2
-    min: [-1900, -64, -3199]
-    max: [3199, 320, -2401]
+    min: [-3562, -64, -5998]
+    max: [5999, 320, -4501]
     priority: 4
     parent: central_plains
     tags: [mountain]
@@ -290,8 +291,8 @@ regions:
     name: 울타 산맥
     source: CANON
     danger: 3
-    min: [-1900, -64, -3199]
-    max: [-200, 320, -2401]
+    min: [-3562, -64, -5998]
+    max: [-374, 320, -4501]
     priority: 8
     parent: thor_kingdom
     tags: [mountain]
@@ -301,8 +302,8 @@ regions:
     name: 사이고른 산맥
     source: CANON
     danger: 3
-    min: [-199, -64, -3199]
-    max: [1400, 320, -2600]
+    min: [-373, -64, -5998]
+    max: [2626, 320, -4874]
     priority: 8
     parent: thor_kingdom
     tags: [mountain]
@@ -312,8 +313,8 @@ regions:
     name: 노른 산맥
     source: CANON
     danger: 3
-    min: [1401, -64, -3199]
-    max: [3199, 320, -2401]
+    min: [2627, -64, -5998]
+    max: [5999, 320, -4501]
     priority: 8
     parent: thor_kingdom
     tags: [mountain]
@@ -323,8 +324,8 @@ regions:
     name: 우고트
     source: CANON
     danger: 4
-    min: [-199, -64, -2599]
-    max: [1400, 320, -2401]
+    min: [-373, -64, -4873]
+    max: [2626, 320, -4501]
     priority: 9
     parent: thor_kingdom
     tags: [highland]
@@ -334,8 +335,8 @@ regions:
     name: 아이언 핸드 (깊은 망치)
     source: CANON
     danger: 1
-    min: [300, -64, -3100]
-    max: [700, 320, -2700]
+    min: [562, -64, -5812]
+    max: [1313, 320, -5062]
     priority: 20
     parent: saigorn_range
     tags: [mountain, city, deep]
@@ -347,8 +348,8 @@ regions:
     name: 쿠르소 (지하 도시)
     source: CANON
     danger: 2
-    min: [800, -64, -3000]
-    max: [1200, 30, -2700]
+    min: [1500, -64, -5625]
+    max: [2251, 30, -5062]
     priority: 15
     parent: saigorn_range
     tags: [underground, deep]
@@ -358,8 +359,8 @@ regions:
     name: 샤스펜 동굴
     source: CANON
     danger: 4
-    min: [1250, -64, -2900]
-    max: [1310, 320, -2840]
+    min: [2344, -64, -5438]
+    max: [2457, 320, -5324]
     priority: 22
     parent: saigorn_range
     tags: [dungeon_site]
@@ -369,8 +370,8 @@ regions:
     name: 데브라도 마을
     source: CANON
     danger: 1
-    min: [-1200, 40, -3000]
-    max: [-1000, 320, -2800]
+    min: [-2250, 40, -5625]
+    max: [-1874, 320, -5249]
     priority: 20
     parent: ulta_range
     tags: [city]
@@ -380,8 +381,8 @@ regions:
     name: 그루터기 마을
     source: CANON
     danger: 0
-    min: [2200, 40, -2900]
-    max: [2400, 320, -2700]
+    min: [4125, 40, -5438]
+    max: [4501, 320, -5062]
     priority: 20
     parent: norn_range
     tags: [city]
@@ -391,8 +392,8 @@ regions:
     name: 아골디아 (백야의 땅)
     source: CANON
     danger: 6
-    min: [3200, -64, -3199]
-    max: [4850, 320, -2401]
+    min: [6000, -64, -5998]
+    max: [9095, 320, -4501]
     priority: 10
     parent: central_plains
     tags: [mountain]
@@ -402,8 +403,8 @@ regions:
     name: 루의 성역
     source: CANON
     danger: 5
-    min: [3900, -64, -2900]
-    max: [4100, 320, -2700]
+    min: [7312, -64, -5438]
+    max: [7688, 320, -5062]
     priority: 22
     parent: agoldia
     tags: [landmark]
@@ -413,8 +414,8 @@ regions:
     name: 드워프들의 특급 창고
     source: CANON
     danger: 5
-    min: [3500, -64, -2700]
-    max: [3560, 320, -2640]
+    min: [6562, -64, -5062]
+    max: [6676, 320, -4949]
     priority: 22
     parent: agoldia
     tags: [dungeon_site]
@@ -424,8 +425,8 @@ regions:
     name: 바쿠바 왕국
     source: CANON
     danger: 2
-    min: [-3600, -64, -3199]
-    max: [-1901, 320, -2401]
+    min: [-6750, -64, -5998]
+    max: [-3563, 320, -4501]
     priority: 4
     parent: central_plains
     tags: [plains]
@@ -435,8 +436,8 @@ regions:
     name: 서부 변경 (옛 브레멘 땅)
     source: SOURCE-BASED
     danger: 4
-    min: [-3600, -64, -2400]
-    max: [-1901, 320, -801]
+    min: [-6750, -64, -4500]
+    max: [-3563, 320, -1501]
     priority: 4
     parent: central_plains
     tags: [forest, frontier]
@@ -445,8 +446,8 @@ regions:
   risvel_outpost:
     name: 개척지 리스벨
     danger: 1
-    min: [-3200, 40, -1800]
-    max: [-2800, 320, -1400]
+    min: [-6000, 40, -3375]
+    max: [-5249, 320, -2624]
     priority: 20
     parent: west_frontier
     tags: [outpost]
@@ -456,8 +457,8 @@ regions:
     name: 잃어버린 길의 황무지
     source: CANON
     danger: 5
-    min: [-4400, -64, -3199]
-    max: [-3601, 320, 800]
+    min: [-8250, -64, -5998]
+    max: [-6751, 320, 1501]
     priority: 6
     parent: central_plains
     tags: [badlands]
@@ -467,8 +468,8 @@ regions:
     name: 칼라모르 옛 영토
     source: CANON
     danger: 2
-    min: [-3600, -64, -800]
-    max: [-1901, 320, 1500]
+    min: [-6750, -64, -1500]
+    max: [-3563, 320, 2813]
     priority: 4
     parent: central_plains
     tags: [plains]
@@ -479,8 +480,8 @@ regions:
     name: 센바인 산맥
     source: CANON
     danger: 4
-    min: [-3550, -64, -780]
-    max: [-2700, 320, -300]
+    min: [-6656, -64, -1462]
+    max: [-5062, 320, -562]
     priority: 10
     parent: kallamore_lands
     tags: [mountain]
@@ -490,8 +491,8 @@ regions:
     name: 칼라모르 폐도
     source: CANON
     danger: 3
-    min: [-3400, -64, 0]
-    max: [-2700, 320, 700]
+    min: [-6375, -64, 0]
+    max: [-5062, 320, 1313]
     priority: 10
     parent: kallamore_lands
     tags: [ruins]
@@ -503,8 +504,8 @@ regions:
     name: 에바루크 성
     source: CANON
     danger: 1
-    min: [-2600, 40, 800]
-    max: [-2300, 320, 1100]
+    min: [-4875, 40, 1500]
+    max: [-4312, 320, 2063]
     priority: 20
     parent: kallamore_lands
     tags: [city, fortress]
@@ -514,8 +515,8 @@ regions:
     name: 오룬 요새
     source: CANON
     danger: 2
-    min: [-3350, 40, 1050]
-    max: [-3050, 320, 1350]
+    min: [-6281, 40, 1969]
+    max: [-5718, 320, 2532]
     priority: 20
     parent: kallamore_lands
     tags: [fortress]
@@ -525,8 +526,8 @@ regions:
     name: 그라디안 왕국 옛 땅
     source: CANON
     danger: 3
-    min: [-4800, -64, 1501]
-    max: [-3301, 320, 3700]
+    min: [-9000, -64, 2814]
+    max: [-6189, 320, 6938]
     priority: 4
     parent: central_plains
     tags: [highland, forest]
@@ -537,8 +538,8 @@ regions:
     name: 버겐 성
     source: CANON
     danger: 1
-    min: [-4300, 40, 2600]
-    max: [-3900, 320, 3000]
+    min: [-8062, 40, 4875]
+    max: [-7312, 320, 5626]
     priority: 20
     parent: gradian_lands
     tags: [city, fortress]
@@ -548,8 +549,8 @@ regions:
     name: 노드 그라페
     source: CANON
     danger: 2
-    min: [-4250, 40, 2200]
-    max: [-4000, 320, 2450]
+    min: [-7969, 40, 4125]
+    max: [-7499, 320, 4595]
     priority: 20
     parent: gradian_lands
     tags: [fortress]
@@ -559,8 +560,8 @@ regions:
     name: 루비둠 산맥
     source: CANON
     danger: 3
-    min: [-3300, -64, 2401]
-    max: [-3001, 320, 3700]
+    min: [-6188, -64, 4502]
+    max: [-5626, 320, 6938]
     priority: 8
     parent: central_plains
     tags: [mountain]
@@ -570,8 +571,8 @@ regions:
     name: 하이사아 봉우리
     source: CANON
     danger: 3
-    min: [-3200, -64, 3000]
-    max: [-3100, 320, 3100]
+    min: [-6000, -64, 5625]
+    max: [-5812, 320, 5813]
     priority: 15
     parent: ruvidum_range
     tags: [mountain]
@@ -581,8 +582,8 @@ regions:
     name: 네스트 왕국
     source: CANON
     danger: 2
-    min: [-3000, -64, 1501]
-    max: [-1901, 320, 2400]
+    min: [-5625, -64, 2814]
+    max: [-3563, 320, 4501]
     priority: 4
     parent: central_plains
     tags: [plains]
@@ -591,8 +592,8 @@ regions:
   serven_granary:
     name: 세르벤 곡창
     danger: 1
-    min: [-2900, -64, 1600]
-    max: [-2000, 320, 2300]
+    min: [-5438, -64, 3000]
+    max: [-3749, 320, 4313]
     priority: 10
     parent: nest_kingdom
     tags: [farmland, plains, river]
@@ -602,8 +603,8 @@ regions:
     name: 노튼 왕국
     source: CANON
     danger: 2
-    min: [-3000, -64, 2401]
-    max: [-1901, 320, 3700]
+    min: [-5625, -64, 4502]
+    max: [-3563, 320, 6938]
     priority: 4
     parent: central_plains
     tags: [plains]
@@ -613,8 +614,8 @@ regions:
     name: 벤젠 평원
     source: CANON
     danger: 2
-    min: [-3000, -64, 2401]
-    max: [-2500, 320, 3200]
+    min: [-5625, -64, 4502]
+    max: [-4687, 320, 6001]
     priority: 6
     parent: norton_kingdom
     tags: [plains]
@@ -624,8 +625,8 @@ regions:
     name: 토첸 호수
     source: CANON
     danger: 1
-    min: [-2300, -64, 3000]
-    max: [-2000, 320, 3300]
+    min: [-4312, -64, 5625]
+    max: [-3749, 320, 6188]
     priority: 12
     parent: norton_kingdom
     tags: [lake]
@@ -635,8 +636,8 @@ regions:
     name: 하벤 왕국 옛 영토
     source: CANON
     danger: 1
-    min: [-1900, -64, -1500]
-    max: [400, 320, 1500]
+    min: [-3562, -64, -2812]
+    max: [751, 320, 2813]
     priority: 4
     parent: central_plains
     tags: [plains]
@@ -646,8 +647,8 @@ regions:
   harden:
     name: 하르덴 교역시
     danger: 0
-    min: [-1300, 40, -300]
-    max: [-700, 320, 300]
+    min: [-2438, 40, -562]
+    max: [-1312, 320, 563]
     priority: 20
     parent: haven_lands
     tags: [city, market]
@@ -657,8 +658,8 @@ regions:
     name: 아렌 성
     source: CANON
     danger: 0
-    min: [-1700, 40, -1300]
-    max: [-1300, 320, -900]
+    min: [-3188, 40, -2438]
+    max: [-2437, 320, -1687]
     priority: 20
     parent: haven_lands
     tags: [city, fortress]
@@ -668,8 +669,8 @@ regions:
     name: 투쟁의 길 (고급 수련관)
     source: CANON
     danger: 3
-    min: [-1260, -64, -1260]
-    max: [-1160, 320, -1160]
+    min: [-2362, -64, -2362]
+    max: [-2174, 320, -2174]
     priority: 25
     parent: haven_lands
     tags: [landmark]
@@ -679,8 +680,8 @@ regions:
     name: 옥턴 (학문의 도시)
     source: CANON
     danger: 0
-    min: [-500, 40, 600]
-    max: [-100, 320, 1000]
+    min: [-938, 40, 1125]
+    max: [-187, 320, 1876]
     priority: 20
     parent: haven_lands
     tags: [city, scholar]
@@ -690,8 +691,8 @@ regions:
     name: 발키스 성
     source: CANON
     danger: 2
-    min: [0, 40, -1000]
-    max: [300, 320, -700]
+    min: [0, 40, -1875]
+    max: [563, 320, -1312]
     priority: 20
     parent: haven_lands
     tags: [fortress]
@@ -701,8 +702,8 @@ regions:
     name: 피르타 성
     source: CANON
     danger: 1
-    min: [-1850, -64, 850]
-    max: [-1500, 320, 1200]
+    min: [-3469, -64, 1594]
+    max: [-2812, 320, 2251]
     priority: 15
     parent: haven_lands
     tags: [mountain]
@@ -712,8 +713,8 @@ regions:
     name: 아골타 지역
     source: CANON
     danger: 2
-    min: [-1900, -64, -200]
-    max: [-1350, 320, 600]
+    min: [-3562, -64, -375]
+    max: [-2530, 320, 1126]
     priority: 8
     parent: haven_lands
     tags: [highland]
@@ -723,8 +724,8 @@ regions:
     name: 아나보레스 마을
     source: CANON
     danger: 0
-    min: [-850, 40, 800]
-    max: [-650, 320, 1000]
+    min: [-1594, 40, 1500]
+    max: [-1218, 320, 1876]
     priority: 20
     parent: haven_lands
     tags: [city]
@@ -734,8 +735,8 @@ regions:
     name: 프리그 지역
     source: CANON
     danger: 3
-    min: [-300, -64, -1500]
-    max: [400, 320, -1100]
+    min: [-562, -64, -2812]
+    max: [751, 320, -2062]
     priority: 8
     parent: haven_lands
     tags: [ruins]
@@ -745,8 +746,8 @@ regions:
     name: 가르나프 평원
     source: CANON
     danger: 2
-    min: [-1900, -64, -1500]
-    max: [-350, 320, -1320]
+    min: [-3562, -64, -2812]
+    max: [-655, 320, -2474]
     priority: 6
     parent: haven_lands
     tags: [plains]
@@ -756,8 +757,8 @@ regions:
     name: 쥬벨린 던전
     source: CANON
     danger: 3
-    min: [-1100, -64, 1200]
-    max: [-1040, 320, 1260]
+    min: [-2062, -64, 2250]
+    max: [-1949, 320, 2363]
     priority: 22
     parent: haven_lands
     tags: [dungeon_site]
@@ -766,8 +767,8 @@ regions:
   emperor_aqueduct:
     name: 황제의 수로
     danger: 3
-    min: [-2400, -64, -1500]
-    max: [1000, 39, 3500]
+    min: [-4500, -64, -2812]
+    max: [1876, 39, 6563]
     priority: 12
     tags: [underground, ruins, deep]
     purpose: 통일 제국이 만든 지하 물길 · 창고 · 피난처. 하르덴 · 옥턴 · 아이데른 아래를 잇는다
@@ -776,8 +777,8 @@ regions:
     name: 톨렌 왕국 옛 영토
     source: CANON
     danger: 2
-    min: [-1900, -64, -2400]
-    max: [400, 320, -1501]
+    min: [-3562, -64, -4500]
+    max: [751, 320, -2813]
     priority: 4
     parent: central_plains
     tags: [plains, forest]
@@ -788,8 +789,8 @@ regions:
     name: 하이네프 산악지대
     source: CANON
     danger: 4
-    min: [-1900, -64, -2400]
-    max: [-1100, 320, -1600]
+    min: [-3562, -64, -4500]
+    max: [-2062, 320, -2999]
     priority: 8
     parent: tolen_lands
     tags: [mountain]
@@ -799,8 +800,8 @@ regions:
     name: 트레이피크 요새
     source: CANON
     danger: 2
-    min: [-1500, 40, -1750]
-    max: [-1250, 320, -1520]
+    min: [-2812, 40, -3281]
+    max: [-2343, 320, -2849]
     priority: 20
     parent: haineff_mountains
     tags: [fortress]
@@ -810,8 +811,8 @@ regions:
     name: 완전한 성채
     source: CANON
     danger: 4
-    min: [-1850, -64, -2350]
-    max: [-1600, 320, -2100]
+    min: [-3469, -64, -4406]
+    max: [-2999, 320, -3937]
     priority: 15
     parent: haineff_mountains
     tags: [ruins]
@@ -821,8 +822,8 @@ regions:
     name: 포트모스 성
     source: CANON
     danger: 1
-    min: [-400, 40, -2200]
-    max: [-100, 320, -1900]
+    min: [-750, 40, -4125]
+    max: [-187, 320, -3562]
     priority: 20
     parent: tolen_lands
     tags: [city, fortress]
@@ -832,8 +833,8 @@ regions:
     name: 라코느 요새
     source: CANON
     danger: 2
-    min: [450, 40, -1650]
-    max: [700, 320, -1420]
+    min: [844, 40, -3094]
+    max: [1313, 320, -2662]
     priority: 20
     parent: tolen_lands
     tags: [fortress]
@@ -843,8 +844,8 @@ regions:
     name: 멜버른 광산
     source: CANON
     danger: 3
-    min: [-1300, -64, -2000]
-    max: [-1240, 320, -1940]
+    min: [-2438, -64, -3750]
+    max: [-2324, 320, -3637]
     priority: 22
     parent: haineff_mountains
     tags: [dungeon_site]
@@ -854,8 +855,8 @@ regions:
     name: 벨카인의 은신처
     source: CANON
     danger: 5
-    min: [-1700, -64, -1900]
-    max: [-1640, 320, -1840]
+    min: [-3188, -64, -3562]
+    max: [-3074, 320, -3449]
     priority: 22
     parent: haineff_mountains
     tags: [dungeon_site]
@@ -865,8 +866,8 @@ regions:
     name: 골드마인 던전
     source: CANON
     danger: 3
-    min: [-900, -64, -2300]
-    max: [-840, 320, -2240]
+    min: [-1688, -64, -4312]
+    max: [-1574, 320, -4199]
     priority: 22
     parent: tolen_lands
     tags: [dungeon_site]
@@ -876,8 +877,8 @@ regions:
     name: 아타로그 마굴
     source: CANON
     danger: 4
-    min: [-200, -64, -1800]
-    max: [-140, 320, -1740]
+    min: [-375, -64, -3375]
+    max: [-262, 320, -3262]
     priority: 22
     parent: tolen_lands
     tags: [dungeon_site]
@@ -887,8 +888,8 @@ regions:
     name: 썩은 거품의 늪
     source: CANON
     danger: 4
-    min: [-100, -64, -2400]
-    max: [400, 320, -2000]
+    min: [-188, -64, -4500]
+    max: [751, 320, -3749]
     priority: 10
     parent: tolen_lands
     tags: [swamp]
@@ -898,8 +899,8 @@ regions:
     name: 라살 왕국 옛 영토
     source: CANON
     danger: 2
-    min: [401, -64, -1500]
-    max: [1600, 320, -300]
+    min: [752, -64, -2812]
+    max: [3001, 320, -562]
     priority: 4
     parent: central_plains
     tags: [plains, forest]
@@ -909,8 +910,8 @@ regions:
     name: 아베리안 숲
     source: CANON
     danger: 6
-    min: [900, -64, -1300]
-    max: [1500, 320, -700]
+    min: [1688, -64, -2438]
+    max: [2813, 320, -1312]
     priority: 10
     parent: rasal_kingdom
     tags: [forest]
@@ -920,8 +921,8 @@ regions:
     name: 미궁 조드
     source: CANON
     danger: 6
-    min: [1150, -64, -1050]
-    max: [1210, 320, -990]
+    min: [2156, -64, -1969]
+    max: [2270, 320, -1855]
     priority: 22
     parent: averian_forest
     tags: [dungeon_site]
@@ -931,8 +932,8 @@ regions:
     name: 수어쿤 요새
     source: CANON
     danger: 2
-    min: [450, 40, -650]
-    max: [700, 320, -400]
+    min: [844, 40, -1219]
+    max: [1313, 320, -749]
     priority: 20
     parent: rasal_kingdom
     tags: [fortress]
@@ -942,8 +943,8 @@ regions:
     name: 엘나비스 평원
     source: CANON
     danger: 1
-    min: [401, -64, -1500]
-    max: [850, 320, -800]
+    min: [752, -64, -2812]
+    max: [1595, 320, -1499]
     priority: 6
     parent: rasal_kingdom
     tags: [plains]
@@ -953,8 +954,8 @@ regions:
     name: 마센 왕국
     source: CANON
     danger: 2
-    min: [401, -64, -2400]
-    max: [1600, 320, -1501]
+    min: [752, -64, -4500]
+    max: [3001, 320, -2813]
     priority: 4
     parent: central_plains
     tags: [plains]
@@ -964,8 +965,8 @@ regions:
     name: 로드릭 미궁
     source: CANON
     danger: 6
-    min: [900, -64, -2200]
-    max: [1000, 320, -2100]
+    min: [1688, -64, -4125]
+    max: [1876, 320, -3937]
     priority: 22
     parent: massen_kingdom
     tags: [dungeon_site]
@@ -975,8 +976,8 @@ regions:
     name: 리튼 왕국
     source: CANON
     danger: 1
-    min: [401, -64, -299]
-    max: [1600, 320, 1500]
+    min: [752, -64, -561]
+    max: [3001, 320, 2813]
     priority: 4
     parent: central_plains
     tags: [plains]
@@ -986,8 +987,8 @@ regions:
     name: 하르판 왕국
     source: CANON
     danger: 2
-    min: [1600, -64, -2400]
-    max: [3199, 320, -1501]
+    min: [3000, -64, -4500]
+    max: [5999, 320, -2813]
     priority: 4
     parent: central_plains
     tags: [plains]
@@ -997,8 +998,8 @@ regions:
     name: 브리튼 연합 왕국 (루가 강)
     source: CANON
     danger: 1
-    min: [1600, -64, -1500]
-    max: [3199, 320, 2500]
+    min: [3000, -64, -2812]
+    max: [5999, 320, 4688]
     priority: 4
     parent: central_plains
     tags: [plains, river]
@@ -1009,8 +1010,8 @@ regions:
     name: 시슬레 성
     source: CANON
     danger: 0
-    min: [2250, 40, -350]
-    max: [2550, 320, -50]
+    min: [4219, 40, -656]
+    max: [4782, 320, -93]
     priority: 20
     parent: britten_alliance
     tags: [city, fortress]
@@ -1020,8 +1021,8 @@ regions:
     name: 모로스 성
     source: CANON
     danger: 0
-    min: [1900, 40, 500]
-    max: [2250, 320, 850]
+    min: [3562, 40, 938]
+    max: [4220, 320, 1595]
     priority: 20
     parent: britten_alliance
     tags: [city, market]
@@ -1031,8 +1032,8 @@ regions:
     name: 프레이달 성
     source: CANON
     danger: 0
-    min: [1700, 40, 950]
-    max: [1950, 320, 1200]
+    min: [3188, 40, 1781]
+    max: [3657, 320, 2251]
     priority: 20
     parent: britten_alliance
     tags: [city]
@@ -1042,8 +1043,8 @@ regions:
     name: 에드가 성
     source: CANON
     danger: 0
-    min: [2700, 40, -1300]
-    max: [3000, 320, -1000]
+    min: [5062, 40, -2438]
+    max: [5626, 320, -1874]
     priority: 20
     parent: britten_alliance
     tags: [city, fortress]
@@ -1053,8 +1054,8 @@ regions:
     name: 론디스 산
     source: CANON
     danger: 3
-    min: [2700, -64, -950]
-    max: [3100, 320, -650]
+    min: [5062, -64, -1781]
+    max: [5813, 320, -1218]
     priority: 10
     parent: britten_alliance
     tags: [mountain]
@@ -1064,8 +1065,8 @@ regions:
     name: 베르메르
     source: CANON
     danger: 0
-    min: [1650, 40, -1100]
-    max: [1900, 320, -850]
+    min: [3094, 40, -2062]
+    max: [3563, 320, -1593]
     priority: 20
     parent: britten_alliance
     tags: [city]
@@ -1075,8 +1076,8 @@ regions:
     name: 베르메르 산
     source: CANON
     danger: 2
-    min: [1650, -64, -800]
-    max: [1950, 320, -500]
+    min: [3094, -64, -1500]
+    max: [3657, 320, -937]
     priority: 10
     parent: britten_alliance
     tags: [mountain]
@@ -1086,8 +1087,8 @@ regions:
     name: 소므렌 자유도시
     source: CANON
     danger: 0
-    min: [2600, 40, 1300]
-    max: [3000, 320, 1700]
+    min: [4875, 40, 2438]
+    max: [5626, 320, 3188]
     priority: 20
     parent: britten_alliance
     tags: [city, scholar]
@@ -1097,8 +1098,8 @@ regions:
     name: 안타로사 폐허
     source: CANON
     danger: 4
-    min: [1700, -64, 1500]
-    max: [2400, 320, 2200]
+    min: [3188, -64, 2812]
+    max: [4501, 320, 4126]
     priority: 10
     parent: britten_alliance
     tags: [ruins]
@@ -1108,8 +1109,8 @@ regions:
     name: 물구덩이 남쪽
     source: CANON
     danger: 4
-    min: [1900, -64, 2000]
-    max: [2100, 320, 2150]
+    min: [3562, -64, 3750]
+    max: [3938, 320, 4032]
     priority: 18
     parent: antarosa_ruins
     tags: [ruins]
@@ -1119,8 +1120,8 @@ regions:
     name: 히드람 백작 저택
     source: CANON
     danger: 4
-    min: [2000, -64, 2060]
-    max: [2060, 320, 2120]
+    min: [3750, -64, 3862]
+    max: [3863, 320, 3976]
     priority: 24
     parent: water_pit_south
     tags: [dungeon_site]
@@ -1130,8 +1131,8 @@ regions:
     name: 야볼리스 군사 요새
     source: CANON
     danger: 2
-    min: [2800, 40, 2000]
-    max: [3100, 320, 2300]
+    min: [5250, 40, 3750]
+    max: [5813, 320, 4313]
     priority: 20
     parent: britten_alliance
     tags: [fortress]
@@ -1141,8 +1142,8 @@ regions:
     name: 오데인 요새
     source: CANON
     danger: 1
-    min: [1500, 40, 1900]
-    max: [1750, 320, 2150]
+    min: [2812, 40, 3562]
+    max: [3282, 320, 4032]
     priority: 20
     parent: britten_alliance
     tags: [fortress]
@@ -1152,8 +1153,8 @@ regions:
     name: 오데인 평원
     source: SOURCE-BASED
     danger: 2
-    min: [1600, -64, 1600]
-    max: [2000, 320, 1880]
+    min: [3000, -64, 3000]
+    max: [3751, 320, 3526]
     priority: 6
     parent: britten_alliance
     tags: [plains]
@@ -1163,8 +1164,8 @@ regions:
     name: 랭봇 요새
     source: CANON
     danger: 2
-    min: [2950, 40, -200]
-    max: [3199, 320, 100]
+    min: [5531, 40, -375]
+    max: [5999, 320, 188]
     priority: 20
     parent: britten_alliance
     tags: [fortress]
@@ -1174,8 +1175,8 @@ regions:
     name: 헤펜 성
     source: CANON
     danger: 0
-    min: [2400, 40, 2250]
-    max: [2650, 320, 2480]
+    min: [4500, 40, 4219]
+    max: [4970, 320, 4651]
     priority: 20
     parent: britten_alliance
     tags: [city]
@@ -1185,8 +1186,8 @@ regions:
     name: 드라푸킨 던전
     source: CANON
     danger: 5
-    min: [2600, -64, 600]
-    max: [2660, 320, 660]
+    min: [4875, -64, 1125]
+    max: [4988, 320, 1238]
     priority: 22
     parent: britten_alliance
     tags: [dungeon_site]
@@ -1196,8 +1197,8 @@ regions:
     name: 바스라 마굴
     source: SOURCE-BASED
     danger: 4
-    min: [2200, -64, 1000]
-    max: [2400, 38, 1200]
+    min: [4125, -64, 1875]
+    max: [4501, 38, 2251]
     priority: 14
     parent: britten_alliance
     tags: [underground, deep]
@@ -1207,8 +1208,8 @@ regions:
     name: 아이데른 왕국 옛 영토
     source: CANON
     danger: 2
-    min: [-1900, -64, 1501]
-    max: [1599, 320, 3700]
+    min: [-3562, -64, 2814]
+    max: [2999, 320, 6938]
     priority: 4
     parent: central_plains
     tags: [plains]
@@ -1219,8 +1220,8 @@ regions:
     name: 힐쉐이드 성
     source: CANON
     danger: 0
-    min: [-400, 40, 2200]
-    max: [0, 320, 2600]
+    min: [-750, 40, 4125]
+    max: [1, 320, 4876]
     priority: 20
     parent: aidern_lands
     tags: [city, market]
@@ -1230,8 +1231,8 @@ regions:
     name: 일스 대평원
     source: CANON
     danger: 1
-    min: [-1500, -64, 1700]
-    max: [500, 320, 2900]
+    min: [-2812, -64, 3188]
+    max: [938, 320, 5438]
     priority: 6
     parent: aidern_lands
     tags: [farmland, plains]
@@ -1241,8 +1242,8 @@ regions:
     name: 페드라 성벽
     source: CANON
     danger: 2
-    min: [-1500, -64, 2950]
-    max: [500, 320, 3000]
+    min: [-2812, -64, 5531]
+    max: [938, 320, 5626]
     priority: 15
     parent: aidern_lands
     tags: [wall]
@@ -1252,8 +1253,8 @@ regions:
     name: 보르니스 성
     source: CANON
     danger: 0
-    min: [-1100, 40, 1900]
-    max: [-850, 320, 2150]
+    min: [-2062, 40, 3562]
+    max: [-1593, 320, 4032]
     priority: 20
     parent: ils_plains
     tags: [city]
@@ -1263,8 +1264,8 @@ regions:
     name: 올고르 고원
     source: CANON
     danger: 2
-    min: [600, -64, 1600]
-    max: [1500, 320, 2300]
+    min: [1125, -64, 3000]
+    max: [2813, 320, 4313]
     priority: 8
     parent: aidern_lands
     tags: [highland]
@@ -1274,8 +1275,8 @@ regions:
     name: 바네사의 꽃길
     source: CANON
     danger: 0
-    min: [0, -64, 1800]
-    max: [400, 320, 1850]
+    min: [0, -64, 3375]
+    max: [751, 320, 3470]
     priority: 8
     parent: aidern_lands
     tags: [plains]
@@ -1285,8 +1286,8 @@ regions:
     name: 티너스 강
     source: CANON
     danger: 1
-    min: [600, -64, 2400]
-    max: [900, 320, 3700]
+    min: [1125, -64, 4500]
+    max: [1688, 320, 6938]
     priority: 12
     parent: aidern_lands
     tags: [river]
@@ -1296,8 +1297,8 @@ regions:
     name: 토론 산
     source: CANON
     danger: 2
-    min: [550, -64, 3020]
-    max: [1000, 320, 3400]
+    min: [1031, -64, 5662]
+    max: [1876, 320, 6376]
     priority: 12
     parent: aidern_lands
     tags: [mountain]
@@ -1307,8 +1308,8 @@ regions:
     name: 라체부르그
     source: CANON
     danger: 4
-    min: [1100, -64, 3300]
-    max: [1500, 320, 3650]
+    min: [2062, -64, 6188]
+    max: [2813, 320, 6845]
     priority: 12
     parent: aidern_lands
     tags: [ruins, desert]
@@ -1318,8 +1319,8 @@ regions:
     name: 라체부르그의 낚시터
     source: CANON
     danger: 1
-    min: [900, -64, 3300]
-    max: [1050, 320, 3420]
+    min: [1688, -64, 6188]
+    max: [1970, 320, 6413]
     priority: 14
     parent: aidern_lands
     tags: [lake]
@@ -1329,8 +1330,8 @@ regions:
     name: 몽벨트로리아
     source: CANON
     danger: 5
-    min: [1050, -64, 3450]
-    max: [1110, 320, 3510]
+    min: [1969, -64, 6469]
+    max: [2082, 320, 6582]
     priority: 22
     parent: lachburg
     tags: [dungeon_site]
@@ -1340,8 +1341,8 @@ regions:
     name: 불칸의 봉인
     source: CANON
     danger: 6
-    min: [-1700, -64, 3300]
-    max: [-1640, 320, 3360]
+    min: [-3188, -64, 6188]
+    max: [-3074, 320, 6301]
     priority: 22
     parent: aidern_lands
     tags: [dungeon_site]
@@ -1351,8 +1352,8 @@ regions:
     name: 드워프의 창고
     source: CANON
     danger: 4
-    min: [-200, -64, 3400]
-    max: [-140, 320, 3460]
+    min: [-375, -64, 6375]
+    max: [-262, 320, 6488]
     priority: 22
     parent: aidern_lands
     tags: [dungeon_site]
@@ -1362,8 +1363,8 @@ regions:
     name: 그라페스 (괴수의 땅)
     source: CANON
     danger: 6
-    min: [1100, -64, 2400]
-    max: [1500, 320, 2900]
+    min: [2062, -64, 4500]
+    max: [2813, 320, 5438]
     priority: 10
     parent: aidern_lands
     tags: [forest]
@@ -1373,8 +1374,8 @@ regions:
     name: 카라약의 서식지
     source: CANON
     danger: 6
-    min: [1250, -64, 2600]
-    max: [1310, 320, 2660]
+    min: [2344, -64, 4875]
+    max: [2457, 320, 4988]
     priority: 22
     parent: grapes
     tags: [dungeon_site]
@@ -1384,8 +1385,8 @@ regions:
     name: 베르네르트 성
     source: CANON
     danger: 1
-    min: [-900, 40, 3300]
-    max: [-500, 320, 3650]
+    min: [-1688, 40, 6188]
+    max: [-937, 320, 6845]
     priority: 20
     parent: aidern_lands
     tags: [city, coast]
@@ -1395,8 +1396,8 @@ regions:
     name: 남쪽 만
     source: SOURCE-BASED
     danger: 2
-    min: [-1300, -64, 3660]
-    max: [100, 320, 4100]
+    min: [-2438, -64, 6862]
+    max: [188, 320, 7688]
     priority: 9
     tags: [sea]
     purpose: 베르네르트 성 앞바다 (아이데른 해안)
@@ -1406,8 +1407,8 @@ regions:
     name: 서부 부족 지대
     source: CANON
     danger: 4
-    min: [-6000, -64, -3199]
-    max: [-4401, 320, 800]
+    min: [-11250, -64, -5998]
+    max: [-8251, 320, 1501]
     priority: 3
     tags: [highland]
     purpose: 큰 왕국 없이 민족별 부족 국가가 선 땅. 바바리안 전사들
@@ -1416,8 +1417,8 @@ regions:
     name: 메마른 울부짖는 폐허
     source: CANON
     danger: 6
-    min: [-5900, -64, -2300]
-    max: [-5000, 320, -1300]
+    min: [-11062, -64, -4312]
+    max: [-9374, 320, -2437]
     priority: 8
     parent: west_tribes
     tags: [badlands, ruins]
@@ -1427,8 +1428,8 @@ regions:
     name: 알 수 없는 장벽
     source: CANON
     danger: 6
-    min: [-5050, -64, -2300]
-    max: [-5000, 320, -1300]
+    min: [-9469, -64, -4312]
+    max: [-9374, 320, -2437]
     priority: 20
     parent: withered_ruins
     tags: [wall]
@@ -1438,8 +1439,8 @@ regions:
     name: 시커멓게 썩은 강
     source: CANON
     danger: 6
-    min: [-5600, -64, -2300]
-    max: [-5480, 320, -1300]
+    min: [-10500, -64, -4312]
+    max: [-10274, 320, -2437]
     priority: 20
     parent: withered_ruins
     tags: [river]
@@ -1449,8 +1450,8 @@ regions:
     name: 노예들이 지은 다리
     source: CANON
     danger: 5
-    min: [-5600, -64, -1820]
-    max: [-5480, 320, -1780]
+    min: [-10500, -64, -3412]
+    max: [-10274, 320, -3337]
     priority: 23
     parent: withered_ruins
     tags: [landmark]
@@ -1460,8 +1461,8 @@ regions:
     name: 엠비뉴의 성지 (거대한 구멍)
     source: CANON
     danger: 6
-    min: [-5450, -64, -2150]
-    max: [-5150, 320, -1850]
+    min: [-10219, -64, -4031]
+    max: [-9655, 320, -3468]
     priority: 22
     parent: withered_ruins
     tags: [hole]
@@ -1471,8 +1472,8 @@ regions:
     name: 채석장
     source: CANON
     danger: 5
-    min: [-5900, -64, -1500]
-    max: [-5700, 320, -1350]
+    min: [-11062, -64, -2812]
+    max: [-10687, 320, -2530]
     priority: 20
     parent: withered_ruins
     tags: [valley]
@@ -1482,8 +1483,8 @@ regions:
     name: 하늘로 오르는 탑 (무너진 밑동)
     source: CANON
     danger: 6
-    min: [-5320, -64, -1720]
-    max: [-5220, 320, -1620]
+    min: [-9975, -64, -3225]
+    max: [-9787, 320, -3037]
     priority: 23
     parent: withered_ruins
     tags: [landmark]
@@ -1495,8 +1496,8 @@ regions:
     name: 브렌트 왕국 옛 땅
     source: CANON
     danger: 2
-    min: [3200, -64, -2400]
-    max: [4850, 320, 300]
+    min: [6000, -64, -4500]
+    max: [9095, 320, 563]
     priority: 4
     parent: central_plains
     tags: [highland, forest]
@@ -1507,8 +1508,8 @@ regions:
     name: 네할레스 성
     source: CANON
     danger: 0
-    min: [3900, 40, -900]
-    max: [4300, 320, -500]
+    min: [7312, 40, -1688]
+    max: [8063, 320, -937]
     priority: 20
     parent: brent_highlands
     tags: [fortress]
@@ -1518,8 +1519,8 @@ regions:
     name: 거울의 호수
     source: CANON
     danger: 1
-    min: [4300, -64, -1300]
-    max: [4700, 320, -1000]
+    min: [8062, -64, -2438]
+    max: [8813, 320, -1874]
     priority: 12
     parent: brent_highlands
     tags: [lake]
@@ -1529,8 +1530,8 @@ regions:
     name: 바로크 산맥 (서쪽 줄기)
     source: CANON
     danger: 3
-    min: [3200, -64, 301]
-    max: [3500, 320, 3700]
+    min: [6000, -64, 564]
+    max: [6563, 320, 6938]
     priority: 6
     parent: central_plains
     tags: [mountain]
@@ -1541,8 +1542,8 @@ regions:
     name: 바로크 산맥 (북쪽 줄기)
     source: CANON
     danger: 3
-    min: [3200, -64, 301]
-    max: [4600, 320, 550]
+    min: [6000, -64, 564]
+    max: [8626, 320, 1032]
     priority: 6
     parent: central_plains
     tags: [mountain]
@@ -1552,8 +1553,8 @@ regions:
     name: 로자임 왕국 옛 땅
     source: CANON
     danger: 1
-    min: [3501, -64, 551]
-    max: [4850, 320, 3700]
+    min: [6564, -64, 1033]
+    max: [9095, 320, 6938]
     priority: 4
     parent: central_plains
     tags: [plains]
@@ -1564,8 +1565,8 @@ regions:
     name: 세라보그 성
     source: CANON
     danger: 0
-    min: [4000, 40, 1500]
-    max: [4400, 320, 1900]
+    min: [7500, 40, 2812]
+    max: [8251, 320, 3563]
     priority: 20
     parent: rosenheim
     tags: [city, fortress]
@@ -1575,8 +1576,8 @@ regions:
     name: 왕성의 지하도
     source: CANON
     danger: 4
-    min: [4150, -64, 1650]
-    max: [4250, 38, 1750]
+    min: [7781, -64, 3094]
+    max: [7970, 38, 3282]
     priority: 22
     parent: serabourg
     tags: [underground]
@@ -1586,8 +1587,8 @@ regions:
     name: 세라보그 성 북부
     source: SOURCE-BASED
     danger: 1
-    min: [3800, -64, 1100]
-    max: [4400, 320, 1499]
+    min: [7125, -64, 2062]
+    max: [8251, 320, 2811]
     priority: 8
     parent: rosenheim
     tags: [plains]
@@ -1597,8 +1598,8 @@ regions:
     name: 별의 궁전
     source: CANON
     danger: 4
-    min: [4450, -64, 1950]
-    max: [4510, 320, 2010]
+    min: [8344, -64, 3656]
+    max: [8457, 320, 3770]
     priority: 22
     parent: rosenheim
     tags: [dungeon_site]
@@ -1608,8 +1609,8 @@ regions:
     name: 바란 마을
     source: CANON
     danger: 0
-    min: [4100, 40, 2300]
-    max: [4300, 320, 2500]
+    min: [7688, 40, 4312]
+    max: [8063, 320, 4688]
     priority: 20
     parent: rosenheim
     tags: [city]
@@ -1619,8 +1620,8 @@ regions:
     name: 라비아스 산
     source: CANON
     danger: 2
-    min: [3850, -64, 2100]
-    max: [4050, 320, 2280]
+    min: [7219, -64, 3938]
+    max: [7595, 320, 4276]
     priority: 12
     parent: rosenheim
     tags: [mountain]
@@ -1631,8 +1632,8 @@ regions:
     name: 울켄 산
     source: CANON
     danger: 2
-    min: [3850, -64, 2520]
-    max: [4050, 320, 2750]
+    min: [7219, -64, 4725]
+    max: [7595, 320, 5157]
     priority: 12
     parent: rosenheim
     tags: [mountain]
@@ -1643,8 +1644,8 @@ regions:
     name: 고요한 평원
     source: SOURCE-BASED
     danger: 1
-    min: [3550, -64, 2000]
-    max: [3800, 320, 2900]
+    min: [6656, -64, 3750]
+    max: [7126, 320, 5438]
     priority: 8
     parent: rosenheim
     tags: [plains]
@@ -1654,8 +1655,8 @@ regions:
     name: 울부짖는 골짜기
     source: SOURCE-BASED
     danger: 3
-    min: [3550, -64, 1200]
-    max: [3800, 320, 1600]
+    min: [6656, -64, 2250]
+    max: [7126, 320, 3001]
     priority: 12
     parent: rosenheim
     tags: [valley]
@@ -1665,8 +1666,8 @@ regions:
     name: 바로크 산맥 입구
     source: SOURCE-BASED
     danger: 2
-    min: [3550, 40, 600]
-    max: [3750, 320, 800]
+    min: [6656, 40, 1125]
+    max: [7032, 320, 1501]
     priority: 12
     parent: rosenheim
     tags: [outpost]
@@ -1675,8 +1676,8 @@ regions:
     name: 사냥꾼의 언덕
     source: SOURCE-BASED
     danger: 2
-    min: [4400, -64, 650]
-    max: [4800, 320, 1000]
+    min: [8250, -64, 1219]
+    max: [9001, 320, 1876]
     priority: 8
     parent: rosenheim
     tags: [highland]
@@ -1685,8 +1686,8 @@ regions:
   fallen_crater:
     name: 추락 분화구
     danger: 4
-    min: [4400, -64, 1100]
-    max: [4850, 320, 1550]
+    min: [8250, -64, 2062]
+    max: [9095, 320, 2907]
     priority: 10
     parent: rosenheim
     tags: [sky, crater]
@@ -1696,8 +1697,8 @@ regions:
     name: 자작나무 호수
     source: SOURCE-BASED
     danger: 1
-    min: [4500, -64, 2600]
-    max: [4800, 320, 2850]
+    min: [8438, -64, 4875]
+    max: [9001, 320, 5345]
     priority: 12
     parent: rosenheim
     tags: [lake]
@@ -1707,8 +1708,8 @@ regions:
     name: 로자임 남부 미개척지
     source: CANON
     danger: 3
-    min: [3501, -64, 2951]
-    max: [4850, 320, 3700]
+    min: [6564, -64, 5533]
+    max: [9095, 320, 6938]
     priority: 5
     parent: rosenheim
     tags: [forest, frontier]
@@ -1718,8 +1719,8 @@ regions:
     name: 모래평원
     source: SOURCE-BASED
     danger: 2
-    min: [3600, -64, 3300]
-    max: [4000, 320, 3550]
+    min: [6750, -64, 6188]
+    max: [7501, 320, 6657]
     priority: 8
     parent: rosenheim_frontier
     tags: [desert]
@@ -1729,8 +1730,8 @@ regions:
     name: 로자임 항
     source: CANON
     danger: 1
-    min: [4300, 40, 3300]
-    max: [4850, 320, 3700]
+    min: [8062, 40, 6188]
+    max: [9095, 320, 6938]
     priority: 15
     parent: rosenheim_frontier
     tags: [city, coast]
@@ -1742,8 +1743,8 @@ regions:
     name: 로자임 만
     source: SOURCE-BASED
     danger: 2
-    min: [4500, -64, 3701]
-    max: [5400, 320, 4300]
+    min: [8438, -64, 6939]
+    max: [10126, 320, 8063]
     priority: 9
     tags: [sea]
     purpose: 로자임 항 앞바다
@@ -1751,8 +1752,8 @@ regions:
     name: 추방의 장벽
     source: CANON
     danger: 3
-    min: [4851, -64, -1500]
-    max: [4900, 320, 3700]
+    min: [9096, -64, -2812]
+    max: [9188, 320, 6938]
     priority: 15
     parent: central_plains
     tags: [wall]
@@ -1762,8 +1763,8 @@ regions:
     name: 절망의 평원
     source: CANON
     danger: 5
-    min: [4901, -64, -1500]
-    max: [5400, 320, 3700]
+    min: [9189, -64, -2812]
+    max: [10126, 320, 6938]
     priority: 4
     tags: [plains, frontier]
     purpose: 로자임과 유로키나 산맥 사이 거대 평원. 추방자의 후손 마을과 몬스터 — 10대 금역
@@ -1773,8 +1774,8 @@ regions:
     name: 유노프 협곡
     source: CANON
     danger: 4
-    min: [4950, -64, -1500]
-    max: [5300, 320, -900]
+    min: [9281, -64, -2812]
+    max: [9938, 320, -1687]
     priority: 12
     parent: plains_of_despair
     tags: [canyon]
@@ -1785,8 +1786,8 @@ regions:
     name: 썩은 리치 던전
     source: CANON
     danger: 6
-    min: [5100, -64, 500]
-    max: [5160, 320, 560]
+    min: [9562, -64, 938]
+    max: [9676, 320, 1051]
     priority: 22
     parent: plains_of_despair
     tags: [dungeon_site]
@@ -1796,8 +1797,8 @@ regions:
     name: 유로키나 산맥
     source: CANON
     danger: 4
-    min: [5401, -64, -1500]
-    max: [5650, 320, 800]
+    min: [10127, -64, -2812]
+    max: [10595, 320, 1501]
     priority: 10
     tags: [mountain]
     purpose: 절망의 평원 동쪽 산맥. 엘프와 오크가 함께 리치를 막은 곳
@@ -1807,8 +1808,8 @@ regions:
     name: 오크랜드
     source: CANON
     danger: 4
-    min: [5401, -64, 801]
-    max: [5650, 320, 3700]
+    min: [10127, -64, 1502]
+    max: [10595, 320, 6938]
     priority: 10
     tags: [frontier]
     purpose: 절망의 평원 너머 오크의 주 서식지
@@ -1818,8 +1819,8 @@ regions:
     name: 대수림
     source: CANON
     danger: 6
-    min: [5651, -64, -1500]
-    max: [5850, 320, 3700]
+    min: [10596, -64, -2812]
+    max: [10970, 320, 6938]
     priority: 10
     tags: [forest, frontier]
     purpose: "오크랜드 너머, 아무도 끝까지 간 적 없는 숲"
@@ -1828,16 +1829,16 @@ regions:
     name: 동해안 연안
     source: SOURCE-BASED
     danger: 2
-    min: [4851, -64, -3199]
-    max: [5850, 320, 4300]
+    min: [9096, -64, -5998]
+    max: [10970, 320, 8063]
     priority: 0
     tags: [sea]
     purpose: 브렌트 · 절망의 평원 바깥 연안의 얕은 바다
   eastern_sea:
     name: 동쪽 바다
     danger: 3
-    min: [5851, -64, -6000]
-    max: [6000, 320, 6000]
+    min: [10971, -64, -11250]
+    max: [11251, 320, 11251]
     priority: 1
     tags: [sea]
     purpose: 동쪽 대륙(불의 고리)으로 가는 바다 · 해양 보스 「심해 갑각왕」
@@ -1846,8 +1847,8 @@ regions:
     name: 울호프 산호지대
     source: CANON
     danger: 2
-    min: [5860, -64, -1000]
-    max: [5995, 320, 2000]
+    min: [10988, -64, -1875]
+    max: [11241, 320, 3751]
     priority: 8
     parent: eastern_sea
     tags: [sea]
@@ -1857,8 +1858,8 @@ regions:
     name: 심연 해구 (바다의 금역)
     source: SOURCE-BASED
     danger: 6
-    min: [5860, -64, 4500]
-    max: [5995, 320, 5500]
+    min: [10988, -64, 8438]
+    max: [11241, 320, 10313]
     priority: 15
     parent: eastern_sea
     tags: [sea]
@@ -1870,8 +1871,8 @@ regions:
     name: 남부 공국 지대
     source: CANON
     danger: 1
-    min: [-4800, -64, 3701]
-    max: [4499, 320, 4300]
+    min: [-9000, -64, 6939]
+    max: [8437, 320, 8063]
     priority: 3
     tags: [plains, scholar]
     purpose: 중앙과 사막 사이 마법 공국들의 완충 지대
@@ -1881,8 +1882,8 @@ regions:
     name: 보르헤스 공국
     source: CANON
     danger: 0
-    min: [-1900, 40, 3800]
-    max: [-1500, 320, 4200]
+    min: [-3562, 40, 7125]
+    max: [-2812, 320, 7876]
     priority: 20
     parent: southern_duchies
     tags: [city, scholar]
@@ -1892,8 +1893,8 @@ regions:
     name: 아스트라 학술도시
     source: SOURCE-BASED
     danger: 0
-    min: [-1200, 40, 3800]
-    max: [-400, 320, 4600]
+    min: [-2250, 40, 7125]
+    max: [-749, 320, 8626]
     priority: 20
     parent: southern_duchies
     tags: [city, scholar]
@@ -1904,8 +1905,8 @@ regions:
     name: 고요의 사막 (열사의 땅)
     source: CANON
     danger: 6
-    min: [2400, -64, 3701]
-    max: [3500, 320, 4500]
+    min: [4500, -64, 6939]
+    max: [6563, 320, 8438]
     priority: 12
     tags: [desert]
     purpose: 마나가 폭주해 스킬이 막히는 금역 — 신들이 만든 오아시스
@@ -1914,8 +1915,8 @@ regions:
     name: 남부 사막 (모래바다)
     source: CANON
     danger: 3
-    min: [-4800, -64, 4301]
-    max: [5850, 320, 5700]
+    min: [-9000, -64, 8064]
+    max: [10970, 320, 10688]
     priority: 2
     tags: [desert]
     purpose: "오아시스 부족들의 사막. 소금 · 유리 모래 · 사막 가죽, 모래폭풍과 보스 「사구 갈퀴웜」"
@@ -1925,8 +1926,8 @@ regions:
     name: 아그셀리아
     source: CANON
     danger: 0
-    min: [1500, 40, 4600]
-    max: [2100, 320, 5100]
+    min: [2812, 40, 8625]
+    max: [3938, 320, 9563]
     priority: 20
     parent: sand_sea
     tags: [city, desert, market]
@@ -1936,8 +1937,8 @@ regions:
     name: 차크마크
     source: CANON
     danger: 0
-    min: [-2500, 40, 4800]
-    max: [-2000, 320, 5200]
+    min: [-4688, 40, 9000]
+    max: [-3749, 320, 9751]
     priority: 20
     parent: sand_sea
     tags: [city, desert]
@@ -1947,8 +1948,8 @@ regions:
     name: 프로블렌
     source: CANON
     danger: 0
-    min: [-500, 40, 4350]
-    max: [0, 320, 4700]
+    min: [-938, 40, 8156]
+    max: [1, 320, 8813]
     priority: 20
     parent: sand_sea
     tags: [city, fortress, desert]
@@ -1958,8 +1959,8 @@ regions:
     name: 올드라스
     source: CANON
     danger: 0
-    min: [-500, 40, 5000]
-    max: [-150, 320, 5300]
+    min: [-938, 40, 9375]
+    max: [-280, 320, 9938]
     priority: 20
     parent: sand_sea
     tags: [city, desert]
@@ -1968,8 +1969,8 @@ regions:
   azil_oasis:
     name: 아질 오아시스
     danger: 0
-    min: [400, 40, 5000]
-    max: [1000, 320, 5600]
+    min: [750, 40, 9375]
+    max: [1876, 320, 10501]
     priority: 20
     parent: sand_sea
     tags: [city, desert, market]
@@ -1979,8 +1980,8 @@ regions:
     name: 누코드 오아시스
     source: CANON
     danger: 1
-    min: [3000, -64, 4700]
-    max: [3300, 320, 5000]
+    min: [5625, -64, 8812]
+    max: [6188, 320, 9376]
     priority: 12
     parent: sand_sea
     tags: [desert]
@@ -1990,8 +1991,8 @@ regions:
     name: 로므스커테 호수
     source: CANON
     danger: 1
-    min: [3800, -64, 5100]
-    max: [4300, 320, 5400]
+    min: [7125, -64, 9562]
+    max: [8063, 320, 10126]
     priority: 12
     parent: sand_sea
     tags: [lake]
@@ -2001,8 +2002,8 @@ regions:
     name: 코소마 강가
     source: CANON
     danger: 2
-    min: [-3500, -64, 4400]
-    max: [-3300, 320, 5700]
+    min: [-6562, -64, 8250]
+    max: [-6187, 320, 10688]
     priority: 12
     parent: sand_sea
     tags: [river, desert]
@@ -2012,8 +2013,8 @@ regions:
     name: 컨세라 사막
     source: CANON
     danger: 2
-    min: [-4600, -64, 4400]
-    max: [-3700, 320, 5000]
+    min: [-8625, -64, 8250]
+    max: [-6937, 320, 9376]
     priority: 8
     parent: sand_sea
     tags: [plains]
@@ -2023,8 +2024,8 @@ regions:
     name: 달구어진 사막
     source: CANON
     danger: 4
-    min: [1100, -64, 5200]
-    max: [2400, 320, 5700]
+    min: [2062, -64, 9750]
+    max: [4501, 320, 10688]
     priority: 6
     parent: sand_sea
     tags: [desert]
@@ -2034,8 +2035,8 @@ regions:
     name: 거인족의 산
     source: CANON
     danger: 5
-    min: [4300, -64, 4500]
-    max: [5000, 320, 5000]
+    min: [8062, -64, 8438]
+    max: [9376, 320, 9376]
     priority: 10
     parent: sand_sea
     tags: [mountain]
@@ -2045,8 +2046,8 @@ regions:
     name: 고르들의 서식지
     source: CANON
     danger: 5
-    min: [-1500, -64, 5200]
-    max: [-900, 320, 5600]
+    min: [-2812, -64, 9750]
+    max: [-1687, 320, 10501]
     priority: 8
     parent: sand_sea
     tags: [desert]
@@ -2056,8 +2057,8 @@ regions:
     name: 태양의 제단
     source: CANON
     danger: 3
-    min: [2600, -64, 5300]
-    max: [2700, 320, 5400]
+    min: [4875, -64, 9938]
+    max: [5063, 320, 10126]
     priority: 22
     parent: sand_sea
     tags: [landmark]
@@ -2067,8 +2068,8 @@ regions:
     name: 메타페이아 (신기루 도시)
     source: CANON
     danger: 4
-    min: [3400, -64, 5400]
-    max: [3800, 320, 5650]
+    min: [6375, -64, 10125]
+    max: [7126, 320, 10595]
     priority: 15
     parent: sand_sea
     tags: [ruins, desert]
@@ -2078,8 +2079,8 @@ regions:
     name: 화염의 생츄어리
     source: CANON
     danger: 6
-    min: [3600, -64, 5500]
-    max: [3640, 320, 5540]
+    min: [6750, -64, 10312]
+    max: [6826, 320, 10388]
     priority: 25
     parent: metapeia
     tags: [dungeon_site]
@@ -2089,8 +2090,8 @@ regions:
     name: 뭇타의 무덤
     source: CANON
     danger: 3
-    min: [3200, -64, 5200]
-    max: [3260, 320, 5260]
+    min: [6000, -64, 9750]
+    max: [6113, 320, 9863]
     priority: 22
     parent: sand_sea
     tags: [dungeon_site]
@@ -2100,8 +2101,8 @@ regions:
     name: 부하레스 유적
     source: CANON
     danger: 3
-    min: [-3000, -64, 5300]
-    max: [-2600, 320, 5600]
+    min: [-5625, -64, 9938]
+    max: [-4874, 320, 10501]
     priority: 12
     parent: sand_sea
     tags: [ruins, desert]
@@ -2111,8 +2112,8 @@ regions:
     name: 오잘렘 유적
     source: CANON
     danger: 3
-    min: [0, -64, 5450]
-    max: [400, 320, 5650]
+    min: [0, -64, 10219]
+    max: [751, 320, 10595]
     priority: 12
     parent: sand_sea
     tags: [ruins, desert]
@@ -2122,8 +2123,8 @@ regions:
     name: 라호스
     source: CANON
     danger: 2
-    min: [-4500, -64, 5100]
-    max: [-4000, 320, 5600]
+    min: [-8438, -64, 9562]
+    max: [-7499, 320, 10501]
     priority: 6
     parent: sand_sea
     tags: [desert]
@@ -2133,8 +2134,8 @@ regions:
     name: 말드 지역
     source: CANON
     danger: 2
-    min: [4500, -64, 5100]
-    max: [5300, 320, 5600]
+    min: [8438, -64, 9562]
+    max: [9938, 320, 10501]
     priority: 6
     parent: sand_sea
     tags: [desert]
@@ -2144,8 +2145,8 @@ regions:
     name: 우르간 지역
     source: CANON
     danger: 2
-    min: [600, -64, 4350]
-    max: [1400, 320, 4700]
+    min: [1125, -64, 8156]
+    max: [2626, 320, 8813]
     priority: 6
     parent: sand_sea
     tags: [desert]
@@ -2155,8 +2156,8 @@ regions:
     name: 뜨거운 땅속 던전
     source: CANON
     danger: 5
-    min: [500, -64, 4900]
-    max: [560, 320, 4960]
+    min: [938, -64, 9188]
+    max: [1051, 320, 9301]
     priority: 22
     parent: sand_sea
     tags: [dungeon_site]
@@ -2166,8 +2167,8 @@ regions:
     name: 이벨리아 던전
     source: CANON
     danger: 4
-    min: [-800, -64, 4900]
-    max: [-740, 320, 4960]
+    min: [-1500, -64, 9188]
+    max: [-1387, 320, 9301]
     priority: 22
     parent: sand_sea
     tags: [dungeon_site]
@@ -2177,8 +2178,8 @@ regions:
     name: 타쿤 동굴
     source: CANON
     danger: 4
-    min: [2400, -64, 4800]
-    max: [2460, 320, 4860]
+    min: [4500, -64, 9000]
+    max: [4613, 320, 9113]
     priority: 22
     parent: sand_sea
     tags: [dungeon_site]
@@ -2187,8 +2188,8 @@ regions:
   buried_city:
     name: 매몰 도시
     danger: 5
-    min: [1600, -64, 5400]
-    max: [2400, 60, 5690]
+    min: [3000, -64, 10125]
+    max: [4501, 60, 10670]
     priority: 15
     parent: sand_sea
     tags: [ruins, desert, deep]
@@ -2197,8 +2198,8 @@ regions:
     name: 남쪽 바다
     source: SOURCE-BASED
     danger: 3
-    min: [-6000, -64, 5701]
-    max: [5850, 320, 6000]
+    min: [-11250, -64, 10689]
+    max: [10970, 320, 11251]
     priority: 1
     tags: [sea]
     purpose: 남쪽 대륙(메아드의 숲) · 남극으로 가는 바다
@@ -2208,8 +2209,8 @@ regions:
     name: 서쪽 바다 (북)
     source: SOURCE-BASED
     danger: 3
-    min: [-6000, -64, -6000]
-    max: [-5401, 320, -3200]
+    min: [-11250, -64, -11250]
+    max: [-10126, 320, -5999]
     priority: 1
     tags: [sea]
     purpose: 북부 서해안 밖의 바다
@@ -2218,8 +2219,8 @@ regions:
     name: 서쪽 바다 (남)
     source: SOURCE-BASED
     danger: 3
-    min: [-6000, -64, 801]
-    max: [-4801, 320, 5700]
+    min: [-11250, -64, 1502]
+    max: [-9001, 320, 10688]
     priority: 1
     tags: [sea]
     purpose: "칼라모르 · 그라디안 서해안 밖의 바다, 서쪽 신대륙으로 가는 길"
@@ -2227,16 +2228,16 @@ regions:
     name: 칼라모르 만
     source: SOURCE-BASED
     danger: 2
-    min: [-4800, -64, 801]
-    max: [-3601, 320, 1500]
+    min: [-9000, -64, 1502]
+    max: [-6751, 320, 2813]
     priority: 2
     tags: [sea]
     purpose: "칼라모르 서쪽, 침식으로 생긴 만"
   mist_wall:
     name: 안개 장벽
     danger: 6
-    min: [-6000, -64, 1000]
-    max: [-5800, 320, 4000]
+    min: [-11250, -64, 1875]
+    max: [-10874, 320, 7501]
     priority: 10
     parent: western_sea_south
     tags: [mist]
@@ -2245,8 +2246,8 @@ regions:
     name: 토둠 (뱀파이어의 세계로 가는 굴)
     source: CANON
     danger: 6
-    min: [-5950, -64, 1500]
-    max: [-5450, 20, 2500]
+    min: [-11156, -64, 2812]
+    max: [-10218, 20, 4688]
     priority: 15
     parent: western_sea_south
     tags: [underground, deep]
@@ -2259,8 +2260,8 @@ regions:
     name: 카올랴의 오염된 땅
     source: CANON
     danger: 6
-    min: [-4600, -64, -4200]
-    max: [-3200, 320, -3300]
+    min: [-8625, -64, -7875]
+    max: [-5999, 320, -6187]
     priority: 10
     parent: north_reach
     tags: [badlands, ruins]
@@ -2269,8 +2270,8 @@ regions:
   devil_gate:
     name: 마힐고르타의 은신처 (악마계의 문)
     danger: 6
-    min: [-3912, -64, -3762]
-    max: [-3888, 320, -3738]
+    min: [-7335, -64, -7054]
+    max: [-7289, 320, -7008]
     priority: 26
     parent: kaolya_blight
     tags: [portal]
@@ -2278,8 +2279,8 @@ regions:
   ice_heart_labyrinth:
     name: 얼음 심장 미궁
     danger: 6
-    min: [-2000, -64, -5600]
-    max: [-1940, 320, -5540]
+    min: [-3750, -64, -10500]
+    max: [-3637, 320, -10387]
     priority: 22
     parent: niflheim_wastes
     tags: [dungeon_site]
@@ -2287,8 +2288,8 @@ regions:
   mirror_corridor_labyrinth:
     name: 거울 회랑 미궁
     danger: 6
-    min: [-2600, -64, -600]
-    max: [-2540, 320, -540]
+    min: [-4875, -64, -1125]
+    max: [-4762, 320, -1012]
     priority: 22
     parent: kallamore_lands
     tags: [dungeon_site]
@@ -2296,8 +2297,8 @@ regions:
   sunken_archive_labyrinth:
     name: 가라앉은 서고 미궁
     danger: 6
-    min: [200, -64, 400]
-    max: [260, 320, 460]
+    min: [375, -64, 750]
+    max: [488, 320, 863]
     priority: 22
     parent: haven_lands
     tags: [dungeon_site]
@@ -2305,8 +2306,8 @@ regions:
   stopped_gear_labyrinth:
     name: 멈춘 톱니 미궁
     danger: 6
-    min: [2000, -64, 900]
-    max: [2060, 320, 960]
+    min: [3750, -64, 1688]
+    max: [3863, 320, 1801]
     priority: 22
     parent: britten_alliance
     tags: [dungeon_site]
@@ -2314,8 +2315,8 @@ regions:
   hourglass_labyrinth:
     name: 모래시계 미궁
     danger: 6
-    min: [-1800, -64, 5000]
-    max: [-1740, 320, 5060]
+    min: [-3375, -64, 9375]
+    max: [-3262, 320, 9488]
     priority: 22
     parent: sand_sea
     tags: [dungeon_site]
@@ -2323,8 +2324,8 @@ regions:
   root_labyrinth:
     name: 뿌리 미궁
     danger: 6
-    min: [5700, -64, 2500]
-    max: [5760, 320, 2560]
+    min: [10688, -64, 4688]
+    max: [10801, 320, 4801]
     priority: 22
     parent: great_forest
     tags: [dungeon_site]
@@ -2332,8 +2333,8 @@ regions:
   starfall_lake:
     name: 별이 내려앉는 호수
     danger: 1
-    min: [-3150, -64, -4750]
-    max: [-2750, 320, -4350]
+    min: [-5906, -64, -8906]
+    max: [-5155, 320, -8155]
     priority: 12
     parent: north_reach
     tags: [lake]
@@ -2341,8 +2342,8 @@ regions:
   rainbow_falls:
     name: 무지개 폭포 골짜기
     danger: 2
-    min: [2450, -64, -3150]
-    max: [2750, 320, -2950]
+    min: [4594, -64, -5906]
+    max: [5157, 320, -5530]
     priority: 12
     parent: norn_range
     tags: [valley]
@@ -2350,8 +2351,8 @@ regions:
   thousand_pillars:
     name: 천 개의 돌기둥 협곡
     danger: 3
-    min: [3300, -64, -2300]
-    max: [3700, 320, -1900]
+    min: [6188, -64, -4312]
+    max: [6938, 320, -3562]
     priority: 12
     parent: brent_highlands
     tags: [canyon]
@@ -2359,8 +2360,8 @@ regions:
   white_salt_flats:
     name: 하얀 소금 평원
     danger: 2
-    min: [-2900, -64, 4400]
-    max: [-2100, 320, 4750]
+    min: [-5438, -64, 8250]
+    max: [-3937, 320, 8907]
     priority: 12
     parent: sand_sea
     tags: [salt]
@@ -2368,8 +2369,8 @@ regions:
   firefly_forest:
     name: 반딧불 숲
     danger: 1
-    min: [-1880, -64, 2300]
-    max: [-1520, 320, 2900]
+    min: [-3525, -64, 4312]
+    max: [-2849, 320, 5438]
     priority: 12
     parent: aidern_lands
     tags: [forest]
@@ -2377,8 +2378,8 @@ regions:
   cloud_plateau:
     name: 구름 위 고원
     danger: 3
-    min: [-3290, -64, 2450]
-    max: [-3010, 320, 2900]
+    min: [-6169, -64, 4594]
+    max: [-5643, 320, 5438]
     priority: 12
     parent: ruvidum_range
     tags: [mountain]
@@ -2386,8 +2387,8 @@ regions:
   crimson_maple_valley:
     name: 붉은 단풍 골짜기
     danger: 2
-    min: [-1500, -64, -2380]
-    max: [-1150, 320, -2100]
+    min: [-2812, -64, -4462]
+    max: [-2155, 320, -3937]
     priority: 12
     parent: haineff_mountains
     tags: [valley, forest]
@@ -2395,8 +2396,8 @@ regions:
   glacier_grotto:
     name: 푸른 빙하 동굴
     danger: 3
-    min: [2900, -64, -5700]
-    max: [2960, 320, -5640]
+    min: [5438, -64, -10688]
+    max: [5551, 320, -10574]
     priority: 22
     parent: niflheim_wastes
     tags: [landmark]
@@ -2405,8 +2406,8 @@ regions:
     name: 기초 수련관
     source: CANON
     danger: 0
-    min: [4010, -64, 1510]
-    max: [4060, 320, 1560]
+    min: [7519, -64, 2831]
+    max: [7613, 320, 2926]
     priority: 25
     parent: serabourg
     tags: [landmark]
@@ -2416,8 +2417,8 @@ regions:
     name: 초급 수련관
     source: CANON
     danger: 1
-    min: [4340, -64, 1840]
-    max: [4390, 320, 1890]
+    min: [8138, -64, 3450]
+    max: [8232, 320, 3545]
     priority: 25
     parent: serabourg
     tags: [landmark]
@@ -2427,8 +2428,8 @@ regions:
     name: 영웅의 탑 (중급 수련관)
     source: CANON
     danger: 3
-    min: [900, -64, 200]
-    max: [960, 320, 260]
+    min: [1688, -64, 375]
+    max: [1801, 320, 488]
     priority: 22
     parent: litten_kingdom
     tags: [landmark]
@@ -2437,8 +2438,8 @@ regions:
   dead_ferry:
     name: 망자의 나루 (거인계로 가는 배터)
     danger: 5
-    min: [-4790, -64, 2590]
-    max: [-4766, 320, 2614]
+    min: [-8981, -64, 4856]
+    max: [-8935, 320, 4902]
     priority: 26
     parent: gradian_lands
     tags: [portal]
@@ -2446,8 +2447,8 @@ regions:
   spirit_spring:
     name: 정령의 샘 (정령계의 문)
     danger: 3
-    min: [-1612, -64, -3492]
-    max: [-1588, 320, -3468]
+    min: [-3022, -64, -6548]
+    max: [-2977, 320, -6502]
     priority: 26
     parent: north_reach
     tags: [portal]
@@ -2455,8 +2456,8 @@ regions:
   fairy_ring:
     name: 요정의 고리 (요정계의 문)
     danger: 4
-    min: [5740, -64, -500]
-    max: [5764, 320, -476]
+    min: [10762, -64, -938]
+    max: [10808, 320, -892]
     priority: 26
     parent: great_forest
     tags: [portal]
@@ -2464,8 +2465,8 @@ regions:
   hell_rift:
     name: 지옥의 틈
     danger: 6
-    min: [-1620, -64, -1820]
-    max: [-1596, 320, -1796]
+    min: [-3038, -64, -3412]
+    max: [-2992, 320, -3367]
     priority: 26
     parent: haineff_mountains
     tags: [portal]
@@ -2473,8 +2474,8 @@ regions:
   demonkind_gate:
     name: 마계의 문 (구멍 바닥)
     danger: 6
-    min: [-5312, -64, -2012]
-    max: [-5288, 320, -1988]
+    min: [-9960, -64, -3772]
+    max: [-9914, 320, -3727]
     priority: 26
     parent: embinyu_sanctum
     tags: [portal]
@@ -2482,8 +2483,8 @@ regions:
   todum_gate:
     name: 토둠으로 가는 굴 끝
     danger: 5
-    min: [-5712, -64, 1988]
-    max: [-5688, 320, 2012]
+    min: [-10710, -64, 3728]
+    max: [-10664, 320, 3773]
     priority: 26
     parent: todum_depths
     tags: [portal]
@@ -2494,8 +2495,8 @@ regions:
     name: 먼 바다
     source: SOURCE-BASED
     danger: 4
-    min: [-8000, -64, -8000]
-    max: [8000, 320, 8000]
+    min: [-15000, -64, -15000]
+    max: [15000, 320, 15000]
     priority: -1
     tags: [sea]
     purpose: 베르사 대륙과 신대륙 · 극지 사이의 깊은 바다
@@ -2503,8 +2504,8 @@ regions:
     name: 북극
     source: CANON
     danger: 5
-    min: [-8000, -64, -8000]
-    max: [8000, 320, -7401]
+    min: [-15000, -64, -15000]
+    max: [15000, 320, -13876]
     priority: 3
     tags: [frozen]
     purpose: 세상의 북쪽 끝 얼음 땅
@@ -2513,8 +2514,8 @@ regions:
     name: 남극 (혹한의 땅)
     source: CANON
     danger: 6
-    min: [-8000, -64, 7401]
-    max: [8000, 320, 8000]
+    min: [-15000, -64, 13877]
+    max: [15000, 320, 15000]
     priority: 3
     tags: [frozen]
     purpose: 10대 금역. 펭귄도 얼어 죽는 추위 · 눈의 정령 · 얼음의 영혼
@@ -2523,8 +2524,8 @@ regions:
     name: 남쪽 대륙
     source: CANON
     danger: 4
-    min: [-3000, -64, 6400]
-    max: [3000, 320, 7200]
+    min: [-5625, -64, 12000]
+    max: [5626, 320, 13501]
     priority: 3
     tags: [forest, frontier]
     purpose: 베르사 남쪽 끝에서 바다를 건너면 나오는 대륙
@@ -2533,8 +2534,8 @@ regions:
     name: 메아드의 숲
     source: CANON
     danger: 3
-    min: [-700, -64, 6550]
-    max: [700, 320, 7050]
+    min: [-1312, -64, 12281]
+    max: [1313, 320, 13220]
     priority: 10
     parent: south_continent
     tags: [forest]
@@ -2544,8 +2545,8 @@ regions:
     name: 세계수의 후손
     source: CANON
     danger: 2
-    min: [-30, -64, 6770]
-    max: [30, 320, 6830]
+    min: [-56, -64, 12694]
+    max: [57, 320, 12807]
     priority: 25
     parent: meard_forest
     tags: [landmark]
@@ -2555,8 +2556,8 @@ regions:
     name: 동쪽 대륙
     source: CANON
     danger: 5
-    min: [6400, -64, -3500]
-    max: [7700, 320, 3500]
+    min: [12000, -64, -6562]
+    max: [14438, 320, 6563]
     priority: 3
     tags: [highland, forest]
     purpose: 베르사 동쪽 바다 건너 — 높은 산과 숲
@@ -2565,8 +2566,8 @@ regions:
     name: 동쪽 대륙 높은 산들
     source: SOURCE-BASED
     danger: 5
-    min: [6600, -64, 800]
-    max: [7500, 320, 3200]
+    min: [12375, -64, 1500]
+    max: [14063, 320, 6001]
     priority: 8
     parent: east_continent
     tags: [mountain]
@@ -2575,8 +2576,8 @@ regions:
     name: 불의 고리
     source: CANON
     danger: 6
-    min: [6700, -64, -2500]
-    max: [7500, 320, -500]
+    min: [12562, -64, -4688]
+    max: [14063, 320, -937]
     priority: 10
     parent: east_continent
     tags: [volcano]
@@ -2586,8 +2587,8 @@ regions:
     name: 랜도니의 레어 (대화산)
     source: CANON
     danger: 6
-    min: [7070, -64, -1530]
-    max: [7130, 320, -1470]
+    min: [13256, -64, -2869]
+    max: [13370, 320, -2755]
     priority: 22
     parent: ring_of_fire
     tags: [dungeon_site]
@@ -2597,8 +2598,8 @@ regions:
     name: 서쪽 신대륙 (거인들이 잊은 땅)
     source: CANON
     danger: 6
-    min: [-7700, -64, -3500]
-    max: [-6400, 320, 3500]
+    min: [-14438, -64, -6562]
+    max: [-11999, 320, 6563]
     priority: 3
     tags: [highland]
     purpose: 거인들이 만들어 놓고 잊어버린 대륙
@@ -2607,8 +2608,8 @@ regions:
     name: 마법의 장벽
     source: CANON
     danger: 6
-    min: [-6480, -64, -3500]
-    max: [-6420, 320, 3500]
+    min: [-12150, -64, -6562]
+    max: [-12037, 320, 6563]
     priority: 15
     parent: west_new_continent
     tags: [wall, sealed]
@@ -2618,8 +2619,8 @@ regions:
     name: 거인의 황금 창고
     source: SOURCE-BASED
     danger: 6
-    min: [-7100, -64, -100]
-    max: [-7040, 320, -40]
+    min: [-13312, -64, -188]
+    max: [-13199, 320, -74]
     priority: 22
     parent: west_new_continent
     tags: [dungeon_site]
