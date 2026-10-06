@@ -15,6 +15,15 @@ import io.versaera.platform.bukkit.command.AdminCommand;
 import io.versaera.platform.bukkit.command.PlayerCommand;
 import io.versaera.platform.bukkit.listener.*;
 import io.versaera.platform.bukkit.ui.MenuListener;
+import io.versaera.platform.bukkit.ui.NpcMenus;
+import io.versaera.platform.bukkit.combat.DeathListener;
+import io.versaera.platform.bukkit.combat.SkillListener;
+import io.versaera.platform.bukkit.command.GameCommands;
+import io.versaera.platform.bukkit.dungeon.DungeonRuntime;
+import io.versaera.platform.bukkit.map.MapRuntime;
+import io.versaera.platform.bukkit.pack.PackServer;
+import io.versaera.platform.bukkit.world.VersaChunkGenerator;
+import io.versaera.platform.bukkit.world.WorldEventRuntime;
 import io.versaera.security.Sealer;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -46,6 +55,10 @@ public final class VersaEraPlugin extends JavaPlugin {
     private BossRuntime bosses;
     /** 게임 시각(0 ~ 23). 메인 스레드가 5초마다 갱신하고, DB 스레드의 히든 판정은 이 값만 읽는다 */
     private volatile int gameHour = 12;
+    private DungeonRuntime dungeons;
+    private WorldEventRuntime events;
+    private NpcRuntime npcRuntime;
+    private PackServer pack;
 
     @Override
     public void onEnable() {
@@ -61,6 +74,9 @@ public final class VersaEraPlugin extends JavaPlugin {
             exec = new DbExecutor(getLogger());
             int recovered = exec.submit("recover", services.trades::recover).join();
             if (recovered > 0) getLogger().warning("지난 실행에서 끝나지 않은 거래 " + recovered + "건을 취소하고 아이템을 주인에게 돌려보냈습니다");
+            int lostRuns = exec.submit("recover-dungeons", services.dungeons::recover).join();
+            int lostFights = exec.submit("recover-bosses", services.bosses::recover).join();
+            if (lostRuns + lostFights > 0) getLogger().warning("지난 실행의 던전 " + lostRuns + "판 · 보스 전투 " + lostFights + "건을 실패로 정리했습니다 (보상 없음, 손실 없음)");
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "VersaEra 시작 실패 — 플러그인을 끕니다", e);
             Bukkit.getPluginManager().disablePlugin(this);
@@ -72,20 +88,51 @@ public final class VersaEraPlugin extends JavaPlugin {
             if (w != null) gameHour = (int) ((w.getTime() / 1000 + 6) % 24);
         }, 0L, 100L);
         ItemCodec codec = new ItemCodec(this, services.items.types());
-        Sealer sealer = new Sealer(serverKey());
+        byte[] key = serverKey();
+        Sealer sealer = new Sealer(key);
+        services.worldEvents.reseed(java.nio.ByteBuffer.wrap(sha256(key)).getLong());   // 서버마다 다른 이벤트 시간표
         SessionListener sessions = new SessionListener(this, services, async, codec);
         RegionTracker regions = new RegionTracker(services, async);
         loadHidden(sealer, regions);
+        java.util.Set<String> gated = new java.util.HashSet<>();
+        for (var d : services.worldEvents.all()) {
+            String rv = d.effects().get("reveal");
+            if (rv != null && rv.startsWith("region:")) gated.add(rv.substring(7));
+        }
+        regions.gate(id -> gated.contains(id) && !services.worldEvents.revealed().contains("region:" + id));
         NpcListener npcs = new NpcListener(this, services, async);
         gather = new GatherListener(this, services, async, codec, sessions);
         bosses = new BossRuntime(this, services, async);
         CombatListener combat = new CombatListener(this, services, async, codec);
-        for (var l : List.of(sessions, new InventoryGuard(this, services, async, codec), regions, npcs, gather, combat, bosses,
+        SkillListener skills = new SkillListener(this, services, async, codec, bosses);
+        dungeons = new DungeonRuntime(this, services, async, bosses);
+        dungeons.hints(skills::seesHints);
+        Bukkit.getScheduler().runTask(this, dungeons::prepareWorld);   // load: STARTUP 이라 기본 세계가 생긴 뒤에 만든다
+        MapRuntime maps = new MapRuntime(this, services, async);
+        events = new WorldEventRuntime(this, services, async);
+        npcRuntime = new NpcRuntime(this, services, npcs, () -> gameHour);
+        NpcMenus menus = new NpcMenus(services, async, codec, sessions::deliver, p -> facts(p.getUniqueId().toString(), regions));
+        npcs.onOpen(menus::open);
+        for (var l : List.of(sessions, new InventoryGuard(this, services, async, codec), regions, npcs, gather, combat, bosses, skills,
+                new DeathListener(this, services, async, codec), dungeons, maps,
                 new StationListener(services, async, codec, sessions), new MenuListener()))
             Bukkit.getPluginManager().registerEvents(l, this);
-        PlayerCommand pc = new PlayerCommand(services, async, codec, sessions::deliver);
+        startPack();
+        // 직업이 바뀌면 전투 효과 · 스킬 목록을 다시 읽는다 (이벤트는 DB 스레드에서 옴)
+        services.bus.subscribe(io.versaera.domain.event.GameEvents.JobChanged.class, ev -> {
+            combat.warm(ev.uuid());
+            Bukkit.getScheduler().runTask(this, () -> {
+                Player p = Bukkit.getPlayer(UUID.fromString(ev.uuid()));
+                if (p != null) skills.reload(p);
+            });
+        });
+        // 경매 만료: 10분마다 50건씩 (물건은 판매자 배달함으로)
+        Bukkit.getScheduler().runTaskTimer(this, () -> async.fire("auction-expire", () -> services.auctions.expire(50)), 1200L, 12000L);
+        PlayerCommand pc = new PlayerCommand(services, async, codec, sessions::deliver, maps::give);
         getCommand("versa").setExecutor(pc);
         getCommand("trade").setExecutor(pc);
+        GameCommands gc = new GameCommands(services, async, codec, sessions::deliver, p -> facts(p.getUniqueId().toString(), regions), dungeons);
+        for (String c : List.of("job", "quest", "guild", "auction", "dungeon")) getCommand(c).setExecutor(gc);
         AdminCommand ac = new AdminCommand(services, async, codec, npcs, bosses, getDataFolder(), sealer, sessions::deliver);
         getCommand("versaadmin").setExecutor(ac);
         getCommand("versaadmin").setTabCompleter(ac);
@@ -93,9 +140,44 @@ public final class VersaEraPlugin extends JavaPlugin {
             String id = p.getUniqueId().toString();
             async.fire("warm", () -> { combat.warm(id); return null; });
             sessions.deliver(p);
+            skills.reload(p);
         }
         getLogger().info("VersaEra 시작 — 지역 " + services.regions.all().size() + " · 레시피 " + services.crafting.all().size()
                 + " · 보스 " + services.content.bosses().size() + " · NPC " + services.relations.all().size());
+    }
+
+    private static byte[] sha256(byte[] b) {
+        try {
+            return java.security.MessageDigest.getInstance("SHA-256").digest(b);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /** 리소스팩을 만들고 내장 HTTP 서버로 내려 준다 (config pack.*) */
+    private void startPack() {
+        if (!getConfig().getBoolean("pack.enabled", true)) return;
+        try {
+            var built = io.versaera.pack.ResourcePackBuilder.build(services.content);
+            pack = new PackServer(this, built, getConfig().getInt("pack.port", 8173), getConfig().getString("pack.public-url", ""), Bukkit.getIp());
+            Bukkit.getPluginManager().registerEvents(pack, this);
+            io.versaera.platform.bukkit.ui.Menu.background = getConfig().getBoolean("pack.menu-background", true);
+        } catch (IOException | RuntimeException e) {
+            getLogger().log(Level.WARNING, "리소스팩 서버를 열지 못했습니다 — 팩 없이 계속합니다", e);
+        }
+    }
+
+    /** bukkit.yml 의 worlds.<이름>.generator: VersaEra 로 쓰는 지형 생성기 (onEnable 전에 불릴 수 있어 콘텐츠를 따로 읽는다) */
+    @Override
+    public org.bukkit.generator.ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+        File dir = new File(getDataFolder(), "content");
+        ContentBundle c = new File(dir, "regions.yml").exists()
+                ? ContentBundle.load(f -> {
+                    InputStream in = open(new File(dir, f));
+                    return in != null ? in : getClassLoader().getResourceAsStream("content/" + f);
+                })
+                : ContentBundle.fromClasspath(getClassLoader());
+        return new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()));
     }
 
     private static InputStream open(File f) {
@@ -157,6 +239,10 @@ public final class VersaEraPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (bosses != null) bosses.stopAll(false);
+        if (dungeons != null) dungeons.stopAll();
+        if (events != null) events.stop();
+        if (npcRuntime != null) npcRuntime.removeAll();
+        if (pack != null) pack.stop();
         if (gather != null) gather.restoreAll();
         if (exec != null) {
             for (Player p : Bukkit.getOnlinePlayers()) {

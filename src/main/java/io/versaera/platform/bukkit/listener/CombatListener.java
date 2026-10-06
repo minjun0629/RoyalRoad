@@ -30,7 +30,7 @@ import java.util.random.RandomGenerator;
  *   <li>방어: 입은 고유 방어구의 방어력 합 → 피해 감소. 방패로 막으면 크게 감소.</li>
  *   <li>기록: 맞은 횟수(인내) · 무기 숙련 경험치 · 무기 내구도 마모를 5초마다 한 번에 저장.</li>
  * </ul>
- * 스킬 · 콤보 · 회피 · 상태 이상은 CMB-02 (PLANNED).
+ * 스킬 · 콤보 · 회피 · 상태 이상은 SkillListener (CMB-02).
  */
 public final class CombatListener implements Listener {
     /** 메인 스레드에서 쓰는 캐시: 아이템 id → (종류, 품질). DB 에서 한 번 읽어 둔다. */
@@ -46,6 +46,9 @@ public final class CombatListener implements Listener {
     private final Map<String, Integer> pendingWear = new ConcurrentHashMap<>();
     private final Map<String, String> wearOwner = new ConcurrentHashMap<>();
     private final RandomGenerator rng = RandomGenerator.getDefault();
+    /** 직업 효과 캐시: uuid → {공격 %, 방어 %, 치명 확률 가산} */
+    private final Map<String, double[]> perks = new ConcurrentHashMap<>();
+    private static final double[] NO_PERKS = {0, 0, 0};
 
     public CombatListener(Plugin plugin, GameServices s, Async async, ItemCodec codec) {
         this.s = s;
@@ -87,7 +90,8 @@ public final class CombatListener implements Listener {
                 boolean back = victim.getLocation().getDirection().setY(0).normalize()
                         .dot(attacker.getLocation().toVector().subtract(victim.getLocation().toVector()).setY(0).normalize()) < -0.5;
                 double attack = t.stats().getOrDefault("attack", 0) * Math.max(0.2, attacker.getAttackCooldown());
-                damage = DamageCalculator.compute(new DamageCalculator.Attack(attack, w.quality(), lv, 0.05, 1.5, back),
+                double[] pk = perks.getOrDefault(owner, NO_PERKS);
+                damage = DamageCalculator.compute(new DamageCalculator.Attack(attack * (1 + pk[0]), w.quality(), lv, 0.05 + pk[2], 1.5, back),
                         new DamageCalculator.Defense(0, false, false), rng).damage();
                 if (d != null) {
                     pendingXp.merge(owner + ":" + d, 1L, Long::sum);
@@ -106,11 +110,17 @@ public final class CombatListener implements Listener {
                 if (c != null) armor += codec.types().get(c.typeId()).stats().getOrDefault("defense", 0)
                         * io.versaera.domain.item.Quality.statMultiplier(c.quality());
             }
-            damage = damage * 100.0 / (100.0 + armor * 4);
+            damage = damage * 100.0 / (100.0 + armor * 4) * (1 - Math.min(0.5, perks.getOrDefault(owner, NO_PERKS)[1]));
             if (defender.isBlocking()) damage *= 0.4;
             pendingHits.merge(owner, 1L, Long::sum);
         }
         e.setDamage(Math.max(0.5, damage));
+    }
+
+    @EventHandler
+    public void onJoin(org.bukkit.event.player.PlayerJoinEvent e) {
+        String id = e.getPlayer().getUniqueId().toString();
+        async.fire("warm", () -> { warm(id); return null; });
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -118,7 +128,12 @@ public final class CombatListener implements Listener {
         Player k = e.getEntity().getKiller();
         if (k == null || e.getEntity() instanceof Player) return;
         String id = k.getUniqueId().toString();
-        async.fire("kill", () -> s.growth.record(id, "kill.monster", 1));
+        String type = e.getEntityType().name().toLowerCase(java.util.Locale.ROOT);
+        async.fire("kill", () -> {
+            s.growth.record(id, "kill.monster", 1);
+            s.quests.record(id, io.versaera.domain.quest.QuestDefinition.Type.KILL, type, 1, 0);
+            return null;
+        });
     }
 
     /** 5초마다 모아서 저장 (전투 중 매 타격 DB 쓰기를 피함) */
@@ -166,5 +181,12 @@ public final class CombatListener implements Listener {
     /** 처음 접속 시 무기 숙련 캐시 (DB 스레드에서 부름) */
     public void warm(String uuid) {
         for (String d : List.of("swordsmanship", "spearmanship", "archery")) weaponMastery.put(uuid + ":" + d, Mastery.levelOf(s.growth.xp(uuid, d)));
+        Map<String, Double> p = s.jobs.perks(uuid);
+        perks.put(uuid, new double[]{p.getOrDefault("attack_pct", 0.0), p.getOrDefault("defense_pct", 0.0), p.getOrDefault("crit", 0.0)});
+    }
+
+    /** 직업이 바뀌면 다시 읽는다 (DB 스레드) */
+    public void forget(String uuid) {
+        perks.remove(uuid);
     }
 }

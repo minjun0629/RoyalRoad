@@ -20,13 +20,20 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
 /**
- * NPC: 관리자가 세운 주민 엔티티에 NPC id 를 붙여 둔다. 우클릭 = 대화 → 그날 첫 대화면 호감 +, 관계 단계에 맞는 한 줄.
- * NPC 는 AI 를 끄고 서 있으며 매 틱 갱신하지 않는다 (일과에 따른 이동은 NPC-02, 아직 PLANNED).
+ * NPC: 주민 엔티티에 NPC id 를 붙여 둔다. 우클릭 = 대화 → 그날 첫 대화면 호감 +, 관계 단계에 맞는 한 줄 → NPC 창(의뢰 · 상점 · 소식 · 선물).
+ * NPC 는 AI 를 끄고 서 있으며, 일과에 따른 이동은 NpcRuntime 이 1초마다 근처에 사람이 있을 때만 한다.
  */
 public final class NpcListener implements Listener {
     private final GameServices s;
     private final Async async;
     private final NamespacedKey key;
+
+    private java.util.function.BiConsumer<Player, String> onOpen = (p, id) -> {};
+
+    /** 대화 뒤에 열 창 (NpcMenus) */
+    public void onOpen(java.util.function.BiConsumer<Player, String> open) {
+        this.onOpen = open;
+    }
 
     public NpcListener(Plugin plugin, GameServices s, Async async) {
         this.s = s;
@@ -62,6 +69,7 @@ public final class NpcListener implements Listener {
         async.run("talk", () -> {
             NpcDefinition n = s.relations.npc(id);
             int gain = s.relations.talk(uuid, id);
+            s.quests.record(uuid, io.versaera.domain.quest.QuestDefinition.Type.TALK, id, 1, 0);
             s.exploration.discover(uuid, p.getName(), "npc", id);
             return new Object[]{n, s.relations.affinity(uuid, id), gain};
         }, r -> {
@@ -69,6 +77,7 @@ public final class NpcListener implements Listener {
             int aff = (int) r[1], gain = (int) r[2];
             p.sendMessage(Ui.c("&f" + n.name() + "&7: " + line(n, aff)));
             p.sendMessage(Ui.c("&8" + Relation.tierName(aff) + " " + aff + (gain > 0 ? " &a+" + gain : "")));
+            onOpen.accept(p, n.id());
         }, p);
     }
 

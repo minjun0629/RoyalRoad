@@ -36,14 +36,25 @@ io.versaera
 │  ├─ world       Region · DangerTier · Discovery
 │  ├─ npc         NpcDefinition · Relation
 │  ├─ hidden      HiddenRule · Condition (봉인된 히든 콘텐츠)
-│  ├─ combat      DamageCalculator · StatusEffect
-│  ├─ boss        BossDefinition · BossFight (페이즈 · 패턴 · 예고 · 광폭화)
+│  ├─ combat      DamageCalculator · SkillDefinition · CombatState(기력 · 마나 · 쿨다운 · 회피 · 콤보) · StatusTracker
+│  ├─ boss        BossDefinition · BossFight (페이즈 · 패턴 · 예고 · 광폭화) · BossMotion · BossRewards
+│  ├─ job         JobDefinition
+│  ├─ quest       QuestDefinition · QuestProgress
+│  ├─ death       DeathPenalty
+│  ├─ guild       GuildRules
+│  ├─ market      MarketCatalog · MarketPricing
+│  ├─ dungeon     DungeonDefinition · DungeonLayout(시드 배치) · LeverPuzzle · DungeonRun(상태 기계)
+│  ├─ worldevent  WorldEventDefinition · WorldEventClock(시드 시간표 · 예보)
+│  ├─ map         FogMap
+│  ├─ terrain     TerrainModel (지역 → 높이 · 표면 · 유적)
+│  ├─ pack        PackIds (모델 번호)
 │  └─ event       DomainEvent · EventBus
 ├─ application    *Service · port(Repository 인터페이스)
 ├─ persistence    Database · Migrator · Jdbc*Repository
 ├─ content        ContentLoader (YAML)
+├─ pack           ResourcePackBuilder (모델 · 텍스처 · 글꼴을 코드로 생성)
 ├─ security       Sealer (AES-GCM) · AuditLog
-└─ platform.bukkit VersaEraPlugin · listener · command · ui · binding
+└─ platform.bukkit VersaEraPlugin · listener · command · ui · binding · boss · combat · dungeon · map · pack · world
 ```
 
 ## 3. 스레드 규칙
@@ -91,12 +102,12 @@ io.versaera
 
 ## 7. 이벤트
 
-`ItemCreatedEvent` · `ItemTransferredEvent` · `MoneyChangedEvent` · `TradeCompletedEvent` · `TradeCancelledEvent` · `PlayerCraftedEvent` · `MasteryTierReachedEvent` · `PlayerDiscoveredEvent` · `NpcRelationChangedEvent` · `HiddenUnlockedEvent` · `BossDefeatedEvent`
-— 도메인 이벤트(순수 Java)이며, Bukkit 쪽이 받아서 화면 · 소리 · 공지로 바꿉니다.
+`GameEvents` 의 ItemCreated · ItemDestroyed · ItemDelivered · MoneyChanged · TradeCompleted · TradeCancelled · PlayerCrafted · MasteryLevelUp · StatGained · PlayerDiscovered · NpcRelationChanged · HiddenUnlocked · JobChanged · QuestCompleted · QuestProgressed · GuildChanged · AuctionSold · WorldEventChanged · DungeonCleared · BossDefeated
+— 도메인 이벤트(순수 Java). 트랜잭션 안에서 생긴 이벤트는 커밋 뒤에만 발행(AfterCommit). 발견 · 제작 이벤트는 GameServices 가 받아 의뢰 진행으로 잇고, Bukkit 쪽은 화면 · 소리 · 공지로 바꿉니다.
 
-## 8. DB 스키마 (V1)
+## 8. DB 스키마 (V1 ~ V3)
 
-`src/main/resources/db/migration/V1__init.sql` 이 정본입니다. 요약:
+`src/main/resources/db/migration/V*.sql` 이 정본입니다. 요약:
 
 | 테이블 | 내용 |
 |---|---|
@@ -113,7 +124,15 @@ io.versaera
 | `npc_relation` | uuid · npc · 호감 · 마지막 대화 |
 | `trade` · `trade_offer` | 거래 세션 · 올린 물건 (복구용) |
 | `hidden_unlock` | uuid · rule_id · 시각 |
-| `audit_log` | 감사 로그 (ITEM_CREATED · MONEY_ADDED · TRADE_COMPLETED …) |
+| `audit_log` | 감사 로그 (ITEM_CREATED · MONEY_ADDED · TRADE_COMPLETED · AUCTION_SOLD · GUILD_* · QUEST_COMPLETED · DUNGEON_CLEARED · BOSS_DEFEATED …) |
+| **V2** `player_job` | uuid · slot(COMBAT/LIFE) · 직업 · 시각 |
+| `quest_progress` · `reputation` | 의뢰 상태 · 진행 · 선택 · 횟수 / 세력 평판 (±10000) |
+| `guild` · `guild_member` | 길드 (이름 · 태그 UNIQUE · 레벨) / 길드원 (직급 · 공헌). 금고는 `wallet` 의 `guild:<id>` |
+| `auction_listing` | 매물 (UNIQUE/BULK · 상태 OPEN/SOLD/CANCELLED/EXPIRED · 만료) — 고유 아이템은 `item_instance` 가 ESCROW(`auction:<id>`) |
+| `market_supply` | 시장 · 종류별 공급 (시간 감쇠) |
+| `dungeon_run` · `world_event_state` · `death_log` | 던전 판 기록 / 이벤트 알림 상태 / 사망 기록 |
+| **V3** `map_explored` | 탐험 지도 칸 (uuid · cx · cz) |
+| `boss_fight` · `boss_contribution` | 보스 전투 (ACTIVE/DEFEATED/FAILED) · 기여도 (피해 · 막은 피해 · 지원) |
 
 ## 9. 마이그레이션
 
@@ -127,6 +146,10 @@ io.versaera
 |---|---|
 | 지역 판정 | 청크(16×16) 격자 인덱스 → 이동 이벤트에서 **블록이 바뀔 때만** O(1) 조회 |
 | NPC | 근처에 플레이어가 있을 때만 행동 (거리 기반 활성화) |
-| 보스 | 몸체 엔티티 1개 + 모델 디스플레이 소수 + 판정은 수학(원 · 부채꼴 · 선)으로 계산 |
+| 보스 | 판정 상자 1개 + 모델 디스플레이 1개 + 판정은 수학(원 · 부채꼴 · 선 · 고리)으로 계산 · 기여도는 메모리에 모아 끝날 때 저장 |
+| 스킬 · 상태 이상 | 판정은 수학, 상태 이상은 걸린 대상만 0.5초마다 |
+| 던전 | 방 하나씩 틱마다 건설, 전용 세계, 끝난 자리는 재시작 때 정리 |
+| 지도 | 새 칸에 들어갈 때만 DB 쓰기, 그리기 2초에 한 번 |
+| 세계 생성 | 열마다 지역 조회 5번 (O(1)), 불변 객체만 → 병렬 생성 안전 |
 | 저장 | 변경분만 모아 비동기 배치 저장 |
 | 파티클 | 예고 범위 외곽선만, 거리 컬링 |

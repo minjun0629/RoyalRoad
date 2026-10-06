@@ -50,6 +50,7 @@ public final class BossRuntime implements Listener {
         BossMotion.Pose pose;
         final Map<UUID, String> names = new HashMap<>();
         final List<Object[]> telegraphs = new ArrayList<>();   // [pattern, origin, yaw, resolveAt]
+        Runnable onDefeat;
 
         Live(BossDefinition def, Location at, String fightId) {
             this.def = def;
@@ -106,9 +107,15 @@ public final class BossRuntime implements Listener {
 
     /** 보스를 세운다. 전투 기록이 DB 에 생긴 뒤에 엔티티가 나타난다. onSpawn: 판정 상자 uuid */
     public void spawn(String id, Location at, org.bukkit.command.CommandSender notify, Consumer<UUID> onSpawn) {
+        spawn(id, at, notify, onSpawn, null);
+    }
+
+    /** onDefeat: 처치 직후 메인 스레드에서 (던전 보스방 등) */
+    public void spawn(String id, Location at, org.bukkit.command.CommandSender notify, Consumer<UUID> onSpawn, Runnable onDefeat) {
         BossDefinition d = def(id);
         async.run("boss_start", () -> s.bosses.start(id), fightId -> {
             Live l = new Live(d, at, fightId);
+            l.onDefeat = onDefeat;
             byHitbox.put(l.hitbox.getUniqueId(), l);
             at.getWorld().playSound(at, Sound.ENTITY_WITHER_SPAWN, 2f, 0.6f);
             if (onSpawn != null) onSpawn.accept(l.hitbox.getUniqueId());
@@ -163,6 +170,7 @@ public final class BossRuntime implements Listener {
         c.getWorld().playSound(c, Sound.ENTITY_ENDER_DRAGON_DEATH, 2f, 0.8f);
         byHitbox.remove(l.hitbox.getUniqueId());
         remove(l);
+        if (l.onDefeat != null) l.onDefeat.run();
         Map<String, String> names = new HashMap<>();
         l.names.forEach((u, n) -> names.put(u.toString(), n));
         async.run("boss_defeat", () -> s.bosses.defeated(l.fightId, names), out -> {

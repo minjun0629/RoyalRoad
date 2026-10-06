@@ -1,2 +1,15 @@
-# VersaEra 설정. 콘텐츠(아이템 · 레시피 · 지역 · NPC · 보스)는 plugins/VersaEra/content/*.yml 에서 고칩니다.
-timezone: Asia/Seoul   # 하루 단위 규칙(NPC 대화 등)의 날짜 기준
+# VersaEra 설정. 콘텐츠(아이템 · 레시피 · 지역 · NPC · 보스 · 퀘스트 · 던전 · 시장 · 이벤트)는 plugins/VersaEra/content/*.yml 에서 고칩니다.
+timezone: Asia/Seoul   # 하루 단위 규칙(NPC 대화 · 일일 의뢰)의 날짜 기준
+
+# 리소스팩 (코드로 생성 · 내장 HTTP 서버로 배포). 방화벽에서 port 를 열거나, public-url 에 외부에서 받을 수 있는 주소를 적으세요.
+pack:
+  enabled: true
+  port: 8173
+  public-url: ""   # 비우면 http://<server-ip>:<port>/versaera.zip
+  menu-background: true   # 메뉴 제목에 팩 배경 글자를 깐다 (팩을 거부한 사람에겐 네모로 보임)
+
+# 지형 생성기: bukkit.yml 에
+#   worlds:
+#     world:
+#       generator: VersaEra
+# 를 적고 새 세계를 만들면 regions.yml 에 맞는 땅이 생깁니다 (기존 세계에는 새 청크에만 적용).

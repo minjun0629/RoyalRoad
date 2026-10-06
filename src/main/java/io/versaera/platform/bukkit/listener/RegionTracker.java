@@ -32,11 +32,18 @@ public final class RegionTracker implements Listener {
         this.async = async;
     }
 
+    /** 드러나야만 들어갈 수 있는 지역 (월드 이벤트 reveal) — 메인 스레드에서 판정하는 순수 계산 */
+    private java.util.function.Predicate<String> blocked = id -> false;
+
+    public void gate(java.util.function.Predicate<String> blocked) {
+        this.blocked = blocked;
+    }
+
     public String regionOf(UUID player) {
         return current.get(player);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onMove(PlayerMoveEvent e) {
         Location to = e.getTo();
         if (to == null || (e.getFrom().getBlockX() == to.getBlockX() && e.getFrom().getBlockY() == to.getBlockY() && e.getFrom().getBlockZ() == to.getBlockZ()))
@@ -45,6 +52,11 @@ public final class RegionTracker implements Listener {
         Region r = s.regions.at(to.getWorld().getName(), to.getBlockX(), to.getBlockY(), to.getBlockZ());
         String now = r == null ? null : r.id(), before = current.get(p.getUniqueId());
         if (java.util.Objects.equals(now, before)) return;
+        if (now != null && !p.hasPermission("versaera.admin") && blocked.test(now)) {
+            e.setTo(e.getFrom());
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Ui.c("&7아직 길이 드러나지 않았다")));
+            return;
+        }
         if (now == null) current.remove(p.getUniqueId());
         else current.put(p.getUniqueId(), now);
         if (r == null) return;

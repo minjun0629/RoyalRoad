@@ -47,6 +47,7 @@ public final class GameServices {
     public final GatheringService gathering;
     public final MapService maps;
     public final BossService bosses;
+    public final SkillBook skills;
     private final ZoneId zone;
     private HiddenService hidden;
 
@@ -86,9 +87,15 @@ public final class GameServices {
         this.worldEvents = new WorldEventService(tx, new JdbcWorldEventRepository(db), content.worldEvents(), regions, bus, clock, 0L);
         this.gathering = new GatheringService(this, content.resources());
         this.maps = new MapService(tx, new JdbcMapRepository(db));
+        this.skills = new SkillBook(this, content.skills(), content.combos());
         this.bosses = new BossService(tx, new JdbcBossRepository(db), content.bosses(), this, bus, clock);
         market.regionDiscount(worldEvents::shopDiscount);
         this.dungeons = new DungeonService(tx, new JdbcDungeonRepository(db), progress, content.dungeons(), this, bus, clock);
+        // 퀘스트 진행: 발견 · 제작은 도메인 이벤트로 (같은 DB 스레드에서 동기 처리)
+        bus.subscribe(io.versaera.domain.event.GameEvents.PlayerDiscovered.class,
+                e -> quests.record(e.uuid(), io.versaera.domain.quest.QuestDefinition.Type.DISCOVER, e.kind() + ":" + e.ref(), 1, 0));
+        bus.subscribe(io.versaera.domain.event.GameEvents.PlayerCrafted.class,
+                e -> quests.record(e.uuid(), io.versaera.domain.quest.QuestDefinition.Type.CRAFT, e.recipeId(), 1, e.quality()));
         for (var r : content.resources()) {
             growth.discipline(r.discipline());
             types.get(r.yield());

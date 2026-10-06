@@ -68,6 +68,9 @@ public final class HiddenService {
             if (!progress.unlockHidden(uuid, r.id(), now)) return false;
             first[0] = progress.claimWorldFirst("hidden", r.id(), uuid, uuid, now);
             if (r.reward().containsKey("recipe")) progress.discover(uuid, "recipe", r.reward().get("recipe"), now);
+            if (r.reward().containsKey("quest")) progress.discover(uuid, "quest", r.reward().get("quest"), now);   // 숨은 퀘스트가 보이게
+            if (r.reward().containsKey("title")) progress.discover(uuid, "title", r.reward().get("title"), now);
+            if (r.reward().containsKey("place")) progress.discover(uuid, "place", r.reward().get("place"), now);
             return true;
         });
         if (fresh) bus.publish(new GameEvents.HiddenUnlocked(uuid, r.id(), first[0], r.rumor()));

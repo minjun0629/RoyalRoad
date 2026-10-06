@@ -2,19 +2,36 @@ name: VersaEra
 version: '${version}'
 main: io.versaera.platform.bukkit.VersaEraPlugin
 api-version: '1.20'
+# STARTUP: bukkit.yml 의 기본 세계에 VersaEra 지형 생성기를 쓸 수 있게 (세계가 필요한 일은 첫 틱으로 미룬다)
+load: STARTUP
 description: 베르사 새벽기 — 『달빛조각사』 이후 시대를 무대로 한 독립형 MMORPG (팬 프로젝트, 비공식)
 commands:
   versa:
-    description: 캐릭터 · 지도
+    description: 캐릭터 · 지도 · 지도책
     aliases: [베르사]
   trade:
     description: 거래 요청 · 수락
     aliases: [거래]
+  job:
+    description: 직업
+    aliases: [직업]
+  quest:
+    description: 진행 중인 의뢰 · 평판
+    aliases: [의뢰, 퀘스트]
+  guild:
+    description: 길드
+    aliases: [길드]
+  auction:
+    description: 지역 경매장
+    aliases: [경매]
+  dungeon:
+    description: 던전 입장
+    aliases: [던전]
   versaadmin:
     description: VersaEra 관리자
     aliases: [va]
     permission: versaera.admin
 permissions:
   versaera.admin:
-    description: 관리자 명령 (/versaadmin)
+    description: 관리자 명령 (/versaadmin) · 드러나지 않은 지역 통과
     default: op

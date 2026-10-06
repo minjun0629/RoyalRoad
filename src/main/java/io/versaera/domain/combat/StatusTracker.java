@@ -64,6 +64,11 @@ public final class StatusTracker {
         return out;
     }
 
+    /** 상태 이상이 걸린 대상들 */
+    public Set<UUID> targets() {
+        return Set.copyOf(active.keySet());
+    }
+
     public void forget(UUID target) {
         active.remove(target);
         lastTick.remove(target);
