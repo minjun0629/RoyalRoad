@@ -1,6 +1,6 @@
 """regions.yml 생성기 — 나무위키 「로열 로드/지리」 목차 · 본문의 위치 관계를 좌표로 옮긴다.
 사용: python3 tools/gen_regions.py  (src/main/resources/content/regions.yml 을 덮어쓴다)
-좌표: x 동쪽(+) · z 남쪽(+). 월드 -6000 ~ 6000.
+좌표: x 동쪽(+) · z 남쪽(+). 베르사 대륙 -6000 ~ 6000, 바깥 바다 · 신대륙 · 극지 -8000 ~ 8000, 다른 차원은 세계 versa_realms.
 """
 import json, os
 
@@ -17,10 +17,10 @@ SECTION = [""]
 def sec(title):
     SECTION[0] = title
 
-def r(id, name, src, danger, box, prio, tags, purpose, parent=None, changed=None, y=(-64, 320), resources=None, factions=None):
+def r(id, name, src, danger, box, prio, tags, purpose, parent=None, changed=None, y=(-64, 320), resources=None, factions=None, world="world"):
     x1, z1, x2, z2 = box
     d = dict(id=id, name=name, source=src, danger=danger, min=[x1, y[0], z1], max=[x2, y[1], z2], priority=prio,
-             parent=parent, tags=tags, purpose=purpose, changed=changed)
+             parent=parent, tags=tags, purpose=purpose, changed=changed, world=world)
     k = KEEP.get(id, {})
     d["resources"] = resources if resources is not None else k.get("resources")
     d["factions"] = factions if factions is not None else k.get("factions")
@@ -470,6 +470,105 @@ r("todum_depths", "토둠 (뱀파이어의 세계로 가는 굴)", "CANON", 6, (
   "서쪽 바다 밑 깊은 동굴 — 뱀파이어 세계 토둠으로 이어진다는 곳", parent="western_sea_south", y=(-64, 20),
   changed="원작의 다른 차원 '뱀파이어 토둠'으로 가는 길이 후대에는 바다 밑 동굴로 전해짐")
 
+
+# ===================================================================== 원작에 위치가 없어 이 게임이 정한 자리
+sec("카올랴 · 이름 없는 미궁 · 비경 · 수련관 (원작에 위치 없음 → 이 게임의 배치)")
+r("kaolya_blight", "카올랴의 오염된 땅", "CANON", 6, (-4600, -4200, -3200, -3300), 10, ["badlands", "ruins"],
+  "10대 금역 중 최악. 갈라진 땅에서 몬스터가 끝없이 솟는다 — 악마계의 문이 숨은 곳", parent="north_reach",
+  changed="원작에 위치가 없어 이 게임은 북부 북서쪽 끝에 둠. 악마 집사장이 숨었던 균열이 지금은 악마계로 열린 문이 됨")
+r("devil_gate", "마힐고르타의 은신처 (악마계의 문)", "ORIGINAL", 6, (-3912, -3762, -3888, -3738), 26, ["portal"],
+  "카올랴 한가운데 균열 — 악마계로 건너가는 문", parent="kaolya_blight")
+# 8대 미궁: 원작은 로드릭만 이름이 나옴. 미궁 조드(아베리안 숲)를 하나로 세고, 나머지 여섯은 이 게임이 만든 미궁 (ORIGINAL)
+r("ice_heart_labyrinth", "얼음 심장 미궁", "ORIGINAL", 6, (-2000, -5600, -1940, -5540), 22, ["dungeon_site"], "8대 미궁 (이 게임) — 빙원 아래 얼어붙은 궁전", parent="niflheim_wastes")
+r("mirror_corridor_labyrinth", "거울 회랑 미궁", "ORIGINAL", 6, (-2600, -600, -2540, -540), 22, ["dungeon_site"], "8대 미궁 (이 게임) — 길이 비쳐 갈라지는 회랑", parent="kallamore_lands")
+r("sunken_archive_labyrinth", "가라앉은 서고 미궁", "ORIGINAL", 6, (200, 400, 260, 460), 22, ["dungeon_site"], "8대 미궁 (이 게임) — 땅속으로 내려앉은 옛 서고", parent="haven_lands")
+r("stopped_gear_labyrinth", "멈춘 톱니 미궁", "ORIGINAL", 6, (2000, 900, 2060, 960), 22, ["dungeon_site"], "8대 미궁 (이 게임) — 멈춘 기계 장치의 성", parent="britten_alliance")
+r("hourglass_labyrinth", "모래시계 미궁", "ORIGINAL", 6, (-1800, 5000, -1740, 5060), 22, ["dungeon_site"], "8대 미궁 (이 게임) — 모래가 흐르며 방이 바뀌는 지하", parent="sand_sea")
+r("root_labyrinth", "뿌리 미궁", "ORIGINAL", 6, (5700, 2500, 5760, 2560), 22, ["dungeon_site"], "8대 미궁 (이 게임) — 대수림 거목의 뿌리 속", parent="great_forest")
+# 9대 비경: 원작은 울호프 산호지대만 이름이 나옴. 나머지 여덟은 이 게임이 만든 경치 (ORIGINAL) — 싸움보다 보는 곳
+r("starfall_lake", "별이 내려앉는 호수", "ORIGINAL", 1, (-3150, -4750, -2750, -4350), 12, ["lake"], "9대 비경 (이 게임) — 밤하늘이 그대로 비치는 북부의 호수", parent="north_reach")
+r("rainbow_falls", "무지개 폭포 골짜기", "ORIGINAL", 2, (2450, -3150, 2750, -2950), 12, ["valley"], "9대 비경 (이 게임) — 노른 산맥 사이 물보라 골짜기", parent="norn_range")
+r("thousand_pillars", "천 개의 돌기둥 협곡", "ORIGINAL", 3, (3300, -2300, 3700, -1900), 12, ["canyon"], "9대 비경 (이 게임) — 바람이 깎은 돌기둥 숲", parent="brent_highlands")
+r("white_salt_flats", "하얀 소금 평원", "ORIGINAL", 2, (-2900, 4400, -2100, 4750), 12, ["salt"], "9대 비경 (이 게임) — 끝없이 흰 소금 바닥", parent="sand_sea")
+r("firefly_forest", "반딧불 숲", "ORIGINAL", 1, (-1880, 2300, -1520, 2900), 12, ["forest"], "9대 비경 (이 게임) — 밤마다 빛이 떠다니는 숲", parent="aidern_lands")
+r("cloud_plateau", "구름 위 고원", "ORIGINAL", 3, (-3290, 2450, -3010, 2900), 12, ["mountain"], "9대 비경 (이 게임) — 루비둠 산맥 위 구름 바다를 내려다보는 고원", parent="ruvidum_range")
+r("crimson_maple_valley", "붉은 단풍 골짜기", "ORIGINAL", 2, (-1500, -2380, -1150, -2100), 12, ["valley", "forest"], "9대 비경 (이 게임) — 하이네프 산속 단풍 골짜기", parent="haineff_mountains")
+r("glacier_grotto", "푸른 빙하 동굴", "ORIGINAL", 3, (2900, -5700, 2960, -5640), 22, ["landmark"], "9대 비경 (이 게임) — 빙원 끝 푸른 얼음 동굴 입구", parent="niflheim_wastes")
+# 수련관: 원작 본문에 위치가 없음
+r("basic_training_hall", "기초 수련관", "CANON", 0, (4010, 1510, 4060, 1560), 25, ["landmark"], "허수아비를 오래 때리는 첫 수련관", parent="serabourg",
+  changed="원작에 위치가 없어 이 게임은 시작 도시 세라보그 성 한쪽에 둠. 후대에는 마을 아이들도 드나드는 훈련장")
+r("novice_training_hall", "초급 수련관", "CANON", 1, (4340, 1840, 4390, 1890), 25, ["landmark"], "철인 100명과 겨루는 수련관", parent="serabourg",
+  changed="원작에 위치가 없어 이 게임은 세라보그 성 반대편 귀퉁이에 둠")
+r("hero_tower", "영웅의 탑 (중급 수련관)", "CANON", 3, (900, 200, 960, 260), 22, ["landmark"], "층을 오르며 겨루는 중급 수련관", parent="litten_kingdom",
+  changed="원작에 위치가 없어 이 게임은 대륙 한가운데 리튼 왕국에 둠")
+# 다른 차원으로 가는 문 (베르사 대륙 쪽)
+r("dead_ferry", "망자의 나루 (거인계로 가는 배터)", "ORIGINAL", 5, (-4790, 2590, -4766, 2614), 26, ["portal"], "그라디안 서해안 — 거인계로 건너가는 배가 닿는 곳", parent="gradian_lands")
+r("spirit_spring", "정령의 샘 (정령계의 문)", "ORIGINAL", 3, (-1612, -3492, -1588, -3468), 26, ["portal"], "북부 숲속 샘 — 정령계로 이어진다", parent="north_reach")
+r("fairy_ring", "요정의 고리 (요정계의 문)", "ORIGINAL", 4, (5740, -500, 5764, -476), 26, ["portal"], "대수림 깊은 곳 버섯 고리 — 요정계의 문", parent="great_forest")
+r("hell_rift", "지옥의 틈", "ORIGINAL", 6, (-1620, -1820, -1596, -1796), 26, ["portal"], "벨카인이 기어 나왔다는 은신처 옆 틈 — 지옥으로 내려간다", parent="haineff_mountains")
+r("demonkind_gate", "마계의 문 (구멍 바닥)", "ORIGINAL", 6, (-5312, -2012, -5288, -1988), 26, ["portal"], "엠비뉴 성지의 거대한 구멍 바닥 — 마계로 이어진다", parent="embinyu_sanctum")
+r("todum_gate", "토둠으로 가는 굴 끝", "ORIGINAL", 5, (-5712, 1988, -5688, 2012), 26, ["portal"], "바다 밑 굴 끝 — 뱀파이어 토둠의 문", parent="todum_depths")
+
+# ===================================================================== 바깥 바다 · 극지 · 신대륙 (베르사 대륙 밖, -8000 ~ 8000)
+sec("바깥 바다 · 북극 · 남극 · 남쪽/동쪽/서쪽 신대륙 (나무위키 §1 · §3.3 · §4.2 · §5.2)")
+r("outer_ocean", "먼 바다", "SOURCE-BASED", 4, (-8000, -8000, 8000, 8000), -1, ["sea"], "베르사 대륙과 신대륙 · 극지 사이의 깊은 바다")
+r("north_pole", "북극", "CANON", 5, (-8000, -8000, 8000, -7401), 3, ["frozen"], "세상의 북쪽 끝 얼음 땅",
+  changed="원작에 존재만 언급. 이 게임은 지도 북쪽 끝 띠로 둠")
+r("south_pole", "남극 (혹한의 땅)", "CANON", 6, (-8000, 7401, 8000, 8000), 3, ["frozen"], "10대 금역. 펭귄도 얼어 죽는 추위 · 눈의 정령 · 얼음의 영혼",
+  changed="원작에 위치 서술이 없어 이 게임은 지도 남쪽 끝 띠로 둠. 남쪽 대륙 너머")
+r("south_continent", "남쪽 대륙", "CANON", 4, (-3000, 6400, 3000, 7200), 3, ["forest", "frontier"], "베르사 남쪽 끝에서 바다를 건너면 나오는 대륙",
+  changed="원작에서 저주로 얼었다가 풀린 땅. 후대에는 숲이 다시 우거짐")
+r("meard_forest", "메아드의 숲", "CANON", 3, (-700, 6550, 700, 7050), 10, ["forest"], "세계수의 후손이 지내는 숲", parent="south_continent",
+  changed="원작의 세계수 후손이 자라 숲 한가운데 거목이 됨")
+r("world_tree_scion", "세계수의 후손", "CANON", 2, (-30, 6770, 30, 6830), 25, ["landmark"], "숲 한가운데 거목", parent="meard_forest",
+  changed="원작의 세계수 후손 — 후대에 하늘을 덮을 만큼 자람")
+r("east_continent", "동쪽 대륙", "CANON", 5, (6400, -3500, 7700, 3500), 3, ["highland", "forest"], "베르사 동쪽 바다 건너 — 높은 산과 숲",
+  changed="원작에서 골동품 지도로 알려진 대륙. 이 게임은 동쪽 바다 건너에 둠")
+r("east_peaks", "동쪽 대륙 높은 산들", "SOURCE-BASED", 5, (6600, 800, 7500, 3200), 8, ["mountain"], "엄청난 높이의 산들", parent="east_continent")
+r("ring_of_fire", "불의 고리", "CANON", 6, (6700, -2500, 7500, -500), 10, ["volcano"], "쉴 새 없이 분화하는 대화산 지대", parent="east_continent",
+  changed="원작의 대화산 지대 — 후대에도 분화가 멈추지 않음")
+r("randoni_lair", "랜도니의 레어 (대화산)", "CANON", 6, (7070, -1530, 7130, -1470), 22, ["dungeon_site"], "대화산 꼭대기의 레어 입구", parent="ring_of_fire",
+  changed="원작의 레어. 후대에는 주인 없는 빈 레어로 전해짐")
+r("west_new_continent", "서쪽 신대륙 (거인들이 잊은 땅)", "CANON", 6, (-7700, -3500, -6400, 3500), 3, ["highland"], "거인들이 만들어 놓고 잊어버린 대륙",
+  changed="원작에선 이름만 나온 맥거핀. 이 게임은 서쪽 바다 건너에 둠")
+r("magic_barrier", "마법의 장벽", "CANON", 6, (-6480, -3500, -6420, 3500), 15, ["wall", "sealed"], "신대륙 동해안을 막은 장벽 — 통로가 없다 (돌아서 북쪽 · 남쪽 해안으로)",
+  parent="west_new_continent", changed="원작의 '몬스터와 마법의 장벽'. 후대에도 무너지지 않음")
+r("giants_gold_vault", "거인의 황금 창고", "SOURCE-BASED", 6, (-7100, -100, -7040, -40), 22, ["dungeon_site"], "거인들이 베르사에서 캐 간 황금을 쌓았다는 창고 입구",
+  parent="west_new_continent")
+
+# ===================================================================== 다른 차원 (세계 versa_realms)
+sec("다른 차원 — 세계 versa_realms (나무위키 §4.1 · §7)")
+REALM = "versa_realms"
+r("realm_rift", "차원의 틈", "ORIGINAL", 6, (-8000, -8000, 8000, 8000), -1, ["sea"], "차원과 차원 사이의 빈 바다", world=REALM)
+r("giant_realm", "거인계", "CANON", 6, (-6000, -3000, -3200, -200), 4, ["highland", "forest"], "거인들이 지배하는 세계 — 인간 마을도 있다", world=REALM,
+  changed="원작의 거인계. 후대에도 거인이 다스리고, 신들의 영역과 맞닿음")
+r("roadseeker_tomb", "로드시커의 무덤", "CANON", 6, (-5000, -2500, -4940, -2440), 22, ["dungeon_site"], "대모험가 로드시커의 무덤", parent="giant_realm", world=REALM,
+  changed="원작의 무덤. 깨우는 방법은 옮기지 않음 — 이 게임에서는 입구만 남은 무덤")
+r("derrick_village", "마을 데릭", "CANON", 2, (-4300, -1500, -3900, -1100), 20, ["city", "forest"], "깊은 숲 속 인간 · 수인족 마을", parent="giant_realm", world=REALM, y=CITY,
+  changed="원작의 마을. 후대에는 차원을 건너온 모험가의 쉼터")
+r("giant_return", "거인계 귀환의 배터", "ORIGINAL", 2, (-4612, -812, -4588, -788), 26, ["portal"], "베르사로 돌아가는 배", parent="giant_realm", world=REALM)
+r("divine_gate", "신들의 문", "ORIGINAL", 6, (-3312, -1612, -3288, -1588), 26, ["portal"], "거인계 동쪽 끝 — 파수꾼이 지키는 신계의 문", parent="giant_realm", world=REALM)
+r("divine_realm", "신계", "CANON", 6, (-3000, -3000, -200, -200), 4, ["divine"], "거인들의 영역 가까운 신들의 영역", world=REALM,
+  changed="원작의 신계. 이 게임은 탐험 숙련 마스터만 건너게 함")
+r("divine_return", "신계 내려가는 문", "ORIGINAL", 4, (-1612, -1612, -1588, -1588), 26, ["portal"], "거인계로 돌아가는 문", parent="divine_realm", world=REALM)
+r("spirit_realm", "정령계", "CANON", 4, (200, -3000, 3000, -200), 4, ["mist"], "정령술사들이 갈 수 있는 세계", world=REALM,
+  changed="원작의 정령계. 이 게임은 정령의 샘으로 누구나 (탐험 숙련만 되면) 건넘")
+r("spirit_return", "정령계 귀환의 샘", "ORIGINAL", 2, (1588, -1612, 1612, -1588), 26, ["portal"], "베르사로 돌아가는 샘", parent="spirit_realm", world=REALM)
+r("fairy_realm", "요정계", "CANON", 4, (3200, -3000, 6000, -200), 4, ["forest"], "요정들의 세계", world=REALM, changed="원작에 이름만 나온 세계 — 모습은 이 게임의 설정")
+r("fairy_return", "요정계 귀환의 고리", "ORIGINAL", 2, (4588, -1612, 4612, -1588), 26, ["portal"], "베르사로 돌아가는 고리", parent="fairy_realm", world=REALM)
+r("demonkind_realm", "마계", "CANON", 6, (-6000, 200, -3200, 3000), 4, ["badlands"], "마족들의 세계 — 악마와는 사이가 나쁘다", world=REALM,
+  changed="원작에 이름만 나온 세계 — 모습은 이 게임의 설정")
+r("demonkind_return", "마계 귀환의 문", "ORIGINAL", 4, (-4612, 1588, -4588, 1612), 26, ["portal"], "베르사로 돌아가는 문", parent="demonkind_realm", world=REALM)
+r("devil_realm", "악마계", "CANON", 6, (-3000, 200, -200, 3000), 4, ["badlands", "ruins"], "악마들의 세계 — 옛 원정의 폐허", world=REALM,
+  changed="원작에서 악마 대공 원정이 있었던 세계. 후대에는 원정대의 무너진 진지가 남음")
+r("devil_return", "악마계 귀환의 문", "ORIGINAL", 4, (-1612, 1588, -1588, 1612), 26, ["portal"], "베르사로 돌아가는 문", parent="devil_realm", world=REALM)
+r("hell_realm", "지옥", "CANON", 6, (200, 200, 3000, 3000), 4, ["volcano"], "악마와 마물의 세계 — 중간계에서 구하기 힘든 광석", world=REALM,
+  changed="원작의 지옥. 이 게임은 지옥의 틈으로 건넘")
+r("hell_return", "지옥 귀환의 틈", "ORIGINAL", 4, (1588, 2388, 1612, 2412), 26, ["portal"], "베르사로 돌아가는 틈", parent="hell_realm", world=REALM)
+r("todum_realm", "뱀파이어 토둠", "CANON", 5, (3200, 200, 6000, 3000), 4, ["mist", "ruins"], "뱀파이어들의 세계", world=REALM,
+  changed="원작의 토둠. 후대에는 바다 밑 굴로만 이어짐")
+r("todum_return", "토둠 귀환의 굴", "ORIGINAL", 3, (4588, 1588, 4612, 1612), 26, ["portal"], "베르사로 돌아가는 굴", parent="todum_realm", world=REALM)
+
 # ===================================================================== 출력
 def q(v):
     v = str(v)
@@ -483,7 +582,8 @@ def lst(v):
 lines = ["# 지역 — tools/gen_regions.py 로 생성 (손으로 고치면 다음 생성 때 덮어씀).",
          "# 근거: 나무위키 「로열 로드/지리」 (2026 사용자 제공 본문) · 01_RESEARCH.md. x 동쪽(+) · z 남쪽(+). 겹치면 priority 가 높은 지역이 이긴다.",
          "# 원작 지명(CANON)은 changed(후대의 변화)가 필수. tags: landmark · dungeon_site · wall 은 지형을 바꾸지 않고 구조물만 세운다.",
-         "# 넣지 않은 것: 카올랴의 오염된 땅(위치 불명) · 남극 · 남쪽/동쪽/서쪽 신대륙 · 거인계 · 다른 차원(신계 · 마계 · 정령계 …) — 지도 밖",
+         "# 원작에 위치가 없는 곳(카올랴 · 신대륙 · 극지 · 이름 없는 미궁/비경 · 수련관 · 다른 차원)은 이 게임이 정한 자리 — purpose · changed 에 그렇게 적었다.",
+         "# portal 태그 = 문 (content/gates.yml). 다른 차원은 world: versa_realms.",
          "regions:"]
 cur = None
 ids = set()
@@ -500,6 +600,8 @@ for s, d in R:
     if d["source"] != "ORIGINAL":
         lines.append("    source: %s" % d["source"])
     lines.append("    danger: %d" % d["danger"])
+    if d["world"] != "world":
+        lines.append("    world: %s" % d["world"])
     lines.append("    min: [%d, %d, %d]" % tuple(d["min"]))
     lines.append("    max: [%d, %d, %d]" % tuple(d["max"]))
     lines.append("    priority: %d" % d["priority"])

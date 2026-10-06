@@ -1,7 +1,8 @@
 # 지역 — tools/gen_regions.py 로 생성 (손으로 고치면 다음 생성 때 덮어씀).
 # 근거: 나무위키 「로열 로드/지리」 (2026 사용자 제공 본문) · 01_RESEARCH.md. x 동쪽(+) · z 남쪽(+). 겹치면 priority 가 높은 지역이 이긴다.
 # 원작 지명(CANON)은 changed(후대의 변화)가 필수. tags: landmark · dungeon_site · wall 은 지형을 바꾸지 않고 구조물만 세운다.
-# 넣지 않은 것: 카올랴의 오염된 땅(위치 불명) · 남극 · 남쪽/동쪽/서쪽 신대륙 · 거인계 · 다른 차원(신계 · 마계 · 정령계 …) — 지도 밖
+# 원작에 위치가 없는 곳(카올랴 · 신대륙 · 극지 · 이름 없는 미궁/비경 · 수련관 · 다른 차원)은 이 게임이 정한 자리 — purpose · changed 에 그렇게 적었다.
+# portal 태그 = 문 (content/gates.yml). 다른 차원은 world: versa_realms.
 regions:
 
   # ============================================================ 북부 — 아르펜 제국 · 옛 니플하임 제국 (나무위키 §6)
@@ -2252,3 +2253,587 @@ regions:
     purpose: 서쪽 바다 밑 깊은 동굴 — 뱀파이어 세계 토둠으로 이어진다는 곳
     changed: "원작의 다른 차원 '뱀파이어 토둠'으로 가는 길이 후대에는 바다 밑 동굴로 전해짐"
     resources: [silver_ore, raw_gem]
+
+  # ============================================================ 카올랴 · 이름 없는 미궁 · 비경 · 수련관 (원작에 위치 없음 → 이 게임의 배치)
+  kaolya_blight:
+    name: 카올랴의 오염된 땅
+    source: CANON
+    danger: 6
+    min: [-4600, -64, -4200]
+    max: [-3200, 320, -3300]
+    priority: 10
+    parent: north_reach
+    tags: [badlands, ruins]
+    purpose: 10대 금역 중 최악. 갈라진 땅에서 몬스터가 끝없이 솟는다 — 악마계의 문이 숨은 곳
+    changed: 원작에 위치가 없어 이 게임은 북부 북서쪽 끝에 둠. 악마 집사장이 숨었던 균열이 지금은 악마계로 열린 문이 됨
+  devil_gate:
+    name: 마힐고르타의 은신처 (악마계의 문)
+    danger: 6
+    min: [-3912, -64, -3762]
+    max: [-3888, 320, -3738]
+    priority: 26
+    parent: kaolya_blight
+    tags: [portal]
+    purpose: 카올랴 한가운데 균열 — 악마계로 건너가는 문
+  ice_heart_labyrinth:
+    name: 얼음 심장 미궁
+    danger: 6
+    min: [-2000, -64, -5600]
+    max: [-1940, 320, -5540]
+    priority: 22
+    parent: niflheim_wastes
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 빙원 아래 얼어붙은 궁전
+  mirror_corridor_labyrinth:
+    name: 거울 회랑 미궁
+    danger: 6
+    min: [-2600, -64, -600]
+    max: [-2540, 320, -540]
+    priority: 22
+    parent: kallamore_lands
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 길이 비쳐 갈라지는 회랑
+  sunken_archive_labyrinth:
+    name: 가라앉은 서고 미궁
+    danger: 6
+    min: [200, -64, 400]
+    max: [260, 320, 460]
+    priority: 22
+    parent: haven_lands
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 땅속으로 내려앉은 옛 서고
+  stopped_gear_labyrinth:
+    name: 멈춘 톱니 미궁
+    danger: 6
+    min: [2000, -64, 900]
+    max: [2060, 320, 960]
+    priority: 22
+    parent: britten_alliance
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 멈춘 기계 장치의 성
+  hourglass_labyrinth:
+    name: 모래시계 미궁
+    danger: 6
+    min: [-1800, -64, 5000]
+    max: [-1740, 320, 5060]
+    priority: 22
+    parent: sand_sea
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 모래가 흐르며 방이 바뀌는 지하
+  root_labyrinth:
+    name: 뿌리 미궁
+    danger: 6
+    min: [5700, -64, 2500]
+    max: [5760, 320, 2560]
+    priority: 22
+    parent: great_forest
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 대수림 거목의 뿌리 속
+  starfall_lake:
+    name: 별이 내려앉는 호수
+    danger: 1
+    min: [-3150, -64, -4750]
+    max: [-2750, 320, -4350]
+    priority: 12
+    parent: north_reach
+    tags: [lake]
+    purpose: 9대 비경 (이 게임) — 밤하늘이 그대로 비치는 북부의 호수
+  rainbow_falls:
+    name: 무지개 폭포 골짜기
+    danger: 2
+    min: [2450, -64, -3150]
+    max: [2750, 320, -2950]
+    priority: 12
+    parent: norn_range
+    tags: [valley]
+    purpose: 9대 비경 (이 게임) — 노른 산맥 사이 물보라 골짜기
+  thousand_pillars:
+    name: 천 개의 돌기둥 협곡
+    danger: 3
+    min: [3300, -64, -2300]
+    max: [3700, 320, -1900]
+    priority: 12
+    parent: brent_highlands
+    tags: [canyon]
+    purpose: 9대 비경 (이 게임) — 바람이 깎은 돌기둥 숲
+  white_salt_flats:
+    name: 하얀 소금 평원
+    danger: 2
+    min: [-2900, -64, 4400]
+    max: [-2100, 320, 4750]
+    priority: 12
+    parent: sand_sea
+    tags: [salt]
+    purpose: 9대 비경 (이 게임) — 끝없이 흰 소금 바닥
+  firefly_forest:
+    name: 반딧불 숲
+    danger: 1
+    min: [-1880, -64, 2300]
+    max: [-1520, 320, 2900]
+    priority: 12
+    parent: aidern_lands
+    tags: [forest]
+    purpose: 9대 비경 (이 게임) — 밤마다 빛이 떠다니는 숲
+  cloud_plateau:
+    name: 구름 위 고원
+    danger: 3
+    min: [-3290, -64, 2450]
+    max: [-3010, 320, 2900]
+    priority: 12
+    parent: ruvidum_range
+    tags: [mountain]
+    purpose: 9대 비경 (이 게임) — 루비둠 산맥 위 구름 바다를 내려다보는 고원
+  crimson_maple_valley:
+    name: 붉은 단풍 골짜기
+    danger: 2
+    min: [-1500, -64, -2380]
+    max: [-1150, 320, -2100]
+    priority: 12
+    parent: haineff_mountains
+    tags: [valley, forest]
+    purpose: 9대 비경 (이 게임) — 하이네프 산속 단풍 골짜기
+  glacier_grotto:
+    name: 푸른 빙하 동굴
+    danger: 3
+    min: [2900, -64, -5700]
+    max: [2960, 320, -5640]
+    priority: 22
+    parent: niflheim_wastes
+    tags: [landmark]
+    purpose: 9대 비경 (이 게임) — 빙원 끝 푸른 얼음 동굴 입구
+  basic_training_hall:
+    name: 기초 수련관
+    source: CANON
+    danger: 0
+    min: [4010, -64, 1510]
+    max: [4060, 320, 1560]
+    priority: 25
+    parent: serabourg
+    tags: [landmark]
+    purpose: 허수아비를 오래 때리는 첫 수련관
+    changed: 원작에 위치가 없어 이 게임은 시작 도시 세라보그 성 한쪽에 둠. 후대에는 마을 아이들도 드나드는 훈련장
+  novice_training_hall:
+    name: 초급 수련관
+    source: CANON
+    danger: 1
+    min: [4340, -64, 1840]
+    max: [4390, 320, 1890]
+    priority: 25
+    parent: serabourg
+    tags: [landmark]
+    purpose: 철인 100명과 겨루는 수련관
+    changed: 원작에 위치가 없어 이 게임은 세라보그 성 반대편 귀퉁이에 둠
+  hero_tower:
+    name: 영웅의 탑 (중급 수련관)
+    source: CANON
+    danger: 3
+    min: [900, -64, 200]
+    max: [960, 320, 260]
+    priority: 22
+    parent: litten_kingdom
+    tags: [landmark]
+    purpose: 층을 오르며 겨루는 중급 수련관
+    changed: 원작에 위치가 없어 이 게임은 대륙 한가운데 리튼 왕국에 둠
+  dead_ferry:
+    name: 망자의 나루 (거인계로 가는 배터)
+    danger: 5
+    min: [-4790, -64, 2590]
+    max: [-4766, 320, 2614]
+    priority: 26
+    parent: gradian_lands
+    tags: [portal]
+    purpose: 그라디안 서해안 — 거인계로 건너가는 배가 닿는 곳
+  spirit_spring:
+    name: 정령의 샘 (정령계의 문)
+    danger: 3
+    min: [-1612, -64, -3492]
+    max: [-1588, 320, -3468]
+    priority: 26
+    parent: north_reach
+    tags: [portal]
+    purpose: 북부 숲속 샘 — 정령계로 이어진다
+  fairy_ring:
+    name: 요정의 고리 (요정계의 문)
+    danger: 4
+    min: [5740, -64, -500]
+    max: [5764, 320, -476]
+    priority: 26
+    parent: great_forest
+    tags: [portal]
+    purpose: 대수림 깊은 곳 버섯 고리 — 요정계의 문
+  hell_rift:
+    name: 지옥의 틈
+    danger: 6
+    min: [-1620, -64, -1820]
+    max: [-1596, 320, -1796]
+    priority: 26
+    parent: haineff_mountains
+    tags: [portal]
+    purpose: 벨카인이 기어 나왔다는 은신처 옆 틈 — 지옥으로 내려간다
+  demonkind_gate:
+    name: 마계의 문 (구멍 바닥)
+    danger: 6
+    min: [-5312, -64, -2012]
+    max: [-5288, 320, -1988]
+    priority: 26
+    parent: embinyu_sanctum
+    tags: [portal]
+    purpose: 엠비뉴 성지의 거대한 구멍 바닥 — 마계로 이어진다
+  todum_gate:
+    name: 토둠으로 가는 굴 끝
+    danger: 5
+    min: [-5712, -64, 1988]
+    max: [-5688, 320, 2012]
+    priority: 26
+    parent: todum_depths
+    tags: [portal]
+    purpose: 바다 밑 굴 끝 — 뱀파이어 토둠의 문
+
+  # ============================================================ 바깥 바다 · 북극 · 남극 · 남쪽/동쪽/서쪽 신대륙 (나무위키 §1 · §3.3 · §4.2 · §5.2)
+  outer_ocean:
+    name: 먼 바다
+    source: SOURCE-BASED
+    danger: 4
+    min: [-8000, -64, -8000]
+    max: [8000, 320, 8000]
+    priority: -1
+    tags: [sea]
+    purpose: 베르사 대륙과 신대륙 · 극지 사이의 깊은 바다
+  north_pole:
+    name: 북극
+    source: CANON
+    danger: 5
+    min: [-8000, -64, -8000]
+    max: [8000, 320, -7401]
+    priority: 3
+    tags: [frozen]
+    purpose: 세상의 북쪽 끝 얼음 땅
+    changed: 원작에 존재만 언급. 이 게임은 지도 북쪽 끝 띠로 둠
+  south_pole:
+    name: 남극 (혹한의 땅)
+    source: CANON
+    danger: 6
+    min: [-8000, -64, 7401]
+    max: [8000, 320, 8000]
+    priority: 3
+    tags: [frozen]
+    purpose: 10대 금역. 펭귄도 얼어 죽는 추위 · 눈의 정령 · 얼음의 영혼
+    changed: 원작에 위치 서술이 없어 이 게임은 지도 남쪽 끝 띠로 둠. 남쪽 대륙 너머
+  south_continent:
+    name: 남쪽 대륙
+    source: CANON
+    danger: 4
+    min: [-3000, -64, 6400]
+    max: [3000, 320, 7200]
+    priority: 3
+    tags: [forest, frontier]
+    purpose: 베르사 남쪽 끝에서 바다를 건너면 나오는 대륙
+    changed: 원작에서 저주로 얼었다가 풀린 땅. 후대에는 숲이 다시 우거짐
+  meard_forest:
+    name: 메아드의 숲
+    source: CANON
+    danger: 3
+    min: [-700, -64, 6550]
+    max: [700, 320, 7050]
+    priority: 10
+    parent: south_continent
+    tags: [forest]
+    purpose: 세계수의 후손이 지내는 숲
+    changed: 원작의 세계수 후손이 자라 숲 한가운데 거목이 됨
+  world_tree_scion:
+    name: 세계수의 후손
+    source: CANON
+    danger: 2
+    min: [-30, -64, 6770]
+    max: [30, 320, 6830]
+    priority: 25
+    parent: meard_forest
+    tags: [landmark]
+    purpose: 숲 한가운데 거목
+    changed: 원작의 세계수 후손 — 후대에 하늘을 덮을 만큼 자람
+  east_continent:
+    name: 동쪽 대륙
+    source: CANON
+    danger: 5
+    min: [6400, -64, -3500]
+    max: [7700, 320, 3500]
+    priority: 3
+    tags: [highland, forest]
+    purpose: 베르사 동쪽 바다 건너 — 높은 산과 숲
+    changed: 원작에서 골동품 지도로 알려진 대륙. 이 게임은 동쪽 바다 건너에 둠
+  east_peaks:
+    name: 동쪽 대륙 높은 산들
+    source: SOURCE-BASED
+    danger: 5
+    min: [6600, -64, 800]
+    max: [7500, 320, 3200]
+    priority: 8
+    parent: east_continent
+    tags: [mountain]
+    purpose: 엄청난 높이의 산들
+  ring_of_fire:
+    name: 불의 고리
+    source: CANON
+    danger: 6
+    min: [6700, -64, -2500]
+    max: [7500, 320, -500]
+    priority: 10
+    parent: east_continent
+    tags: [volcano]
+    purpose: 쉴 새 없이 분화하는 대화산 지대
+    changed: 원작의 대화산 지대 — 후대에도 분화가 멈추지 않음
+  randoni_lair:
+    name: 랜도니의 레어 (대화산)
+    source: CANON
+    danger: 6
+    min: [7070, -64, -1530]
+    max: [7130, 320, -1470]
+    priority: 22
+    parent: ring_of_fire
+    tags: [dungeon_site]
+    purpose: 대화산 꼭대기의 레어 입구
+    changed: 원작의 레어. 후대에는 주인 없는 빈 레어로 전해짐
+  west_new_continent:
+    name: 서쪽 신대륙 (거인들이 잊은 땅)
+    source: CANON
+    danger: 6
+    min: [-7700, -64, -3500]
+    max: [-6400, 320, 3500]
+    priority: 3
+    tags: [highland]
+    purpose: 거인들이 만들어 놓고 잊어버린 대륙
+    changed: 원작에선 이름만 나온 맥거핀. 이 게임은 서쪽 바다 건너에 둠
+  magic_barrier:
+    name: 마법의 장벽
+    source: CANON
+    danger: 6
+    min: [-6480, -64, -3500]
+    max: [-6420, 320, 3500]
+    priority: 15
+    parent: west_new_continent
+    tags: [wall, sealed]
+    purpose: 신대륙 동해안을 막은 장벽 — 통로가 없다 (돌아서 북쪽 · 남쪽 해안으로)
+    changed: "원작의 '몬스터와 마법의 장벽'. 후대에도 무너지지 않음"
+  giants_gold_vault:
+    name: 거인의 황금 창고
+    source: SOURCE-BASED
+    danger: 6
+    min: [-7100, -64, -100]
+    max: [-7040, 320, -40]
+    priority: 22
+    parent: west_new_continent
+    tags: [dungeon_site]
+    purpose: 거인들이 베르사에서 캐 간 황금을 쌓았다는 창고 입구
+
+  # ============================================================ 다른 차원 — 세계 versa_realms (나무위키 §4.1 · §7)
+  realm_rift:
+    name: 차원의 틈
+    danger: 6
+    world: versa_realms
+    min: [-8000, -64, -8000]
+    max: [8000, 320, 8000]
+    priority: -1
+    tags: [sea]
+    purpose: 차원과 차원 사이의 빈 바다
+  giant_realm:
+    name: 거인계
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [-6000, -64, -3000]
+    max: [-3200, 320, -200]
+    priority: 4
+    tags: [highland, forest]
+    purpose: 거인들이 지배하는 세계 — 인간 마을도 있다
+    changed: "원작의 거인계. 후대에도 거인이 다스리고, 신들의 영역과 맞닿음"
+  roadseeker_tomb:
+    name: 로드시커의 무덤
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [-5000, -64, -2500]
+    max: [-4940, 320, -2440]
+    priority: 22
+    parent: giant_realm
+    tags: [dungeon_site]
+    purpose: 대모험가 로드시커의 무덤
+    changed: 원작의 무덤. 깨우는 방법은 옮기지 않음 — 이 게임에서는 입구만 남은 무덤
+  derrick_village:
+    name: 마을 데릭
+    source: CANON
+    danger: 2
+    world: versa_realms
+    min: [-4300, 40, -1500]
+    max: [-3900, 320, -1100]
+    priority: 20
+    parent: giant_realm
+    tags: [city, forest]
+    purpose: 깊은 숲 속 인간 · 수인족 마을
+    changed: 원작의 마을. 후대에는 차원을 건너온 모험가의 쉼터
+  giant_return:
+    name: 거인계 귀환의 배터
+    danger: 2
+    world: versa_realms
+    min: [-4612, -64, -812]
+    max: [-4588, 320, -788]
+    priority: 26
+    parent: giant_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 배
+  divine_gate:
+    name: 신들의 문
+    danger: 6
+    world: versa_realms
+    min: [-3312, -64, -1612]
+    max: [-3288, 320, -1588]
+    priority: 26
+    parent: giant_realm
+    tags: [portal]
+    purpose: 거인계 동쪽 끝 — 파수꾼이 지키는 신계의 문
+  divine_realm:
+    name: 신계
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [-3000, -64, -3000]
+    max: [-200, 320, -200]
+    priority: 4
+    tags: [divine]
+    purpose: 거인들의 영역 가까운 신들의 영역
+    changed: 원작의 신계. 이 게임은 탐험 숙련 마스터만 건너게 함
+  divine_return:
+    name: 신계 내려가는 문
+    danger: 4
+    world: versa_realms
+    min: [-1612, -64, -1612]
+    max: [-1588, 320, -1588]
+    priority: 26
+    parent: divine_realm
+    tags: [portal]
+    purpose: 거인계로 돌아가는 문
+  spirit_realm:
+    name: 정령계
+    source: CANON
+    danger: 4
+    world: versa_realms
+    min: [200, -64, -3000]
+    max: [3000, 320, -200]
+    priority: 4
+    tags: [mist]
+    purpose: 정령술사들이 갈 수 있는 세계
+    changed: 원작의 정령계. 이 게임은 정령의 샘으로 누구나 (탐험 숙련만 되면) 건넘
+  spirit_return:
+    name: 정령계 귀환의 샘
+    danger: 2
+    world: versa_realms
+    min: [1588, -64, -1612]
+    max: [1612, 320, -1588]
+    priority: 26
+    parent: spirit_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 샘
+  fairy_realm:
+    name: 요정계
+    source: CANON
+    danger: 4
+    world: versa_realms
+    min: [3200, -64, -3000]
+    max: [6000, 320, -200]
+    priority: 4
+    tags: [forest]
+    purpose: 요정들의 세계
+    changed: 원작에 이름만 나온 세계 — 모습은 이 게임의 설정
+  fairy_return:
+    name: 요정계 귀환의 고리
+    danger: 2
+    world: versa_realms
+    min: [4588, -64, -1612]
+    max: [4612, 320, -1588]
+    priority: 26
+    parent: fairy_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 고리
+  demonkind_realm:
+    name: 마계
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [-6000, -64, 200]
+    max: [-3200, 320, 3000]
+    priority: 4
+    tags: [badlands]
+    purpose: 마족들의 세계 — 악마와는 사이가 나쁘다
+    changed: 원작에 이름만 나온 세계 — 모습은 이 게임의 설정
+  demonkind_return:
+    name: 마계 귀환의 문
+    danger: 4
+    world: versa_realms
+    min: [-4612, -64, 1588]
+    max: [-4588, 320, 1612]
+    priority: 26
+    parent: demonkind_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 문
+  devil_realm:
+    name: 악마계
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [-3000, -64, 200]
+    max: [-200, 320, 3000]
+    priority: 4
+    tags: [badlands, ruins]
+    purpose: 악마들의 세계 — 옛 원정의 폐허
+    changed: 원작에서 악마 대공 원정이 있었던 세계. 후대에는 원정대의 무너진 진지가 남음
+  devil_return:
+    name: 악마계 귀환의 문
+    danger: 4
+    world: versa_realms
+    min: [-1612, -64, 1588]
+    max: [-1588, 320, 1612]
+    priority: 26
+    parent: devil_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 문
+  hell_realm:
+    name: 지옥
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [200, -64, 200]
+    max: [3000, 320, 3000]
+    priority: 4
+    tags: [volcano]
+    purpose: 악마와 마물의 세계 — 중간계에서 구하기 힘든 광석
+    changed: 원작의 지옥. 이 게임은 지옥의 틈으로 건넘
+  hell_return:
+    name: 지옥 귀환의 틈
+    danger: 4
+    world: versa_realms
+    min: [1588, -64, 2388]
+    max: [1612, 320, 2412]
+    priority: 26
+    parent: hell_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 틈
+  todum_realm:
+    name: 뱀파이어 토둠
+    source: CANON
+    danger: 5
+    world: versa_realms
+    min: [3200, -64, 200]
+    max: [6000, 320, 3000]
+    priority: 4
+    tags: [mist, ruins]
+    purpose: 뱀파이어들의 세계
+    changed: 원작의 토둠. 후대에는 바다 밑 굴로만 이어짐
+  todum_return:
+    name: 토둠 귀환의 굴
+    danger: 3
+    world: versa_realms
+    min: [4588, -64, 1588]
+    max: [4612, 320, 1612]
+    priority: 26
+    parent: todum_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 굴

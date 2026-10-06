@@ -19,3 +19,7 @@ pack:
 #     world:
 #       generator: VersaEra
 # 를 적고 새 세계를 만들면 regions.yml 에 맞는 땅이 생깁니다 (기존 세계에는 새 청크에만 적용).
+
+# 다른 차원 세계 (versa_realms) — 거인계 · 신계 · 정령계 · 요정계 · 마계 · 악마계 · 지옥 · 토둠. 문(content/gates.yml)으로만 오간다.
+realms:
+  enabled: true

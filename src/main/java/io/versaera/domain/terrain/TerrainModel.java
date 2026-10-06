@@ -33,6 +33,8 @@ public final class TerrainModel {
         if (t.contains("sea")) return new Shape(38, 8, 0.01, Surface.GRAVEL);
         if (t.contains("volcano")) return new Shape(72, 6, 0.01, Surface.BASALT);
         if (t.contains("lake")) return new Shape(66, 2, 0.004, Surface.GRASS);
+        if (t.contains("divine")) return new Shape(150, 10, 0.004, Surface.GRASS);   // 신계: 구름 위 높은 평원
+        if (t.contains("salt")) return new Shape(66, 0.5, 0.004, Surface.SNOW);      // 소금 평원: 흰 바닥
         if (t.contains("swamp")) return new Shape(63, 2, 0.02, Surface.MUD);
         if (t.contains("canyon") || t.contains("valley")) return new Shape(82, 12, 0.008, t.contains("forest") ? Surface.PODZOL : Surface.STONE);
         if (t.contains("mountain")) return new Shape(110, 48, 0.006, Surface.STONE);
@@ -58,7 +60,7 @@ public final class TerrainModel {
         return r != null && (r.maxY() < 64 || markerOnly(r)) ? null : r;
     }
 
-    private static final Set<String> MARKERS = Set.of("landmark", "dungeon_site", "wall");
+    private static final Set<String> MARKERS = Set.of("landmark", "dungeon_site", "wall", "sealed", "portal");
 
     private static boolean markerOnly(Region r) {
         return !r.tags().isEmpty() && MARKERS.containsAll(r.tags());

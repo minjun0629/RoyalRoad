@@ -265,15 +265,16 @@ public final class SettlementPlanner {
         }
     }
 
-    /** 지역 상자의 긴 축을 따라 가운데에 쌓는 큰 방벽. 200 블록마다 통로가 있다 */
+    /** 지역 상자의 긴 축을 따라 가운데에 쌓는 큰 방벽. 200 블록마다 통로가 있다 (sealed 면 없음) */
     static final class LongWall extends Structure {
-        private final boolean alongX;
+        private final boolean alongX, sealed;
         private final int mid;
         private final Style st;
 
         LongWall(Region r, Style st) {
             super(Kind.WALL, r.id(), r.minX(), r.minZ(), r.maxX(), r.maxZ());
             this.alongX = r.maxX() - r.minX() >= r.maxZ() - r.minZ();
+            this.sealed = r.tags().contains("sealed");   // 마법의 장벽: 통로 없음
             this.mid = alongX ? (r.minZ() + r.maxZ()) / 2 : (r.minX() + r.maxX()) / 2;
             this.st = st;
         }
@@ -288,7 +289,7 @@ public final class SettlementPlanner {
             int off = (alongX ? z : x) - mid;
             if (Math.abs(off) > 1) return;
             int along = alongX ? x - minX : z - minZ;
-            boolean gate = Math.floorMod(along, 200) >= 97 && Math.floorMod(along, 200) <= 103;
+            boolean gate = !sealed && Math.floorMod(along, 200) >= 97 && Math.floorMod(along, 200) <= 103;
             int y = ground.at(x, z);
             for (int dy = 1; dy <= 10; dy++) s.set(x, y + dy, z, gate && dy <= 6 ? "AIR" : st.wall());
             if (off != 0 && along % 2 == 0) s.set(x, y + 11, z, st.wall());   // 성가퀴
@@ -297,7 +298,7 @@ public final class SettlementPlanner {
     }
 
     // ------------------------------------------------------------------ 랜드마크
-    enum Shape { VOLCANO_CORE, FLOATING_ISLAND, TOWER, LIGHTHOUSE, SPIRE, STATUE, ANVIL, OASIS, KEEP, WATCHTOWER, COLOSSUS_HEAD, ARCH, ICE_SPIRE, OBELISK, STONE_CIRCLE, WINDMILL, ENTRANCE, TOWER_STUMP }
+    enum Shape { VOLCANO_CORE, FLOATING_ISLAND, TOWER, LIGHTHOUSE, SPIRE, STATUE, ANVIL, OASIS, KEEP, WATCHTOWER, COLOSSUS_HEAD, ARCH, ICE_SPIRE, OBELISK, STONE_CIRCLE, WINDMILL, ENTRANCE, TOWER_STUMP, PORTAL, WORLD_TREE }
 
     private static final Map<String, Shape> LANDMARKS = Map.ofEntries(
             Map.entry("harden", Shape.TOWER), Map.entry("morata_free_city", Shape.STATUE), Map.entry("thor_deep_hammer", Shape.ANVIL),
@@ -319,7 +320,10 @@ public final class SettlementPlanner {
             Map.entry("imbel_circle", Shape.STONE_CIRCLE), Map.entry("silent_tower", Shape.TOWER), Map.entry("struggle_road", Shape.ARCH),
             Map.entry("lu_sanctum", Shape.SPIRE), Map.entry("slave_bridge", Shape.ARCH), Map.entry("sky_tower_ruins", Shape.TOWER_STUMP),
             Map.entry("sun_altar", Shape.STONE_CIRCLE), Map.entry("roderick_labyrinth", Shape.STATUE), Map.entry("nukod_oasis", Shape.OASIS),
-            Map.entry("desert_of_tranquility", Shape.OASIS));
+            Map.entry("desert_of_tranquility", Shape.OASIS),
+            // 위치를 이 게임이 정한 곳
+            Map.entry("glacier_grotto", Shape.ICE_SPIRE), Map.entry("basic_training_hall", Shape.KEEP), Map.entry("novice_training_hall", Shape.KEEP),
+            Map.entry("hero_tower", Shape.SPIRE), Map.entry("world_tree_scion", Shape.WORLD_TREE));
 
     public static Set<String> landmarkRegions() {
         return LANDMARKS.keySet();
@@ -327,6 +331,7 @@ public final class SettlementPlanner {
 
     private static Structure landmark(Region r, Style st, int cx, int cz, boolean town) {
         Shape shape = LANDMARKS.get(r.id());
+        if (shape == null && r.tags().contains("portal")) shape = Shape.PORTAL;           // 다른 땅 · 차원으로 가는 문 (gates.yml)
         if (shape == null && r.tags().contains("dungeon_site")) shape = Shape.ENTRANCE;   // 던전 입구: 돌 문틀
         if (shape == null && r.tags().contains("landmark")) shape = Shape.STONE_CIRCLE;
         if (shape == null) return null;
@@ -340,6 +345,8 @@ public final class SettlementPlanner {
             case ARCH -> 8;
             case KEEP -> 7;
             case TOWER_STUMP -> 12;
+            case WORLD_TREE -> 13;
+            case PORTAL -> 6;
             default -> 5;
         };
         return new Landmark(r.id(), shape, x, z, half, st);
@@ -423,6 +430,14 @@ public final class SettlementPlanner {
                     if (d <= 12 && d >= 8) { int top = y0 + 20 + Math.floorMod(dx * 31 + dz * 17, 23);
                         fill(s, x, z, y0, top, Math.floorMod(dx + dz, 4) == 0 ? "CRACKED_STONE_BRICKS" : "STONE_BRICKS"); }
                     else if (d < 8) s.set(x, y0, z, "COBBLED_DEEPSLATE"); }
+                case PORTAL -> { // 우는 흑요석 문틀 + 자수정 바닥. 안쪽은 비어 있어 걸어 들어간다 (이동은 서버가 문 지역으로 판정)
+                    if (Math.abs(dx) <= 4 && Math.abs(dz) <= 4) s.set(x, y0, z, "AMETHYST_BLOCK");
+                    if (dz == 0 && Math.abs(dx) <= 3) { boolean frame = Math.abs(dx) == 3;
+                        fill(s, x, z, y0 + 1, y0 + 7, frame ? "CRYING_OBSIDIAN" : "AIR"); s.set(x, y0 + 8, z, "CRYING_OBSIDIAN"); } }
+                case WORLD_TREE -> { // 세계수의 후손: 굵은 줄기 + 둥근 수관
+                    if (d <= 3) fill(s, x, z, y0, y0 + 36, "OAK_WOOD");
+                    for (int y = y0 + 26; y <= y0 + 48; y++) { double e = Math.hypot(d, (y - (y0 + 38)) * 1.2);
+                        if (e <= 13 && d > 3 - (y > y0 + 36 ? 4 : 0)) s.set(x, y, z, "OAK_LEAVES"); } }
                 case WINDMILL -> { if (d <= 3) fill(s, x, z, y0, y0 + 14, d > 2 ? "STONE_BRICKS" : "AIR");
                     if (dz == -4 && Math.abs(dx) <= 5) s.set(x, y0 + 12, z, "WHITE_WOOL");
                     if (dz == -4 && dx == 0) fill(s, x, z, y0 + 7, y0 + 17, "WHITE_WOOL"); }

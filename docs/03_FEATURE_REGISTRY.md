@@ -26,6 +26,7 @@
 | GAT-01 | 채집 · 채광 · 벌목 · 낚시 | SOURCE-BASED | **IMPLEMENTED** | WorldEventGatherTest, ContentIntegrityTest |
 | WLD-01 | 지역 · 위험도 · 공간 인덱스 | ORIGINAL | **IMPLEMENTED** | GrowthAndWorldTest |
 | WLD-02 | 지역 데이터로 만드는 지형 · 도시 · 랜드마크 | ORIGINAL | **IMPLEMENTED** | TerrainModelTest, SettlementPlannerTest |
+| WLD-03 | 다른 땅 · 다른 차원으로 가는 문 | ORIGINAL | **IMPLEMENTED** | GateServiceTest |
 | EXP-01 | 발견 기록 · 최초 발견자 | SOURCE-BASED | **IMPLEMENTED** | GrowthAndWorldTest |
 | MAP-01 | 탐험 지도 (안개) | ORIGINAL | **IMPLEMENTED** | MapServiceTest |
 | NPC-01 | NPC 정의 · 관계 | ORIGINAL | **IMPLEMENTED** | GrowthAndWorldTest |

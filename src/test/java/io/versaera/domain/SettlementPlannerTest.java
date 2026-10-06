@@ -32,7 +32,11 @@ class SettlementPlannerTest {
 
     @Test
     void everyTownHasStreetsBuildingsAndALandmark() {
-        SettlementPlanner p = plan(42);
+        SettlementPlanner main = plan(42), realms = SettlementPlanner.plan(regions, "versa_realms", 42, npcPlaces());
+        List<SettlementPlanner.Structure> all = new ArrayList<>(main.structures());
+        all.addAll(realms.structures());
+        record Both(List<SettlementPlanner.Structure> structures) {}
+        Both p = new Both(all);
         for (Region r : regions.all()) {
             if (!(r.tags().contains("city") || r.tags().contains("outpost") || r.tags().contains("fortress"))) continue;
             long houses = p.structures().stream().filter(s -> s.kind == Kind.BUILDING && s.region.equals(r.id())).count();
@@ -44,7 +48,7 @@ class SettlementPlannerTest {
         assertTrue(p.structures().stream().anyMatch(s -> s.kind == Kind.WALL && s.region.equals("nehales_bastion")), "요새는 성벽");
         for (Region r : regions.all()) {
             if (r.tags().contains("wall")) assertTrue(p.structures().stream().anyMatch(s -> s.kind == Kind.WALL && s.region.equals(r.id())), "장벽 없음: " + r.id());
-            if (r.tags().contains("dungeon_site") || r.tags().contains("landmark"))
+            if (r.tags().contains("dungeon_site") || r.tags().contains("landmark") || r.tags().contains("portal"))
                 assertTrue(p.structures().stream().anyMatch(s -> s.kind == Kind.LANDMARK && s.region.equals(r.id())), "입구 · 명소 없음: " + r.id());
         }
     }

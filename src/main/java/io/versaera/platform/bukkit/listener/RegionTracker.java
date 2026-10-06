@@ -60,6 +60,7 @@ public final class RegionTracker implements Listener {
         if (now == null) current.remove(p.getUniqueId());
         else current.put(p.getUniqueId(), now);
         if (r == null) return;
+        s.gates.at(now).ifPresent(g -> cross(p, g));
         p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Ui.c("&f" + r.name() + "  " + Ui.danger(r.danger()))));
         String id = p.getUniqueId().toString(), name = p.getName();
         async.run("enter-region", () -> {
@@ -71,6 +72,26 @@ public final class RegionTracker implements Listener {
             p.sendTitle(Ui.c("&6" + r.name()), Ui.c("&7새로운 지역 · " + Ui.danger(r.danger())), 10, 50, 15);
             if (d.worldFirst()) org.bukkit.Bukkit.broadcastMessage(Ui.info(name + " 님이 「" + r.name() + "」을(를) 처음 발견했습니다"));
         }, null);
+    }
+
+    /** 문 (WLD-03): 탐험 숙련은 DB 스레드에서 읽고, 이동은 메인 스레드에서 */
+    private void cross(Player p, io.versaera.domain.world.Gate g) {
+        String id = p.getUniqueId().toString();
+        async.run("gate", () -> s.gates.check(id, g), d -> {
+            if (!p.isOnline()) return;
+            if (!d.allowed() && !p.hasPermission("versaera.admin")) {
+                p.sendMessage(Ui.c("&7" + d.reason()));
+                return;
+            }
+            org.bukkit.World w = org.bukkit.Bukkit.getWorld(g.toWorld());
+            if (w == null) {
+                p.sendMessage(Ui.c("&7「" + g.name() + "」 너머의 세계가 아직 열리지 않았다 (서버 설정 realms.enabled)"));
+                return;
+            }
+            int y = w.getHighestBlockYAt(g.toX(), g.toZ()) + 1;
+            p.teleport(new Location(w, g.toX() + 0.5, y, g.toZ() + 0.5));
+            p.sendTitle(Ui.c("&5" + g.name()), Ui.c("&7다른 땅으로 건너왔다"), 10, 50, 15);
+        }, p);
     }
 
     @EventHandler

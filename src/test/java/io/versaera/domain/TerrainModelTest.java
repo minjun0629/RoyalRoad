@@ -43,6 +43,12 @@ class TerrainModelTest {
         assertTrue(t.height(-5300, -2000) < t.height(-5600, -1500) - 60, "엠비뉴의 성지는 거대한 구멍");
         assertTrue(t.dry(-5300, -2000) && !t.dry(-1000, 0), "구멍에는 물이 차지 않는다");
         assertEquals(TerrainModel.Surface.MUD, t.surface(150, -2200, t.height(150, -2200)), "썩은 거품의 늪은 진흙");
+        assertTrue(avg(-1000, 6000, 1000, 6300) < TerrainModel.SEA_LEVEL - 10 && avg(-2000, 6600, 2000, 7000) > TerrainModel.SEA_LEVEL, "남쪽 바다 건너 남쪽 대륙");
+        assertEquals(TerrainModel.Surface.SNOW, t.surface(0, 7800, t.height(0, 7800)), "남극은 눈");
+        assertEquals(TerrainModel.Surface.SNOW, t.surface(-2500, 4600, t.height(-2500, 4600)), "하얀 소금 평원");
+        TerrainModel realms = new TerrainModel(regions, "versa_realms", 42);
+        assertTrue(realms.height(-1600, -1000) > realms.height(-4600, -2400) + 40, "신계는 거인계보다 높은 곳");
+        assertTrue(realms.height(0, -1600) < TerrainModel.SEA_LEVEL, "차원 사이는 빈 바다");
         assertTrue(t.height(1900, -5650) > t.height(1250, -5400) + 50, "지골라스는 솟은 화산");
     }
 
@@ -73,11 +79,11 @@ class TerrainModelTest {
 
     @Test
     void writesPreviewImage() throws Exception {
-        int size = 300, span = 12_000;
+        int size = 320, span = 16_000;
         BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
         for (int py = 0; py < size; py++)
             for (int px = 0; px < size; px++) {
-                int x = -6000 + px * span / size, z = -6000 + py * span / size, h = t.height(x, z);
+                int x = -8000 + px * span / size, z = -8000 + py * span / size, h = t.height(x, z);
                 int rgb;
                 if (h < TerrainModel.SEA_LEVEL && !t.dry(x, z)) rgb = 0x1f4f8f;
                 else rgb = switch (t.surface(x, z, h)) {

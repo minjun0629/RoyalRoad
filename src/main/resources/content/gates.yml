@@ -1,0 +1,24 @@
+# 문 (WLD-03) — 문 지역(regions.yml 의 portal 태그)에 들어서면 탐험 숙련을 보고 도착점으로 옮긴다.
+# to: [세계, x, z] — 높이는 도착 지점의 지면. 도착점은 다른 문 지역 밖이어야 한다 (GateService 가 검사).
+# 조건은 탐험 숙련 레벨(1 ~ 31, 11 = 중급, 21 = 고급, 31 = 마스터)뿐. 원작의 건너는 방법(죽은 자의 손톱으로 만든 배 등)은 옮기지 않았다.
+# 다른 차원은 원작에 이름만 있거나 위치가 없어, 문 자리 · 조건은 모두 이 게임의 설정 (ORIGINAL).
+gates:
+  # ---------------------------------------------------------------- 베르사 → 다른 차원
+  to_spirit:    {name: 정령의 샘,        region: spirit_spring,  to: [versa_realms, 1200, -1600],  min_exploration: 11}
+  to_fairy:     {name: 요정의 고리,      region: fairy_ring,     to: [versa_realms, 4200, -1600],  min_exploration: 11}
+  to_todum:     {name: 토둠으로 가는 굴, region: todum_gate,     to: [versa_realms, 4200, 1600],   min_exploration: 16}
+  to_giant:     {name: 망자의 나루,      region: dead_ferry,     to: [versa_realms, -4800, -1600], min_exploration: 21, note: "거인계로 가는 배"}
+  to_demonkind: {name: 마계의 문,        region: demonkind_gate, to: [versa_realms, -4200, 1600],  min_exploration: 21}
+  to_hell:      {name: 지옥의 틈,        region: hell_rift,      to: [versa_realms, 900, 1600],    min_exploration: 21}
+  to_devil:     {name: 마힐고르타의 은신처, region: devil_gate,  to: [versa_realms, -1200, 1600],  min_exploration: 26}
+  # 신계는 거인계를 거쳐서만 (원작: 신들의 영역은 거인들의 영역 가까이)
+  to_divine:    {name: 신들의 문,        region: divine_gate,    to: [versa_realms, -2700, -1600], min_exploration: 31, note: "파수꾼이 지키는 문 — 탐험 마스터만"}
+  # ---------------------------------------------------------------- 돌아오는 문 (누구나)
+  from_divine:    {name: 신계 내려가는 문,   region: divine_return,    to: [versa_realms, -3400, -1600]}
+  from_giant:     {name: 거인계 귀환의 배터, region: giant_return,     to: [world, -4720, 2602]}
+  from_spirit:    {name: 정령계 귀환의 샘,   region: spirit_return,    to: [world, -1560, -3480]}
+  from_fairy:     {name: 요정계 귀환의 고리, region: fairy_return,     to: [world, 5710, -488]}
+  from_todum:     {name: 토둠 귀환의 굴,     region: todum_return,     to: [world, -5650, 2000]}
+  from_demonkind: {name: 마계 귀환의 문,     region: demonkind_return, to: [world, -5250, -2000]}
+  from_hell:      {name: 지옥 귀환의 틈,     region: hell_return,      to: [world, -1560, -1808]}
+  from_devil:     {name: 악마계 귀환의 문,   region: devil_return,     to: [world, -3850, -3750]}

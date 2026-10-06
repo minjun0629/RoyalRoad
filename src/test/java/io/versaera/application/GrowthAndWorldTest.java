@@ -45,10 +45,20 @@ class GrowthAndWorldTest {
             assertEquals("lavias", w.s.regions.at("world", 1700, 210, -4300).id(), "천공도시는 북부 하늘");
             assertEquals("serabourg", w.s.regions.at("world", 4200, 70, 1700).id());
             assertEquals("nehales_bastion", w.s.regions.at("world", 4100, 80, -700).id());
-            assertEquals("embinyu_sanctum", w.s.regions.at("world", -5300, 70, -2000).id(), "서부 폐허의 거대한 구멍");
+            assertEquals("embinyu_sanctum", w.s.regions.at("world", -5200, 70, -2100).id(), "서부 폐허의 거대한 구멍");
             assertEquals("metapeia", w.s.regions.at("world", 3500, 70, 5500).id());
             assertEquals("roderick_labyrinth", w.s.regions.at("world", 950, 70, -2150).id(), "8대 미궁 로드릭");
             assertEquals("wolhof_coral", w.s.regions.at("world", 5900, 50, 0).id(), "9대 비경 울호프 산호지대");
+            assertEquals("kaolya_blight", w.s.regions.at("world", -4300, 70, -3500).id(), "카올랴의 오염된 땅 (이 게임의 배치)");
+            assertEquals("south_pole", w.s.regions.at("world", 0, 70, 7800).id());
+            assertEquals("meard_forest", w.s.regions.at("world", 300, 70, 6700).id(), "남쪽 대륙의 메아드의 숲");
+            assertEquals("ring_of_fire", w.s.regions.at("world", 7000, 70, -1000).id(), "동쪽 대륙 불의 고리");
+            assertEquals("west_new_continent", w.s.regions.at("world", -7000, 70, 2000).id());
+            assertEquals("outer_ocean", w.s.regions.at("world", 7000, 70, 6000).id());
+            assertEquals("hero_tower", w.s.regions.at("world", 930, 70, 230).id(), "영웅의 탑");
+            assertEquals("derrick_village", w.s.regions.at("versa_realms", -4100, 70, -1300).id(), "거인계 마을 데릭");
+            assertEquals("hell_realm", w.s.regions.at("versa_realms", 1000, 70, 1000).id());
+            assertNull(w.s.regions.at("world", -4100, 70, 9000), "지도 밖");
             assertNull(w.s.regions.at("world_nether", 0, 70, 0));
             for (Region r : w.s.regions.all()) {
                 assertFalse(r.purpose().isBlank(), r.id());

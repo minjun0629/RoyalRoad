@@ -319,6 +319,15 @@ public final class ContentLoader {
                 str(m, "forecaster", null), stringMap(map(m.get("effects"))), str(m, "announce", ""), str(m, "source", "ORIGINAL")));
     }
 
+    public static List<io.versaera.domain.world.Gate> gates(Map<String, Object> root, String file) {
+        return each(root, "gates", file, (id, m) -> {
+            List<String> to = list(m, "to");
+            if (to.size() != 3) throw new IllegalArgumentException("to 는 [세계, x, z]");
+            return new io.versaera.domain.world.Gate(id, req(m, "name"), req(m, "region"), to.get(0), Integer.parseInt(to.get(1)), Integer.parseInt(to.get(2)),
+                    i(m, "min_exploration", 1), str(m, "source", "ORIGINAL"), str(m, "note", ""));
+        });
+    }
+
     // ------------------------------------------------------------------ 히든 규칙 (봉인을 연 뒤의 YAML)
     public static List<HiddenRule> hidden(Map<String, Object> root, String file) {
         return each(root, "hidden", file, (id, m) -> new HiddenRule(id, req(m, "title"), condition(m.get("when")), str(m, "rumor", ""),

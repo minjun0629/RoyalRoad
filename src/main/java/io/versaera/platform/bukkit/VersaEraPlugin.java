@@ -57,6 +57,7 @@ public final class VersaEraPlugin extends JavaPlugin {
     private BossRuntime bosses;
     /** 게임 시각(0 ~ 23). 메인 스레드가 5초마다 갱신하고, DB 스레드의 히든 판정은 이 값만 읽는다 */
     private volatile int gameHour = 12;
+    public static final String REALMS = "versa_realms";
     private DungeonRuntime dungeons;
     private WorldEventRuntime events;
     private NpcRuntime npcRuntime;
@@ -112,7 +113,11 @@ public final class VersaEraPlugin extends JavaPlugin {
         SkillListener skills = new SkillListener(this, services, async, codec, bosses);
         dungeons = new DungeonRuntime(this, services, async, bosses);
         dungeons.hints(skills::seesHints);
-        Bukkit.getScheduler().runTask(this, dungeons::prepareWorld);   // load: STARTUP 이라 기본 세계가 생긴 뒤에 만든다
+        Bukkit.getScheduler().runTask(this, dungeons::prepareWorld);
+        // 다른 차원(거인계 · 신계 · 정령계 · 요정계 · 마계 · 악마계 · 지옥 · 토둠) — 문(gates.yml)으로만 오가는 별도 세계
+        if (getConfig().getBoolean("realms.enabled", true))
+            Bukkit.getScheduler().runTask(this, () -> new org.bukkit.WorldCreator(REALMS)
+                    .generator(getDefaultWorldGenerator(REALMS, null)).generateStructures(false).createWorld());   // load: STARTUP 이라 기본 세계가 생긴 뒤에 만든다
         MapRuntime maps = new MapRuntime(this, services, async);
         events = new WorldEventRuntime(this, services, async);
         npcRuntime = new NpcRuntime(this, services, npcs, () -> gameHour);

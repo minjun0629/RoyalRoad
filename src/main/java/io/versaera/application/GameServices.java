@@ -44,6 +44,7 @@ public final class GameServices {
     public final AuctionService auctions;
     public final DungeonService dungeons;
     public final WorldEventService worldEvents;
+    public final GateService gates;
     public final GatheringService gathering;
     public final MapService maps;
     public final BossService bosses;
@@ -86,6 +87,7 @@ public final class GameServices {
         this.quests = new QuestService(tx, new JdbcQuestRepository(db), progress, content.quests(), this, bus, clock, zone);
         this.worldEvents = new WorldEventService(tx, new JdbcWorldEventRepository(db), content.worldEvents(), regions, bus, clock, 0L);
         this.gathering = new GatheringService(this, content.resources());
+        this.gates = new GateService(content.gates(), regions, growth::level);
         this.maps = new MapService(tx, new JdbcMapRepository(db));
         this.skills = new SkillBook(this, content.skills(), content.combos());
         this.bosses = new BossService(tx, new JdbcBossRepository(db), content.bosses(), this, bus, clock);

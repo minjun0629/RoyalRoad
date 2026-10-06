@@ -373,7 +373,7 @@ features:
     source: 02_WORLD
     source_type: 원작 지리 + 후대 설계
     classification: ORIGINAL
-    description: 20개 지역(원작 지명은 후대 변화 필수), 위험도 0 ~ 6, 청크 격자 인덱스, 지하 수로는 높이로 구분
+    description: 지역 262곳(원작 지명은 후대 변화 필수, 세계 world · versa_realms), 위험도 0 ~ 6, 128 블록 격자 인덱스, 지하 수로는 높이로 구분
     player_experience: 지역에 들어서면 이름 · 위험도
     dependencies: [CONT-01]
     implementation: domain.world.* · RegionTracker
@@ -404,6 +404,26 @@ features:
     security_risk: "없음"
     persistence: "월드 파일"
     tests: [TerrainModelTest, SettlementPlannerTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: WLD-03
+    feature: "다른 땅 · 다른 차원으로 가는 문"
+    category: "월드"
+    source: "02_WORLD §2 · 나무위키 「로열 로드/지리」 §4.1 · §7"
+    source_type: "원작 지명 + 후대 설계"
+    classification: ORIGINAL
+    description: "세계 versa_realms 에 거인계 · 신계 · 정령계 · 요정계 · 마계 · 악마계 · 지옥 · 뱀파이어 토둠. 베르사의 문 지역(portal)에 들어서면 탐험 숙련 레벨(서버 DB)로만 판정해 옮긴다 — 확률 없음, 원작의 건너는 방법 미복제. 신계는 거인계를 거쳐서만. 돌아오는 문은 누구나. 도착점이 다른 문 안이면 로드 거부(왕복 반복 방지)"
+    player_experience: "탐험을 쌓을수록 열리는 바깥 세계"
+    dependencies: [WLD-01, WLD-02, SKL-01]
+    implementation: "domain.world.Gate · application.GateService · RegionTracker.cross · VersaEraPlugin (WorldCreator versa_realms, config realms.enabled)"
+    data_model: "content/gates.yml · regions.yml (world: versa_realms)"
+    ui: "타이틀 · 부족한 숙련 안내"
+    resource_pack: "없음"
+    performance_risk: "지역이 바뀔 때만 조회 · 숙련은 DB 스레드"
+    security_risk: "판정은 서버 DB 값. 관리자는 조건 무시"
+    persistence: "없음 (숙련은 GRW)"
+    tests: [GateServiceTest]
     server_test: BLOCKED
     status: IMPLEMENTED
 
