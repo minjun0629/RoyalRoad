@@ -103,6 +103,7 @@ public final class SettlementPlanner {
             Structure lm = landmark(r, st, cx, cz, town);
             if (town) town(out, r, st, cx, cz, rng, keepClear, lm);
             if (lm != null) out.add(lm);   // 마지막에 그려서 길 · 광장 위에 선다
+            if (t.contains("wall")) out.add(new LongWall(r, st));   // 페드라 성벽 · 알 수 없는 장벽 · 추방의 장벽
         }
         return new SettlementPlanner(out);
     }
@@ -264,8 +265,39 @@ public final class SettlementPlanner {
         }
     }
 
+    /** 지역 상자의 긴 축을 따라 가운데에 쌓는 큰 방벽. 200 블록마다 통로가 있다 */
+    static final class LongWall extends Structure {
+        private final boolean alongX;
+        private final int mid;
+        private final Style st;
+
+        LongWall(Region r, Style st) {
+            super(Kind.WALL, r.id(), r.minX(), r.minZ(), r.maxX(), r.maxZ());
+            this.alongX = r.maxX() - r.minX() >= r.maxZ() - r.minZ();
+            this.mid = alongX ? (r.minZ() + r.maxZ()) / 2 : (r.minX() + r.maxX()) / 2;
+            this.st = st;
+        }
+
+        @Override
+        public boolean covers(int x, int z) {
+            return super.covers(x, z) && Math.abs((alongX ? z : x) - mid) <= 1;
+        }
+
+        @Override
+        public void column(int x, int z, IntBinaryHeight ground, Sink s) {
+            int off = (alongX ? z : x) - mid;
+            if (Math.abs(off) > 1) return;
+            int along = alongX ? x - minX : z - minZ;
+            boolean gate = Math.floorMod(along, 200) >= 97 && Math.floorMod(along, 200) <= 103;
+            int y = ground.at(x, z);
+            for (int dy = 1; dy <= 10; dy++) s.set(x, y + dy, z, gate && dy <= 6 ? "AIR" : st.wall());
+            if (off != 0 && along % 2 == 0) s.set(x, y + 11, z, st.wall());   // 성가퀴
+            if (Math.floorMod(along, 50) == 0) for (int dy = 1; dy <= 14; dy++) s.set(x, y + dy, z, st.corner());   // 망루 기둥
+        }
+    }
+
     // ------------------------------------------------------------------ 랜드마크
-    enum Shape { VOLCANO_CORE, FLOATING_ISLAND, TOWER, LIGHTHOUSE, SPIRE, STATUE, ANVIL, OASIS, KEEP, WATCHTOWER, COLOSSUS_HEAD, ARCH, ICE_SPIRE, OBELISK, STONE_CIRCLE, WINDMILL }
+    enum Shape { VOLCANO_CORE, FLOATING_ISLAND, TOWER, LIGHTHOUSE, SPIRE, STATUE, ANVIL, OASIS, KEEP, WATCHTOWER, COLOSSUS_HEAD, ARCH, ICE_SPIRE, OBELISK, STONE_CIRCLE, WINDMILL, ENTRANCE, TOWER_STUMP }
 
     private static final Map<String, Shape> LANDMARKS = Map.ofEntries(
             Map.entry("harden", Shape.TOWER), Map.entry("morata_free_city", Shape.STATUE), Map.entry("thor_deep_hammer", Shape.ANVIL),
@@ -278,9 +310,16 @@ public final class SettlementPlanner {
             Map.entry("plains_of_despair", Shape.OBELISK), Map.entry("serabourg", Shape.TOWER), Map.entry("baran_village", Shape.WINDMILL),
             Map.entry("britten_alliance", Shape.STATUE), Map.entry("jigolas", Shape.VOLCANO_CORE), Map.entry("aren_castle", Shape.KEEP),
             Map.entry("sisley_castle", Shape.TOWER), Map.entry("odein_fortress", Shape.KEEP), Map.entry("somren_free_city", Shape.SPIRE),
-            Map.entry("embinyu_sanctum", Shape.OBELISK), Map.entry("yunopu_canyon", Shape.ARCH), Map.entry("furghol_ruins", Shape.KEEP),
+            Map.entry("yunopu_canyon", Shape.ARCH), Map.entry("furghol_ruins", Shape.KEEP),
             Map.entry("tolen_lands", Shape.ARCH), Map.entry("orc_land", Shape.STONE_CIRCLE), Map.entry("hunters_hill", Shape.WATCHTOWER),
-            Map.entry("birch_lake", Shape.WATCHTOWER));
+            Map.entry("birch_lake", Shape.WATCHTOWER),
+            // 지리 문서의 명소 (작은 표시 지역)
+            Map.entry("dawn_city", Shape.SPIRE), Map.entry("light_tower", Shape.LIGHTHOUSE), Map.entry("freya_statue", Shape.STATUE),
+            Map.entry("morata_art_hall", Shape.KEEP), Map.entry("garden_of_gods", Shape.OASIS), Map.entry("alcazar_bridge", Shape.ARCH),
+            Map.entry("imbel_circle", Shape.STONE_CIRCLE), Map.entry("silent_tower", Shape.TOWER), Map.entry("struggle_road", Shape.ARCH),
+            Map.entry("lu_sanctum", Shape.SPIRE), Map.entry("slave_bridge", Shape.ARCH), Map.entry("sky_tower_ruins", Shape.TOWER_STUMP),
+            Map.entry("sun_altar", Shape.STONE_CIRCLE), Map.entry("roderick_labyrinth", Shape.STATUE), Map.entry("nukod_oasis", Shape.OASIS),
+            Map.entry("desert_of_tranquility", Shape.OASIS));
 
     public static Set<String> landmarkRegions() {
         return LANDMARKS.keySet();
@@ -288,6 +327,8 @@ public final class SettlementPlanner {
 
     private static Structure landmark(Region r, Style st, int cx, int cz, boolean town) {
         Shape shape = LANDMARKS.get(r.id());
+        if (shape == null && r.tags().contains("dungeon_site")) shape = Shape.ENTRANCE;   // 던전 입구: 돌 문틀
+        if (shape == null && r.tags().contains("landmark")) shape = Shape.STONE_CIRCLE;
         if (shape == null) return null;
         // 도시는 광장 북동쪽 길 사이 칸 가운데, 그 밖은 지역 가운데
         int x = town ? cx + 16 : cx, z = town ? cz - 16 : cz;
@@ -298,6 +339,7 @@ public final class SettlementPlanner {
             case STONE_CIRCLE, OASIS -> 9;
             case ARCH -> 8;
             case KEEP -> 7;
+            case TOWER_STUMP -> 12;
             default -> 5;
         };
         return new Landmark(r.id(), shape, x, z, half, st);
@@ -372,6 +414,15 @@ public final class SettlementPlanner {
                 case STONE_CIRCLE -> { for (int i = 0; i < 8; i++) { double a = Math.PI * 2 * i / 8;
                     if (x == cx + (int) Math.round(Math.cos(a) * 8) && z == cz + (int) Math.round(Math.sin(a) * 8)) fill(s, x, z, y0 + 1, y0 + 4 + i % 2, "MOSSY_COBBLESTONE"); }
                     if (dx == 0 && dz == 0) s.set(x, y0 + 1, z, "CHISELED_STONE_BRICKS"); }
+                case ENTRANCE -> { // 땅으로 내려가는 돌 문틀 (안쪽 던전은 인스턴스)
+                    if (Math.abs(dx) <= 3 && Math.abs(dz) <= 2) { boolean frame = Math.abs(dx) == 3 || dz == -2;
+                        fill(s, x, z, y0 + 1, y0 + 6, frame ? "CHISELED_STONE_BRICKS" : "AIR");
+                        if (!frame) { s.set(x, y0, z, "AIR"); s.set(x, y0 - 1, z, "AIR"); s.set(x, y0 - 2, z, "STONE_BRICK_STAIRS"); }
+                        s.set(x, y0 + 7, z, "STONE_BRICK_SLAB"); } }
+                case TOWER_STUMP -> { // 하늘로 오르는 탑의 무너진 밑동: 두꺼운 원통, 높이가 들쭉날쭉
+                    if (d <= 12 && d >= 8) { int top = y0 + 20 + Math.floorMod(dx * 31 + dz * 17, 23);
+                        fill(s, x, z, y0, top, Math.floorMod(dx + dz, 4) == 0 ? "CRACKED_STONE_BRICKS" : "STONE_BRICKS"); }
+                    else if (d < 8) s.set(x, y0, z, "COBBLED_DEEPSLATE"); }
                 case WINDMILL -> { if (d <= 3) fill(s, x, z, y0, y0 + 14, d > 2 ? "STONE_BRICKS" : "AIR");
                     if (dz == -4 && Math.abs(dx) <= 5) s.set(x, y0 + 12, z, "WHITE_WOOL");
                     if (dz == -4 && dx == 0) fill(s, x, z, y0 + 7, y0 + 17, "WHITE_WOOL"); }

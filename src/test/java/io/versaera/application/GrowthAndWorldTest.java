@@ -36,15 +36,19 @@ class GrowthAndWorldTest {
         try (TestWorld w = new TestWorld()) {
             assertEquals("harden", w.s.regions.at("world", -1000, 70, 0).id());
             assertEquals("emperor_aqueduct", w.s.regions.at("world", -1000, 0, 0).id(), "도시 아래 지하는 수로");
-            assertEquals("central_plains", w.s.regions.at("world", 500, 70, 3000).id());
-            assertEquals("aren_castle", w.s.regions.at("world", -1800, 70, -1100).id(), "하벤의 수도 아렌 성");
-            assertEquals("sisley_castle", w.s.regions.at("world", 400, 70, -200).id(), "루카 강가의 시슬리 성");
-            assertEquals("yunopu_canyon", w.s.regions.at("world", 5200, 70, -2000).id(), "절망의 평원 북쪽 협곡");
-            assertEquals("jigolas", w.s.regions.at("world", 5800, 70, -5600).id());
-            assertEquals("rosenheim", w.s.regions.at("world", 4800, 70, 1000).id());
-            assertEquals("lavias", w.s.regions.at("world", 3900, 210, 3100).id(), "하늘섬은 바란 마을 바로 위 하늘");
-            assertEquals("serabourg", w.s.regions.at("world", 3100, 70, 2500).id());
-            assertEquals("nehales_bastion", w.s.regions.at("world", 3400, 80, -700).id());
+            assertEquals("central_plains", w.s.regions.at("world", -3200, 70, 2000).id());
+            assertEquals("aren_castle", w.s.regions.at("world", -1500, 70, -1100).id(), "하벤의 수도 아렌 성");
+            assertEquals("sisley_castle", w.s.regions.at("world", 2400, 70, -150).id(), "브리튼 연합의 시슬레 성");
+            assertEquals("yunopu_canyon", w.s.regions.at("world", 5100, 70, -1200).id(), "절망의 평원 북쪽 협곡");
+            assertEquals("jigolas", w.s.regions.at("world", 1300, 70, -5600).id());
+            assertEquals("rosenheim", w.s.regions.at("world", 4700, 70, 2200).id());
+            assertEquals("lavias", w.s.regions.at("world", 1700, 210, -4300).id(), "천공도시는 북부 하늘");
+            assertEquals("serabourg", w.s.regions.at("world", 4200, 70, 1700).id());
+            assertEquals("nehales_bastion", w.s.regions.at("world", 4100, 80, -700).id());
+            assertEquals("embinyu_sanctum", w.s.regions.at("world", -5300, 70, -2000).id(), "서부 폐허의 거대한 구멍");
+            assertEquals("metapeia", w.s.regions.at("world", 3500, 70, 5500).id());
+            assertEquals("roderick_labyrinth", w.s.regions.at("world", 950, 70, -2150).id(), "8대 미궁 로드릭");
+            assertEquals("wolhof_coral", w.s.regions.at("world", 5900, 50, 0).id(), "9대 비경 울호프 산호지대");
             assertNull(w.s.regions.at("world_nether", 0, 70, 0));
             for (Region r : w.s.regions.all()) {
                 assertFalse(r.purpose().isBlank(), r.id());

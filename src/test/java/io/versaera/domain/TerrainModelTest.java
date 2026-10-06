@@ -31,16 +31,19 @@ class TerrainModelTest {
 
     @Test
     void regionsShapeTheLand() {
-        assertTrue(avg(5700, -500, 5950, 500) < TerrainModel.SEA_LEVEL - 10, "동쪽 바다는 해수면 아래");
+        assertTrue(avg(5880, -500, 5990, 500) < TerrainModel.SEA_LEVEL - 10, "동쪽 바다는 해수면 아래");
         assertTrue(spread(-1200, -200, -800, 200) <= 6, "도시(하르덴)는 거의 평평");
-        assertTrue(avg(2000, -4500, 2900, -3500) > avg(-3000, 2400, -1000, 3500) + 20, "산(깊은 망치)이 들판(세르벤)보다 높다");
-        assertTrue(avg(1250, -1500, 1550, 1500) > avg(-2000, -1500, -800, 1500) + 15, "바로크 산맥이 하벤 들판보다 높다");
-        assertTrue(avg(2450, 1250, 2550, 1350) < avg(2050, 850, 2100, 900) - 20, "분화구 가운데가 꺼져 있다");
+        assertTrue(avg(-1500, -3100, -500, -2500) > avg(-2900, 1600, -2000, 2300) + 20, "토르의 울타 산맥이 네스트 들판보다 높다");
+        assertTrue(avg(3250, 1000, 3450, 3000) > avg(-600, -600, -200, 0) + 15, "바로크 산맥이 하벤 들판보다 높다");
+        assertTrue(avg(4600, 1300, 4650, 1350) < avg(4405, 1105, 4440, 1140) - 20, "분화구 가운데가 꺼져 있다");
         assertEquals(TerrainModel.Surface.SAND, t.surface(0, 5200, t.height(0, 5200)).name().equals("RED_SAND") ? TerrainModel.Surface.SAND : t.surface(0, 5200, t.height(0, 5200)));
         assertEquals(TerrainModel.Surface.SNOW, t.surface(0, -5500, 80));
-        assertTrue(t.height(4400, 2850) < TerrainModel.SEA_LEVEL, "자작나무 호수에는 물이 찬다");
-        assertTrue(avg(5150, -2000, 5250, -1800) < avg(5050, 800, 5300, 1200) - 15, "유노프 협곡은 깊다");
-        assertTrue(t.height(5805, -5600) > t.height(5650, -5280) + 50, "지골라스는 솟은 화산");
+        assertTrue(t.height(4650, 2725) < TerrainModel.SEA_LEVEL, "자작나무 호수에는 물이 찬다");
+        assertTrue(avg(5100, -1400, 5150, -1000) < avg(5000, 1000, 5300, 1400) - 15, "유노프 협곡은 깊다");
+        assertTrue(t.height(-5300, -2000) < t.height(-5600, -1500) - 60, "엠비뉴의 성지는 거대한 구멍");
+        assertTrue(t.dry(-5300, -2000) && !t.dry(-1000, 0), "구멍에는 물이 차지 않는다");
+        assertEquals(TerrainModel.Surface.MUD, t.surface(150, -2200, t.height(150, -2200)), "썩은 거품의 늪은 진흙");
+        assertTrue(t.height(1900, -5650) > t.height(1250, -5400) + 50, "지골라스는 솟은 화산");
     }
 
     @Test
@@ -63,7 +66,7 @@ class TerrainModelTest {
     @Test
     void ruinsGetPillarsOnlyInRuins() {
         int inRuins = 0;
-        for (int cx = -69; cx < -50; cx++) for (int cz = 3; cz < 19; cz++) if (t.ruinPillar(cx, cz) != null) inRuins++;
+        for (int cx = -53; cx < -43; cx++) for (int cz = 0; cz < 11; cz++) if (t.ruinPillar(cx, cz) != null) inRuins++;
         assertTrue(inRuins > 20, "칼라모르 유적에는 기둥이 있다: " + inRuins);
         for (int cx = -20; cx < -11; cx++) for (int cz = -4; cz < 4; cz++) assertNull(t.ruinPillar(cx, cz), "도시(하르덴)에는 없다");
     }
@@ -76,7 +79,7 @@ class TerrainModelTest {
             for (int px = 0; px < size; px++) {
                 int x = -6000 + px * span / size, z = -6000 + py * span / size, h = t.height(x, z);
                 int rgb;
-                if (h < TerrainModel.SEA_LEVEL) rgb = 0x1f4f8f;
+                if (h < TerrainModel.SEA_LEVEL && !t.dry(x, z)) rgb = 0x1f4f8f;
                 else rgb = switch (t.surface(x, z, h)) {
                     case SAND -> 0xd8c58a;
                     case RED_SAND -> 0xc0703a;
@@ -86,6 +89,7 @@ class TerrainModelTest {
                     case BASALT -> 0x3a3640;
                     case DIRT_PATH -> 0xb08b5a;
                     case GRAVEL -> 0x9a948c;
+                    case MUD -> 0x4a3f35;
                     default -> 0x6aa84f;
                 };
                 int shade = Math.max(-40, Math.min(40, (h - 70)));

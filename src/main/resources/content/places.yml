@@ -1,14 +1,14 @@
 # NPC 일과 장소 (x, z). 높이는 지형에서 찾는다. 각 NPC 의 schedule 에 나온 장소는 모두 여기 있어야 하고, NPC 의 지역 안이어야 한다.
-# 좌표는 regions.yml 의 원작 기반 배치를 따른다 (하르덴 = 하벤 옛 영토, 로자임 항 = 로자임 동쪽 만, 깊은 망치 = 모라타 동쪽 산지 …)
+# 좌표는 regions.yml 의 원작 기반 배치를 따른다 (하르덴 = 하벤 옛 영토, 로자임 항 = 로자임 동쪽 만, 아이언 핸드(깊은 망치) = 토르 왕국 산지 …)
 places:
-  oren_smith:       {forge: [2390, -4010], tavern: [2415, -3990], home: [2370, -4040]}
+  oren_smith:       {forge: [450, -2950], tavern: [520, -2880], home: [400, -2800]}
   liese_weaver:     {loom: [-40, -3920], square: [0, -3900], home: [-70, -3950]}
   bram_sculptor:    {garden: [60, -3860], workshop: [35, -3890], home: [80, -3940]}
   kael_trader:      {exchange: [-990, 20], home: [-1060, 80]}
   mira_cook:        {tavern: [-960, -30], home: [-930, -70]}
-  sena_archivist:   {dig_site: [-3800, 700], camp: [-3760, 660]}
-  tobi_fisher:      {pier: [5520, 2100], market: [5100, 2140], home: [5050, 2040]}
+  sena_archivist:   {dig_site: [-3050, 350], camp: [-3000, 300]}
+  tobi_fisher:      {pier: [4800, 3650], market: [4500, 3500], home: [4400, 3400]}
   yuna_alchemist:   {lab: [-800, 4200], library: [-760, 4150]}
   dariq_caravan:    {caravanserai: [700, 5300]}
-  hana_scout:       {palisade: [-4000, -1600], bunk: [-4100, -1570]}
+  hana_scout:       {palisade: [-3000, -1600], bunk: [-3100, -1570]}
   garen_instructor: {drill_yard: [-1120, -120], barracks: [-1150, -160]}

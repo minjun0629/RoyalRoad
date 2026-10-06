@@ -33,6 +33,7 @@ public final class TerrainModel {
         if (t.contains("sea")) return new Shape(38, 8, 0.01, Surface.GRAVEL);
         if (t.contains("volcano")) return new Shape(72, 6, 0.01, Surface.BASALT);
         if (t.contains("lake")) return new Shape(66, 2, 0.004, Surface.GRASS);
+        if (t.contains("swamp")) return new Shape(63, 2, 0.02, Surface.MUD);
         if (t.contains("canyon") || t.contains("valley")) return new Shape(82, 12, 0.008, t.contains("forest") ? Surface.PODZOL : Surface.STONE);
         if (t.contains("mountain")) return new Shape(110, 48, 0.006, Surface.STONE);
         if (t.contains("city") || t.contains("outpost") || t.contains("fortress")) return new Shape(t.contains("coast") ? 65 : 68, 1.5, 0.01, Surface.DIRT_PATH);
@@ -40,6 +41,7 @@ public final class TerrainModel {
         if (t.contains("mist")) return new Shape(84, 26, 0.012, Surface.PODZOL);
         if (t.contains("frozen")) return new Shape(76, 18, 0.008, Surface.SNOW);
         if (t.contains("crater")) return new Shape(80, 6, 0.006, Surface.BASALT);
+        if (t.contains("badlands")) return new Shape(74, 18, 0.01, Surface.RED_SAND);
         if (t.contains("desert")) return new Shape(75, 11, 0.006, Surface.SAND);
         if (t.contains("highland")) return new Shape(90, 26, 0.005, Surface.GRASS);
         if (t.contains("forest") || t.contains("frontier")) return new Shape(74, 12, 0.008, Surface.PODZOL);
@@ -51,8 +53,15 @@ public final class TerrainModel {
     private Region regionAt(int x, int z) {
         Region r = regions.at(world, x, 64, z);
         // 64 높이를 안 덮는 지역(지하 · 낮은 유적)은 지표 모양에 쓰지 않고 그 위 지역을 쓴다
-        while (r != null && r.maxY() < 64 && r.parent() != null) r = regions.byId(r.parent());
-        return r != null && r.maxY() < 64 ? null : r;
+        // 랜드마크 · 던전 입구 · 성벽 같은 작은 표시 지역도 땅 모양은 바꾸지 않는다 (구조물은 SettlementPlanner 가 놓는다)
+        while (r != null && (r.maxY() < 64 || markerOnly(r)) && r.parent() != null) r = regions.byId(r.parent());
+        return r != null && (r.maxY() < 64 || markerOnly(r)) ? null : r;
+    }
+
+    private static final Set<String> MARKERS = Set.of("landmark", "dungeon_site", "wall");
+
+    private static boolean markerOnly(Region r) {
+        return !r.tags().isEmpty() && MARKERS.containsAll(r.tags());
     }
 
     // ------------------------------------------------------------------ 노이즈 (결정적 값 노이즈, 외부 라이브러리 없음)
@@ -122,6 +131,7 @@ public final class TerrainModel {
         if (r != null && r.tags().contains("lake")) h = Math.min(h, h - lakeDepth(r, x, z));
         if (r != null && (r.tags().contains("canyon") || r.tags().contains("valley"))) h -= cut(r, x, z, r.tags().contains("canyon") ? 48 : 22);
         if (r != null && r.tags().contains("volcano")) h += volcano(r, x, z);
+        if (r != null && r.tags().contains("hole")) h -= hole(r, x, z);
         return (int) Math.round(Math.max(-50, Math.min(250, h)));
     }
 
@@ -129,6 +139,19 @@ public final class TerrainModel {
         double cx = (r.minX() + r.maxX()) / 2.0, cz = (r.minZ() + r.maxZ()) / 2.0;
         double rx = (r.maxX() - r.minX()) / 2.0, rz = (r.maxZ() - r.minZ()) / 2.0;
         return Math.hypot((x - cx) / rx, (z - cz) / rz);
+    }
+
+    /** 물이 차지 않는 곳 (거대한 구멍) */
+    public boolean dry(int x, int z) {
+        Region r = regionAt(x, z);
+        return r != null && r.tags().contains("hole");
+    }
+
+    /** 거대한 구멍: 가장자리는 절벽, 가운데는 100 블록 가까이 꺼진다 */
+    private static double hole(Region r, int x, int z) {
+        double d = radial(r, x, z);
+        if (d >= 1) return 0;
+        return d < 0.7 ? 100 : 100 * (1 - (d - 0.7) / 0.3);
     }
 
     /** 호수: 타원 안쪽이 해수면 아래로 (물이 찬다), 가장자리는 완만 */

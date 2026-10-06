@@ -42,6 +42,11 @@ class SettlementPlannerTest {
         for (String id : SettlementPlanner.landmarkRegions())
             assertTrue(p.structures().stream().anyMatch(s -> s.kind == Kind.LANDMARK && s.region.equals(id)), "랜드마크 없음: " + id);
         assertTrue(p.structures().stream().anyMatch(s -> s.kind == Kind.WALL && s.region.equals("nehales_bastion")), "요새는 성벽");
+        for (Region r : regions.all()) {
+            if (r.tags().contains("wall")) assertTrue(p.structures().stream().anyMatch(s -> s.kind == Kind.WALL && s.region.equals(r.id())), "장벽 없음: " + r.id());
+            if (r.tags().contains("dungeon_site") || r.tags().contains("landmark"))
+                assertTrue(p.structures().stream().anyMatch(s -> s.kind == Kind.LANDMARK && s.region.equals(r.id())), "입구 · 명소 없음: " + r.id());
+        }
     }
 
     @Test

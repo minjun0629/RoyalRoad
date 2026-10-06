@@ -101,7 +101,10 @@ public final class VersaEraPlugin extends JavaPlugin {
             String rv = d.effects().get("reveal");
             if (rv != null && rv.startsWith("region:")) gated.add(rv.substring(7));
         }
-        regions.gate(id -> gated.contains(id) && !services.worldEvents.revealed().contains("region:" + id));
+        // 메타페이아: 신기루 도시라 한낮(11~13시)에만 들어갈 수 있다 (ORIGINAL 규칙 — 원작의 등장 조건은 옮기지 않음)
+        java.util.Set<String> noonOnly = java.util.Set.of("metapeia", "flame_sanctuary");
+        regions.gate(id -> (gated.contains(id) && !services.worldEvents.revealed().contains("region:" + id))
+                || (noonOnly.contains(id) && (gameHour < 11 || gameHour > 13)));
         NpcListener npcs = new NpcListener(this, services, async);
         gather = new GatherListener(this, services, async, codec, sessions);
         bosses = new BossRuntime(this, services, async);

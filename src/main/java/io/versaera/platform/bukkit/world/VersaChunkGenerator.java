@@ -87,7 +87,7 @@ public final class VersaChunkGenerator extends ChunkGenerator {
                     Material m = y == h ? top(s) : y >= h - 3 ? under(s) : y < 0 ? Material.DEEPSLATE : Material.STONE;
                     data.setBlock(dx, y, dz, m);
                 }
-                for (int y = h + 1; y <= TerrainModel.SEA_LEVEL; y++) data.setBlock(dx, y, dz, s == TerrainModel.Surface.SNOW ? Material.ICE : Material.WATER);
+                if (!t.dry(x, z)) for (int y = h + 1; y <= TerrainModel.SEA_LEVEL; y++) data.setBlock(dx, y, dz, s == TerrainModel.Surface.SNOW ? Material.ICE : Material.WATER);
             }
     }
 
