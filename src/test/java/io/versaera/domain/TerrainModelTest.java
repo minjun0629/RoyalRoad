@@ -38,6 +38,9 @@ class TerrainModelTest {
         assertTrue(avg(2450, 1250, 2550, 1350) < avg(2050, 850, 2100, 900) - 20, "분화구 가운데가 꺼져 있다");
         assertEquals(TerrainModel.Surface.SAND, t.surface(0, 5200, t.height(0, 5200)).name().equals("RED_SAND") ? TerrainModel.Surface.SAND : t.surface(0, 5200, t.height(0, 5200)));
         assertEquals(TerrainModel.Surface.SNOW, t.surface(0, -5500, 80));
+        assertTrue(t.height(4400, 2850) < TerrainModel.SEA_LEVEL, "자작나무 호수에는 물이 찬다");
+        assertTrue(avg(5150, -2000, 5250, -1800) < avg(5050, 800, 5300, 1200) - 15, "유노프 협곡은 깊다");
+        assertTrue(t.height(5805, -5600) > t.height(5650, -5280) + 50, "지골라스는 솟은 화산");
     }
 
     @Test

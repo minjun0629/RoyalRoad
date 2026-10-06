@@ -36,9 +36,13 @@ class GrowthAndWorldTest {
         try (TestWorld w = new TestWorld()) {
             assertEquals("harden", w.s.regions.at("world", -1000, 70, 0).id());
             assertEquals("emperor_aqueduct", w.s.regions.at("world", -1000, 0, 0).id(), "도시 아래 지하는 수로");
-            assertEquals("central_plains", w.s.regions.at("world", 500, 70, -2000).id());
-            assertEquals("rosenheim", w.s.regions.at("world", 2000, 70, 3000).id());
-            assertEquals("lavias", w.s.regions.at("world", 3800, 210, 1600).id(), "하늘섬은 로자임 위 하늘");
+            assertEquals("central_plains", w.s.regions.at("world", 500, 70, 3000).id());
+            assertEquals("aren_castle", w.s.regions.at("world", -1800, 70, -1100).id(), "하벤의 수도 아렌 성");
+            assertEquals("sisley_castle", w.s.regions.at("world", 400, 70, -200).id(), "루카 강가의 시슬리 성");
+            assertEquals("yunopu_canyon", w.s.regions.at("world", 5200, 70, -2000).id(), "절망의 평원 북쪽 협곡");
+            assertEquals("jigolas", w.s.regions.at("world", 5800, 70, -5600).id());
+            assertEquals("rosenheim", w.s.regions.at("world", 4800, 70, 1000).id());
+            assertEquals("lavias", w.s.regions.at("world", 3900, 210, 3100).id(), "하늘섬은 바란 마을 바로 위 하늘");
             assertEquals("serabourg", w.s.regions.at("world", 3100, 70, 2500).id());
             assertEquals("nehales_bastion", w.s.regions.at("world", 3400, 80, -700).id());
             assertNull(w.s.regions.at("world_nether", 0, 70, 0));

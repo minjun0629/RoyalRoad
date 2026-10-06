@@ -43,6 +43,15 @@
 | **라비아스**: 로자임 하늘에 숨어 있던 떠 있는 섬 (조인족) | CANON | 「Lavias」 검색 요약 |
 | **토르**: 북부, 아르펜 가까이의 드워프 왕국 (큰 산맥 3개) · 모라타 서쪽은 안개 협곡, 동쪽은 산 | CANON | 「Thor Kingdom」 · 「Morata」 검색 요약 |
 | **센데임 계곡**(죽음의 계곡): 니플하임 마지막 황제가 죽은 북부 계곡 | CANON | 「Valley of Death」 검색 요약 |
+| **바란 마을**: 세라보그 남쪽, 라비아스 **바로 아래**, 울켄 산 북동 · 라비아스 산 남동 | CANON | 「Baran Village」 · 게임 공식카페 검색 요약 |
+| **절망의 평원**: 로자임과 **유로키나 산맥** 사이의 거대 평원, 오크 100만 이상 · 북쪽에 **유노프 협곡**(쌍둥이 산) | CANON | 나무위키 · 「Plains of Despair」 검색 요약 |
+| **하벤** 수도 **아렌 성** · **톨렌 왕국**(중앙, 하벤에 멸망) | CANON | 나무위키 「헤르메스 길드」 · 위키백과 검색 요약 |
+| **프레야 교단** 본거지 **소므렌 자유도시** (중앙 대륙 남쪽) · **엠비뉴 교단** 총본영 = 엠비뉴의 성지(숨겨진 곳) | CANON | 「Freya's Church」 · 「Embinyu Church」 검색 요약 |
+| **시슬리 성**: 브리튼 연합, 루카 강가 | CANON | 「Other places」 검색 요약 |
+| 모라타 서쪽 **안개 협곡**, 북부 북서쪽 **푸르골 요새** | CANON (한국어 표기 미확인) | 「Morata」 · 「Other places」 검색 요약 |
+| 금역(10곳): **지골라스**(극북부 화산), **토둠**(대륙 밖 지하 뱀파이어 왕국), 마지막 금역은 바다 | CANON | 「Forbidden Zones」 · 나무위키 검색 요약 |
+| 게임판(모바일 『달빛조각사』) 지역: 세라보그 성 북부 · 고요한 평원 · 자작나무 호수 · 사냥꾼의 언덕 · 바로크 산맥 입구 · 울부짖는 골짜기 · 모래평원 · 오데인 요새/평원(아이데른과 브리튼 접경) · 바스라 마굴 | SOURCE-BASED | 게임 공식카페 · 게임 기사 검색 요약 (정확한 좌표 관계는 없음 → 로자임 · 브리튼 안에 이 게임이 배치) |
+| 위치가 확인되지 않아 **넣지 않은 곳**: 오딘 요새 · 어둠의 숲 · 수바인 왕국 · 나머지 금역 7곳 · 서부 대륙 | RESEARCH_REQUIRED | 위치 근거를 찾지 못함 |
 | 그라디안 · 브레멘 · 고요의 사막 등 일부 지명의 **한국어 표기** | RESEARCH_REQUIRED | 영어 위키 요약만 확인 — 게임 안 이름은 SOURCE-BASED 로 표시 |
 | 서부 대륙의 구체적인 지리 | RESEARCH_REQUIRED | 확인 못 함 |
 | 결말 이후 수십 ~ 수백 년의 역사 | RESEARCH_REQUIRED | 원작에 없음. 이 게임은 `ORIGINAL` 로 새로 만든다 (02_WORLD.md) |
@@ -147,5 +156,13 @@
 - [Legendary Moonlight Sculptor Wiki — Morata](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Morata)
 - [Legendary Moonlight Sculptor Wiki — Valley of Death](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Valley_of_Death)
 - [달빛조각사 게임 공식카페 — 지역별 히든퀘스트 정리](https://m.cafe.daum.net/moonlight-rpg/qEZQ/116)
+- [Legendary Moonlight Sculptor Wiki — Baran Village](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Baran_Village)
+- [Legendary Moonlight Sculptor Wiki — Forbidden Zones](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Forbidden_Zones)
+- [Legendary Moonlight Sculptor Wiki — Freya's Church](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Freya's_Church)
+- [Legendary Moonlight Sculptor Wiki — Embinyu Church](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Embinyu_Church)
+- [Legendary Moonlight Sculptor Wiki — Other places/locations](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Other_places/locations)
+- [나무위키 「헤르메스 길드」](https://namu.wiki/w/%ED%97%A4%EB%A5%B4%EB%A9%94%EC%8A%A4%20%EA%B8%B8%EB%93%9C)
+- [에누리 — 달빛조각사 2.0 업데이트 프리뷰 (게임판 지역)](https://m.enuri.com/knowcom/detail.jsp?kbno=1101287)
+- [게임와이 — 달빛조각사 신규 외전 지역 (오데인 요새)](http://www.gamey.kr/news/articleView.html?idxno=1612588)
 - (지도 작업 때 위 문서 본문은 개발 환경에서 열 수 없어 **검색 결과 요약**으로만 확인했습니다. 원작 지도 그림은 쓰지 않았습니다.)
 - [Legendary Moonlight Sculptor Wiki — Character Stats](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Character_Stats)

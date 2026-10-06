@@ -31,6 +31,9 @@ public final class TerrainModel {
         if (r == null) return new Shape(70, 6, 0.004, Surface.GRASS);
         Set<String> t = r.tags();
         if (t.contains("sea")) return new Shape(38, 8, 0.01, Surface.GRAVEL);
+        if (t.contains("volcano")) return new Shape(72, 6, 0.01, Surface.BASALT);
+        if (t.contains("lake")) return new Shape(66, 2, 0.004, Surface.GRASS);
+        if (t.contains("canyon") || t.contains("valley")) return new Shape(82, 12, 0.008, t.contains("forest") ? Surface.PODZOL : Surface.STONE);
         if (t.contains("mountain")) return new Shape(110, 48, 0.006, Surface.STONE);
         if (t.contains("city") || t.contains("outpost") || t.contains("fortress")) return new Shape(t.contains("coast") ? 65 : 68, 1.5, 0.01, Surface.DIRT_PATH);
         if (t.contains("coast")) return new Shape(63, 4, 0.01, Surface.SAND);
@@ -116,7 +119,42 @@ public final class TerrainModel {
         Region r = regionAt(x, z);
         if (r != null && r.tags().contains("crater")) h -= craterDepth(r, x, z);
         if (r != null && r.tags().contains("river")) h = riverCarve(r, x, z, h);
+        if (r != null && r.tags().contains("lake")) h = Math.min(h, h - lakeDepth(r, x, z));
+        if (r != null && (r.tags().contains("canyon") || r.tags().contains("valley"))) h -= cut(r, x, z, r.tags().contains("canyon") ? 48 : 22);
+        if (r != null && r.tags().contains("volcano")) h += volcano(r, x, z);
         return (int) Math.round(Math.max(-50, Math.min(250, h)));
+    }
+
+    private static double radial(Region r, int x, int z) {
+        double cx = (r.minX() + r.maxX()) / 2.0, cz = (r.minZ() + r.maxZ()) / 2.0;
+        double rx = (r.maxX() - r.minX()) / 2.0, rz = (r.maxZ() - r.minZ()) / 2.0;
+        return Math.hypot((x - cx) / rx, (z - cz) / rz);
+    }
+
+    /** 호수: 타원 안쪽이 해수면 아래로 (물이 찬다), 가장자리는 완만 */
+    private static double lakeDepth(Region r, int x, int z) {
+        double d = radial(r, x, z);
+        if (d >= 1) return 0;
+        return d < 0.8 ? 10 : 10 * (1 - (d - 0.8) / 0.2);
+    }
+
+    /** 골짜기 · 협곡: 긴 방향을 따라 가운데가 깊게 파인 띠 (협곡은 벽이 가파르다) */
+    private static double cut(Region r, int x, int z, double depth) {
+        boolean northSouth = (r.maxZ() - r.minZ()) >= (r.maxX() - r.minX());
+        double c = northSouth ? (r.minX() + r.maxX()) / 2.0 : (r.minZ() + r.maxZ()) / 2.0;
+        double half = (northSouth ? r.maxX() - r.minX() : r.maxZ() - r.minZ()) / 2.0;
+        double k = Math.abs((northSouth ? x : z) - c) / (half * 0.6);
+        if (k >= 1) return 0;
+        double steep = depth > 30 ? Math.pow(1 - k, 0.35) : 1 - k * k;
+        return depth * steep;
+    }
+
+    /** 화산: 지역 가운데로 솟은 원뿔 + 꼭대기 분화구 */
+    private static double volcano(Region r, int x, int z) {
+        double d = radial(r, x, z);
+        if (d >= 1) return 0;
+        if (d < 0.12) return 88;   // 꼭대기 분화구 바닥 (가장자리보다 12 낮음)
+        return 100 * (1 - d) / 0.88;
     }
 
     /** 분화구: 지역 가운데로 갈수록 깊어지는 그릇 (가장자리는 둔덕) */

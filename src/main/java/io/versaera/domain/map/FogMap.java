@@ -30,7 +30,9 @@ public final class FogMap {
         var t = r.tags();
         if (t.contains("mist")) return Tone.MIST;
         if (t.contains("city") || t.contains("outpost") || t.contains("fortress")) return Tone.CITY;
-        if (t.contains("sea") || t.contains("coast")) return Tone.SEA;
+        if (t.contains("sea") || t.contains("coast") || t.contains("lake")) return Tone.SEA;
+        if (t.contains("volcano")) return Tone.CRATER;
+        if (t.contains("canyon") || t.contains("valley")) return Tone.MOUNTAIN;
         if (t.contains("desert")) return Tone.DESERT;
         if (t.contains("frozen")) return Tone.FROZEN;
         if (t.contains("crater")) return Tone.CRATER;
