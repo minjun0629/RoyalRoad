@@ -78,7 +78,7 @@ public final class GameCommands implements CommandExecutor {
             for (String slotName : List.of("COMBAT", "LIFE")) {
                 var h = held.get(slotName);
                 String name = h == null ? "&8없음" : "&f" + s.jobs.job(h.jobId()).name();
-                m.set(slot, Menu.icon(slotName.equals("COMBAT") ? Material.IRON_SWORD : Material.ANVIL, name,
+                m.set(slot, Menu.ui(slotName.equals("COMBAT") ? "combat" : "life", slotName.equals("COMBAT") ? Material.IRON_SWORD : Material.ANVIL, name,
                         List.of("&7" + (slotName.equals("COMBAT") ? "전투" : "생활"))), null);
                 slot += 2;
             }
@@ -113,7 +113,7 @@ public final class GameCommands implements CommandExecutor {
                 }
                 if (a.def().giver() != null) lines.add("&8" + s.relations.npc(a.def().giver()).name());
                 lines.add("&8쉬프트 클릭: 포기");
-                m.set(slot++, Menu.icon(Material.WRITABLE_BOOK, "&f" + a.def().title(), lines), e -> {
+                m.set(slot++, Menu.ui("quest_active", Material.WRITABLE_BOOK, "&f" + a.def().title(), lines), e -> {
                     if (!e.isShiftClick()) return;
                     async.run("quest-abandon", () -> { s.quests.abandon(id, a.def().id()); return null; }, v -> quests(p), p);
                 });
@@ -121,7 +121,7 @@ public final class GameCommands implements CommandExecutor {
             slot = 27;
             for (var e : rep.entrySet()) {
                 if (slot > 35) break;
-                m.set(slot++, Menu.icon(e.getValue() >= 0 ? Material.LIME_BANNER : Material.RED_BANNER, "&f" + e.getKey(), List.of("&7" + e.getValue())), null);
+                m.set(slot++, Menu.ui("reputation", e.getValue() >= 0 ? Material.LIME_BANNER : Material.RED_BANNER, "&f" + e.getKey(), List.of("&7" + e.getValue())), null);
             }
             m.open(p);
         }, p);
@@ -185,13 +185,13 @@ public final class GameCommands implements CommandExecutor {
                 var g = (GuildRepository.Guild) r[0];
                 @SuppressWarnings("unchecked") var mem = (List<GuildRepository.Member>) r[1];
                 Menu m = new Menu(4, "&8[" + g.tag() + "] " + g.name());
-                m.set(4, Menu.icon(Material.WHITE_BANNER, "&f" + g.name(), List.of("&7레벨 " + g.level(), "&7" + mem.size() + "/" + GuildRules.maxMembers(g.level()),
+                m.set(4, Menu.ui("guild", Material.WHITE_BANNER, "&f" + g.name(), List.of("&7레벨 " + g.level(), "&7" + mem.size() + "/" + GuildRules.maxMembers(g.level()),
                         "&e" + r[2])), null);
                 int slot = 9;
                 for (var x : mem) {
                     if (slot > 35) break;
                     var off = Bukkit.getOfflinePlayer(UUID.fromString(x.uuid()));
-                    m.set(slot++, Menu.icon(Material.PLAYER_HEAD, "&f" + (off.getName() == null ? "?" : off.getName()),
+                    m.set(slot++, Menu.ui("member", Material.PLAYER_HEAD, "&f" + (off.getName() == null ? "?" : off.getName()),
                             List.of("&7" + switch (x.rank()) { case "LEADER" -> "길드장"; case "OFFICER" -> "부길드장"; default -> "길드원"; }, "&8공헌 " + x.contribution())), null);
                 }
                 m.open(p);
@@ -266,7 +266,7 @@ public final class GameCommands implements CommandExecutor {
                     else async.run("auction-buy", () -> s.auctions.buy(id, l.id()), v -> { p.sendMessage(Ui.info("-" + l.price())); deliver.accept(p); auction(p, a); }, p);
                 });
             }
-            m.set(49, Menu.icon(Material.CHEST, "&f내 매물 " + mine.size() + "/" + io.versaera.application.AuctionService.MAX_OPEN, List.of("&8/경매 등록 <가격>")), null);
+            m.set(49, Menu.ui("auction", Material.CHEST, "&f내 매물 " + mine.size() + "/" + io.versaera.application.AuctionService.MAX_OPEN, List.of("&8/경매 등록 <가격>")), null);
             m.open(p);
         }, p);
     }

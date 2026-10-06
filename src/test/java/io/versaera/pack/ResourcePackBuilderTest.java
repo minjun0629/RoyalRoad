@@ -52,6 +52,16 @@ class ResourcePackBuilderTest {
                 }
         }
         assertNotNull(ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/ui/menu6.png"))));
+        for (String key : ResourcePackBuilder.UI_ICONS) {
+            var img = ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/ui/" + key + ".png")));
+            assertEquals(16, img.getWidth(), key);
+            int opaque = 0;
+            for (int y = 0; y < 16; y++) for (int x = 0; x < 16; x++) if ((img.getRGB(x, y) >>> 24) != 0) opaque++;
+            assertTrue(opaque >= 20, "아이콘이 비어 있지 않다: " + key);
+            int id = PackIds.modelData("ui/" + key);
+            assertTrue(ids.add(id), "UI 아이콘 번호가 보스 모델과 겹치지 않는다: " + key);
+            assertTrue(paper.contains("\"custom_model_data\":" + id), key);
+        }
         assertTrue(new String(files.get("assets/minecraft/font/default.json"), StandardCharsets.UTF_8).contains("\"type\":\"space\""));
     }
 }

@@ -2,7 +2,7 @@
 
 > 정본은 `feature_registry.yml` (모든 필드: 출처 · 플레이어 경험 · 의존 · 구현 · 데이터 · UI · 리소스팩 · 성능 위험 · 보안 위험 · 저장 · 테스트 · 상태).
 > `RegistryAuditTest` 가 상태와 실제 테스트 파일을 대조합니다. **VERIFIED 는 아직 0개** — 이 개발 환경에서는 Paper 서버를 내려받을 수 없어 실제 서버 테스트를 못 했습니다.
-> IMPLEMENTED = 코드 + 자동 테스트 통과 (서버 연결 코드는 컴파일 · API 시그니처까지만 확인). PARTIAL = 알려진 빈 곳이 있음 (각 항목 description 참고).
+> IMPLEMENTED = 코드 + 자동 테스트 통과 (서버 연결 코드는 컴파일 · API 시그니처까지만 확인).
 
 | ID | 기능 | 분류 | 상태 | 자동 테스트 |
 |---|---|---|---|---|
@@ -12,7 +12,7 @@
 | CONT-01 | 데이터 중심 콘텐츠 로더 | ORIGINAL | **IMPLEMENTED** | ContentIntegrityTest |
 | ITM-01 | 고유 아이템 인스턴스 | SOURCE-BASED | **IMPLEMENTED** | ItemServiceTest |
 | ITM-02 | 배달함 (안전한 지급) | ORIGINAL | **IMPLEMENTED** | ItemServiceTest |
-| ITM-03 | 인벤토리 검증 · 격리 (복제 방지) | ORIGINAL | **PARTIAL** | ItemServiceTest |
+| ITM-03 | 인벤토리 검증 · 격리 (복제 방지) | ORIGINAL | **IMPLEMENTED** | ItemServiceTest |
 | ITM-04 | 내구도 · 수리 | SOURCE-BASED | **IMPLEMENTED** | ItemServiceTest |
 | ECO-01 | 돈 · 원장 | ORIGINAL | **IMPLEMENTED** | EconomyServiceTest |
 | TRD-01 | 1:1 거래 | ORIGINAL | **IMPLEMENTED** | TradeServiceTest |
@@ -25,7 +25,7 @@
 | CRF-02 | 조각 (여러 재료 조합 · 실제 아이템) | SOURCE-BASED | **IMPLEMENTED** | CraftingServiceTest |
 | GAT-01 | 채집 · 채광 · 벌목 · 낚시 | SOURCE-BASED | **IMPLEMENTED** | WorldEventGatherTest, ContentIntegrityTest |
 | WLD-01 | 지역 · 위험도 · 공간 인덱스 | ORIGINAL | **IMPLEMENTED** | GrowthAndWorldTest |
-| WLD-02 | 지역 데이터로 만드는 지형 · 유적 | ORIGINAL | **PARTIAL** | TerrainModelTest |
+| WLD-02 | 지역 데이터로 만드는 지형 · 도시 · 랜드마크 | ORIGINAL | **IMPLEMENTED** | TerrainModelTest, SettlementPlannerTest |
 | EXP-01 | 발견 기록 · 최초 발견자 | SOURCE-BASED | **IMPLEMENTED** | GrowthAndWorldTest |
 | MAP-01 | 탐험 지도 (안개) | ORIGINAL | **IMPLEMENTED** | MapServiceTest |
 | NPC-01 | NPC 정의 · 관계 | ORIGINAL | **IMPLEMENTED** | GrowthAndWorldTest |
@@ -41,16 +41,10 @@
 | DUN-01 | 던전 (매번 새 배치) | ORIGINAL | **IMPLEMENTED** | DungeonTest, DungeonServiceTest |
 | EVT-01 | 월드 이벤트 (시간표 · 예보) | ORIGINAL | **IMPLEMENTED** | WorldEventGatherTest |
 | DTH-01 | 사망 페널티 | SOURCE-BASED | **IMPLEMENTED** | JobQuestDeathTest |
-| UI-01 | 전용 MMORPG UI | ORIGINAL | **PARTIAL** | ResourcePackBuilderTest |
+| UI-01 | 전용 MMORPG UI | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest |
 | RP-01 | 리소스팩 (코드로 생성 · 배포) | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest, ExternalPackTest |
 | SRV-01 | 실제 Paper 서버 테스트 | ORIGINAL | **BLOCKED** | — |
 
-상태 합계: BLOCKED 1 · IMPLEMENTED 34 · PARTIAL 3
+상태 합계: BLOCKED 1 · IMPLEMENTED 37
 
-## PARTIAL 인 이유
-
-| ID | 남은 것 |
-|---|---|
-| ITM-03 | 검사 주기 사이의 짧은 창 — 사용 · 거래 시점 검증으로 보완 |
-| WLD-02 | 지형 생성기는 있으나 손으로 지은 도시 · 랜드마크 건축물은 없음, 실제 서버에서 생성 확인 전 |
-| UI-01 | 아이콘은 바닐라 아이템, 팩 배경 글자 정렬은 실제 클라이언트에서 확인 전 |
+남은 것은 SRV-01(실제 Paper 서버 테스트) 하나입니다 — 이 개발 환경에서 서버를 내려받을 수 없어 BLOCKED.

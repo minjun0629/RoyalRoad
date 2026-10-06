@@ -1,5 +1,6 @@
 package io.versaera.platform.bukkit.world;
 
+import io.versaera.domain.terrain.SettlementPlanner;
 import io.versaera.domain.terrain.TerrainModel;
 import io.versaera.domain.world.RegionIndex;
 import org.bukkit.Material;
@@ -18,15 +19,31 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 지역 데이터로 땅을 만드는 세계 생성기 (WLD-02). bukkit.yml 에서 지정: worlds.&lt;이름&gt;.generator: VersaEra
  * 높이 · 표면은 TerrainModel(순수 계산)이 정하고, 동굴 · 광석 · 나무는 바닐라 단계가 이어서 만든다 (바이옴을 지형에 맞춤).
- * 유적 지역에는 부서진 기둥을 세운다. 원작 지도를 베끼지 않는다 — regions.yml 의 영역 · 성격만 쓴다.
+ * 유적 지역에는 부서진 기둥, 도시 지역에는 광장 · 길 · 건물 · 성벽, 지역마다 랜드마크를 세운다 (SettlementPlanner). 원작 지도를 베끼지 않는다 — regions.yml 의 영역 · 성격만 쓴다.
  * 생성은 여러 스레드에서 동시에 불리므로 TerrainModel 은 불변 객체만 쓴다.
  */
 public final class VersaChunkGenerator extends ChunkGenerator {
     private final RegionIndex regions;
+    private final List<int[]> keepClear;
     private final Map<String, TerrainModel> models = new ConcurrentHashMap<>();
+    private final Map<String, SettlementPlanner> plans = new ConcurrentHashMap<>();
+    private final Map<String, Material> materials = new ConcurrentHashMap<>();
 
-    public VersaChunkGenerator(RegionIndex regions) {
+    /** @param keepClear NPC 일과 장소 {x, z} — 건물을 짓지 않을 자리 */
+    public VersaChunkGenerator(RegionIndex regions, List<int[]> keepClear) {
         this.regions = regions;
+        this.keepClear = List.copyOf(keepClear);
+    }
+
+    private SettlementPlanner plan(WorldInfo w) {
+        return plans.computeIfAbsent(w.getName(), n -> SettlementPlanner.plan(regions, n, w.getSeed(), keepClear));
+    }
+
+    private Material material(String name) {
+        return materials.computeIfAbsent(name, n -> {
+            Material m = Material.matchMaterial(n);
+            return m == null ? Material.STONE : m;
+        });
     }
 
     private TerrainModel model(WorldInfo w) {
@@ -128,13 +145,23 @@ public final class VersaChunkGenerator extends ChunkGenerator {
             @Override
             public void populate(WorldInfo info, Random random, int chunkX, int chunkZ, LimitedRegion region) {
                 TerrainModel t = model(info);
-                int cellX = Math.floorDiv(chunkX * 16, 64), cellZ = Math.floorDiv(chunkZ * 16, 64);
-                int[] p = t.ruinPillar(cellX, cellZ);
-                if (p == null || Math.floorDiv(p[0], 16) != chunkX || Math.floorDiv(p[1], 16) != chunkZ) return;
-                int base = t.height(p[0], p[1]);
-                for (int y = 1; y <= p[2]; y++)
-                    if (region.isInRegion(p[0], base + y, p[1]))
-                        region.setType(p[0], base + y, p[1], y == p[2] ? Material.CHISELED_STONE_BRICKS : y % 3 == 0 ? Material.CRACKED_STONE_BRICKS : Material.STONE_BRICKS);
+                int x0 = chunkX * 16, z0 = chunkZ * 16;
+                // 유적 기둥
+                int[] p = t.ruinPillar(Math.floorDiv(x0, 64), Math.floorDiv(z0, 64));
+                if (p != null && Math.floorDiv(p[0], 16) == chunkX && Math.floorDiv(p[1], 16) == chunkZ) {
+                    int base = t.height(p[0], p[1]);
+                    for (int y = 1; y <= p[2]; y++)
+                        if (region.isInRegion(p[0], base + y, p[1]))
+                            region.setType(p[0], base + y, p[1], y == p[2] ? Material.CHISELED_STONE_BRICKS : y % 3 == 0 ? Material.CRACKED_STONE_BRICKS : Material.STONE_BRICKS);
+                }
+                // 도시 · 랜드마크: 이 청크에 걸친 구조물의 열만 그린다
+                SettlementPlanner.Sink sink = (x, y, z, m) -> {
+                    if (region.isInRegion(x, y, z)) region.setType(x, y, z, material(m));
+                };
+                for (SettlementPlanner.Structure st : plan(info).in(x0, z0, x0 + 15, z0 + 15))
+                    for (int x = Math.max(x0, st.minX); x <= Math.min(x0 + 15, st.maxX); x++)
+                        for (int z = Math.max(z0, st.minZ); z <= Math.min(z0 + 15, st.maxZ); z++)
+                            if (st.covers(x, z)) st.column(x, z, t::height, sink);
             }
         });
     }

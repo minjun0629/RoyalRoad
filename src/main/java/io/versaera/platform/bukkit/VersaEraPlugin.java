@@ -115,7 +115,8 @@ public final class VersaEraPlugin extends JavaPlugin {
         npcRuntime = new NpcRuntime(this, services, npcs, () -> gameHour);
         NpcMenus menus = new NpcMenus(services, async, codec, sessions::deliver, p -> facts(p.getUniqueId().toString(), regions));
         npcs.onOpen(menus::open);
-        for (var l : List.of(sessions, new InventoryGuard(this, services, async, codec), regions, npcs, gather, combat, bosses, skills,
+        InventoryGuard guard = new InventoryGuard(this, services, async, codec);
+        for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
                 new DeathListener(this, services, async, codec), dungeons, maps,
                 new StationListener(services, async, codec, sessions), new MenuListener()))
             Bukkit.getPluginManager().registerEvents(l, this);
@@ -216,7 +217,9 @@ public final class VersaEraPlugin extends JavaPlugin {
                     return in != null ? in : getClassLoader().getResourceAsStream("content/" + f);
                 })
                 : ContentBundle.fromClasspath(getClassLoader());
-        return new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()));
+        List<int[]> npcSpots = new java.util.ArrayList<>();
+        c.places().values().forEach(m -> m.values().forEach(p -> npcSpots.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
+        return new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots);
     }
 
     private static InputStream open(File f) {

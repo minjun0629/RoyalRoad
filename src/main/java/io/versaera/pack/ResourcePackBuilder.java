@@ -22,6 +22,7 @@ import java.util.zip.ZipOutputStream;
  * <ul>
  *   <li>거대 보스 모델: 보스마다 몸통 모양 템플릿(거상 · 날개 짐승 · 결정 · 마디 벌레 · 갑각)을 큐브로 조립 + 절차 텍스처</li>
  *   <li>모델은 종이(paper)의 CustomModelData 로 연결 (번호 = PackIds.modelData)</li>
+ *   <li>UI 아이콘 16종(의뢰 · 상점 · 길드 · 경매 …): 종이 CustomModelData (번호 = PackIds.modelData("ui/&lt;키&gt;"))</li>
  *   <li>UI: 기본 폰트에 사설 영역 글자(U+E000~)로 메뉴 배경 · 뒤로 당기기 공백을 넣는다 → 상자 창 제목에 배경을 깐다</li>
  *   <li>결과는 결정적(같은 콘텐츠 = 같은 바이트 = 같은 SHA-1) → 클라이언트 캐시가 잘 맞는다</li>
  * </ul>
@@ -55,6 +56,13 @@ public final class ResourcePackBuilder {
             if (models.containsValue(id)) throw new IllegalStateException("모델 번호 충돌: " + boss.model());
             models.put(boss.model(), id);
             b.bossModel(boss);
+        }
+        for (String key : UI_ICONS) {
+            String model = "ui/" + key;
+            int id = PackIds.modelData(model);
+            if (models.containsValue(id)) throw new IllegalStateException("모델 번호 충돌: " + model);
+            models.put(model, id);
+            b.uiIcon(key);
         }
         b.paperOverrides(models);
         b.uiFont();
@@ -159,6 +167,62 @@ public final class ResourcePackBuilder {
         }
         text("assets/minecraft/models/item/paper.json",
                 "{\"parent\":\"minecraft:item/generated\",\"textures\":{\"layer0\":\"minecraft:item/paper\"},\"overrides\":[" + o + "]}");
+    }
+
+    // ------------------------------------------------------------------ UI 아이콘 (메뉴 버튼)
+    /** 메뉴 아이콘 키 — Menu.ui(key, …) 가 같은 키를 쓴다 */
+    public static final List<String> UI_ICONS = List.of("quest", "quest_active", "shop", "gift", "news", "combat", "life", "guild", "money",
+            "auction", "sell", "stat", "map_known", "map_unknown", "member", "reputation");
+
+    private void uiIcon(String key) {
+        text("assets/versaera/models/ui/" + key + ".json",
+                "{\"parent\":\"minecraft:item/generated\",\"textures\":{\"layer0\":\"versaera:ui/" + key + "\"}}");
+        png("assets/versaera/textures/ui/" + key + ".png", icon16(key));
+    }
+
+    /** 16×16 픽셀 아이콘 (짧은 모양 하나 + 테두리) — 결정적 */
+    static BufferedImage icon16(String key) {
+        BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        Color gold = new Color(201, 162, 39), dark = new Color(40, 34, 30), light = new Color(236, 226, 200), red = new Color(170, 52, 44),
+                green = new Color(70, 150, 70), blue = new Color(70, 110, 180), steel = new Color(180, 186, 196);
+        switch (key) {
+            case "quest", "quest_active" -> {   // 두루마리
+                g.setColor(light); g.fillRect(3, 3, 10, 10);
+                g.setColor(dark); for (int y = 5; y <= 11; y += 2) g.drawLine(5, y, 11, y);
+                g.setColor(key.equals("quest") ? gold : green); g.fillRect(2, 2, 12, 2); g.fillRect(2, 12, 12, 2);
+            }
+            case "shop" -> { g.setColor(new Color(130, 90, 50)); g.fillOval(3, 5, 10, 9); g.setColor(gold); g.fillRect(6, 2, 4, 4); }
+            case "gift" -> { g.setColor(red); g.fillRect(3, 6, 10, 8); g.setColor(gold); g.fillRect(7, 6, 2, 8); g.fillRect(3, 9, 10, 2); g.fillOval(4, 3, 4, 4); g.fillOval(8, 3, 4, 4); }
+            case "news" -> { g.setColor(light); g.fillOval(2, 2, 12, 12); g.setColor(dark); g.drawLine(8, 8, 8, 4); g.drawLine(8, 8, 11, 8); g.setColor(gold); g.drawOval(2, 2, 11, 11); }
+            case "combat" -> { g.setColor(steel); for (int i = 0; i < 9; i++) g.fillRect(4 + i, 11 - i, 2, 2); g.setColor(gold); g.fillRect(3, 10, 4, 2); g.fillRect(4, 12, 2, 2); }
+            case "life" -> { g.setColor(new Color(130, 90, 50)); for (int i = 0; i < 8; i++) g.fillRect(4 + i, 13 - i, 2, 2); g.setColor(steel); g.fillRect(9, 2, 6, 4); }
+            case "guild" -> { g.setColor(new Color(130, 90, 50)); g.fillRect(3, 1, 2, 14); g.setColor(blue); g.fillPolygon(new int[]{5, 14, 14, 5}, new int[]{2, 2, 9, 9}, 4); g.setColor(gold); g.fillRect(8, 4, 3, 3); }
+            case "money" -> { g.setColor(gold); g.fillOval(2, 2, 12, 12); g.setColor(new Color(150, 110, 20)); g.drawOval(4, 4, 7, 7); }
+            case "auction" -> { g.setColor(new Color(130, 90, 50)); for (int i = 0; i < 8; i++) g.fillRect(3 + i, 12 - i, 2, 2); g.fillRect(8, 2, 6, 4); g.setColor(dark); g.fillRect(2, 13, 7, 2); }
+            case "sell" -> { g.setColor(steel); g.fillPolygon(new int[]{2, 14, 8}, new int[]{3, 3, 10}, 3); g.setColor(gold); g.fillRect(6, 11, 4, 3); }
+            case "stat" -> { g.setColor(gold); g.fillPolygon(new int[]{8, 10, 15, 11, 12, 8, 4, 5, 1, 6}, new int[]{1, 6, 6, 9, 14, 11, 14, 9, 6, 6}, 10); }
+            case "map_known" -> { g.setColor(light); g.fillRect(2, 3, 12, 10); g.setColor(green); g.fillOval(4, 5, 5, 4); g.setColor(red); g.fillRect(10, 5, 2, 5); }
+            case "map_unknown" -> { g.setColor(new Color(90, 90, 100)); g.fillRect(2, 3, 12, 10); g.setColor(light); g.fillRect(6, 5, 4, 1); g.fillRect(10, 6, 1, 2); g.fillRect(8, 8, 2, 1); g.fillRect(8, 9, 1, 1); g.fillRect(8, 11, 1, 1); }   // 글꼴 없이 그린 "?" (JVM 마다 같은 그림)
+            case "member" -> { g.setColor(light); g.fillOval(5, 2, 6, 6); g.setColor(blue); g.fillRoundRect(3, 8, 10, 7, 4, 4); }
+            case "reputation" -> { g.setColor(blue); g.fillPolygon(new int[]{3, 13, 13, 8, 3}, new int[]{2, 2, 10, 14, 10}, 5); g.setColor(gold); g.fillRect(7, 5, 2, 5); }
+            default -> { g.setColor(gold); g.fillRect(4, 4, 8, 8); }
+        }
+        g.dispose();
+        // 어두운 바탕에서 보이게 1픽셀 외곽선
+        BufferedImage out = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < 16; y++)
+            for (int x = 0; x < 16; x++) {
+                int a = img.getRGB(x, y);
+                if ((a >>> 24) != 0) { out.setRGB(x, y, a); continue; }
+                boolean near = false;
+                for (int[] d : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+                    int nx = x + d[0], ny = y + d[1];
+                    if (nx >= 0 && ny >= 0 && nx < 16 && ny < 16 && (img.getRGB(nx, ny) >>> 24) != 0) near = true;
+                }
+                if (near) out.setRGB(x, y, 0xFF1A1714);
+            }
+        return out;
     }
 
     // ------------------------------------------------------------------ UI

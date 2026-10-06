@@ -54,6 +54,19 @@ public class Menu implements InventoryHolder {
         return it;
     }
 
+    /**
+     * 메뉴 버튼 아이콘: 리소스팩이 켜져 있으면 팩의 전용 아이콘(종이 + CustomModelData), 아니면 대신할 바닐라 아이템.
+     * @param key ResourcePackBuilder.UI_ICONS 의 키
+     */
+    public static ItemStack ui(String key, Material fallback, String name, List<String> lines) {
+        if (!background) return icon(fallback, name, lines);
+        ItemStack it = icon(Material.PAPER, name, lines);
+        ItemMeta meta = it.getItemMeta();
+        meta.setCustomModelData(io.versaera.domain.pack.PackIds.modelData("ui/" + key));
+        it.setItemMeta(meta);
+        return it;
+    }
+
     public void set(int slot, ItemStack icon, Consumer<InventoryClickEvent> action) {
         inv.setItem(slot, icon);
         if (action == null) actions.remove(slot);

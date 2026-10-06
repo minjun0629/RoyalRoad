@@ -69,14 +69,14 @@ public final class NpcMenus {
             if (slot > 17) break;
             m.set(slot++, questIcon(q, null), e -> accept(p, q));
         }
-        if (h.shop()) m.set(22, Menu.icon(Material.EMERALD, "&a상점", List.of()), e -> shop(p, h.npc().id()));
+        if (h.shop()) m.set(22, Menu.ui("shop", Material.EMERALD, "&a상점", List.of()), e -> shop(p, h.npc().id()));
         if (!h.forecast().isEmpty()) {
             List<String> lines = new ArrayList<>();
             long now = System.currentTimeMillis();
             h.forecast().forEach((name, t) -> lines.add("&f" + name + " &7" + Math.max(1, Duration.ofMillis(t - now).toMinutes()) + "분 뒤"));
-            m.set(20, Menu.icon(Material.CLOCK, "&e소식", lines), null);
+            m.set(20, Menu.ui("news", Material.CLOCK, "&e소식", lines), null);
         }
-        m.set(24, Menu.icon(Material.POPPY, "&d선물", List.of("&7손에 든 재료 1개")), e -> gift(p, h.npc().id()));
+        m.set(24, Menu.ui("gift", Material.POPPY, "&d선물", List.of("&7손에 든 재료 1개")), e -> gift(p, h.npc().id()));
         m.open(p);
     }
 
@@ -94,7 +94,7 @@ public final class NpcMenus {
             lines.add("&8· &7" + o.label() + prog);
         }
         if (q.reward().money() > 0) lines.add("&e" + q.reward().money() + " 골드");
-        return Menu.icon(a == null ? Material.BOOK : Material.WRITABLE_BOOK, (a == null ? "&f" : "&a") + q.title(), lines);
+        return Menu.ui(a == null ? "quest" : "quest_active", a == null ? Material.BOOK : Material.WRITABLE_BOOK, (a == null ? "&f" : "&a") + q.title(), lines);
     }
 
     private void accept(Player p, QuestDefinition q) {
@@ -164,7 +164,7 @@ public final class NpcMenus {
             MarketCatalog.Shop sh = (MarketCatalog.Shop) r[0];
             @SuppressWarnings("unchecked") List<long[]> prices = (List<long[]>) r[1];
             Menu m = new Menu(3, "&8" + s.market.catalog().market(sh.market()).name());
-            m.set(4, Menu.icon(Material.GOLD_INGOT, "&e" + r[2], List.of()), null);
+            m.set(4, Menu.ui("money", Material.GOLD_INGOT, "&e" + r[2], List.of()), null);
             for (int i = 0; i < sh.sells().size() && i < 9; i++) {
                 MarketCatalog.Offer o = sh.sells().get(i);
                 int idx = i;
@@ -175,7 +175,7 @@ public final class NpcMenus {
                 icon.setItemMeta(meta);
                 m.set(9 + i, icon, e -> buy(p, npcId, idx, !unique && e.isShiftClick() ? 16 : 1));
             }
-            m.set(22, Menu.icon(Material.HOPPER, "&a손에 든 것 팔기", List.of("&7" + String.join(" · ", sh.buys()))), e -> sell(p, npcId));
+            m.set(22, Menu.ui("sell", Material.HOPPER, "&a손에 든 것 팔기", List.of("&7" + String.join(" · ", sh.buys()))), e -> sell(p, npcId));
             m.open(p);
         }, p);
     }

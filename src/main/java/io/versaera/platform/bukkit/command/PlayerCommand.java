@@ -57,7 +57,7 @@ public final class PlayerCommand implements CommandExecutor {
             @SuppressWarnings("unchecked") Map<String, Integer> stats = (Map<String, Integer>) r[1];
             long money = (long) r[2];
             Menu m = new Menu(4, "&8" + p.getName());
-            m.set(4, Menu.icon(Material.GOLD_INGOT, "&e" + money, List.of()), null);
+            m.set(4, Menu.ui("money", Material.GOLD_INGOT, "&e" + money, List.of()), null);
             int slot = 9;
             List<Map.Entry<String, Long>> top = new ArrayList<>(mastery.entrySet());
             top.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
@@ -71,7 +71,7 @@ public final class PlayerCommand implements CommandExecutor {
             for (Map.Entry<String, Integer> e : stats.entrySet()) {
                 if (slot > 35) break;
                 String name = s.growth.stats().stream().filter(x -> x.id().equals(e.getKey())).findFirst().map(x -> x.name()).orElse(e.getKey());
-                m.set(slot++, Menu.icon(Material.NETHER_STAR, "&f" + name + " &e" + e.getValue(), List.of()), null);
+                m.set(slot++, Menu.ui("stat", Material.NETHER_STAR, "&f" + name + " &e" + e.getValue(), List.of()), null);
             }
             m.open(p);
         }, p);
@@ -108,9 +108,9 @@ public final class PlayerCommand implements CommandExecutor {
                 Region r = (Region) row[0];
                 boolean known = (boolean) row[1];
                 m.set(slot++, known
-                        ? Menu.icon(r.danger() == 0 ? Material.LIME_BANNER : r.danger() <= 2 ? Material.YELLOW_BANNER : r.danger() <= 4 ? Material.ORANGE_BANNER : Material.RED_BANNER,
+                        ? Menu.ui("map_known", r.danger() == 0 ? Material.LIME_BANNER : r.danger() <= 2 ? Material.YELLOW_BANNER : r.danger() <= 4 ? Material.ORANGE_BANNER : Material.RED_BANNER,
                         "&f" + r.name(), List.of(Ui.danger(r.danger()), "&8" + row[2]))
-                        : Menu.icon(Material.GRAY_STAINED_GLASS_PANE, "&8???", List.of()), null);
+                        : Menu.ui("map_unknown", Material.GRAY_STAINED_GLASS_PANE, "&8???", List.of()), null);
             }
             m.open(p);
         }, p);

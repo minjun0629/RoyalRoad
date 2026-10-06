@@ -133,19 +133,19 @@ features:
     source: 요구 §40 · §59
     source_type: 설계 요구
     classification: ORIGINAL
-    description: 접속 · 2초마다 한 명씩 인벤토리 · 엔더 상자의 고유 아이템을 DB 와 대조. 위조 · 파괴됨 · 남의 것 · 보관 중 · 같은 id 두 개 → 회수 + 감사 로그
+    description: "접속 · 2초마다 한 명씩 인벤토리 · 엔더 상자의 고유 아이템을 DB 와 대조 (위조 · 파괴됨 · 남의 것 · 보관 중 · 같은 id 두 개 → 회수 + 감사 로그). 고유 아이템은 플레이어 밖으로 나갈 수 없음: 버리기 · 상자 · 화로 · 호퍼 · 액자 · 갑옷 거치대 금지 → 검사되지 않는 곳에 복제품을 숨길 수 없고, 넘기는 길은 서버가 검증하는 거래 · 경매뿐. 줍기 · 손에 들기 · 손 바꾸기 때 곧바로(5초에 한 번) 다시 검사, 전투 수치는 DB 소유 확인된 아이템만"
     player_experience: "(정상 플레이어는 느끼지 못함)"
     dependencies: [ITM-01]
-    implementation: platform.bukkit.listener.InventoryGuard · ItemService.validate
+    implementation: "platform.bukkit.listener.InventoryGuard · CustodyGuard · ItemService.validate · CombatListener(소유 확인 캐시)"
     data_model: 없음
     ui: "확인되지 않은 아이템 N개를 회수했습니다"
     resource_pack: 없음
     performance_risk: 한 번에 한 명 · 2초 간격
-    security_risk: 검사 사이 짧은 창(최대 접속자 × 2초)에는 복제품이 잠시 존재할 수 있음 → 사용 · 거래 시점 검증으로 보완 (거래는 서버 검증 완료)
+    security_risk: "검사 주기 사이 짧은 창은 남지만, 복제품은 플레이어 밖으로 옮기거나 넘길 수 없고 사용 시점(거래 · 경매 · 전투 수치)은 서버가 검증"
     persistence: 없음
     tests: [ItemServiceTest]
     server_test: BLOCKED
-    status: PARTIAL
+    status: IMPLEMENTED
 
   - id: ITM-04
     feature: 내구도 · 수리
@@ -388,24 +388,24 @@ features:
     status: IMPLEMENTED
 
   - id: WLD-02
-    feature: "지역 데이터로 만드는 지형 · 유적"
+    feature: "지역 데이터로 만드는 지형 · 도시 · 랜드마크"
     category: "월드"
     source: "02_WORLD"
     source_type: "후대 설계"
     classification: ORIGINAL
-    description: "regions.yml 의 성격(tags)으로 높이 · 표면 · 바이옴을 정하는 세계 생성기. 경계는 주변 표본을 섞어 부드럽게, 분화구는 그릇 모양, 강은 노이즈 띠로 파고, 바다는 해수면 아래, 도시는 거의 평평. 유적 지역에는 부서진 기둥. 동굴 · 광석 · 나무는 바닐라 단계. 손으로 짓는 도시 건축물은 아직 없음"
+    description: "regions.yml 의 성격(tags)으로 높이 · 표면 · 바이옴을 정하는 세계 생성기 (경계 섞기 · 분화구 그릇 · 강 · 바다 · 평평한 도시). 도시 · 요새 · 전초기지에는 광장(우물) · 32 블록 간격 길 · 길가 장식 건물(지역별 재질, 하우징 아님) · 성벽, 지역마다 랜드마크 18종(탑 · 등대 · 첨탑 · 조각상 · 모루 기념비 · 오아시스 · 성채 · 망루 · 쓰러진 거상의 머리 · 아치 · 얼음 첨탑 · 오벨리스크 · 돌 고리 · 풍차 탑). NPC 일과 장소에는 짓지 않음. 유적 지역의 부서진 기둥"
     player_experience: "지역 이름과 땅의 모양이 맞는 대륙"
     dependencies: [WLD-01]
-    implementation: "domain.terrain.TerrainModel · platform.bukkit.world.VersaChunkGenerator (bukkit.yml generator: VersaEra)"
+    implementation: "domain.terrain.TerrainModel · SettlementPlanner · platform.bukkit.world.VersaChunkGenerator (bukkit.yml generator: VersaEra)"
     data_model: "월드 파일"
     ui: "없음"
     resource_pack: "없음"
-    performance_risk: "열 5개 표본 · 지역 조회 O(1) — 청크당 1280회. 생성은 병렬 스레드에서 불변 객체만 사용"
+    performance_risk: "열 5개 표본 · 지역 조회 O(1). 구조물은 블록 목록을 쌓지 않고 청크에 걸친 열만 그림. 불변 객체 → 병렬 생성 안전"
     security_risk: "없음"
     persistence: "월드 파일"
-    tests: [TerrainModelTest]
+    tests: [TerrainModelTest, SettlementPlannerTest]
     server_test: BLOCKED
-    status: PARTIAL
+    status: IMPLEMENTED
 
   - id: EXP-01
     feature: 발견 기록 · 최초 발견자
@@ -713,19 +713,19 @@ features:
     source: "요구 §48-50"
     source_type: "설계 요구"
     classification: ORIGINAL
-    description: "모든 창은 아이콘 + 이름 + 숫자만. 리소스팩 사용 서버는 창 제목에 배경 글자(U+E000~, 뒤로 당기는 공백 글자)를 깔아 전용 배경을 보여 줌. 아이콘은 아직 바닐라 아이템, 배경 정렬은 실제 클라이언트에서 확인 전"
+    description: "모든 창은 아이콘 + 이름 + 숫자만. 리소스팩을 쓰면 창 제목에 배경 글자(U+E000~, 뒤로 당기는 공백 글자)로 전용 배경, 버튼은 팩의 전용 아이콘 16종(의뢰 · 상점 · 선물 · 소식 · 전투 · 생활 · 길드 · 돈 · 경매 · 팔기 · 스탯 · 지도 · 길드원 · 평판). 팩이 없으면 바닐라 아이템으로 대신"
     player_experience: "고급 판타지 UI"
     dependencies: [RP-01]
-    implementation: "platform.bukkit.ui.Menu · NpcMenus · ResourcePackBuilder(menu6 · menu3 · space)"
+    implementation: "platform.bukkit.ui.Menu(ui · 배경) · NpcMenus · GameCommands · PlayerCommand · ResourcePackBuilder(menu6 · menu3 · space · ui 아이콘)"
     data_model: "없음"
     ui: "상자 창 + 팩 배경"
-    resource_pack: "배경 글자 · 공백 글자 (생성)"
+    resource_pack: "배경 글자 · 공백 글자 · UI 아이콘 (모두 코드 생성)"
     performance_risk: "낮음"
     security_risk: "모든 클릭 취소 후 정해진 칸만 동작"
     persistence: "없음"
     tests: [ResourcePackBuilderTest]
     server_test: BLOCKED
-    status: PARTIAL
+    status: IMPLEMENTED
 
   - id: RP-01
     feature: "리소스팩 (코드로 생성 · 배포)"
