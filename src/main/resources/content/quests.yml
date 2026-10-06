@@ -1,0 +1,153 @@
+# 퀘스트 — 모두 ORIGINAL (후대 시대의 새 사건 · 새 인물). 등급: DAILY(일상) · SKILLED(숙련) · PERILOUS(험로) · LEGEND(전설)
+# objectives type: KILL · GATHER · CRAFT · DISCOVER · TALK · DELIVER · AFFINITY · DUNGEON · BOSS
+# reward items: "종류:품질:수량"   choices: 끝낼 때 고르는 선택지 (보상 · 다음 퀘스트가 달라짐)
+quests:
+  # ---- 하르덴 (상업 · 시작)
+  harden.first_coin:
+    title: 첫 거래의 값
+    giver: kael_trader
+    grade: DAILY
+    objectives:
+      - {type: GATHER, target: oak_timber, amount: 6, label: 참나무 목재 모으기}
+      - {type: DELIVER, target: oak_timber, amount: 6, label: 카엘에게 목재 넘기기}
+    reward: {money: 300, xp: {trading: 60}, affinity: {kael_trader: 15}, reputation: {harden_merchants: 10}}
+  harden.price_of_salt:
+    title: 소금 값이 오른 이유
+    giver: kael_trader
+    grade: SKILLED
+    after: [harden.first_coin]
+    objectives:
+      - {type: DISCOVER, target: "region:rosaim_harbor", amount: 1, label: 로자임 항만 연합 가 보기}
+      - {type: TALK, target: tobi_fisher, amount: 1, label: 어부 토비에게 묻기}
+      - {type: DELIVER, target: sea_salt, amount: 10, label: 바다 소금 10개}
+    reward: {money: 900, xp: {trading: 200, exploration: 150}, reputation: {harden_merchants: 20, rosaim_ports: 15}}
+    choices:
+      - {id: tell_truth, label: "항구의 사정을 그대로 전한다", reward: {affinity: {tobi_fisher: 40}, reputation: {rosaim_ports: 25}}}
+      - {id: corner_market, label: "소금을 사재기하자고 제안한다", reward: {money: 1200, affinity: {kael_trader: 30, tobi_fisher: -30}, reputation: {harden_merchants: 25, rosaim_ports: -20}}}
+  harden.tavern_menu:
+    title: 주점의 새 메뉴
+    giver: mira_cook
+    grade: DAILY
+    daily: true
+    objectives:
+      - {type: CRAFT, target: cook_stew, amount: 2, min_quality: 300, label: 든든한 스튜 2번 만들기}
+    reward: {money: 200, xp: {cooking: 120}, affinity: {mira_cook: 8}}
+  harden.drill:
+    title: 훈련장의 규칙
+    giver: garen_instructor
+    grade: SKILLED
+    objectives:
+      - {type: KILL, target: any, amount: 40, label: 몬스터 40마리}
+      - {type: AFFINITY, target: garen_instructor, amount: 50, label: 교관의 신뢰 50}
+    reward: {xp: {swordsmanship: 400, archery: 400, spellcraft: 400}, items: ["buckler:550:1"], affinity: {garen_instructor: 30}}
+  # ---- 모라타 (장인 · 예술)
+  morata.weathered_garden:
+    title: 풍화의 정원
+    giver: bram_sculptor
+    grade: SKILLED
+    objectives:
+      - {type: DISCOVER, target: "region:morata_free_city", amount: 1, label: 모라타 자유시 찾기}
+      - {type: CRAFT, target: carve_relief, amount: 1, min_quality: 400, label: 부조 명판 하나 깎기}
+      - {type: DELIVER, target: marble_block, amount: 4, label: 보수용 대리석 4개}
+    reward: {money: 600, xp: {sculpting: 500}, affinity: {bram_sculptor: 40}, reputation: {northern_artisans: 30}}
+  morata.colors_of_north:
+    title: 북부의 색
+    giver: liese_weaver
+    grade: SKILLED
+    objectives:
+      - {type: GATHER, target: flax_fiber, amount: 20, label: 아마 섬유 20}
+      - {type: CRAFT, target: sew_robe, amount: 1, min_quality: 450, label: 리넨 로브 한 벌}
+    reward: {money: 500, xp: {tailoring: 450}, affinity: {liese_weaver: 35}, reputation: {northern_artisans: 20}}
+  # ---- 깊은 망치 (대장 · 채광)
+  hammer.old_shaft:
+    title: 버려진 갱도
+    giver: oren_smith
+    grade: PERILOUS
+    objectives:
+      - {type: DISCOVER, target: "region:thor_deep_hammer", amount: 1, label: 깊은 망치 도착}
+      - {type: GATHER, target: silver_ore, amount: 12, label: 은 원석 12}
+      - {type: KILL, target: any, amount: 25, label: 폐광의 몬스터 25}
+    reward: {money: 1500, xp: {mining: 700, smithing: 300}, affinity: {oren_smith: 50}, reputation: {hammer_pact: 40}}
+  hammer.proof_of_skill:
+    title: 망치의 증명
+    giver: oren_smith
+    grade: PERILOUS
+    after: [hammer.old_shaft]
+    requires: {mastery: smithing, level: 10}
+    objectives:
+      - {type: CRAFT, target: forge_mail, amount: 1, min_quality: 600, label: 품질 60 이상 사슬 갑옷}
+      - {type: DELIVER, target: silver_ingot, amount: 4, label: 은 주괴 4}
+    reward: {money: 2500, xp: {smithing: 1200}, affinity: {oren_smith: 80}, reputation: {hammer_pact: 60}, fame: 10}
+  # ---- 칼라모르 폐도 (역사 · 고고학)
+  calamor.first_dig:
+    title: 첫 발굴
+    giver: sena_archivist
+    grade: SKILLED
+    objectives:
+      - {type: DISCOVER, target: "region:calamor_ruins", amount: 1, label: 칼라모르 폐도}
+      - {type: DISCOVER, target: "region:emperor_aqueduct", amount: 1, label: 황제의 수로 입구}
+      - {type: GATHER, target: raw_gem, amount: 3, label: 보석 원석 3}
+    reward: {money: 800, xp: {exploration: 600}, affinity: {sena_archivist: 40}, reputation: {dawn_archive: 30}}
+  calamor.collapsed_watch:
+    title: 무너진 파수꾼
+    giver: sena_archivist
+    grade: LEGEND
+    after: [calamor.first_dig]
+    objectives:
+      - {type: DUNGEON, target: aqueduct_depths, amount: 1, label: 수로 깊은 곳 돌파}
+      - {type: BOSS, target: fallen_colossus, amount: 1, label: 무너진 파수거상 토벌}
+    reward: {money: 6000, xp: {exploration: 1500}, reputation: {dawn_archive: 80}, fame: 40}
+  # ---- 로자임 · 바다
+  rosaim.morning_catch:
+    title: 새벽 어획
+    giver: tobi_fisher
+    grade: DAILY
+    daily: true
+    objectives:
+      - {type: GATHER, target: salmon, amount: 8, label: 연어 8}
+    reward: {money: 180, xp: {fishing: 150}, affinity: {tobi_fisher: 6}}
+  rosaim.deep_waters:
+    title: 먼바다의 그림자
+    giver: tobi_fisher
+    grade: PERILOUS
+    requires: {mastery: fishing, level: 10}
+    objectives:
+      - {type: GATHER, target: deep_eel, amount: 5, label: 심해 장어 5}
+      - {type: BOSS, target: abyss_carapace, amount: 1, label: 심해 갑각왕}
+    reward: {money: 4000, xp: {fishing: 900}, reputation: {rosaim_ports: 70}, fame: 25}
+  # ---- 아스트라 · 아질 · 리스벨
+  astra.tonic_trial:
+    title: 강장제 시험
+    giver: yuna_alchemist
+    grade: SKILLED
+    objectives:
+      - {type: GATHER, target: moonleaf, amount: 10, label: 달잎풀 10}
+      - {type: CRAFT, target: brew_tonic, amount: 3, min_quality: 350, label: 작은 강장제 3}
+    reward: {money: 700, xp: {alchemy: 500}, affinity: {yuna_alchemist: 35}, reputation: {astra_academy: 25}}
+  azil.caravan_escort:
+    title: 모래 위의 약속
+    giver: dariq_caravan
+    grade: PERILOUS
+    objectives:
+      - {type: DISCOVER, target: "region:sand_sea", amount: 1, label: 모래바다 건너기}
+      - {type: KILL, target: any, amount: 30, label: 대상단을 노리는 짐승 30}
+      - {type: DELIVER, target: linen_cloth, amount: 10, label: 리넨 천 10}
+    reward: {money: 2200, xp: {trading: 500}, affinity: {dariq_caravan: 50}, reputation: {sand_caravan: 50}}
+  risvel.beyond_palisade:
+    title: 목책 너머
+    giver: hana_scout
+    grade: PERILOUS
+    objectives:
+      - {type: DISCOVER, target: "region:west_frontier", amount: 1, label: 서부 변경 들어가기}
+      - {type: GATHER, target: highland_timber, amount: 15, label: 목책 보수용 목재 15}
+    reward: {money: 1200, xp: {exploration: 800, logging: 300}, affinity: {hana_scout: 45}, reputation: {settlers_council: 40}}
+  # ---- 숨은 퀘스트 (히든 해금 · 발견 기록 "quest:<id>" 이 있어야 받을 수 있음)
+  hidden.wind_song:
+    title: 바람이 남긴 노래
+    giver: yuna_alchemist
+    grade: LEGEND
+    hidden: true
+    objectives:
+      - {type: CRAFT, target: craft_wind_chime, amount: 1, min_quality: 500, label: 바람 풍경 만들기}
+      - {type: DISCOVER, target: "region:fallen_crater", amount: 1, label: 분화구에서 울려 보기}
+    reward: {xp: {sculpting: 1500}, affinity: {yuna_alchemist: 60}, fame: 30}

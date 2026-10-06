@@ -2,6 +2,11 @@ package io.versaera.content;
 
 import io.versaera.domain.boss.BossDefinition;
 import io.versaera.domain.boss.Shape;
+import io.versaera.domain.combat.CombatState;
+import io.versaera.domain.combat.SkillDefinition;
+import io.versaera.domain.combat.StatusEffect;
+import io.versaera.domain.job.JobDefinition;
+import io.versaera.domain.quest.QuestDefinition;
 import io.versaera.domain.crafting.MaterialSlot;
 import io.versaera.domain.crafting.Recipe;
 import io.versaera.domain.gathering.ResourceNode;
@@ -195,6 +200,63 @@ public final class ContentLoader {
             }
             return new BossDefinition(id, req(m, "name"), d(m, "scale", 1), d(m, "hit_radius", 2), d(m, "max_hp", 1000), d(m, "arena_radius", 40),
                     d(m, "weak_arc", 90), l(m, "enrage_ms", 0), phases, pats, str(m, "model", null), str(m, "source", "ORIGINAL"));
+        });
+    }
+
+    private static Map<String, Double> doubleMap(Map<String, Object> m) {
+        Map<String, Double> out = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> e : m.entrySet()) out.put(e.getKey(), ((Number) e.getValue()).doubleValue());
+        return out;
+    }
+
+    public static List<JobDefinition> jobs(Map<String, Object> root, String file) {
+        return each(root, "jobs", file, (id, m) -> new JobDefinition(id, req(m, "name"), req(m, "slot"), i(m, "tier", 1), str(m, "parent", null),
+                condition(m.get("requires")), doubleMap(map(m.get("perks"))), list(m, "skills"), str(m, "source", "ORIGINAL")));
+    }
+
+    private static SkillDefinition skill(String id, Map<String, Object> m) {
+        String shape = str(m, "shape", null), effect = str(m, "effect", null);
+        return new SkillDefinition(id, req(m, "name"), SkillDefinition.Kind.valueOf(req(m, "kind")), str(m, "weapon", null), req(m, "discipline"),
+                i(m, "min_level", 1), SkillDefinition.Resource.valueOf(str(m, "resource", "STAMINA")), i(m, "cost", 10), l(m, "cooldown_ms", 3000),
+                shape == null ? null : Shape.valueOf(shape), d(m, "radius", 3), d(m, "width", 90), d(m, "damage", 1),
+                effect == null ? null : StatusEffect.valueOf(effect), i(m, "effect_seconds", 0), b(m, "basic", false), str(m, "source", "ORIGINAL"));
+    }
+
+    public static List<SkillDefinition> skills(Map<String, Object> root, String file) {
+        List<SkillDefinition> out = new ArrayList<>(each(root, "skills", file, ContentLoader::skill));
+        out.addAll(each(root, "combo_skills", file, ContentLoader::skill));
+        return out;
+    }
+
+    public static List<CombatState.Combo> combos(Map<String, Object> root, String file) {
+        return each(root, "combos", file, (id, m) -> new CombatState.Combo(id,
+                list(m, "sequence").stream().map(CombatState.Input::valueOf).toList(), l(m, "window_ms", 1500), req(m, "finisher")));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static QuestDefinition.Reward reward(Object o) {
+        Map<String, Object> m = map(o);
+        if (m.isEmpty()) return QuestDefinition.Reward.NONE;
+        return new QuestDefinition.Reward(l(m, "money", 0), list(m, "items"), intMap(m, "xp"), intMap(m, "affinity"), intMap(m, "reputation"),
+                i(m, "fame", 0), list(m, "unlocks"));
+    }
+
+    public static List<QuestDefinition> quests(Map<String, Object> root, String file) {
+        return each(root, "quests", file, (id, m) -> {
+            List<QuestDefinition.Objective> objs = new ArrayList<>();
+            if (m.get("objectives") instanceof List<?> l) for (Object o : l) {
+                Map<String, Object> om = map(o);
+                objs.add(new QuestDefinition.Objective(QuestDefinition.Type.valueOf(req(om, "type")), req(om, "target"), i(om, "amount", 1),
+                        i(om, "min_quality", 0), str(om, "label", "")));
+            }
+            List<QuestDefinition.Choice> choices = new ArrayList<>();
+            if (m.get("choices") instanceof List<?> l) for (Object o : l) {
+                Map<String, Object> cm = map(o);
+                choices.add(new QuestDefinition.Choice(req(cm, "id"), req(cm, "label"), reward(cm.get("reward"))));
+            }
+            return new QuestDefinition(id, req(m, "title"), str(m, "giver", null), QuestDefinition.Grade.valueOf(str(m, "grade", "DAILY")),
+                    m.containsKey("requires") ? condition(m.get("requires")) : null, list(m, "after"), b(m, "hidden", false), b(m, "daily", false),
+                    objs, reward(m.get("reward")), choices, str(m, "source", "ORIGINAL"));
         });
     }
 

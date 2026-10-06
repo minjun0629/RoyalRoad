@@ -1,6 +1,10 @@
 package io.versaera.content;
 
 import io.versaera.domain.boss.BossDefinition;
+import io.versaera.domain.combat.CombatState;
+import io.versaera.domain.combat.SkillDefinition;
+import io.versaera.domain.job.JobDefinition;
+import io.versaera.domain.quest.QuestDefinition;
 import io.versaera.domain.crafting.Recipe;
 import io.versaera.domain.gathering.ResourceNode;
 import io.versaera.domain.item.ItemType;
@@ -18,11 +22,13 @@ import java.util.function.Function;
 
 /** 모든 콘텐츠 정의 묶음. 파일을 여는 방법(클래스패스 · 데이터 폴더)은 opener 가 정한다. */
 public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, List<ActionStat> stats, List<Recipe> recipes,
-                            List<ResourceNode> resources, List<Region> regions, List<NpcDefinition> npcs, List<BossDefinition> bosses) {
+                            List<ResourceNode> resources, List<Region> regions, List<NpcDefinition> npcs, List<BossDefinition> bosses,
+                            List<JobDefinition> jobs, List<SkillDefinition> skills, List<CombatState.Combo> combos, List<QuestDefinition> quests) {
     public static final List<String> FILES = List.of("items.yml", "disciplines.yml", "action_stats.yml", "recipes.yml", "resources.yml",
-            "regions.yml", "npcs.yml", "bosses.yml");
+            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml");
 
     public static ContentBundle load(Function<String, InputStream> opener) {
+        Map<String, Object> skills = read(opener, "skills.yml");
         return new ContentBundle(
                 ContentLoader.items(read(opener, "items.yml"), "items.yml"),
                 ContentLoader.disciplines(read(opener, "disciplines.yml"), "disciplines.yml"),
@@ -31,7 +37,11 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                 ContentLoader.resources(read(opener, "resources.yml"), "resources.yml"),
                 ContentLoader.regions(read(opener, "regions.yml"), "regions.yml"),
                 ContentLoader.npcs(read(opener, "npcs.yml"), "npcs.yml"),
-                ContentLoader.bosses(read(opener, "bosses.yml"), "bosses.yml"));
+                ContentLoader.bosses(read(opener, "bosses.yml"), "bosses.yml"),
+                ContentLoader.jobs(read(opener, "jobs.yml"), "jobs.yml"),
+                ContentLoader.skills(skills, "skills.yml"),
+                ContentLoader.combos(skills, "skills.yml"),
+                ContentLoader.quests(read(opener, "quests.yml"), "quests.yml"));
     }
 
     public static ContentBundle fromClasspath(ClassLoader cl) {

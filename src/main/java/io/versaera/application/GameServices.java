@@ -6,6 +6,7 @@ import io.versaera.domain.common.GameClock;
 import io.versaera.domain.event.EventBus;
 import io.versaera.domain.hidden.HiddenRule;
 import io.versaera.domain.hidden.PlayerFacts;
+import io.versaera.domain.skill.StatEffects;
 import io.versaera.domain.world.RegionIndex;
 import io.versaera.persistence.*;
 
@@ -35,6 +36,10 @@ public final class GameServices {
     public final RelationService relations;
     public final ProfileService profiles;
     public final RegionIndex regions;
+    public final JobService jobs;
+    public final DeathService deaths;
+    public final QuestService quests;
+    private final ZoneId zone;
     private HiddenService hidden;
 
     public GameServices(Database db, ContentBundle content, GameClock clock, ZoneId zone, Logger log) {
@@ -56,6 +61,15 @@ public final class GameServices {
         this.exploration = new ExplorationService(tx, progress, regions, growth, bus, clock);
         this.relations = new RelationService(tx, progress, content.npcs(), growth, bus, clock, zone);
         this.profiles = new ProfileService(tx, new JdbcProfileRepository(db), clock);
+        this.zone = zone;
+        JobRepository jobRepo = new JdbcJobRepository(db);
+        this.jobs = new JobService(tx, jobRepo, content.jobs(), bus, clock);
+        this.deaths = new DeathService(tx, progress, jobRepo, items, growth, clock);
+        // 제작 보정: 생활 직업 효과(craft_quality.<분야>) + 정밀 스탯(흔들림 감소)
+        crafting.modifiers((uuid, discipline) -> new double[]{
+                jobs.perks(uuid).getOrDefault("craft_quality." + discipline, 0.0),
+                StatEffects.of(growth.statPoints(uuid)).craftVarianceMult()});
+        this.quests = new QuestService(tx, new JdbcQuestRepository(db), progress, content.quests(), this, bus, clock, zone);
         for (var r : content.resources()) {
             growth.discipline(r.discipline());
             types.get(r.yield());
@@ -67,6 +81,11 @@ public final class GameServices {
         hidden = new HiddenService(tx, progress, rules, facts, bus, clock);
         growth.onCounter(hidden::counterChanged);
         return hidden;
+    }
+
+    /** 조건 판정용 사실 (DB 스레드에서만) */
+    public PlayerFacts facts(String uuid, String region, int hour) {
+        return new Facts(this, uuid, region, hour);
     }
 
     public HiddenService hidden() {

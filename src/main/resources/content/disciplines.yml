@@ -17,3 +17,5 @@ disciplines:
   dexterity:     {name: 손재주,   category: SUPPORT,     source: SOURCE-BASED}
   exploration:   {name: 탐험,     category: EXPLORATION, source: ORIGINAL}
   trading:       {name: 교역,     category: SOCIAL,      source: ORIGINAL}
+  spellcraft:    {name: 마법,     category: COMBAT,      source: SOURCE-BASED}
+  woodworking:   {name: 목공,     category: PRODUCTION,  hand: true, source: ORIGINAL}

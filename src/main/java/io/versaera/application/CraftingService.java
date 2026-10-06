@@ -30,6 +30,12 @@ public final class CraftingService {
     private final ProgressRepository progress;
     private final AuditLog audit;
     private final EventBus bus;
+    /** (uuid, 분야) → 고정 품질 보너스 · 흔들림 배율 — 직업 · 행동 스탯이 정해 GameServices 가 연결 */
+    private java.util.function.BiFunction<String, String, double[]> modifiers = (u, d) -> new double[]{0, 1};
+
+    public void modifiers(java.util.function.BiFunction<String, String, double[]> m) {
+        this.modifiers = m;
+    }
 
     public CraftingService(TxRunner tx, Collection<Recipe> recipes, ItemService items, GrowthService growth, ProgressRepository progress,
                            AuditLog audit, EventBus bus) {
@@ -82,7 +88,8 @@ public final class CraftingService {
         DomainException.require(knows(uuid, r), "craft.unknown_recipe", "아직 모르는 제작법입니다");
         int level = growth.level(uuid, r.discipline());
         int statPts = growth.discipline(r.discipline()).category() == Discipline.Category.ART ? growth.statPoints(uuid, "artistry") : 0;
-        CraftPlan.Outcome o = CraftPlan.evaluate(r, inputs, level, toolQuality, statPts, rng);
+        double[] mod = modifiers.apply(uuid, r.discipline());
+        CraftPlan.Outcome o = CraftPlan.evaluate(r, inputs, level, toolQuality, statPts, (int) mod[0], mod[1], rng);
         Map<String, String> props = new LinkedHashMap<>();
         StringBuilder mats = new StringBuilder();
         for (CraftPlan.Assignment a : o.used()) {

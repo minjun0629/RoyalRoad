@@ -29,5 +29,19 @@ public final class GameEvents {
 
     public record HiddenUnlocked(String uuid, String ruleId, boolean worldFirst, String rumor) implements DomainEvent {}
 
+    public record JobChanged(String uuid, String slot, String jobId) implements DomainEvent {}
+
+    public record QuestCompleted(String uuid, String questId, String choice) implements DomainEvent {}
+
+    public record QuestProgressed(String uuid, String questId, int objective, int value, int target) implements DomainEvent {}
+
+    public record GuildChanged(String guildId, String what) implements DomainEvent {}
+
+    public record AuctionSold(String listingId, String seller, String buyer, long price) implements DomainEvent {}
+
+    public record WorldEventChanged(String eventId, boolean active) implements DomainEvent {}
+
+    public record DungeonCleared(String runId, String dungeonId, java.util.List<String> members) implements DomainEvent {}
+
     public record BossDefeated(String bossId, java.util.List<String> participants) implements DomainEvent {}
 }

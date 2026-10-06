@@ -50,3 +50,13 @@ recipes:
   craft_wind_chime: {name: 바람 풍경, discipline: sculpting, min_level: 10, action_level: 14, output: wind_chime, tool: tool_carving, xp: 60,
                      discovery: required, slots: {chimes: {accepts: "type:sky_metal", count: 3, weight: 3}, frame: {accepts: "tag:wood", count: 1},
                      tone: {accepts: "type:frost_crystal", count: 1, optional: true, bonus: 90}}}
+  # ---- 목공
+  carve_staff:      {name: 참나무 지팡이, discipline: woodworking, min_level: 1, action_level: 2, output: oak_staff, xp: 12,
+                     slots: {shaft: {accepts: "tag:wood", count: 2, weight: 3}, focus: {accepts: "tag:gem", count: 1, optional: true, bonus: 70}}}
+  bend_bow:         {name: 물푸레 활, discipline: woodworking, min_level: 1, action_level: 2, output: ash_bow, xp: 12,
+                     slots: {limb: {accepts: "tag:wood", count: 2, weight: 3}, string: {accepts: "tag:fiber", count: 2}}}
+  bend_longbow:     {name: 고원 장궁, discipline: woodworking, min_level: 8, action_level: 11, output: ash_bow_fine, xp: 40,
+                     slots: {limb: {accepts: "type:highland_timber", count: 3, weight: 3}, string: {accepts: "tag:fiber", count: 2},
+                             grip: {accepts: "tag:leather", count: 1, optional: true, bonus: 40}}}
+  make_buckler:     {name: 둥근 방패, discipline: woodworking, min_level: 3, action_level: 5, output: buckler, xp: 20,
+                     slots: {boards: {accepts: "tag:wood", count: 3, weight: 2}, rim: {accepts: "type:iron_ingot", count: 1, weight: 1}}}

@@ -1,0 +1,50 @@
+# 직업. 이름 중 검사 · 기사 · 궁수 · 암살자 · 마법사는 원작에서 확인된 이름(CANON)이지만, 조건 · 효과는 모두 ORIGINAL.
+# 원작의 전직 퀘스트 · 히든 직업 조건은 쓰지 않는다. 레벨이 아니라 숙련 · 행동 기록 · NPC 관계로 열린다.
+# requires: 히든 조건과 같은 문법 (all · any · counter · mastery · affinity · region · hours · discovered)
+# perks 키: attack_pct · defense_pct · max_health_pct · crit · stamina · mana · craft_quality.<분야> · gather_bonus.<분야> · price_discount · auction_fee_cut
+jobs:
+  # ---------------- 전투 (COMBAT 1개)
+  swordsman:  {name: 검사, slot: COMBAT, tier: 1, source: CANON,
+               requires: {all: [{mastery: swordsmanship, level: 5}, {counter: kill.monster, at_least: 30}]},
+               perks: {attack_pct: 0.05, max_health_pct: 0.05}, skills: [slash_arc, guard_break]}
+  knight:     {name: 기사, slot: COMBAT, tier: 2, parent: swordsman, source: CANON,
+               requires: {all: [{mastery: swordsmanship, level: 15}, {counter: hit_taken, at_least: 2000}, {affinity: garen_instructor, at_least: 150}]},
+               perks: {defense_pct: 0.10, max_health_pct: 0.10, stamina: 20}, skills: [shield_charge, rally]}
+  archer:     {name: 궁수, slot: COMBAT, tier: 1, source: CANON,
+               requires: {all: [{mastery: archery, level: 5}, {counter: kill.monster, at_least: 30}]},
+               perks: {crit: 0.03, attack_pct: 0.03}, skills: [power_shot, volley]}
+  tracker:    {name: 추적자, slot: COMBAT, tier: 2, parent: archer, source: ORIGINAL,
+               requires: {all: [{mastery: archery, level: 15}, {counter: discover.region, at_least: 8}, {affinity: hana_scout, at_least: 150}]},
+               perks: {crit: 0.05, stamina: 15}, skills: [pinning_shot]}
+  assassin:   {name: 암살자, slot: COMBAT, tier: 1, source: CANON,
+               requires: {all: [{mastery: swordsmanship, level: 8}, {counter: kill.backstab, at_least: 40}]},
+               perks: {crit: 0.08, attack_pct: 0.05}, skills: [shadow_step, bleed_cut]}
+  mage:       {name: 마법사, slot: COMBAT, tier: 1, source: CANON,
+               requires: {all: [{mastery: spellcraft, level: 5}, {counter: kill.monster, at_least: 30}]},
+               perks: {mana: 50, attack_pct: 0.05}, skills: [fire_lance, frost_nova]}
+  arcanist:   {name: 비전술사, slot: COMBAT, tier: 2, parent: mage, source: ORIGINAL,
+               requires: {all: [{mastery: spellcraft, level: 15}, {affinity: yuna_alchemist, at_least: 150}, {discovered: "region:emperor_aqueduct"}]},
+               perks: {mana: 60, defense_pct: 0.05}, skills: [arcane_barrier]}
+  # ---------------- 생활 (LIFE 1개)
+  blacksmith: {name: 대장장이, slot: LIFE, tier: 1, source: SOURCE-BASED,
+               requires: {all: [{mastery: smithing, level: 10}, {counter: craft.smithing, at_least: 50}]}, perks: {craft_quality.smithing: 40}}
+  master_smith: {name: 명장, slot: LIFE, tier: 2, parent: blacksmith, source: ORIGINAL,
+               requires: {all: [{mastery: smithing, level: 22}, {affinity: oren_smith, at_least: 300}]}, perks: {craft_quality.smithing: 40, craft_quality.woodworking: 20}}
+  tailor:     {name: 재봉사, slot: LIFE, tier: 1, source: SOURCE-BASED,
+               requires: {all: [{mastery: tailoring, level: 10}, {counter: craft.tailoring, at_least: 50}]}, perks: {craft_quality.tailoring: 40, craft_quality.leatherwork: 20}}
+  cook:       {name: 요리사, slot: LIFE, tier: 1, source: SOURCE-BASED,
+               requires: {all: [{mastery: cooking, level: 10}, {counter: craft.cooking, at_least: 60}]}, perks: {craft_quality.cooking: 50}}
+  sculptor:   {name: 조각가, slot: LIFE, tier: 1, source: ORIGINAL,
+               requires: {all: [{mastery: sculpting, level: 10}, {counter: art.experience, at_least: 80}]}, perks: {craft_quality.sculpting: 50}}
+  alchemist:  {name: 연금술사, slot: LIFE, tier: 1, source: ORIGINAL,
+               requires: {all: [{mastery: alchemy, level: 10}, {counter: craft.alchemy, at_least: 50}]}, perks: {craft_quality.alchemy: 50}}
+  woodwright: {name: 목수, slot: LIFE, tier: 1, source: ORIGINAL,
+               requires: {all: [{mastery: woodworking, level: 10}, {counter: craft.woodworking, at_least: 50}]}, perks: {craft_quality.woodworking: 50}}
+  miner:      {name: 광부, slot: LIFE, tier: 1, source: ORIGINAL,
+               requires: {all: [{mastery: mining, level: 10}, {counter: gather.mining, at_least: 300}]}, perks: {gather_bonus.mining: 1}}
+  fisher:     {name: 어부, slot: LIFE, tier: 1, source: ORIGINAL,
+               requires: {all: [{mastery: fishing, level: 10}, {counter: gather.fishing, at_least: 200}]}, perks: {gather_bonus.fishing: 1}}
+  explorer:   {name: 탐험가, slot: LIFE, tier: 1, source: ORIGINAL,
+               requires: {all: [{mastery: exploration, level: 10}, {counter: discover.region, at_least: 10}]}, perks: {stamina: 15}}
+  merchant:   {name: 상인, slot: LIFE, tier: 1, source: SOURCE-BASED,
+               requires: {all: [{mastery: trading, level: 10}, {counter: trade.completed, at_least: 20}]}, perks: {price_discount: 0.05, auction_fee_cut: 0.5}}
