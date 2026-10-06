@@ -3,9 +3,12 @@ package io.versaera.platform.bukkit.boss;
 import io.versaera.application.GameServices;
 import io.versaera.domain.boss.BossDefinition;
 import io.versaera.domain.boss.BossFight;
+import io.versaera.domain.boss.BossMotion;
+import io.versaera.domain.boss.BossRewards;
 import io.versaera.domain.boss.Shape;
 import io.versaera.domain.boss.Vec;
-import io.versaera.domain.event.GameEvents;
+import io.versaera.domain.pack.PackIds;
+import io.versaera.platform.bukkit.Async;
 import io.versaera.platform.bukkit.Ui;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
@@ -16,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -25,11 +29,13 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
- * 거대 보스 실행부 (BOS-02, PARTIAL). 엔티티는 <b>판정 상자 1개(Interaction) + 모델 1개(ItemDisplay)</b>만 쓴다.
+ * 거대 보스 실행부 (BOS-02). 엔티티는 <b>판정 상자 1개(Interaction) + 모델 1개(ItemDisplay)</b>만 쓴다.
  * 공격 범위는 BossFight 가 수학으로 판정하고, 예고는 범위 외곽선 파티클(최대 48개)로만 보여 준다.
- * 모델은 리소스팩 모델(EXTERNAL_ASSET_REQUIRED)이 없을 때 임시로 큰 블록 아이템을 쓴다.
+ * 이동은 BossMotion (예고 중에는 멈춤 · 전투 공간 밖으로 나가지 않음), 모델은 리소스팩의 CustomModelData 모델.
+ * 기여도(준 피해 · 방패로 막은 피해)는 BossService 로 보내고, 처치 보상은 거기서 한 번씩만 지급된다.
  */
 public final class BossRuntime implements Listener {
     private final class Live {
@@ -39,15 +45,18 @@ public final class BossRuntime implements Listener {
         final ItemDisplay model;
         final BossBar bar;
         final Location home;
+        final String fightId;
         double hp;
-        double yaw;
-        final Set<UUID> participants = new HashSet<>();
+        BossMotion.Pose pose;
+        final Map<UUID, String> names = new HashMap<>();
         final List<Object[]> telegraphs = new ArrayList<>();   // [pattern, origin, yaw, resolveAt]
 
-        Live(BossDefinition def, Location at) {
+        Live(BossDefinition def, Location at, String fightId) {
             this.def = def;
             this.home = at.clone();
+            this.fightId = fightId;
             this.hp = def.maxHp();
+            this.pose = new BossMotion.Pose(at.getX(), at.getZ(), at.getYaw());
             this.fight = new BossFight(def, System.currentTimeMillis());
             float w = (float) (def.hitRadius() * def.scale() * 2), h = (float) (def.scale() * 2);
             hitbox = at.getWorld().spawn(at, Interaction.class, x -> {
@@ -57,9 +66,9 @@ public final class BossRuntime implements Listener {
                 x.setPersistent(false);
             });
             model = at.getWorld().spawn(at, ItemDisplay.class, x -> {
-                x.setItemStack(new ItemStack(Material.DEEPSLATE_BRICKS));   // 임시 모델 (리소스팩 모델 필요)
-                float sc = (float) (def.scale() * 1.8);
-                x.setTransformation(new Transformation(new Vector3f(0, sc / 2, 0), new Quaternionf(), new Vector3f(sc, sc, sc), new Quaternionf()));
+                x.setItemStack(modelItem(def));
+                float sc = (float) def.scale();
+                x.setTransformation(new Transformation(new Vector3f(0, sc, 0), new Quaternionf(), new Vector3f(sc, sc, sc), new Quaternionf()));
                 x.setPersistent(false);
                 x.setViewRange(4f);
             });
@@ -69,12 +78,25 @@ public final class BossRuntime implements Listener {
 
     private final Plugin plugin;
     private final GameServices s;
+    private final Async async;
     private final Map<UUID, Live> byHitbox = new HashMap<>();
 
-    public BossRuntime(Plugin plugin, GameServices s) {
+    public BossRuntime(Plugin plugin, GameServices s, Async async) {
         this.plugin = plugin;
         this.s = s;
+        this.async = async;
         Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 5L, 5L);
+    }
+
+    /** 리소스팩 모델 (팩이 없으면 클라이언트는 종이를 크게 보여 준다 — 팩 적용은 RP-01) */
+    static ItemStack modelItem(BossDefinition def) {
+        ItemStack it = new ItemStack(Material.PAPER);
+        if (def.model() != null) {
+            ItemMeta m = it.getItemMeta();
+            m.setCustomModelData(PackIds.modelData(def.model()));
+            it.setItemMeta(m);
+        }
+        return it;
     }
 
     public BossDefinition def(String id) {
@@ -82,15 +104,29 @@ public final class BossRuntime implements Listener {
                 .orElseThrow(() -> new IllegalArgumentException("없는 보스: " + id));
     }
 
-    public void spawn(String id, Location at) {
-        Live l = new Live(def(id), at);
-        byHitbox.put(l.hitbox.getUniqueId(), l);
-        at.getWorld().playSound(at, Sound.ENTITY_WITHER_SPAWN, 2f, 0.6f);
+    /** 보스를 세운다. 전투 기록이 DB 에 생긴 뒤에 엔티티가 나타난다. onSpawn: 판정 상자 uuid */
+    public void spawn(String id, Location at, org.bukkit.command.CommandSender notify, Consumer<UUID> onSpawn) {
+        BossDefinition d = def(id);
+        async.run("boss_start", () -> s.bosses.start(id), fightId -> {
+            Live l = new Live(d, at, fightId);
+            byHitbox.put(l.hitbox.getUniqueId(), l);
+            at.getWorld().playSound(at, Sound.ENTITY_WITHER_SPAWN, 2f, 0.6f);
+            if (onSpawn != null) onSpawn.accept(l.hitbox.getUniqueId());
+        }, notify);
     }
 
-    public int stopAll() {
+    public void spawn(String id, Location at) {
+        spawn(id, at, null, null);
+    }
+
+    /** @param record 전투 실패를 DB 에 남길지 (서버 종료 때는 false — 다음 시작 때 recover 가 정리) */
+    public int stopAll(boolean record) {
         int n = byHitbox.size();
-        for (Live l : byHitbox.values()) remove(l);
+        for (Live l : byHitbox.values()) {
+            remove(l);
+            String id = l.fightId;
+            if (record) async.fire("boss_fail", () -> { s.bosses.fail(id); return null; });
+        }
         byHitbox.clear();
         return n;
     }
@@ -106,12 +142,18 @@ public final class BossRuntime implements Listener {
         Live l = byHitbox.get(e.getEntity().getUniqueId());
         if (l == null) return;
         e.setCancelled(true);
-        if (!(e.getDamager() instanceof Player p)) return;
+        Player p = e.getDamager() instanceof Player pl ? pl
+                : e.getDamager() instanceof Projectile pr && pr.getShooter() instanceof Player sh ? sh : null;
+        if (p == null) return;
         Location c = l.hitbox.getLocation();
-        boolean weak = l.fight.weakPoint(new Vec(c.getX(), c.getY(), c.getZ()), l.yaw, new Vec(p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ()));
+        boolean weak = l.fight.weakPoint(new Vec(c.getX(), c.getY(), c.getZ()), l.pose.yaw(),
+                new Vec(p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ()));
         double dmg = e.getDamage() * 5 * (weak ? 1.5 : 1);
         l.hp = Math.max(0, l.hp - dmg);
-        l.participants.add(p.getUniqueId());
+        l.names.put(p.getUniqueId(), p.getName());
+        String uuid = p.getUniqueId().toString(), fight = l.fightId;
+        long d = Math.round(dmg);
+        async.fire("boss_hit", () -> { s.bosses.contribute(fight, uuid, d, 0, 0); return null; });
         if (weak) p.spawnParticle(Particle.CRIT, p.getEyeLocation().add(p.getLocation().getDirection()), 6);
         if (l.hp <= 0) defeat(l);
     }
@@ -119,39 +161,49 @@ public final class BossRuntime implements Listener {
     private void defeat(Live l) {
         Location c = l.hitbox.getLocation();
         c.getWorld().playSound(c, Sound.ENTITY_ENDER_DRAGON_DEATH, 2f, 0.8f);
-        Bukkit.broadcastMessage(Ui.info(l.def.name() + " 토벌"));
-        List<String> who = l.participants.stream().map(UUID::toString).toList();
         byHitbox.remove(l.hitbox.getUniqueId());
         remove(l);
-        s.bus.publish(new GameEvents.BossDefeated(l.def.id(), who));
+        Map<String, String> names = new HashMap<>();
+        l.names.forEach((u, n) -> names.put(u.toString(), n));
+        async.run("boss_defeat", () -> s.bosses.defeated(l.fightId, names), out -> {
+            Bukkit.broadcastMessage(Ui.info(l.def.name() + " 토벌" + (out.worldFirst() ? " &6(서버 최초)" : "")));
+            out.tiers().forEach((u, t) -> {
+                Player p = Bukkit.getPlayer(UUID.fromString(u));
+                if (p == null) return;
+                p.sendMessage(t == BossRewards.Tier.NONE ? Ui.error("기여가 모자라 보상이 없습니다")
+                        : Ui.info(t == BossRewards.Tier.MVP ? "최고 기여 — 보상 + 추가 보상" : "보상이 배달함에 들어왔습니다"));
+            });
+        }, null);
     }
 
     private void tick() {
         long now = System.currentTimeMillis();
         for (Live l : new ArrayList<>(byHitbox.values())) {
-            if (!l.hitbox.isValid()) { byHitbox.remove(l.hitbox.getUniqueId()); remove(l); continue; }
+            if (!l.hitbox.isValid()) {
+                byHitbox.remove(l.hitbox.getUniqueId());
+                remove(l);
+                String id = l.fightId;
+                async.fire("boss_fail", () -> { s.bosses.fail(id); return null; });
+                continue;
+            }
             Location c = l.hitbox.getLocation();
             double arena = l.def.arenaRadius();
             Map<UUID, Vec> targets = new HashMap<>();
             Player nearest = null;
             double best = Double.MAX_VALUE;
             for (Player p : c.getWorld().getPlayers()) {
-                if (p.getGameMode() == GameMode.SPECTATOR || p.getGameMode() == GameMode.CREATIVE) continue;
-                double d = p.getLocation().distance(c);
+                if (p.getGameMode() == GameMode.SPECTATOR || p.getGameMode() == GameMode.CREATIVE || p.isDead()) continue;
+                double d = p.getLocation().distance(l.home);
                 if (d > arena) { l.bar.removePlayer(p); continue; }
                 l.bar.addPlayer(p);
                 targets.put(p.getUniqueId(), new Vec(p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ()));
-                if (d < best) { best = d; nearest = p; }
+                double dc = p.getLocation().distance(c);
+                if (dc < best) { best = dc; nearest = p; }
             }
             l.bar.setProgress(Math.max(0, Math.min(1, l.hp / l.def.maxHp())));
-            if (nearest != null) {
-                Vector dir = nearest.getLocation().toVector().subtract(c.toVector());
-                l.yaw = Math.toDegrees(Math.atan2(-dir.getX(), dir.getZ()));
-                Location m = l.model.getLocation();
-                m.setYaw((float) l.yaw);
-                l.model.teleport(m);
-            }
-            for (BossFight.Action a : l.fight.update(now, l.hp / l.def.maxHp(), new Vec(c.getX(), c.getY(), c.getZ()), l.yaw, targets)) {
+            move(l, nearest, now);
+            c = l.hitbox.getLocation();
+            for (BossFight.Action a : l.fight.update(now, l.hp / l.def.maxHp(), new Vec(c.getX(), c.getY(), c.getZ()), l.pose.yaw(), targets)) {
                 switch (a) {
                     case BossFight.Action.PhaseChanged pc -> {
                         if (pc.announce() != null && !pc.announce().isBlank())
@@ -165,6 +217,22 @@ public final class BossRuntime implements Listener {
             l.telegraphs.removeIf(t -> (long) t[3] <= now);
             for (Object[] t : l.telegraphs) outline(c.getWorld(), (BossDefinition.Pattern) t[0], (Vec) t[1], (double) t[2], l.def.scale());
         }
+    }
+
+    private void move(Live l, Player target, long now) {
+        if (l.fight.casting(now)) return;
+        double keep = l.def.hitRadius() * l.def.scale();
+        BossMotion.Pose next = target == null
+                ? BossMotion.returnHome(l.pose, l.home.getX(), l.home.getZ(), l.def.speed(), l.def.scale(), 0.25)
+                : BossMotion.step(l.pose, target.getLocation().getX(), target.getLocation().getZ(), l.home.getX(), l.home.getZ(),
+                l.def.arenaRadius(), keep, l.def.speed(), l.def.scale(), 0.25);
+        if (next.equals(l.pose)) return;
+        l.pose = next;
+        World w = l.home.getWorld();
+        int y = w.getHighestBlockYAt((int) Math.floor(next.x()), (int) Math.floor(next.z())) + 1;
+        Location at = new Location(w, next.x(), Math.max(y, l.home.getY() - 4), next.z(), (float) next.yaw(), 0);
+        l.hitbox.teleport(at);
+        l.model.teleport(at);
     }
 
     /** 예고: 범위 외곽선만 (파티클 최대 48개) */
@@ -196,7 +264,15 @@ public final class BossRuntime implements Listener {
         for (UUID u : r.hit()) {
             Player p = Bukkit.getPlayer(u);
             if (p == null) continue;
-            p.damage(r.damage() / 5.0);
+            double dmg = r.damage() / 5.0;
+            if (p.isBlocking()) {
+                // 방패로 막으면 피해 60% 감소 — 막아 낸 만큼 기여도
+                long saved = Math.round(r.damage() * 0.6);
+                dmg *= 0.4;
+                String uuid = u.toString(), fight = l.fightId;
+                async.fire("boss_block", () -> { s.bosses.contribute(fight, uuid, 0, saved, 0); return null; });
+            }
+            p.damage(dmg);
             if (r.effect() == null) continue;
             switch (r.effect()) {
                 case "knockback" -> p.setVelocity(p.getLocation().toVector().subtract(c.toVector()).setY(0).normalize().multiply(1.4).setY(0.5));
@@ -208,5 +284,22 @@ public final class BossRuntime implements Listener {
                 default -> plugin.getLogger().warning("모르는 보스 효과: " + r.effect());
             }
         }
+    }
+
+    /** 지원 기여 (아군 보호 스킬 등) — 스킬 실행부가 부른다 */
+    public void support(Player p, long amount) {
+        for (Live l : byHitbox.values()) {
+            if (p.getWorld() != l.home.getWorld() || p.getLocation().distance(l.home) > l.def.arenaRadius()) continue;
+            String uuid = p.getUniqueId().toString(), fight = l.fightId;
+            l.names.put(p.getUniqueId(), p.getName());
+            async.fire("boss_support", () -> { s.bosses.contribute(fight, uuid, 0, 0, amount); return null; });
+        }
+    }
+
+    /** 플레이어가 보스 전투 공간 안에 있는가 (던전 보스 · 스킬 판정용) */
+    public boolean inArena(Player p) {
+        for (Live l : byHitbox.values())
+            if (p.getWorld() == l.home.getWorld() && p.getLocation().distance(l.home) <= l.def.arenaRadius()) return true;
+        return false;
     }
 }

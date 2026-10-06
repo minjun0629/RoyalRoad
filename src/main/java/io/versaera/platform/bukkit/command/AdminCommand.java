@@ -124,9 +124,9 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(Ui.info("NPC " + a[2]));
             }
             case "boss" -> {
-                if (a.length >= 2 && a[1].equals("stop")) { sender.sendMessage(Ui.info("보스 " + bosses.stopAll() + "마리 제거")); return; }
+                if (a.length >= 2 && a[1].equals("stop")) { sender.sendMessage(Ui.info("보스 " + bosses.stopAll(true) + "마리 제거")); return; }
                 if (!(sender instanceof Player p) || a.length < 3 || !a[1].equals("spawn")) { sender.sendMessage(Ui.error("/va boss spawn <id> · /va boss stop")); return; }
-                bosses.spawn(a[2], p.getLocation());
+                bosses.spawn(a[2], p.getLocation(), sender, null);
             }
             case "seal" -> seal(sender);
             case "perf" -> {

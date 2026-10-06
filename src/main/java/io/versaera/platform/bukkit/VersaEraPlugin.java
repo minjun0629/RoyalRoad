@@ -78,7 +78,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         loadHidden(sealer, regions);
         NpcListener npcs = new NpcListener(this, services, async);
         gather = new GatherListener(this, services, async, codec, sessions);
-        bosses = new BossRuntime(this, services);
+        bosses = new BossRuntime(this, services, async);
         CombatListener combat = new CombatListener(this, services, async, codec);
         for (var l : List.of(sessions, new InventoryGuard(this, services, async, codec), regions, npcs, gather, combat, bosses,
                 new StationListener(services, async, codec, sessions), new MenuListener()))
@@ -156,7 +156,7 @@ public final class VersaEraPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (bosses != null) bosses.stopAll();
+        if (bosses != null) bosses.stopAll(false);
         if (gather != null) gather.restoreAll();
         if (exec != null) {
             for (Player p : Bukkit.getOnlinePlayers()) {

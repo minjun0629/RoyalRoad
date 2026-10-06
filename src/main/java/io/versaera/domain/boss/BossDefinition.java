@@ -11,9 +11,12 @@ import java.util.Map;
  * @param arenaRadius 전투 공간 반지름 (블록) — 이 밖으로 끌려가면 보스가 돌아간다
  * @param weakArc     등 뒤 약점 각도 (도). 이 각도 안에서 때리면 1.5배
  * @param enrageMs    이 시간이 지나면 광폭화 (패턴 대기 절반)
+ * @param speed       초당 이동 거리 (블록, 크기와 무관한 실제 속도)
+ * @param reward      처치 보상 (기여도 조건을 채운 사람마다 한 번)
  */
 public record BossDefinition(String id, String name, double scale, double hitRadius, double maxHp, double arenaRadius, double weakArc,
-                             long enrageMs, List<Phase> phases, Map<String, Pattern> patterns, String model, String source) {
+                             long enrageMs, List<Phase> phases, Map<String, Pattern> patterns, String model, double speed,
+                             io.versaera.domain.quest.QuestDefinition.Reward reward, String source) {
     /** hpBelow: 체력 비율이 이 값 이하가 되면 이 페이즈 (1.0 = 처음) */
     public record Phase(double hpBelow, List<String> patterns, String announce) {
         public Phase { patterns = List.copyOf(patterns); }
@@ -38,5 +41,6 @@ public record BossDefinition(String id, String name, double scale, double hitRad
             DomainException.require(patterns.containsKey(pid), "boss.unknown_pattern", "없는 패턴: " + pid + " (" + id + ")");
         phases = List.copyOf(phases);
         patterns = Map.copyOf(patterns);
+        reward = reward == null ? io.versaera.domain.quest.QuestDefinition.Reward.NONE : reward;
     }
 }

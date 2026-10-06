@@ -45,6 +45,8 @@ public final class GameServices {
     public final DungeonService dungeons;
     public final WorldEventService worldEvents;
     public final GatheringService gathering;
+    public final MapService maps;
+    public final BossService bosses;
     private final ZoneId zone;
     private HiddenService hidden;
 
@@ -83,6 +85,8 @@ public final class GameServices {
         this.quests = new QuestService(tx, new JdbcQuestRepository(db), progress, content.quests(), this, bus, clock, zone);
         this.worldEvents = new WorldEventService(tx, new JdbcWorldEventRepository(db), content.worldEvents(), regions, bus, clock, 0L);
         this.gathering = new GatheringService(this, content.resources());
+        this.maps = new MapService(tx, new JdbcMapRepository(db));
+        this.bosses = new BossService(tx, new JdbcBossRepository(db), content.bosses(), this, bus, clock);
         market.regionDiscount(worldEvents::shopDiscount);
         this.dungeons = new DungeonService(tx, new JdbcDungeonRepository(db), progress, content.dungeons(), this, bus, clock);
         for (var r : content.resources()) {

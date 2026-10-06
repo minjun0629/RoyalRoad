@@ -199,7 +199,8 @@ public final class ContentLoader {
                 phases.add(new BossDefinition.Phase(d(pm, "hp_below", 1.0), list(pm, "patterns"), str(pm, "announce", "")));
             }
             return new BossDefinition(id, req(m, "name"), d(m, "scale", 1), d(m, "hit_radius", 2), d(m, "max_hp", 1000), d(m, "arena_radius", 40),
-                    d(m, "weak_arc", 90), l(m, "enrage_ms", 0), phases, pats, str(m, "model", null), str(m, "source", "ORIGINAL"));
+                    d(m, "weak_arc", 90), l(m, "enrage_ms", 0), phases, pats, str(m, "model", null), d(m, "speed", 2.5), reward(m.get("reward")),
+                    str(m, "source", "ORIGINAL"));
         });
     }
 
