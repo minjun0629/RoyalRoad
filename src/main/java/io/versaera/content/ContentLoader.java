@@ -260,6 +260,31 @@ public final class ContentLoader {
         });
     }
 
+    public static io.versaera.domain.market.MarketCatalog market(Map<String, Object> root, String file) {
+        Map<String, io.versaera.domain.market.MarketCatalog.Market> markets = new LinkedHashMap<>();
+        for (var m : each(root, "markets", file, (id, m) -> new io.versaera.domain.market.MarketCatalog.Market(id, req(m, "name"), req(m, "region"),
+                d(m, "tax", 0.05), new LinkedHashSet<>(list(m, "cheap")), new LinkedHashSet<>(list(m, "dear"))))) markets.put(m.id(), m);
+        Map<String, Long> prices = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> e : section(root, "prices", file).entrySet()) {
+            long v = ((Number) e.getValue()).longValue();
+            if (v <= 0) throw new ContentException(file + " / prices / " + e.getKey() + ": 시세는 1 이상");
+            prices.put(e.getKey(), v);
+        }
+        Map<String, io.versaera.domain.market.MarketCatalog.Shop> shops = new LinkedHashMap<>();
+        for (var sh : each(root, "shops", file, (id, m) -> {
+            List<io.versaera.domain.market.MarketCatalog.Offer> sells = new ArrayList<>();
+            for (String o : list(m, "sells")) {
+                String[] p = o.split(":");
+                if (p.length != 2) throw new IllegalArgumentException("sells 는 종류:품질 — " + o);
+                sells.add(new io.versaera.domain.market.MarketCatalog.Offer(p[0], Integer.parseInt(p[1])));
+            }
+            String market = req(m, "market");
+            if (!markets.containsKey(market)) throw new IllegalArgumentException("없는 시장: " + market);
+            return new io.versaera.domain.market.MarketCatalog.Shop(id, market, sells, new LinkedHashSet<>(list(m, "buys")));
+        })) shops.put(sh.npcId(), sh);
+        return new io.versaera.domain.market.MarketCatalog(markets, prices, shops);
+    }
+
     // ------------------------------------------------------------------ 히든 규칙 (봉인을 연 뒤의 YAML)
     public static List<HiddenRule> hidden(Map<String, Object> root, String file) {
         return each(root, "hidden", file, (id, m) -> new HiddenRule(id, req(m, "title"), condition(m.get("when")), str(m, "rumor", ""),

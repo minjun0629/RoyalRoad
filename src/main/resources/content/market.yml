@@ -1,0 +1,74 @@
+# 시장 · 시세 · NPC 상점 — 모두 ORIGINAL. 원작의 화폐 단위 · 물가는 쓰지 않는다 (단위: 골드).
+# markets: 지역 시장. cheap 태그는 그 지역에서 흔해 싸고, dear 태그는 귀해 비싸다.
+markets:
+  harden:      {name: 하르덴 대시장,  region: harden,           tax: 0.05, cheap: [grain, food, cloth], dear: [frost, sky, gem]}
+  rosaim:      {name: 로자임 부두 시장, region: rosaim_harbor,  tax: 0.04, cheap: [fish, seasoning, deep], dear: [stone, marble, ore]}
+  morata:      {name: 모라타 장인 거리, region: morata_free_city, tax: 0.05, cheap: [stone, marble, dye], dear: [fish, seasoning]}
+  deep_hammer: {name: 깊은 망치 교역소, region: thor_deep_hammer, tax: 0.06, cheap: [ore, metal, mineral], dear: [food, fiber, herb]}
+  azil:        {name: 아질 오아시스 장터, region: azil_oasis,    tax: 0.05, cheap: [sand, glass, herb], dear: [wood, fish]}
+  risvel:      {name: 리스벨 개척 창고, region: risvel_outpost, tax: 0.03, cheap: [hide, wood], dear: [metal, cloth, potion]}
+
+# 기본 시세 (품질 500 기준 1개)
+prices:
+  copper_ore: 6
+  iron_ore: 10
+  silver_ore: 28
+  iron_ingot: 26
+  silver_ingot: 70
+  sky_metal: 400
+  raw_gem: 120
+  frost_crystal: 180
+  oak_timber: 5
+  highland_timber: 9
+  marble_block: 22
+  sandstone_block: 8
+  glass_sand: 4
+  flax_fiber: 4
+  linen_cloth: 18
+  hide: 9
+  leather: 20
+  indigo_dye: 15
+  madder_dye: 15
+  moonleaf: 30
+  saltroot: 12
+  wheat_sheaf: 3
+  salmon: 14
+  deep_eel: 45
+  sea_salt: 6
+  grilled_fish: 22
+  hearty_stew: 30
+  minor_tonic: 40
+  smithing_hammer: 120
+  carving_knife: 110
+  sewing_kit: 90
+  mortar: 90
+  cooking_pot: 80
+  iron_pickaxe: 140
+  iron_hatchet: 120
+  ash_rod: 70
+  iron_longsword: 260
+  iron_dagger: 180
+  ash_bow: 200
+  oak_staff: 190
+  ash_bow_fine: 420
+  buckler: 210
+  silver_spear: 520
+  leather_jerkin: 230
+  iron_mail: 480
+  linen_robe: 210
+  figurine: 300
+  statuette: 900
+  relief_plaque: 600
+  wind_chime: 2500
+
+# NPC 상점: sells = "종류:품질" (NPC 가 파는 물건은 품질이 평범하다 — 좋은 물건은 플레이어 장인이 만든다)
+shops:
+  kael_trader:  {market: harden, sells: ["wheat_sheaf:450", "linen_cloth:450", "sea_salt:450", "iron_pickaxe:400", "iron_hatchet:400"], buys: [ore, wood, grain, fish, herb, hide, metal, gem]}
+  mira_cook:    {market: harden, sells: ["hearty_stew:500", "grilled_fish:450", "cooking_pot:400"], buys: [fish, grain, herb, seasoning]}
+  oren_smith:   {market: deep_hammer, sells: ["iron_ingot:450", "smithing_hammer:420", "iron_longsword:380", "iron_dagger:380"], buys: [ore, metal, mineral, sword, dagger, spear, shield, tool_hammer, tool_pick]}
+  liese_weaver: {market: morata, sells: ["flax_fiber:450", "indigo_dye:450", "madder_dye:450", "sewing_kit:400"], buys: [fiber, cloth, dye, leather]}
+  bram_sculptor: {market: morata, sells: ["carving_knife:420", "marble_block:450"], buys: [stone, marble, art]}
+  tobi_fisher:  {market: rosaim, sells: ["ash_rod:420", "salmon:450", "sea_salt:450"], buys: [fish, deep, seasoning]}
+  yuna_alchemist: {market: harden, sells: ["mortar:420", "minor_tonic:450"], buys: [herb, gem, frost]}
+  dariq_caravan: {market: azil, sells: ["glass_sand:450", "sandstone_block:450", "saltroot:450"], buys: [sand, herb, wood, fish, cloth]}
+  hana_scout:   {market: risvel, sells: ["hide:450", "highland_timber:450", "ash_bow:380"], buys: [hide, wood, fish, herb]}

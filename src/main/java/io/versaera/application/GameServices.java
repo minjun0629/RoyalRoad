@@ -39,6 +39,9 @@ public final class GameServices {
     public final JobService jobs;
     public final DeathService deaths;
     public final QuestService quests;
+    public final GuildService guilds;
+    public final MarketService market;
+    public final AuctionService auctions;
     private final ZoneId zone;
     private HiddenService hidden;
 
@@ -69,6 +72,11 @@ public final class GameServices {
         crafting.modifiers((uuid, discipline) -> new double[]{
                 jobs.perks(uuid).getOrDefault("craft_quality." + discipline, 0.0),
                 StatEffects.of(growth.statPoints(uuid)).craftVarianceMult()});
+        this.guilds = new GuildService(tx, new JdbcGuildRepository(db), economy, audit, bus, clock);
+        MarketRepository marketRepo = new JdbcMarketRepository(db);
+        this.market = new MarketService(tx, marketRepo, itemRepo, items, economy, content.market(), audit, bus, clock, this::priceDiscount);
+        this.auctions = new AuctionService(tx, marketRepo, itemRepo, items, economy, content.market(), audit, bus, clock,
+                uuid -> jobs.perks(uuid).getOrDefault("auction_fee_cut", 0.0));
         this.quests = new QuestService(tx, new JdbcQuestRepository(db), progress, content.quests(), this, bus, clock, zone);
         for (var r : content.resources()) {
             growth.discipline(r.discipline());
@@ -81,6 +89,11 @@ public final class GameServices {
         hidden = new HiddenService(tx, progress, rules, facts, bus, clock);
         growth.onCounter(hidden::counterChanged);
         return hidden;
+    }
+
+    /** NPC 상점 할인: 상인 직업 효과 + 매력 스탯 (MarketPricing 이 최대 25% 로 자른다) */
+    public double priceDiscount(String uuid) {
+        return jobs.perks(uuid).getOrDefault("price_discount", 0.0) + StatEffects.of(growth.statPoints(uuid)).priceDiscount();
     }
 
     /** 조건 판정용 사실 (DB 스레드에서만) */
