@@ -43,6 +43,8 @@ public final class GameServices {
     public final MarketService market;
     public final AuctionService auctions;
     public final DungeonService dungeons;
+    public final WorldEventService worldEvents;
+    public final GatheringService gathering;
     private final ZoneId zone;
     private HiddenService hidden;
 
@@ -79,6 +81,9 @@ public final class GameServices {
         this.auctions = new AuctionService(tx, marketRepo, itemRepo, items, economy, content.market(), audit, bus, clock,
                 uuid -> jobs.perks(uuid).getOrDefault("auction_fee_cut", 0.0));
         this.quests = new QuestService(tx, new JdbcQuestRepository(db), progress, content.quests(), this, bus, clock, zone);
+        this.worldEvents = new WorldEventService(tx, new JdbcWorldEventRepository(db), content.worldEvents(), regions, bus, clock, 0L);
+        this.gathering = new GatheringService(this, content.resources());
+        market.regionDiscount(worldEvents::shopDiscount);
         this.dungeons = new DungeonService(tx, new JdbcDungeonRepository(db), progress, content.dungeons(), this, bus, clock);
         for (var r : content.resources()) {
             growth.discipline(r.discipline());

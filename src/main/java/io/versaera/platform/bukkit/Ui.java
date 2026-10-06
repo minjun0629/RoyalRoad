@@ -11,6 +11,11 @@ public final class Ui {
     private Ui() {
     }
 
+    /** 화면 아래 한 줄 (Spigot API) */
+    public static void bar(org.bukkit.entity.Player p, String s) {
+        p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, net.md_5.bungee.api.chat.TextComponent.fromLegacyText(c(s)));
+    }
+
     public static String c(String s) {
         return ChatColor.translateAlternateColorCodes('&', s);
     }

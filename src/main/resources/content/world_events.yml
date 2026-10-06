@@ -1,0 +1,70 @@
+# 월드 이벤트 — 모두 ORIGINAL. 확률이 아니라 서버 시드로 정해진 시간표 (period 마다 한 번, jitter 만큼 흔들림).
+# forecast: 그 시간 전부터 관련 NPC 가 예보해 준다 (관찰 · 관계의 보상).
+# effects: reveal(입구 드러남) · gather_bonus.<분야> · danger · spawn · shop_discount
+world_events:
+  great_sandstorm:
+    name: 대모래폭풍
+    region: sand_sea
+    kind: SANDSTORM
+    period_hours: 30
+    duration_minutes: 50
+    jitter_hours: 8
+    forecast_hours: 3
+    forecaster: dariq_caravan
+    effects: {reveal: "region:buried_city", danger: "1"}
+    announce: "모래바다에 폭풍이 인다. 바람이 모래를 걷어 낸 자리에 무언가가 드러났다."
+  silver_seam:
+    name: 은빛 광맥 노출
+    region: thor_deep_hammer
+    kind: RICH_VEIN
+    period_hours: 20
+    duration_minutes: 40
+    jitter_hours: 6
+    forecast_hours: 2
+    forecaster: oren_smith
+    effects: {gather_bonus.mining: "2"}
+    announce: "깊은 망치의 갱도 벽이 무너지며 은빛 광맥이 드러났다."
+  crater_glimmer:
+    name: 분화구의 빛
+    region: fallen_crater
+    kind: RARE_CREATURE
+    period_hours: 26
+    duration_minutes: 30
+    jitter_hours: 10
+    forecast_hours: 1
+    forecaster: yuna_alchemist
+    effects: {spawn: ALLAY, gather_bonus.mining: "1"}
+    announce: "분화구 가장자리에 빛나는 생물이 모여든다."
+  spring_caravan:
+    name: 대상단 도착
+    region: azil_oasis
+    kind: CARAVAN
+    period_hours: 48
+    duration_minutes: 120
+    jitter_hours: 12
+    forecast_hours: 6
+    forecaster: dariq_caravan
+    effects: {shop_discount: "0.10"}
+    announce: "아질 오아시스에 대상단이 들어왔다. 장터가 붐빈다."
+  frost_surge:
+    name: 서리 범람
+    region: niflheim_wastes
+    kind: FROST_SURGE
+    period_hours: 36
+    duration_minutes: 60
+    jitter_hours: 10
+    forecast_hours: 2
+    forecaster: sena_archivist
+    effects: {danger: "1", gather_bonus.mining: "1"}
+    announce: "북쪽 황무지에 서리가 밀려온다. 얼음 결정이 드러나지만 길이 험해졌다."
+  harbor_fog:
+    name: 항구의 안개
+    region: rosaim_harbor
+    kind: SEA_FOG
+    period_hours: 18
+    duration_minutes: 45
+    jitter_hours: 5
+    forecast_hours: 2
+    forecaster: tobi_fisher
+    effects: {gather_bonus.fishing: "1"}
+    announce: "로자임 항에 짙은 안개가 내려앉았다. 깊은 물고기가 수면 가까이 올라온다."

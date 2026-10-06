@@ -27,9 +27,10 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                             List<ResourceNode> resources, List<Region> regions, List<NpcDefinition> npcs, List<BossDefinition> bosses,
                             List<JobDefinition> jobs, List<SkillDefinition> skills, List<CombatState.Combo> combos, List<QuestDefinition> quests,
                             MarketCatalog market, Map<String, Map<String, NpcSchedule.Point>> places,
-                            List<io.versaera.domain.dungeon.DungeonDefinition> dungeons) {
+                            List<io.versaera.domain.dungeon.DungeonDefinition> dungeons,
+                            List<io.versaera.domain.worldevent.WorldEventDefinition> worldEvents) {
     public static final List<String> FILES = List.of("items.yml", "disciplines.yml", "action_stats.yml", "recipes.yml", "resources.yml",
-            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml");
+            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml");
 
     public static ContentBundle load(Function<String, InputStream> opener) {
         Map<String, Object> skills = read(opener, "skills.yml");
@@ -48,7 +49,8 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                 ContentLoader.quests(read(opener, "quests.yml"), "quests.yml"),
                 ContentLoader.market(read(opener, "market.yml"), "market.yml"),
                 ContentLoader.places(read(opener, "places.yml"), "places.yml"),
-                ContentLoader.dungeons(read(opener, "dungeons.yml"), "dungeons.yml"));
+                ContentLoader.dungeons(read(opener, "dungeons.yml"), "dungeons.yml"),
+                ContentLoader.worldEvents(read(opener, "world_events.yml"), "world_events.yml"));
     }
 
     public static ContentBundle fromClasspath(ClassLoader cl) {

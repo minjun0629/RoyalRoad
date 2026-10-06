@@ -56,6 +56,17 @@ public final class MarketService {
             }
     }
 
+    private ToDoubleFunction<String> regionDiscount = r -> 0;
+
+    /** 지역 할인 (대상단 도착 같은 월드 이벤트) */
+    public void regionDiscount(ToDoubleFunction<String> byRegion) {
+        this.regionDiscount = byRegion;
+    }
+
+    private double discountFor(String uuid, MarketCatalog.Market m) {
+        return discount.applyAsDouble(uuid) + regionDiscount.applyAsDouble(m.region());
+    }
+
     public MarketCatalog catalog() {
         return catalog;
     }
@@ -80,7 +91,7 @@ public final class MarketService {
         MarketCatalog.Market m = catalog.market(market);
         long base = catalog.base(typeId), sup = supply(market, typeId);
         double r = region(m, typeId);
-        return new Quote(typeId, quality, MarketPricing.buyPrice(base, r, sup, quality, discount.applyAsDouble(uuid)),
+        return new Quote(typeId, quality, MarketPricing.buyPrice(base, r, sup, quality, discountFor(uuid, m)),
                 MarketPricing.sellPrice(base, r, sup, quality));
     }
 
@@ -97,7 +108,7 @@ public final class MarketService {
         String key = "shop_buy:" + requestId;
         long paid = tx.inTx(() -> {
             long sup = supply(m.id(), o.typeId());
-            long total = MarketPricing.buyTotal(catalog.base(o.typeId()), region(m, o.typeId()), sup, o.quality(), amount, discount.applyAsDouble(uuid));
+            long total = MarketPricing.buyTotal(catalog.base(o.typeId()), region(m, o.typeId()), sup, o.quality(), amount, discountFor(uuid, m));
             if (!economy.transferInTx(uuid, NPC_WALLET, total, "shop_buy", key, after)) return 0L;   // 같은 요청 반복
             if (t.category().unique())
                 for (int i = 0; i < amount; i++) items.createInTx(o.typeId(), o.quality(), null, npcId, "shop", Map.of(), uuid, key + ":" + i, after);

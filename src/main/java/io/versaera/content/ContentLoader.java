@@ -311,6 +311,13 @@ public final class ContentLoader {
         });
     }
 
+    public static List<io.versaera.domain.worldevent.WorldEventDefinition> worldEvents(Map<String, Object> root, String file) {
+        return each(root, "world_events", file, (id, m) -> new io.versaera.domain.worldevent.WorldEventDefinition(id, req(m, "name"), req(m, "region"),
+                io.versaera.domain.worldevent.WorldEventDefinition.Kind.valueOf(req(m, "kind")), (long) (d(m, "period_hours", 24) * 3_600_000),
+                (long) (d(m, "duration_minutes", 30) * 60_000), (long) (d(m, "jitter_hours", 0) * 3_600_000), (long) (d(m, "forecast_hours", 1) * 3_600_000),
+                str(m, "forecaster", null), stringMap(map(m.get("effects"))), str(m, "announce", ""), str(m, "source", "ORIGINAL")));
+    }
+
     // ------------------------------------------------------------------ 히든 규칙 (봉인을 연 뒤의 YAML)
     public static List<HiddenRule> hidden(Map<String, Object> root, String file) {
         return each(root, "hidden", file, (id, m) -> new HiddenRule(id, req(m, "title"), condition(m.get("when")), str(m, "rumor", ""),
