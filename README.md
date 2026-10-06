@@ -28,7 +28,11 @@ gradle build                         # Paper 저장소에서 API 를 받아 빌�
 gradle build -PapiJar=<api.jar>      # 저장소에 접속할 수 없을 때, 가지고 있는 API jar 로 빌드
 ```
 
-결과: `build/libs/VersaEra-0.2.0.jar` (미리 빌드한 jar 는 `dist/` 에 있습니다)
+결과: `build/libs/VersaEra-0.2.0.jar` (미리 빌드한 jar 는 [`dist/VersaEra-0.2.0.jar`](dist/VersaEra-0.2.0.jar))
+
+```bash
+gradle buildPack                     # 리소스팩을 pack/VersaEra-pack.zip (+ .sha1) 로 내보내기
+```
 
 ## 실행
 
@@ -53,7 +57,10 @@ worlds:
 ```
 
    (플러그인은 `load: STARTUP` 이라 기본 세계에도 쓸 수 있습니다. 기존 세계에는 새로 생기는 청크에만 적용됩니다.)
-4. 리소스팩은 서버가 켜질 때 코드로 만들어 내장 HTTP 서버(`pack.port`, 기본 8173)로 내려 줍니다. 방화벽에서 포트를 열거나 `pack.public-url` 을 적으세요.
+4. **리소스팩은 GitHub 에서 내려받게 되어 있습니다.** 저장소의 [`pack/VersaEra-pack.zip`](pack/VersaEra-pack.zip) 을 `config.yml` 의 `pack.urls` (raw 주소) 로 보내므로, 서버 포트를 따로 열 필요가 없습니다.
+   - 서버가 시작할 때 그 주소에서 팩을 직접 받아 SHA-1 을 계산해 보냅니다 → 해시를 손으로 적지 않아도 됩니다.
+   - 주소를 모두 받지 못하면 내장 HTTP 서버(`pack.port`, 기본 8173)로 대신 내려 줍니다.
+   - 콘텐츠(보스 등)를 바꿨다면 `gradle buildPack` 으로 `pack/` 을 다시 만들어 GitHub 에 올리세요 (서버 로그에 "외부 리소스팩이 … 다릅니다" 경고가 나옵니다).
 5. 던전은 전용 빈 세계 `versa_dungeons` 에 매번 새로 지어집니다 (서버를 켤 때마다 정리됨 — 그 세계에 다른 것을 짓지 마세요).
 
 ## 설정
@@ -61,9 +68,10 @@ worlds:
 | 항목 | 기본값 | 설명 |
 |---|---|---|
 | `timezone` | `Asia/Seoul` | 하루 단위 규칙(NPC 하루 첫 대화 · 일일 의뢰)의 날짜 기준 |
-| `pack.enabled` | `true` | 리소스팩 생성 · 배포 |
-| `pack.port` | `8173` | 팩 HTTP 포트 |
-| `pack.public-url` | `""` | 외부 주소 (비우면 `http://<server-ip>:<port>/versaera.zip`) |
+| `pack.enabled` | `true` | 리소스팩 배포 |
+| `pack.urls` | GitHub raw 주소 2개 (main → 작업 브랜치) | 외부 팩 주소 목록 — 처음 받아지는 것을 씀 |
+| `pack.port` | `8173` | 외부 주소가 모두 실패할 때 쓰는 내장 HTTP 포트 |
+| `pack.public-url` | `""` | 내장 서버의 외부 주소 (비우면 `http://<server-ip>:<port>/versaera.zip`) |
 | `pack.menu-background` | `true` | 메뉴 제목에 팩 배경 글자 사용 |
 
 콘텐츠는 모두 `content/` YAML 입니다:
@@ -192,7 +200,7 @@ io.versaera
 gradle test
 ```
 
-97개 테스트가 메모리 DB + 실제 마이그레이션 + 실제 콘텐츠로 돕니다:
+98개 테스트가 메모리 DB + 실제 마이그레이션 + 실제 콘텐츠로 돕니다:
 
 - **경제 · 아이템:** 원장, 중복 지급 방지, 배달 1회 확정
 - **거래 · 악용 방지:** 거래 롤백, 위조 id, 확인 후 제안 바꾸기, 동시 확인 40회, 재시작 복구

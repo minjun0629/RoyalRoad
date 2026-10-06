@@ -21,6 +21,8 @@ import io.versaera.platform.bukkit.combat.SkillListener;
 import io.versaera.platform.bukkit.command.GameCommands;
 import io.versaera.platform.bukkit.dungeon.DungeonRuntime;
 import io.versaera.platform.bukkit.map.MapRuntime;
+import io.versaera.platform.bukkit.pack.ExternalPack;
+import io.versaera.platform.bukkit.pack.PackSender;
 import io.versaera.platform.bukkit.pack.PackServer;
 import io.versaera.platform.bukkit.world.VersaChunkGenerator;
 import io.versaera.platform.bukkit.world.WorldEventRuntime;
@@ -154,14 +156,51 @@ public final class VersaEraPlugin extends JavaPlugin {
         }
     }
 
-    /** 리소스팩을 만들고 내장 HTTP 서버로 내려 준다 (config pack.*) */
+    /**
+     * 리소스팩 배포 (config pack.*).
+     * 1) pack.urls (GitHub raw 주소 등) 를 차례로 받아 보고, 처음 받아지는 주소를 쓴다 — SHA-1 은 서버가 직접 계산
+     * 2) 모두 실패하거나 비어 있으면 코드로 만든 팩을 내장 HTTP 서버(pack.port)로 내려 준다
+     */
     private void startPack() {
         if (!getConfig().getBoolean("pack.enabled", true)) return;
+        io.versaera.pack.ResourcePackBuilder.Pack built;
         try {
-            var built = io.versaera.pack.ResourcePackBuilder.build(services.content);
+            built = io.versaera.pack.ResourcePackBuilder.build(services.content);
+        } catch (RuntimeException e) {
+            getLogger().log(Level.WARNING, "리소스팩을 만들지 못했습니다 — 팩 없이 계속합니다", e);
+            return;
+        }
+        PackSender sender = new PackSender(this);
+        Bukkit.getPluginManager().registerEvents(sender, this);
+        io.versaera.platform.bukkit.ui.Menu.background = getConfig().getBoolean("pack.menu-background", true);
+        List<String> urls = getConfig().getStringList("pack.urls");
+        if (urls.isEmpty()) {
+            hostPack(sender, built);
+            return;
+        }
+        Thread t = new Thread(() -> {
+            var found = ExternalPack.resolve(urls, getLogger());
+            if (found.isPresent()) {
+                var f = found.get();
+                sender.set(f.url(), f.sha1());
+                getLogger().info("리소스팩 (외부) " + f.size() / 1024 + "KB · sha1 " + ExternalPack.hex(f.sha1()) + " · " + f.url());
+                if (!java.util.Arrays.equals(f.sha1(), built.sha1()))
+                    getLogger().warning("외부 리소스팩이 이 플러그인이 만든 팩(sha1 " + built.sha1Hex() + ")과 다릅니다. "
+                            + "콘텐츠를 바꿨다면 gradle buildPack 으로 pack/VersaEra-pack.zip 을 다시 만들어 올리세요.");
+            } else {
+                getLogger().warning("pack.urls 의 주소를 모두 받지 못했습니다 — 내장 서버로 내려 줍니다");
+                Bukkit.getScheduler().runTask(this, () -> hostPack(sender, built));
+            }
+        }, "versa-pack-check");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    private void hostPack(PackSender sender, io.versaera.pack.ResourcePackBuilder.Pack built) {
+        try {
             pack = new PackServer(this, built, getConfig().getInt("pack.port", 8173), getConfig().getString("pack.public-url", ""), Bukkit.getIp());
-            Bukkit.getPluginManager().registerEvents(pack, this);
-            io.versaera.platform.bukkit.ui.Menu.background = getConfig().getBoolean("pack.menu-background", true);
+            sender.set(pack.url(), built.sha1());
+            getLogger().info("리소스팩 (내장 서버) " + built.zip().length / 1024 + "KB · sha1 " + built.sha1Hex() + " · " + pack.url());
         } catch (IOException | RuntimeException e) {
             getLogger().log(Level.WARNING, "리소스팩 서버를 열지 못했습니다 — 팩 없이 계속합니다", e);
         }

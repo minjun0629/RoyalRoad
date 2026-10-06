@@ -42,7 +42,7 @@
 | EVT-01 | 월드 이벤트 (시간표 · 예보) | ORIGINAL | **IMPLEMENTED** | WorldEventGatherTest |
 | DTH-01 | 사망 페널티 | SOURCE-BASED | **IMPLEMENTED** | JobQuestDeathTest |
 | UI-01 | 전용 MMORPG UI | ORIGINAL | **PARTIAL** | ResourcePackBuilderTest |
-| RP-01 | 리소스팩 (코드로 생성 · 배포) | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest |
+| RP-01 | 리소스팩 (코드로 생성 · 배포) | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest, ExternalPackTest |
 | SRV-01 | 실제 Paper 서버 테스트 | ORIGINAL | **BLOCKED** | — |
 
 상태 합계: BLOCKED 1 · IMPLEMENTED 34 · PARTIAL 3

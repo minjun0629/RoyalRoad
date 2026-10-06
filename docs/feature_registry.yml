@@ -733,17 +733,17 @@ features:
     source: "요구 §51-52"
     source_type: "설계 요구"
     classification: ORIGINAL
-    description: "ResourcePackBuilder 가 서버를 켤 때 팩을 만든다: 보스 5종 큐브 모델(거상 · 날개 짐승 · 결정 · 마디 벌레 · 갑각 템플릿) + 절차 텍스처(등 약점 표시), 종이 CustomModelData 연결, 메뉴 배경 · 공백 글꼴. 같은 콘텐츠 = 같은 SHA-1. 내장 HTTP 서버로 배포(config pack.*). 손으로 그린 고급 모델은 아님 (교체 가능)"
+    description: "ResourcePackBuilder 가 서버를 켤 때 팩을 만든다: 보스 5종 큐브 모델(거상 · 날개 짐승 · 결정 · 마디 벌레 · 갑각 템플릿) + 절차 텍스처(등 약점 표시), 종이 CustomModelData 연결, 메뉴 배경 · 공백 글꼴. 같은 콘텐츠 = 같은 SHA-1. gradle buildPack 으로 pack/VersaEra-pack.zip 을 만들어 GitHub 에 올리고, 서버는 pack.urls(raw 주소)에서 받아 SHA-1 을 계산해 보냄. 외부 주소가 모두 실패하면 내장 HTTP 서버로 배포. 손으로 그린 고급 모델은 아님 (교체 가능)"
     player_experience: "고유한 외형"
     dependencies: []
-    implementation: "io.versaera.pack.ResourcePackBuilder · domain.pack.PackIds · platform.bukkit.pack.PackServer"
+    implementation: "io.versaera.pack.ResourcePackBuilder · PackMain · domain.pack.PackIds · platform.bukkit.pack.ExternalPack · PackSender · PackServer"
     data_model: "없음"
     ui: "거부 시 안내 한 줄"
     resource_pack: "전부 코드 생성 (외부 에셋 · RpgCraft 팩 미사용)"
     performance_risk: "팩 약 수십 KB"
     security_risk: "팩 서버는 GET /versaera.zip 하나만"
     persistence: "없음"
-    tests: [ResourcePackBuilderTest]
+    tests: [ResourcePackBuilderTest, ExternalPackTest]
     server_test: BLOCKED
     status: IMPLEMENTED
 

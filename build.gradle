@@ -53,3 +53,12 @@ processResources {
 jar {
     archiveFileName = "VersaEra-${project.version}.jar"
 }
+
+// 리소스팩을 pack/ 폴더에 내보낸다 → GitHub 에 올리면 config.yml pack.urls 의 주소로 배포된다
+tasks.register('buildPack', JavaExec) {
+    dependsOn classes
+    classpath = sourceSets.main.runtimeClasspath + configurations.compileClasspath
+    mainClass = 'io.versaera.pack.PackMain'
+    args = [file('pack').absolutePath]
+    systemProperty 'java.awt.headless', 'true'
+}

@@ -1,11 +1,17 @@
 # VersaEra 설정. 콘텐츠(아이템 · 레시피 · 지역 · NPC · 보스 · 퀘스트 · 던전 · 시장 · 이벤트)는 plugins/VersaEra/content/*.yml 에서 고칩니다.
 timezone: Asia/Seoul   # 하루 단위 규칙(NPC 대화 · 일일 의뢰)의 날짜 기준
 
-# 리소스팩 (코드로 생성 · 내장 HTTP 서버로 배포). 방화벽에서 port 를 열거나, public-url 에 외부에서 받을 수 있는 주소를 적으세요.
+# 리소스팩
+#  - urls: 외부에 올린 팩 주소 (위에서부터 처음 받아지는 것을 씀). 서버가 직접 받아 SHA-1 을 계산하므로 해시를 적을 필요 없음.
+#          기본값은 GitHub 저장소 minjun0629/RoyalRoad 의 pack/VersaEra-pack.zip (main 브랜치 → 작업 브랜치 순)
+#  - 주소가 비었거나 모두 실패하면 코드로 만든 팩을 내장 HTTP 서버(port)로 내려 준다 (방화벽에서 port 를 열거나 public-url 지정)
 pack:
   enabled: true
+  urls:
+    - "https://raw.githubusercontent.com/minjun0629/RoyalRoad/main/pack/VersaEra-pack.zip"
+    - "https://raw.githubusercontent.com/minjun0629/RoyalRoad/refs/heads/claude/inspiring-hopper-9qdtgd/pack/VersaEra-pack.zip"
   port: 8173
-  public-url: ""   # 비우면 http://<server-ip>:<port>/versaera.zip
+  public-url: ""   # 내장 서버를 쓸 때 외부 주소 (비우면 http://<server-ip>:<port>/versaera.zip)
   menu-background: true   # 메뉴 제목에 팩 배경 글자를 깐다 (팩을 거부한 사람에겐 네모로 보임)
 
 # 지형 생성기: bukkit.yml 에
