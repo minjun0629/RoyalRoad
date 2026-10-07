@@ -80,6 +80,16 @@
 | LORE-01 | 연대기 · 신 목록 | CANON | **IMPLEMENTED** | CanonDomainTest |
 | UI-01 | 전용 MMORPG UI | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest |
 | RP-01 | 리소스팩 (아이템 · 갑옷 · 보스 · UI 전부 코드로 생성 · 배포) | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest, ExternalPackTest |
+| WLD-07 | 중세 도시 설계도 | ORIGINAL | **IMPLEMENTED** | MedievalTest, SettlementPlannerTest |
+| WLD-04 | 세계 복구 | ORIGINAL | **PARTIAL** | — |
+| WLD-05 | 들판 몬스터 | ORIGINAL | **PARTIAL** | — |
+| WLD-06 | 대륙 모양 지형 · 5만 세계 · 지도 | ORIGINAL | **IMPLEMENTED** | TerrainModelTest |
+| ART-03 | 손으로 깎는 조각 | SOURCE-BASED | **PARTIAL** | WorkTimeAndGradeTest, AdventureTest |
+| CRF-03 | 제작대에서 손으로 만들기 | ORIGINAL | **PARTIAL** | WorkTimeAndGradeTest |
+| ART-04 | 직업마다 비기 열 가지 | SOURCE-BASED | **IMPLEMENTED** | SecretArtCountTest, CanonRulesTest |
+| NPC-06 | 훈련장 · 교관 | SOURCE-BASED | **IMPLEMENTED** | NpcWorldTest |
+| MKT-03 | 경매 편의 | ORIGINAL | **IMPLEMENTED** | MarketAuctionTest |
+| QOL-01 | 서버 아이콘 · 마을 진단 | ORIGINAL | **PARTIAL** | — |
 | SRV-01 | 실제 Paper 서버 테스트 | ORIGINAL | **BLOCKED** | — |
 
 상태 합계: BLOCKED 1 · IMPLEMENTED 37

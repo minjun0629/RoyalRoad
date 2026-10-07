@@ -39,11 +39,14 @@ public final class FieldMobRuntime implements Listener {
     private record Kind(EntityType type, String name, double health, boolean angry) {}
 
     private final GameServices s;
+    private final io.versaera.platform.bukkit.binding.ItemCodec codec;
     private final Random rng = new Random();
+    private final Map<UUID, Integer> levels = new HashMap<>();
     private final Set<UUID> ours = new HashSet<>();
 
-    public FieldMobRuntime(Plugin plugin, GameServices s) {
+    public FieldMobRuntime(Plugin plugin, GameServices s, io.versaera.platform.bukkit.binding.ItemCodec codec) {
         this.s = s;
+        this.codec = codec;
         Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 100L, 80L);
     }
 
@@ -84,11 +87,12 @@ public final class FieldMobRuntime implements Listener {
     private void tick() {
         // 사람과 멀어진 것 · 죽은 것 정리
         for (Iterator<UUID> it = ours.iterator(); it.hasNext(); ) {
-            Entity e = Bukkit.getEntity(it.next());
-            if (e == null || !e.isValid()) { it.remove(); continue; }
+            UUID u = it.next();
+            Entity e = Bukkit.getEntity(u);
+            if (e == null || !e.isValid()) { it.remove(); levels.remove(u); continue; }
             boolean near = false;
             for (Player p : e.getWorld().getPlayers()) if (p.getLocation().distanceSquared(e.getLocation()) < 80 * 80) { near = true; break; }
-            if (!near) { e.remove(); it.remove(); }
+            if (!near) { e.remove(); it.remove(); levels.remove(u); }
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.isDead() || p.getGameMode() == org.bukkit.GameMode.SPECTATOR) continue;
@@ -135,7 +139,9 @@ public final class FieldMobRuntime implements Listener {
         if (!(e instanceof LivingEntity le)) { e.remove(); return; }
         le.addScoreboardTag(TAG);
         le.setRemoveWhenFarAway(true);
-        le.setCustomName(Ui.c((k.angry() || danger >= 2 ? "&c" : "&f") + k.name()));
+        int lv = Math.max(1, danger * 6 + 1 + rng.nextInt(4));
+        levels.put(le.getUniqueId(), lv);
+        le.setCustomName(Ui.c((k.angry() || danger >= 2 ? "&c" : "&f") + k.name() + " &7Lv." + lv));
         le.setCustomNameVisible(true);
         double hp = k.health() * (1 + Math.max(0, danger - 1) * 0.5);
         AttributeInstance max = le.getAttribute(Attribute.GENERIC_MAX_HEALTH);
@@ -145,6 +151,23 @@ public final class FieldMobRuntime implements Listener {
         }
         if (k.angry() && le instanceof Wolf wolf) wolf.setAngry(true);
         ours.add(le.getUniqueId());
+    }
+
+    /** 전리품: 바닐라 대신 게임 재료 (짐승 = 생가죽 · 생고기, 품질은 레벨만큼) */
+    @EventHandler
+    public void onDeath(org.bukkit.event.entity.EntityDeathEvent e) {
+        if (!e.getEntity().getScoreboardTags().contains(TAG)) return;
+        int lv = levels.getOrDefault(e.getEntity().getUniqueId(), 1);
+        levels.remove(e.getEntity().getUniqueId());
+        ours.remove(e.getEntity().getUniqueId());
+        e.getDrops().clear();
+        int q = Math.min(900, 250 + lv * 20 + rng.nextInt(100));
+        switch (e.getEntityType()) {
+            case RABBIT -> { e.getDrops().add(codec.bulk("raw_meat", q, 1)); if (rng.nextInt(2) == 0) e.getDrops().add(codec.bulk("hide", q, 1)); }
+            case FOX -> e.getDrops().add(codec.bulk("hide", q, 1 + rng.nextInt(2)));
+            case WOLF -> { e.getDrops().add(codec.bulk("hide", q, 1)); e.getDrops().add(codec.bulk("raw_meat", q, 1 + rng.nextInt(2))); }
+            default -> { if (rng.nextInt(4) == 0) e.getDrops().add(codec.bulk("whetstone", q, 1)); }
+        }
     }
 
     /** 들판 몬스터는 낮에도 타지 않는다 */

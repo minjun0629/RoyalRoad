@@ -402,7 +402,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         }
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.ServerIcon(getLogger()), this);
         if (getConfig().getBoolean("field-mobs.enabled", true)) {
-            fieldMobs = new io.versaera.platform.bukkit.world.FieldMobRuntime(this, services);
+            fieldMobs = new io.versaera.platform.bukkit.world.FieldMobRuntime(this, services, codec);
             Bukkit.getPluginManager().registerEvents(fieldMobs, this);
         }
                 InventoryGuard guard = new InventoryGuard(this, services, async, codec);
