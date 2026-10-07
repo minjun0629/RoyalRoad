@@ -355,6 +355,17 @@ class AdventureTest {
             int before = w.s.items.pendingBulk(a).size();
             w.s.artworks.remove(a, art.id(), false);
             assertEquals(before + 3, w.s.items.pendingBulk(a).size(), "재료 세 가지의 절반");
+            // 깨우기: 조각 생명술을 익혀야 하고, 깨어나면 이름 · 품질을 이은 동료가 되고 작품은 사라진다
+            var second = w.s.artworks.create(a, "statue", picks, "world", 300, 70, 300, 0, "깨어날 기사", null, 0.5);
+            assertThrows(DomainException.class, () -> w.s.artworks.awaken(a, second.id()), "조각 생명술 없이는");
+            w.s.tx.inTx(() -> { w.s.progress.discover(a, "art", "sculpt_life", 0); return null; });
+            int petsBefore = w.s.pets.pets(a).size();
+            var pet = w.s.artworks.awaken(a, second.id());
+            assertEquals("living_statue", pet.species());
+            assertEquals("깨어날 기사", pet.name());
+            assertTrue(pet.level() >= 8, "품질만큼 높은 레벨로 깨어난다: " + pet.level());
+            assertEquals(petsBefore + 1, w.s.pets.pets(a).size());
+            assertTrue(w.s.artworks.mine(a).isEmpty(), "작품은 사라진다");
             assertTrue(w.s.artworks.all().isEmpty());
         }
     }

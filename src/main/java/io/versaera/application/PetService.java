@@ -91,6 +91,30 @@ public final class PetService {
         return new TameResult(true, p, chance);
     }
 
+    /**
+     * 조각에 생명을 불어넣는다 (조각 생명술 · 대형 조각 깨우기). 길들이기 숙련이 없어도 되고, 데리고 다닐 수 있는 수에 하나 더 얹힌다.
+     * 처음 레벨은 조각 품질만큼 (품질 100 마다 1, 최대 10), 충성 100 으로 시작한다
+     */
+    public Pet awaken(String uuid, String speciesId, String name, int quality) {
+        Species sp = species(speciesId);
+        int lv = s.growth.level(uuid, "taming");
+        DomainException.require(repo.pets(uuid).size() < PetRules.maxPets(lv) + 1, "pet.full", "더 데리고 다닐 수 없습니다");
+        int start = Math.max(1, Math.min(10, 1 + quality / 100));
+        long xp = 0;
+        for (int i = 1; i < start; i++) xp += PetRules.xpToNext(i);
+        String nm = name == null || name.isBlank() ? sp.name() : name.strip();
+        if (nm.length() > 16) nm = nm.substring(0, 16);
+        long now = clock.nowMillis();
+        Pet p = new Pet(UUID.randomUUID().toString(), uuid, sp.id(), nm, PetRules.levelOf(xp), xp, 100, now, 0, now);
+        tx.inTx(() -> {
+            repo.insertPet(p);
+            s.audit.record("PET_AWAKENED", uuid, p.id(), sp.id() + " q" + quality, null);
+            return null;
+        });
+        s.growth.record(uuid, "pet.awakened", 1);
+        return p;
+    }
+
     public Pet rename(String uuid, String petId, String name) {
         DomainException.require(name != null && name.strip().length() >= 1 && name.strip().length() <= 16 && !name.contains("&") && !name.contains("§"),
                 "pet.bad_name", "이름은 1~16자 (색 코드 없이)");

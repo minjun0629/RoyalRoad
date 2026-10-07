@@ -108,6 +108,37 @@ public final class ArtworkService {
         return b;
     }
 
+    /** 깨울 수 있는 작품 종류 → 조각 생명체 (분수 · 기념비는 생명이 깃들지 않는다) */
+    public static String livingSpecies(String kind) {
+        return switch (kind) {
+            case "bust" -> "living_bust";
+            case "statue" -> "living_statue";
+            case "beast" -> "living_beast";
+            default -> null;
+        };
+    }
+
+    /**
+     * 대형 조각 깨우기: 조각 생명술을 익힌 만든 사람이 수작(500) 이상 흉상 · 입상 · 짐승상에 생명을 불어넣는다.
+     * 작품은 세상에서 사라지고 (재료는 돌려주지 않는다) 이름 · 품질을 이어받은 동료가 된다
+     */
+    public io.versaera.application.port.AdventureRepository.Pet awaken(String uuid, String artworkId) {
+        Artwork a = repo.artwork(artworkId).orElseThrow(() -> DomainException.of("art.gone", "사라진 작품입니다"));
+        DomainException.require(a.owner().equals(uuid), "art.not_owner", "내 작품이 아닙니다");
+        String sp = livingSpecies(a.kind());
+        DomainException.require(sp != null, "art.cannot_live", kind(a.kind()).name() + " 에는 생명이 깃들지 않는다");
+        DomainException.require(a.quality() >= 500, "art.too_plain", "수작 이상이어야 생명이 깃든다 (지금 " + a.quality() / 10 + ")");
+        DomainException.require(s.arts.learned(uuid, "sculpt_life"), "art.no_life", "조각 생명술을 익혀야 한다");
+        var pet = s.pets.awaken(uuid, sp, a.title(), a.quality());
+        tx.inTx(() -> {
+            repo.deleteArtwork(a.id());
+            s.audit.record("ARTWORK_AWAKENED", uuid, a.id(), a.kind() + " -> " + pet.id(), null);
+            return null;
+        });
+        cache.removeIf(x -> x.id().equals(a.id()));
+        return pet;
+    }
+
     /** 내 작품들 (어느 스레드에서나) */
     public List<Artwork> mine(String uuid) {
         return cache.stream().filter(a -> a.owner().equals(uuid)).toList();
@@ -177,6 +208,7 @@ public final class ArtworkService {
         cache.add(a);
         s.growth.addXp(uuid, "sculpting", 60L + k.level() * 8L + quality / 10, Math.max(1, k.level()));
         s.growth.record(uuid, "art.created", 1);
+        if (quality >= 720) s.growth.record(uuid, "art.masterpiece", 1);   // 명작 이상 (달빛 조각사 전직 조건)
         s.growth.record(uuid, "art.experience", 5);
         long fame = Math.round(k.fame() * quality / 1000.0);
         if (fame > 0) s.reputation.addFame(uuid, fame);

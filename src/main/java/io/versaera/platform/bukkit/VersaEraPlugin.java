@@ -376,11 +376,13 @@ public final class VersaEraPlugin extends JavaPlugin {
         combat.regionOf(regions::regionOf);
         petRuntime = new io.versaera.platform.bukkit.world.PetRuntime(this, services, async, codec, regions::regionOf, tagsOf);
         gather.petSkill(petRuntime::hasSkill);
+        artsR.pets(petRuntime);
         travelRuntime = new io.versaera.platform.bukkit.world.TravelRuntime(this, services, async);
         io.versaera.platform.bukkit.world.WeatherRuntime weatherR = new io.versaera.platform.bukkit.world.WeatherRuntime(this, services, regions::regionOf);
         io.versaera.platform.bukkit.world.RaidRuntime raidR = new io.versaera.platform.bukkit.world.RaidRuntime(this, services, async, bosses, regions::regionOf);
         artworkRuntime = new io.versaera.platform.bukkit.world.ArtworkRuntime(this, services, async, codec, regions::regionOf, sessions::deliver);
         sculpting = new io.versaera.platform.bukkit.world.SculptingRuntime(this, services, async, codec, artworkRuntime, regions::regionOf, sessions::deliver);
+        sculpting.pets(petRuntime);
         Bukkit.getPluginManager().registerEvents(sculpting, this);
         io.versaera.platform.bukkit.command.AdventureCommands advCmd = new io.versaera.platform.bukkit.command.AdventureCommands(services, async, codec,
                 sessions::deliver, petRuntime, travelRuntime, raidR, weatherR, artworkRuntime);

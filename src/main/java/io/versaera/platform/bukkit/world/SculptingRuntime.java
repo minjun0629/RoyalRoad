@@ -80,6 +80,11 @@ public final class SculptingRuntime implements Listener {
     private final Map<UUID, String> naming = new java.util.concurrent.ConcurrentHashMap<>();   // 채팅은 다른 스레드
     private final Map<UUID, Long> namingUntil = new java.util.concurrent.ConcurrentHashMap<>();
     private final Random rng = new Random();
+    private PetRuntime pets;
+
+    public void pets(PetRuntime r) {
+        this.pets = r;
+    }
 
     public SculptingRuntime(Plugin plugin, GameServices s, Async async, ItemCodec codec, ArtworkRuntime art, Function<UUID, String> regionOf, Consumer<Player> deliver) {
         this.plugin = plugin;
@@ -114,10 +119,22 @@ public final class SculptingRuntime implements Listener {
             if (slot >= 54) break;
             ArtworkKind k = s.artworks.kind(a.kind());
             List<String> lore = List.of(Ui.gradeColor(a.quality()) + ArtGrade.name(a.quality()) + " &7" + a.quality() / 10, "&7" + k.name() + " · 감상 " + a.views(),
-                    "&8" + a.world() + " " + a.x() + ", " + a.y() + ", " + a.z() + (ArtworkService.moonlit(a) ? " &b☾" : ""), "&8클릭: 이름 · 쉬프트: 허물기");
+                    "&8" + a.world() + " " + a.x() + ", " + a.y() + ", " + a.z() + (ArtworkService.moonlit(a) ? " &b☾" : ""), ArtworkService.livingSpecies(a.kind()) != null ? "&8클릭: 이름 · 쉬프트: 허물기 · 우클릭: 생명 불어넣기" : "&8클릭: 이름 · 쉬프트: 허물기");
             m.set(slot++, Menu.icon(icon(a.kind()), "&f「" + a.title() + "」", lore), ev -> {
                 p.closeInventory();
-                if (ev.isShiftClick()) {
+                if (ev.isRightClick() && !ev.isShiftClick() && ArtworkService.livingSpecies(a.kind()) != null) {   // 조각 생명술: 작품이 깨어나 동료로
+                    async.run("art-awaken", () -> s.artworks.awaken(uuid, a.id()), pet -> {
+                        art.removed(a);
+                        World w = Bukkit.getWorld(a.world());
+                        if (w != null) {
+                            Location at = new Location(w, a.x() + 0.5, a.y() + 1, a.z() + 0.5);
+                            w.spawnParticle(Particle.END_ROD, at, 120, 0.8, 1.5, 0.8, 0.06);
+                            w.playSound(at, Sound.BLOCK_BEACON_ACTIVATE, 1f, 1.2f);
+                        }
+                        p.sendTitle(Ui.c("&b「" + pet.name() + "」"), Ui.c("&7깨어났다 · Lv." + pet.level()), 5, 60, 15);
+                        if (pets != null) pets.summon(p, pet.id());
+                    }, p);
+                } else if (ev.isShiftClick()) {
                     async.run("art-remove", () -> s.artworks.remove(uuid, a.id(), false), gone -> {
                         art.removed(gone);
                         deliver.accept(p);

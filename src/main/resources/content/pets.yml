@@ -24,3 +24,10 @@ species:
                 health: 14, attack: 2, health_per_level: 2,   attack_per_level: 0.3, skills: {1: MEND, 15: GUARD}}
   frost_wolf:  {name: 서리 늑대,   entity: WOLF,    tame: {level: 28, food: [meat],       chance: 0.10}, habitat: [frozen, mist],
                 health: 34, attack: 8, health_per_level: 4,   attack_per_level: 1.0, skills: {1: BITE, 5: HOWL, 15: GUARD, 25: SPOT}}
+  # ---- 조각 생명체 (조각 생명술 · 대형 조각 깨우기로만 생긴다 — 들에서 길들일 수 없다). 먹이는 돌 · 대리석 같은 조각 재료
+  living_bust:   {name: 살아난 흉상,   entity: ALLAY,       tame: {level: 31, food: [stone, marble], chance: 0.01}, habitat: [sculpture_only],
+                  health: 12, attack: 0, health_per_level: 2,   attack_per_level: 0,   skills: {1: MEND, 8: SPOT, 16: SCAVENGE}}
+  living_statue: {name: 살아난 입상,   entity: IRON_GOLEM,  tame: {level: 31, food: [stone, marble, metal], chance: 0.01}, habitat: [sculpture_only],
+                  health: 40, attack: 6, health_per_level: 5,   attack_per_level: 0.9, skills: {1: GUARD, 6: BITE, 18: SPOT}}
+  living_beast:  {name: 살아난 짐승상, entity: WOLF,        tame: {level: 31, food: [stone, marble], chance: 0.01}, habitat: [sculpture_only],
+                  health: 26, attack: 5, health_per_level: 3.5, attack_per_level: 0.8, skills: {1: BITE, 8: HOWL, 18: GUARD}}

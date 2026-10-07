@@ -93,6 +93,14 @@ public final class SecretArtRuntime implements Listener {
         }, p);
     }
 
+    private final Map<UUID, String> lastPet = new java.util.concurrent.ConcurrentHashMap<>();
+    private io.versaera.platform.bukkit.world.PetRuntime pets;
+
+    /** 조각 생명술로 깨어난 동료를 바로 부르기 위해 */
+    public void pets(io.versaera.platform.bukkit.world.PetRuntime r) {
+        this.pets = r;
+    }
+
     public void cast(Player p, String artId) {
         String key = p.getUniqueId() + ":" + artId;
         long now = System.currentTimeMillis();
@@ -105,27 +113,29 @@ public final class SecretArtRuntime implements Listener {
         async.run("art-cast", () -> {
             int lv = s.arts.castLevel(id, artId);
             int quality = 0;
-            if ("COMPANION".equals(s.arts.art(artId).effect())) {   // 조각품을 바친다
+            String newPet = null;
+            if ("COMPANION".equals(s.arts.art(artId).effect())) {   // 조각품을 바쳐 계속 함께하는 조각 생명체로
                 var it = hand == null ? null : s.items.find(hand).filter(x -> x.custody().ownedBy(id) && s.items.types().get(x.typeId()).hasTag("sculpture")
                         && !s.items.types().get(x.typeId()).hasTag("relic")).orElse(null);
                 if (it == null) throw io.versaera.domain.common.DomainException.of("art.need_sculpture", "생명을 불어넣을 조각품을 손에 들어야 한다");
                 quality = it.quality();
+                String species = it.typeId().equals("statuette") ? "living_statue" : "living_beast";
+                newPet = s.pets.awaken(id, species, s.items.types().get(it.typeId()).name(), quality).id();
                 s.items.destroy(hand, id, "조각 생명술", "art-life:" + hand);
             }
+            lastPet.put(p.getUniqueId(), newPet == null ? "" : newPet);
             return new int[]{lv, quality, s.growth.statPoints(id, "artistry")};
         }, r -> {
             if (!p.isOnline()) return;
             SecretArt a = s.arts.art(artId);
             cooldown.put(key, System.currentTimeMillis() + a.cooldownMs());
             switch (a.effect()) {
-                case "COMPANION" -> {
+                case "COMPANION" -> {   // 조각품이 깨어나 펫이 된다 (/펫 으로 부르고 · 이름 짓고 · 함께 자란다)
                     p.getInventory().setItemInMainHand(null);
-                    IronGolem g = p.getWorld().spawn(p.getLocation().add(p.getLocation().getDirection().setY(0).normalize().multiply(2)), IronGolem.class);
-                    g.setPlayerCreated(true);
-                    g.setPersistent(false);
-                    g.setCustomName(p.getName() + "의 조각 생명체");
-                    g.setCustomNameVisible(true);
-                    expire(g, (3 + r[1] / 100) * 60);
+                    String petId = lastPet.remove(p.getUniqueId());
+                    p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 80, 0.8, 1.2, 0.8, 0.05);
+                    p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.BLOCK_BEACON_ACTIVATE, 1f, 1.4f);
+                    if (pets != null && petId != null && !petId.isEmpty()) pets.summon(p, petId);
                 }
                 case "TRANSFORM" -> {
                     int t = 5 * 60 * 20;
