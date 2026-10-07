@@ -37,6 +37,11 @@ public final class Medieval {
             };
         }
 
+        /** 지붕만 바꾼 팔레트 (중요한 건물은 지붕 색으로 멀리서도 알아보게) */
+        public Palette withRoof(String r) {
+            return new Palette(foundation, stone, frameWood, frameLog, plaster, r, floor, door, trapdoor, glass, road, flat, accent);
+        }
+
         String log(String axis) {
             return frameLog + "[axis=" + axis + "]";
         }
@@ -377,6 +382,118 @@ public final class Medieval {
         b.set(mid, 2, z2 - 2, "candle[candles=3,lit=true]");
         for (int z = tz2 + 2; z < z2 - 3; z += 2) for (int x : new int[]{mid - 3, mid - 2, mid + 2, mid + 3}) b.set(x, 1, z, "dark_oak_stairs[facing=south,half=bottom,shape=straight]");
         for (int z = tz2 + 3; z < z2 - 1; z += 5) b.set(mid, wallTop, z, "lantern[hanging=true]");
+        return b;
+    }
+
+    // ------------------------------------------------------------------ 눈에 띄게: 깃발 · 깃대
+    /** 앞면(z = 1 벽) 문 양옆에 세로 깃발 두 장 (벽걸이 현수막) */
+    static void doorBanners(Blueprint b, int doorX, String color) {
+        for (int dx : new int[]{-2, 2}) b.set(doorX + dx, 3, 0, color + "_wall_banner[facing=north]");
+    }
+
+    /** 광장 깃대 (시작 도시): 돌 받침 + 높은 기둥 + 깃발 */
+    public static Blueprint flagpole(String color, int height) {
+        Blueprint b = new Blueprint(1, height + 1, 1);
+        flagpole(b, 0, 0, 0, height, color);
+        return b;
+    }
+
+    /** 깃대: (x, z) 에 바닥부터 height 칸 울타리 기둥 + 꼭대기 깃발 */
+    static void flagpole(Blueprint b, int x, int z, int y0, int height, String color) {
+        b.set(x, y0, z, "stone_bricks");
+        for (int y = y0 + 1; y < y0 + height; y++) b.set(x, y, z, "spruce_fence");
+        b.set(x, y0 + height, z, color + "_banner[rotation=8]");
+    }
+
+    /** 여관 · 대장간 · 성당에 깃발을 달아 멀리서도 알아보게 */
+    public static Blueprint tavernMarked(Palette p, SplittableRandom rng) {
+        Blueprint b = tavern(p.flat() ? p : p.withRoof("mangrove"), rng).taller(4);
+        doorBanners(b, (1 + 11) / 2, "red");
+        flagpole(b, 0, 0, 0, 14, "red");
+        return b;
+    }
+
+    public static Blueprint smithyMarked(Palette p, SplittableRandom rng) {
+        Blueprint b = smithy(p, rng).taller(3);
+        flagpole(b, 10, 0, 0, 10, "black");
+        b.set(1, 3, 0, "black_wall_banner[facing=north]");   // 앞이 트여 있어 모서리 기둥에 건다
+        b.set(9, 3, 0, "black_wall_banner[facing=north]");
+        return b;
+    }
+
+    /**
+     * 길드 회관 (모험가 · 주민 관청): 큰 3층 집 + 지붕을 뚫고 오르는 4×4 시계탑(꼭대기 깃발) + 파란 깃발.
+     * 지붕은 청록(구리) — 도시에서 가장 눈에 띄는 지붕
+     */
+    public static Blueprint guildHall(Palette p, SplittableRandom rng) {
+        Palette q = p.flat() ? p : p.withRoof("warped".equals(p.roof()) ? "cherry" : "warped");
+        Blueprint b = house(q, 11, 9, p.flat() ? 2 : 3, rng);
+        int extra = 14;
+        b = b.taller(extra);
+        int cx = 5, cz = 4, base = 4 * (p.flat() ? 2 : 3), top = b.h - 4;
+        for (int y = base; y <= top - 4; y++)
+            for (int x = cx - 1; x <= cx + 2; x++)
+                for (int z = cz - 1; z <= cz + 2; z++) {
+                    boolean edge = x == cx - 1 || x == cx + 2 || z == cz - 1 || z == cz + 2;
+                    boolean corner = (x == cx - 1 || x == cx + 2) && (z == cz - 1 || z == cz + 2);
+                    String m = corner ? q.log("y") : edge ? "stone_bricks" : "air";
+                    if (edge && !corner && y == top - 7) m = "glass";   // 탑 꼭대기 네 면 창
+                    b.set(x, y, z, m);
+                }
+        // 뾰족 지붕 (계단 두 단 + 꼭대기)
+        for (int i = 0; i < 2; i++) {
+            int y = top - 3 + i;
+            for (int x = cx - 1 + i; x <= cx + 2 - i; x++)
+                for (int z = cz - 1 + i; z <= cz + 2 - i; z++) {
+                    String face = z == cz - 1 + i ? "south" : z == cz + 2 - i ? "north" : x == cx - 1 + i ? "east" : "west";
+                    boolean edge = x == cx - 1 + i || x == cx + 2 - i || z == cz - 1 + i || z == cz + 2 - i;
+                    b.set(x, y, z, edge ? stairs(q.roofStairs(), face, false) : q.roofFull());
+                }
+        }
+        b.set(cx, top - 1, cz, q.roofFull());
+        for (int y = top; y < b.h - 1; y++) b.set(cx, y, cz, "spruce_fence");
+        b.set(cx, b.h - 1, cz, "blue_banner[rotation=8]");
+        doorBanners(b, 5, "blue");
+        return b;
+    }
+
+    /** 시장 회관 (경매장): 기둥과 아치로 사방이 트인 큰 지붕 아래 노점 줄 · 상자 · 저울, 노란 깃발 */
+    public static Blueprint marketHall(Palette p, SplittableRandom rng) {
+        int W = 13, D = 11;
+        Palette q = p.flat() ? p : p.withRoof("spruce".equals(p.roof()) ? "dark_oak" : "spruce");
+        Blueprint b = new Blueprint(W + 2, 14, D + 2);
+        int x1 = 1, x2 = W, z1 = 1, z2 = D;
+        for (int x = x1; x <= x2; x++)
+            for (int z = z1; z <= z2; z++) {
+                boolean edge = x == x1 || x == x2 || z == z1 || z == z2;
+                b.set(x, 0, z, (x + z) % 2 == 0 ? "polished_andesite" : "stone_bricks");
+                boolean pillar = edge && ((x - x1) % 4 == 0 || x == x2) && ((z - z1) % 5 == 0 || z == z2) || (edge && (x == x1 || x == x2) && (z == z1 || z == z2));
+                boolean pillarSide = edge && (((z == z1 || z == z2) && (x - x1) % 4 == 0) || ((x == x1 || x == x2) && (z - z1) % 5 == 0));
+                for (int y = 1; y <= 4; y++) b.set(x, y, z, pillar || pillarSide ? "stone_bricks" : "air");
+                if (edge && !(pillar || pillarSide)) b.set(x, 4, z, stairs("stone_brick_stairs", z == z1 ? "south" : z == z2 ? "north" : x == x1 ? "east" : "west", true));   // 아치
+                b.set(x, 5, z, edge ? q.log(z == z1 || z == z2 ? "x" : "z") : q.floor());
+            }
+        for (int i = 0; ; i++) {
+            int zn = z1 - 1 + i, zs = z2 + 1 - i, y = 6 + i;
+            if (zn > zs || y >= b.h - 1) break;
+            for (int x = x1 - 1; x <= x2 + 1; x++) {
+                if (zn == zs) { b.set(x, y, zn, q.roofSlab() + "[type=bottom]"); continue; }
+                b.set(x, y, zn, stairs(q.roofStairs(), "south", false));
+                b.set(x, y, zs, stairs(q.roofStairs(), "north", false));
+            }
+            for (int x : new int[]{x1, x2}) for (int z = Math.max(z1, zn + 1); z <= Math.min(z2, zs - 1); z++) b.set(x, y, z, q.roofFull());
+            if (zn + 1 >= zs) break;
+        }
+        String[] goods = {"barrel[facing=up]", "hay_block", "chest[facing=south]", "melon", "pumpkin", "composter", "smoker[facing=south,lit=false]"};
+        for (int x = x1 + 2; x <= x2 - 2; x += 4)
+            for (int z : new int[]{z1 + 3, z2 - 3}) {
+                b.set(x, 1, z, goods[rng.nextInt(goods.length)]);
+                b.set(x + 1, 1, z, goods[rng.nextInt(goods.length)]);
+                b.set(x, 4, z, "lantern[hanging=true]");
+            }
+        b.set((x1 + x2) / 2, 1, (z1 + z2) / 2, "lectern[facing=north,has_book=false]");
+        flagpole(b, 0, 0, 0, 12, "yellow");
+        flagpole(b, W + 1, 0, 0, 12, "yellow");
         return b;
     }
 

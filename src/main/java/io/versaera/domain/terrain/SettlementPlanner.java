@@ -92,6 +92,11 @@ public final class SettlementPlanner {
      * @param keepClear 비워 둘 점 (NPC 일과 장소) — {x, z}
      */
     public static SettlementPlanner plan(RegionIndex regions, String world, long seed, List<int[]> keepClear) {
+        return plan(regions, world, seed, keepClear, Set.of());
+    }
+
+    /** @param startCities 시작 도시 지역 — 광장에 높은 깃대를 더 세워 멀리서도 보이게 */
+    public static SettlementPlanner plan(RegionIndex regions, String world, long seed, List<int[]> keepClear, Set<String> startCities) {
         List<Structure> out = new ArrayList<>();
         for (Region r : regions.all()) {
             if (!r.world().equals(world)) continue;
@@ -103,7 +108,7 @@ public final class SettlementPlanner {
             Palette pal = Palette.of(r, regions);
             int cx = (r.minX() + r.maxX()) / 2, cz = (r.minZ() + r.maxZ()) / 2;
             Structure lm = landmark(r, st, cx, cz, town);
-            if (town) town(out, r, pal, cx, cz, rng, keepClear, lm);
+            if (town) town(out, r, pal, cx, cz, rng, keepClear, lm, startCities.contains(r.id()));
             if (lm != null) out.add(lm);   // 마지막에 그려서 길 · 광장 위에 선다
             if (t.contains("wall")) out.add(new LongWall(r, st));   // 페드라 성벽 · 알 수 없는 장벽 · 추방의 장벽
         }
@@ -141,7 +146,7 @@ public final class SettlementPlanner {
      * 중세 도시: 분수 · 노점 · 가로등이 있는 광장, 돌을 섞어 깐 길, 길을 따라 늘어선 목조 골조 집(문은 길 쪽),
      * 광장 둘레에 성당 · 여관 · 대장간, 바깥에 탑과 성문이 있는 성벽 (설계도 = Medieval)
      */
-    private static void town(List<Structure> out, Region r, Palette p, int cx, int cz, SplittableRandom rng, List<int[]> keepClear, Structure landmark) {
+    private static void town(List<Structure> out, Region r, Palette p, int cx, int cz, SplittableRandom rng, List<int[]> keepClear, Structure landmark, boolean start) {
         int radius = townGrid(r)[2], n = radius / 32;
         List<Structure> roads = new ArrayList<>();
         Structure plaza = new Plaza(r.id(), cx, cz, 10, p);
@@ -177,10 +182,21 @@ public final class SettlementPlanner {
         // 광장 둘레의 큰 건물: 북서 칸 = 성당 (문이 남쪽 큰길), 남서 칸 = 여관, 남동 칸 = 대장간 (문이 북쪽 큰길)
         Blueprint chapel = Medieval.chapel(p, rng).rotated(2);
         tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 28, cz - 3 - chapel.d, chapel, p));
-        Blueprint tavern = Medieval.tavern(p, rng);
+        Blueprint tavern = Medieval.tavernMarked(p, rng);
         tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 15 - tavern.w, cz + 3, tavern, p));
-        Blueprint smithy = Medieval.smithy(p, rng);
+        Blueprint smithy = Medieval.smithyMarked(p, rng);
         tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx + 16, cz + 3, smithy, p));
+        // 광장 남쪽: 길드 회관 (시계탑 · 파란 깃발) · 시장 회관 (경매장, 노란 깃발)
+        Blueprint guild = Medieval.guildHall(p, rng);
+        tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 3 - guild.w, cz + 14, guild, p));
+        Blueprint market = Medieval.marketHall(p, rng);
+        tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx + 4, cz + 14, market, p));
+        // 시작 도시: 광장 네 곳에 높은 깃대 (도시 색)
+        if (start) {
+            String color = p.accent().replace("_wool", "");
+            for (int sx : new int[]{-4, 4}) for (int sz : new int[]{-9, 9})
+                tryPlace(placed, free, new Built(Kind.DECOR, r.id(), cx + sx, cz + sz, Medieval.flagpole(color, 16), cx, cz, p));
+        }
         // 집: 칸마다 북쪽 줄(문 = 북쪽 길) · 남쪽 줄(문 = 남쪽 길)로 늘어선다. 가운데는 뒷마당
         for (int gx = -n; gx < n; gx++)
             for (int gz = -n; gz < n; gz++) {

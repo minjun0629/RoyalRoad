@@ -511,7 +511,9 @@ public final class VersaEraPlugin extends JavaPlugin {
                 : ContentBundle.fromClasspath(getClassLoader());
         List<int[]> npcSpots = new java.util.ArrayList<>();
         c.places().values().forEach(m -> m.values().forEach(p -> npcSpots.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
-        return new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots);
+        java.util.Set<String> starts = new java.util.HashSet<>();
+        for (var city : c.origins().cities()) starts.add(city.region());
+        return new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots, starts);
     }
 
     private static InputStream open(File f) {
