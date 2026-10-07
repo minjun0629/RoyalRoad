@@ -394,6 +394,7 @@ public final class VersaEraPlugin extends JavaPlugin {
                     getConfig().getBoolean("restore.drops", false), b -> realmR.ownerAt(b).isPresent(), g::node);
             Bukkit.getPluginManager().registerEvents(restore, this);
         }
+        Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.ServerIcon(getLogger()), this);
         if (getConfig().getBoolean("field-mobs.enabled", true)) {
             fieldMobs = new io.versaera.platform.bukkit.world.FieldMobRuntime(this, services);
             Bukkit.getPluginManager().registerEvents(fieldMobs, this);
