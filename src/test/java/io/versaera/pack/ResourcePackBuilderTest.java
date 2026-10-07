@@ -25,6 +25,15 @@ class ResourcePackBuilderTest {
         return m;
     }
 
+
+    /** 모델의 상자 좌표(from · to)만 — uv · 회전 각도는 빼고 */
+    private static java.util.List<Double> boxCoords(String model) {
+        java.util.List<Double> out = new java.util.ArrayList<>();
+        var m = java.util.regex.Pattern.compile("\"(?:from|to)\":\\[([^\\]]*)\\]").matcher(model);
+        while (m.find()) for (String v : m.group(1).split(",")) out.add(Double.parseDouble(v));
+        return out;
+    }
+
     @Test
     void packHasModelsForEveryBossAndIsDeterministic() throws Exception {
         ContentBundle c = ContentBundle.fromClasspath(getClass().getClassLoader());
@@ -46,11 +55,7 @@ class ResourcePackBuilderTest {
             assertTrue(ids.add(id), "모델 번호가 겹치지 않는다");
             assertTrue(paper.contains("\"custom_model_data\":" + id));
             String model = new String(files.get("assets/versaera/models/" + boss.model() + ".json"), StandardCharsets.UTF_8);
-            for (String num : model.replaceAll("[^0-9.,\\-\\[\\]]", " ").split("[\\[\\], ]+"))
-                if (!num.isBlank() && num.matches("-?[0-9.]+")) {
-                    double v = Double.parseDouble(num);
-                    assertTrue(v >= -16 && v <= 32, "모델 좌표는 -16 ~ 32: " + v);
-                }
+            for (double v : boxCoords(model)) assertTrue(v >= -16 && v <= 32, "모델 좌표는 -16 ~ 32: " + v);
         }
         assertNotNull(ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/ui/menu6.png"))));
         for (String key : ResourcePackBuilder.UI_ICONS) {
@@ -109,11 +114,7 @@ class ResourcePackBuilderTest {
         assertTrue(new String(files.get("assets/minecraft/models/item/bow.json"), StandardCharsets.UTF_8).contains("bow_pulling_2"), "활 당기기 모습은 그대로");
         for (var fb : c.fieldBosses()) for (var part : ModelKit.rig(fb.look())) {
             String model = new String(files.get("assets/versaera/models/fboss/" + fb.id() + "/" + part.name() + ".json"), StandardCharsets.UTF_8);
-            for (String num : model.replaceAll("\"uv\":\\[[^]]*]", "").replaceAll("[^0-9.,\\-\\[\\]]", " ").split("[\\[\\], ]+"))
-                if (!num.isBlank() && num.matches("-?[0-9.]+")) {
-                    double val = Double.parseDouble(num);
-                    assertTrue(val >= -16 && val <= 32, "모델 좌표는 -16 ~ 32: " + fb.id() + " " + val);
-                }
+            for (double val : boxCoords(model)) assertTrue(val >= -16 && val <= 32, "모델 좌표는 -16 ~ 32: " + fb.id() + " " + val);
             assertNotNull(ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/fboss/" + fb.id() + ".png"))));
             assertTrue(pack.models().containsKey("fboss/" + fb.id() + "/" + part.name()));
         }
