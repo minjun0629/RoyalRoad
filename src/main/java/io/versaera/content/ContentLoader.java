@@ -162,7 +162,8 @@ public final class ContentLoader {
             for (String k : list(m, "kinds")) kinds.add(io.versaera.domain.item.ItemOptions.Kind.valueOf(k));
             return new io.versaera.domain.fieldboss.FieldBoss(id, req(m, "name"), req(m, "entity"), req(m, "region"), d(m, "hp", 100), d(m, "damage", 6),
                     i(m, "respawn_minutes", 60), new LinkedHashSet<>(list(m, "mechanics")), str(m, "minion", null), kinds, drops,
-                    reward(m.get("reward")), str(m, "description", ""), str(m, "source", "CANON"));
+                    reward(m.get("reward")), str(m, "description", ""), str(m, "source", "CANON"),
+                    str(m, "look", "KNIGHT"), d(m, "size", 2));
         });
     }
 

@@ -63,7 +63,7 @@
 | NAT-01 | 국가 · 황제 | CANON | **IMPLEMENTED** | RealmServiceTest |
 | LORE-01 | 연대기 · 신 목록 | CANON | **IMPLEMENTED** | CanonDomainTest |
 | UI-01 | 전용 MMORPG UI | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest |
-| RP-01 | 리소스팩 (코드로 생성 · 배포) | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest, ExternalPackTest |
+| RP-01 | 리소스팩 (아이템 · 갑옷 · 보스 · UI 전부 코드로 생성 · 배포) | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest, ExternalPackTest |
 | SRV-01 | 실제 Paper 서버 테스트 | ORIGINAL | **BLOCKED** | — |
 
 상태 합계: BLOCKED 1 · IMPLEMENTED 37

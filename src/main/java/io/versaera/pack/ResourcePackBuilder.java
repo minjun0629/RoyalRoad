@@ -24,6 +24,10 @@ import java.util.zip.ZipOutputStream;
  *   <li>모델은 종이(paper)의 CustomModelData 로 연결 (번호 = PackIds.modelData)</li>
  *   <li>UI 아이콘 16종(의뢰 · 상점 · 길드 · 경매 …): 종이 CustomModelData (번호 = PackIds.modelData("ui/&lt;키&gt;"))</li>
  *   <li>UI: 기본 폰트에 사설 영역 글자(U+E000~)로 메뉴 배경 · 뒤로 당기기 공백을 넣는다 → 상자 창 제목에 배경을 깐다</li>
+ *   <li>아이템: 모든 아이템 종류의 16×16 아이콘 ({@link PixelArt}) — 바닐라 재질 모델에 CustomModelData 덮어쓰기 (번호 = PackIds.item)</li>
+ *   <li>입은 갑옷: 갑옷 장식(trim) 무늬로 아이템마다 다른 겉모습 ({@link ArmorLooks}, 데이터팩과 짝)</li>
+ *   <li>필드 보스: 모양 템플릿(기사 · 리치 · 악마 · 용 · 짐승 · 골렘 · 히드라 · 불도마뱀 · 비행체 · 뱀파이어) 큐브 모델 ({@link ModelKit})</li>
+ *   <li>몬스터 머리: 철인의 쇠 가면</li>
  *   <li>결과는 결정적(같은 콘텐츠 = 같은 바이트 = 같은 SHA-1) → 클라이언트 캐시가 잘 맞는다</li>
  * </ul>
  * Minecraft 1.20.1 = pack_format 15.
@@ -64,10 +68,139 @@ public final class ResourcePackBuilder {
             models.put(model, id);
             b.uiIcon(key);
         }
-        b.paperOverrides(models);
+        // 필드 보스 · 몬스터 머리 (종이)
+        for (var fb : content.fieldBosses()) {
+            String model = "fboss/" + fb.id();
+            put(models, model);
+            b.fieldBossModel(fb);
+        }
+        put(models, "mob/iron_mask");
+        b.text("assets/versaera/models/mob/iron_mask.json", ModelKit.json(ModelKit.ironMask(), "mob/iron_mask",
+                "{\"head\":{\"translation\":[0,-6.5,0],\"scale\":[1.1,1.1,1.1]},\"fixed\":{\"scale\":[1,1,1]}}"));
+        b.png("assets/versaera/textures/mob/iron_mask.png", ModelKit.texture("iron_mask", new Color(150, 154, 162), new Color(110, 80, 50),
+                new Color(30, 26, 30), new Color(90, 92, 100), "metal"));
+        // 아이템: 바닐라 재질마다 덮어쓰기 목록
+        Map<String, Map<String, Integer>> byMaterial = new TreeMap<>();
+        byMaterial.put("PAPER", models);
+        Map<String, Integer> all = new TreeMap<>(models);
+        for (var t : content.items()) {
+            if (!modeled(t)) continue;
+            String model = "item/" + t.id();
+            int id = PackIds.item(t.id());
+            if (all.containsValue(id)) throw new IllegalStateException("모델 번호 충돌: " + model);
+            all.put(model, id);
+            byMaterial.computeIfAbsent(t.material(), k -> new TreeMap<>()).put(model, id);
+            b.itemModel(t);
+        }
+        for (var e : byMaterial.entrySet()) b.vanillaOverrides(e.getKey(), e.getValue());
+        // 입은 갑옷 (장식 무늬)
+        Map<String, String> looks = ArmorLooks.looks(content.items());
+        Map<String, String> lookMaterial = new TreeMap<>();
+        for (var t : content.items()) if (looks.containsKey(t.id())) lookMaterial.putIfAbsent(looks.get(t.id()), t.material());
+        for (var e : lookMaterial.entrySet()) {
+            b.png("assets/versaera/textures/trims/models/armor/" + e.getKey() + ".png", ArmorLooks.texture(e.getKey(), e.getValue(), false));
+            b.png("assets/versaera/textures/trims/models/armor/" + e.getKey() + "_leggings.png", ArmorLooks.texture(e.getKey(), e.getValue(), true));
+        }
+        if (!lookMaterial.isEmpty()) b.text("assets/minecraft/atlases/armor_trims.json", ArmorLooks.atlas(lookMaterial.keySet()));
+        models = all;
         b.uiFont();
         b.png("pack.png", icon());
         return b.zip(models);
+    }
+
+    private static void put(Map<String, Integer> models, String model) {
+        int id = PackIds.modelData(model);
+        if (models.containsValue(id)) throw new IllegalStateException("모델 번호 충돌: " + model);
+        models.put(model, id);
+    }
+
+    // ------------------------------------------------------------------ 아이템 모델
+    /** 리소스팩 모델을 붙이지 않는 재질 — 바닐라 모델이 특수(엔티티 렌더러)해서 덮어쓰면 깨진다 */
+    public static final Set<String> UNMODELED = Set.of("SHIELD", "TRIDENT", "CROSSBOW", "COMPASS", "CLOCK", "GOAT_HORN", "PLAYER_HEAD");
+    static final Set<String> BLOCK_ITEMS = Set.of("OAK_LOG", "SPRUCE_LOG", "CALCITE", "SANDSTONE", "SAND", "WHITE_WOOL");
+    static final Set<String> HANDHELD = Set.of("STICK", "BLAZE_ROD", "BONE");
+
+    /** 이 아이템에 리소스팩 모델(CustomModelData)을 붙이는가 */
+    public static boolean modeled(io.versaera.domain.item.ItemType t) {
+        return !UNMODELED.contains(t.material());
+    }
+
+    private void itemModel(io.versaera.domain.item.ItemType t) {
+        String kind = PixelArt.kind(t);
+        String parent = switch (t.material()) {
+            case "BOW" -> "minecraft:item/bow";
+            case "FISHING_ROD" -> "minecraft:item/handheld_rod";
+            default -> PixelArt.handheld(kind) ? "minecraft:item/handheld" : "minecraft:item/generated";
+        };
+        text("assets/versaera/models/item/" + t.id() + ".json", "{\"parent\":\"" + parent + "\",\"textures\":{\"layer0\":\"versaera:item/" + t.id() + "\"}}");
+        png("assets/versaera/textures/item/" + t.id() + ".png", PixelArt.item(t));
+    }
+
+    /** 바닐라 아이템 모델을 그대로 두고 CustomModelData 덮어쓰기만 더한다 */
+    private void vanillaOverrides(String material, Map<String, Integer> models) {
+        String id = material.toLowerCase(Locale.ROOT);
+        String base;
+        List<String> pre = new ArrayList<>();   // 바닐라의 원래 overrides (먼저)
+        if (BLOCK_ITEMS.contains(material)) base = "\"parent\":\"minecraft:block/" + id + "\"";
+        else if (material.equals("BOW")) {
+            base = "\"parent\":\"minecraft:item/generated\",\"textures\":{\"layer0\":\"minecraft:item/bow\"},\"display\":{"
+                    + "\"thirdperson_righthand\":{\"rotation\":[-80,260,-40],\"translation\":[-1,-2,2.5],\"scale\":[0.9,0.9,0.9]},"
+                    + "\"thirdperson_lefthand\":{\"rotation\":[-80,-280,40],\"translation\":[-1,-2,2.5],\"scale\":[0.9,0.9,0.9]},"
+                    + "\"firstperson_righthand\":{\"rotation\":[0,-90,25],\"translation\":[1.13,3.2,1.13],\"scale\":[0.68,0.68,0.68]},"
+                    + "\"firstperson_lefthand\":{\"rotation\":[0,90,-25],\"translation\":[1.13,3.2,1.13],\"scale\":[0.68,0.68,0.68]}}";
+            pre.add("{\"predicate\":{\"pulling\":1},\"model\":\"minecraft:item/bow_pulling_0\"}");
+            pre.add("{\"predicate\":{\"pulling\":1,\"pull\":0.65},\"model\":\"minecraft:item/bow_pulling_1\"}");
+            pre.add("{\"predicate\":{\"pulling\":1,\"pull\":0.9},\"model\":\"minecraft:item/bow_pulling_2\"}");
+        } else if (material.equals("FISHING_ROD")) {
+            base = "\"parent\":\"minecraft:item/handheld_rod\",\"textures\":{\"layer0\":\"minecraft:item/fishing_rod\"}";
+            pre.add("{\"predicate\":{\"cast\":1},\"model\":\"minecraft:item/fishing_rod_cast\"}");
+        } else if (material.startsWith("LEATHER_")) {
+            base = "\"parent\":\"minecraft:item/generated\",\"textures\":{\"layer0\":\"minecraft:item/" + id + "\",\"layer1\":\"minecraft:item/" + id + "_overlay\"}";
+        } else if (material.equals("POTION")) {
+            base = "\"parent\":\"minecraft:item/generated\",\"textures\":{\"layer0\":\"minecraft:item/potion_overlay\",\"layer1\":\"minecraft:item/potion\"}";
+        } else if (material.equals("FERN") || material.equals("DEAD_BUSH")) {
+            base = "\"parent\":\"minecraft:item/generated\",\"textures\":{\"layer0\":\"minecraft:block/" + id + "\"}";
+        } else {
+            boolean hand = HANDHELD.contains(material) || material.endsWith("_SWORD") || material.endsWith("_AXE") || material.endsWith("_PICKAXE")
+                    || material.endsWith("_SHOVEL") || material.endsWith("_HOE");
+            base = "\"parent\":\"minecraft:item/" + (hand ? "handheld" : "generated") + "\",\"textures\":{\"layer0\":\"minecraft:item/" + id + "\"}";
+        }
+        List<Map.Entry<String, Integer>> list = new ArrayList<>(models.entrySet());
+        list.sort(Map.Entry.comparingByValue());   // 번호 오름차순
+        StringBuilder o = new StringBuilder(String.join(",", pre));
+        for (Map.Entry<String, Integer> e : list) {
+            if (o.length() > 0) o.append(',');
+            o.append("{\"predicate\":{\"custom_model_data\":").append(e.getValue()).append("},\"model\":\"versaera:").append(e.getKey()).append("\"}");
+        }
+        text("assets/minecraft/models/item/" + id + ".json", "{" + base + ",\"overrides\":[" + o + "]}");
+    }
+
+    // ------------------------------------------------------------------ 필드 보스 모델
+    private void fieldBossModel(io.versaera.domain.fieldboss.FieldBoss fb) {
+        var kinds = fb.kinds();
+        boolean undead = kinds.contains(io.versaera.domain.item.ItemOptions.Kind.UNDEAD), demon = kinds.contains(io.versaera.domain.item.ItemOptions.Kind.DEMON);
+        float h = (fb.id().hashCode() & 0xffff) / 65535f;
+        Color main, second, accent, dark;
+        String grain;
+        if (undead) {
+            main = new Color(212, 206, 188); second = new Color(70, 66, 82); accent = new Color(90, 230, 180); dark = new Color(40, 36, 48); grain = "bone";
+        } else if (demon) {
+            main = new Color(150, 32, 30); second = new Color(46, 30, 34); accent = new Color(255, 150, 40); dark = new Color(28, 20, 24); grain = "scale";
+        } else {
+            main = Color.getHSBColor(h, 0.5f, 0.6f); second = Color.getHSBColor((h + 0.08f) % 1f, 0.45f, 0.45f);
+            accent = new Color(255, 214, 90); dark = Color.getHSBColor(h, 0.4f, 0.25f); grain = fb.look().equals("GOLEM") ? "metal" : "scale";
+        }
+        if (fb.look().equals("KNIGHT") || fb.look().equals("VAMPIRE")) {
+            second = undead ? new Color(60, 58, 70) : new Color(170, 175, 186);
+            if (fb.look().equals("VAMPIRE")) accent = new Color(150, 10, 30);
+            grain = "metal";
+        }
+        if (fb.look().equals("CASTER")) grain = "cloth";
+        if (fb.look().equals("SALAMANDER")) { main = new Color(190, 70, 30); accent = new Color(255, 200, 60); }
+        String tex = "fboss/" + fb.id();
+        text("assets/versaera/models/fboss/" + fb.id() + ".json", ModelKit.json(ModelKit.template(fb.look()), tex,
+                "{\"fixed\":{\"scale\":[1,1,1]},\"head\":{\"scale\":[1,1,1]}}"));
+        png("assets/versaera/textures/fboss/" + fb.id() + ".png", ModelKit.texture(fb.id(), main, second, accent, dark, grain));
     }
 
     // ------------------------------------------------------------------ 보스 모델
@@ -157,22 +290,11 @@ public final class ResourcePackBuilder {
         return Math.max(0, Math.min(255, v));
     }
 
-    private void paperOverrides(Map<String, Integer> models) {
-        List<Map.Entry<String, Integer>> list = new ArrayList<>(models.entrySet());
-        list.sort(Map.Entry.comparingByValue());   // overrides 는 번호 오름차순이어야 한다
-        StringBuilder o = new StringBuilder();
-        for (Map.Entry<String, Integer> e : list) {
-            if (o.length() > 0) o.append(',');
-            o.append("{\"predicate\":{\"custom_model_data\":").append(e.getValue()).append("},\"model\":\"versaera:").append(e.getKey()).append("\"}");
-        }
-        text("assets/minecraft/models/item/paper.json",
-                "{\"parent\":\"minecraft:item/generated\",\"textures\":{\"layer0\":\"minecraft:item/paper\"},\"overrides\":[" + o + "]}");
-    }
-
     // ------------------------------------------------------------------ UI 아이콘 (메뉴 버튼)
     /** 메뉴 아이콘 키 — Menu.ui(key, …) 가 같은 키를 쓴다 */
     public static final List<String> UI_ICONS = List.of("quest", "quest_active", "shop", "gift", "news", "combat", "life", "guild", "money",
-            "auction", "sell", "stat", "map_known", "map_unknown", "member", "reputation");
+            "auction", "sell", "stat", "map_known", "map_unknown", "member", "reputation",
+            "arts", "fieldboss", "appraise", "bandage", "land", "castle", "nation", "party", "trial", "gods", "history", "character", "close", "job");
 
     private void uiIcon(String key) {
         text("assets/versaera/models/ui/" + key + ".json",
@@ -206,6 +328,20 @@ public final class ResourcePackBuilder {
             case "map_unknown" -> { g.setColor(new Color(90, 90, 100)); g.fillRect(2, 3, 12, 10); g.setColor(light); g.fillRect(6, 5, 4, 1); g.fillRect(10, 6, 1, 2); g.fillRect(8, 8, 2, 1); g.fillRect(8, 9, 1, 1); g.fillRect(8, 11, 1, 1); }   // 글꼴 없이 그린 "?" (JVM 마다 같은 그림)
             case "member" -> { g.setColor(light); g.fillOval(5, 2, 6, 6); g.setColor(blue); g.fillRoundRect(3, 8, 10, 7, 4, 4); }
             case "reputation" -> { g.setColor(blue); g.fillPolygon(new int[]{3, 13, 13, 8, 3}, new int[]{2, 2, 10, 14, 10}, 5); g.setColor(gold); g.fillRect(7, 5, 2, 5); }
+            case "arts" -> { g.setColor(new Color(110, 60, 150)); g.fillRect(3, 2, 10, 12); g.setColor(gold); g.fillRect(3, 2, 1, 12); g.fillPolygon(new int[]{8, 9, 11, 9, 10, 8, 6, 7, 5, 7}, new int[]{4, 6, 7, 8, 11, 9, 11, 8, 7, 6}, 10); }
+            case "fieldboss" -> { g.setColor(light); g.fillOval(3, 2, 10, 9); g.fillRect(5, 10, 6, 4); g.setColor(dark); g.fillRect(5, 6, 2, 2); g.fillRect(9, 6, 2, 2); g.fillRect(7, 9, 2, 1); g.setColor(red); g.fillRect(1, 1, 2, 2); g.fillRect(13, 1, 2, 2); }
+            case "appraise" -> { g.setColor(new Color(130, 90, 50)); for (int i = 0; i < 5; i++) g.fillRect(2 + i, 13 - i, 2, 2); g.setColor(steel); g.drawOval(6, 2, 8, 8); g.setColor(new Color(170, 220, 255)); g.fillOval(7, 3, 7, 7); }
+            case "bandage" -> { g.setColor(light); g.fillRect(2, 5, 12, 6); g.setColor(red); g.fillRect(7, 3, 2, 10); g.fillRect(4, 7, 8, 2); }
+            case "land" -> { g.setColor(green); g.fillRect(1, 11, 14, 4); g.setColor(new Color(130, 90, 50)); g.fillRect(5, 2, 1, 10); g.setColor(red); g.fillPolygon(new int[]{6, 13, 6}, new int[]{2, 4, 7}, 3); }
+            case "castle" -> { g.setColor(steel); g.fillRect(3, 6, 10, 9); for (int x = 3; x < 13; x += 3) g.fillRect(x, 3, 2, 3); g.setColor(dark); g.fillRect(7, 10, 2, 5); }
+            case "nation" -> { g.setColor(gold); g.fillRect(2, 8, 12, 5); for (int x = 2; x < 14; x += 4) g.fillPolygon(new int[]{x, x + 2, x + 4}, new int[]{8, 3, 8}, 3); g.setColor(red); g.fillRect(7, 9, 2, 2); }
+            case "party" -> { g.setColor(light); g.fillOval(2, 3, 5, 5); g.fillOval(9, 3, 5, 5); g.setColor(green); g.fillRoundRect(1, 8, 7, 7, 3, 3); g.setColor(blue); g.fillRoundRect(8, 8, 7, 7, 3, 3); }
+            case "trial" -> { g.setColor(new Color(170, 130, 80)); g.fillRect(7, 2, 2, 13); g.fillRect(3, 5, 10, 2); g.setColor(new Color(220, 200, 150)); g.fillOval(5, 1, 6, 5); g.setColor(red); g.fillOval(6, 8, 4, 4); }
+            case "gods" -> { g.setColor(gold); g.fillOval(4, 4, 8, 8); for (int i = 0; i < 8; i++) { double a = i * Math.PI / 4; g.fillRect(7 + (int) Math.round(Math.cos(a) * 6), 7 + (int) Math.round(Math.sin(a) * 6), 2, 2); } }
+            case "history" -> { g.setColor(new Color(120, 60, 40)); g.fillRect(3, 2, 10, 12); g.setColor(light); g.fillRect(5, 3, 7, 10); g.setColor(dark); for (int y = 5; y < 12; y += 2) g.drawLine(6, y, 10, y); }
+            case "character" -> { g.setColor(new Color(230, 190, 150)); g.fillOval(5, 1, 6, 6); g.setColor(blue); g.fillRect(4, 7, 8, 5); g.setColor(dark); g.fillRect(5, 12, 2, 3); g.fillRect(9, 12, 2, 3); }
+            case "job" -> { g.setColor(new Color(130, 90, 50)); g.fillRect(2, 6, 12, 8); g.setColor(new Color(170, 120, 70)); g.fillRect(2, 4, 12, 3); g.setColor(steel); g.fillRect(4, 1, 2, 5); g.fillRect(10, 2, 3, 3); }
+            case "close" -> { g.setColor(red); for (int i = 0; i < 10; i++) { g.fillRect(3 + i, 3 + i, 2, 2); g.fillRect(12 - i, 3 + i, 2, 2); } }
             default -> { g.setColor(gold); g.fillRect(4, 4, 8, 8); }
         }
         g.dispose();

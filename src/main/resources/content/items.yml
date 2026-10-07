@@ -113,7 +113,7 @@ items:
   dragon_bone:      {name: 용의 뼈,     category: MATERIAL, material: BONE,        weight: 3, tags: [bone, dragon]}
   dragon_scale:     {name: 용의 비늘,   category: MATERIAL, material: PRISMARINE_SHARD, weight: 1, tags: [scale, dragon]}
   vampire_blood:    {name: 뱀파이어의 피, category: MATERIAL, material: REDSTONE,  weight: 1, tags: [blood]}
-  demon_horn:       {name: 악마의 뿔,   category: MATERIAL, material: GOAT_HORN,   weight: 1, tags: [horn, demon]}
+  demon_horn:       {name: 악마의 뿔,   category: MATERIAL, material: RABBIT_FOOT,   weight: 1, tags: [horn, demon]}
   lich_phylactery_shard: {name: 생명의 그릇 조각, category: MATERIAL, material: ECHO_SHARD, weight: 1, tags: [undead]}
   bandage:          {name: 붕대,        category: CONSUMABLE, material: PAPER,     weight: 1, tags: [bandage], source: CANON}
   whetstone:        {name: 숫돌,        category: MATERIAL, material: FLINT,       weight: 1, tags: [whetstone]}

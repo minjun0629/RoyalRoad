@@ -25,7 +25,11 @@ public final class ItemCodec {
     private final NamespacedKey idKey, typeKey, qualityKey;
     private final ItemTypeRegistry types;
 
+    /** 아이템 id → 입은 갑옷 모습 (갑옷 장식 무늬 versaera:&lt;모습&gt;) */
+    private final java.util.Map<String, String> looks;
+
     public ItemCodec(Plugin plugin, ItemTypeRegistry types) {
+        this.looks = io.versaera.pack.ArmorLooks.looks(types.all());
         this.idKey = new NamespacedKey(plugin, "item_id");
         this.typeKey = new NamespacedKey(plugin, "type");
         this.qualityKey = new NamespacedKey(plugin, "quality");
@@ -66,12 +70,24 @@ public final class ItemCodec {
         if (it.creatorName() != null) lore.add(Ui.c("&8" + it.creatorName()));
         m.setLore(lore);
         m.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        model(m, t);
         m.setUnbreakable(true);   // 내구도는 서버가 관리 (바닐라 내구도로 부서지지 않게)
         PersistentDataContainer pdc = m.getPersistentDataContainer();
         pdc.set(idKey, PersistentDataType.STRING, it.id());
         pdc.set(typeKey, PersistentDataType.STRING, it.typeId());
         s.setItemMeta(m);
         return s;
+    }
+
+    /** 리소스팩 모델 (CustomModelData) + 입은 갑옷 모습 (갑옷 장식) */
+    private void model(ItemMeta m, ItemType t) {
+        if (io.versaera.pack.ResourcePackBuilder.modeled(t)) m.setCustomModelData(io.versaera.domain.pack.PackIds.item(t.id()));
+        String look = looks.get(t.id());
+        if (look == null || !(m instanceof org.bukkit.inventory.meta.ArmorMeta am)) return;
+        org.bukkit.inventory.meta.trim.TrimPattern pattern = org.bukkit.Registry.TRIM_PATTERN.get(new NamespacedKey("versaera", look));
+        if (pattern == null) return;   // 데이터팩이 아직 읽히지 않음 (처음 설치 뒤 서버를 한 번 다시 켜야 한다)
+        am.setTrim(new org.bukkit.inventory.meta.trim.ArmorTrim(org.bukkit.inventory.meta.trim.TrimMaterial.IRON, pattern));
+        am.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
     }
 
     public static int bucket(int quality) {
@@ -87,6 +103,7 @@ public final class ItemCodec {
         m.setLore(List.of(Ui.c("&7" + Quality.gradeName(q) + " · " + q / 10)));
         m.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, typeId);
         m.getPersistentDataContainer().set(qualityKey, PersistentDataType.INTEGER, q);
+        model(m, t);
         s.setItemMeta(m);
         return s;
     }

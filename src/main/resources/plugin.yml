@@ -87,6 +87,9 @@ commands:
   fieldboss:
     description: 필드 보스 목록 · 둥지 · 다시 나타나는 때
     aliases: [필드보스]
+  menu:
+    description: 메인 메뉴 (모든 기능 단추)
+    aliases: [메뉴]
   versaadmin:
     description: VersaEra 관리자
     aliases: [va]

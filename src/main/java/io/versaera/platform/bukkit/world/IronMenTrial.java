@@ -102,7 +102,11 @@ public final class IronMenTrial implements Listener {
         v.setCustomName("철인 " + (r.killed + r.alive.size() + 1) + "번째");
         v.setCustomNameVisible(true);
         v.addScoreboardTag(TAG);
-        v.getEquipment().setHelmet(new ItemStack(Material.IRON_HELMET));
+        ItemStack mask = new ItemStack(Material.PAPER);   // 리소스팩: 철인의 쇠 가면 (팩이 없으면 종이가 머리에 보인다)
+        var mm = mask.getItemMeta();
+        mm.setCustomModelData(io.versaera.domain.pack.PackIds.mob("iron_mask"));
+        mask.setItemMeta(mm);
+        v.getEquipment().setHelmet(io.versaera.platform.bukkit.ui.Menu.background ? mask : new ItemStack(Material.IRON_HELMET));
         v.getEquipment().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
         v.getEquipment().setItemInMainHand(new ItemStack(Material.IRON_SWORD));
         v.getEquipment().setHelmetDropChance(0);

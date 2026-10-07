@@ -18,10 +18,15 @@ import java.util.Set;
  * @param kinds     속성 추가 피해 판정용 (UNDEAD · DEMON · LARGE · DRAGON)
  * @param drops     쓰러뜨린 사람(가장 많이 때린 사람)에게 확률로
  * @param reward    기여 10% 이상인 사람마다
+ * @param look      리소스팩 모델 모양 (KNIGHT · CASTER · DEMON · DRAGON · BEAST · GOLEM · HYDRA · SALAMANDER · FLYER · VAMPIRE)
+ * @param size      모델 크기 배율 (1 ~ 4) — 판정은 바닐라 몸 그대로, 보이는 모습만 커진다
  */
 public record FieldBoss(String id, String name, String entity, String region, double maxHp, double damage, int respawnMinutes,
                         Set<String> mechanics, String minion, Set<ItemOptions.Kind> kinds, List<Drop> drops, QuestDefinition.Reward reward,
-                        String description, String source) {
+                        String description, String source, String look, double size) {
+    /** 리소스팩 모델 모양 (ModelKit 템플릿) */
+    public static final Set<String> LOOKS = Set.of("KNIGHT", "CASTER", "DEMON", "DRAGON", "BEAST", "GOLEM", "HYDRA", "SALAMANDER", "FLYER", "VAMPIRE");
+
     public static final Set<String> MECHANICS = Set.of("REGEN", "MINIONS", "FEAR", "VESSEL", "ENRAGE", "BREATH", "FLIGHT");
 
     /** @param chance 0 ~ 1 */
@@ -41,6 +46,8 @@ public record FieldBoss(String id, String name, String entity, String region, do
         kinds = Set.copyOf(kinds == null ? Set.of() : kinds);
         drops = List.copyOf(drops == null ? List.of() : drops);
         reward = reward == null ? QuestDefinition.Reward.NONE : reward;
+        DomainException.require(look != null && LOOKS.contains(look), "fboss.bad_look", "없는 모델 모양: " + look + " (" + id + ")");
+        DomainException.require(size >= 1 && size <= 4, "fboss.bad_size", "모델 크기는 1 ~ 4: " + id);
     }
 
     /** 기여 몫이 이 비율 이상이면 보상 */

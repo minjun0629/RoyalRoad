@@ -11,6 +11,21 @@ public final class PackIds {
     private PackIds() {
     }
 
+    /** 아이템 종류의 모델 ("item/&lt;id&gt;") */
+    public static int item(String typeId) {
+        return modelData("item/" + typeId);
+    }
+
+    /** 필드 보스 모델 ("fboss/&lt;id&gt;") */
+    public static int fieldBoss(String id) {
+        return modelData("fboss/" + id);
+    }
+
+    /** 몬스터 머리에 씌우는 모델 ("mob/&lt;key&gt;") */
+    public static int mob(String key) {
+        return modelData("mob/" + key);
+    }
+
     public static int modelData(String model) {
         CRC32 c = new CRC32();
         c.update(model.getBytes(StandardCharsets.UTF_8));

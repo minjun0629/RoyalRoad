@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -40,6 +41,8 @@ public final class FieldBossRuntime implements Listener {
         final Map<UUID, Double> damage = new HashMap<>();
         final List<Entity> minions = new ArrayList<>();
         ArmorStand vessel;
+        ItemDisplay model;
+        org.bukkit.boss.BossBar bar;
         int vesselHits;
         boolean revived, enraged;
         long sinceSeen = System.currentTimeMillis();
@@ -73,6 +76,13 @@ public final class FieldBossRuntime implements Listener {
             return m;
         }, schedule::putAll, null);
         Bukkit.getScheduler().runTaskTimer(plugin, this::second, 20L, 20L);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::turn, 1L, 1L);
+    }
+
+    /** 모델이 몸이 보는 쪽을 보게 (모델은 -z 를 앞으로 만들었다 → 180도 돌림) */
+    private void turn() {
+        for (Live l : live.values())
+            if (l.model != null && l.model.isValid() && l.body.isValid()) l.model.setRotation(l.body.getLocation().getYaw() + 180f, 0f);
     }
 
     /** /필드보스 — 이름 · 둥지 · 상태 */
@@ -99,6 +109,14 @@ public final class FieldBossRuntime implements Listener {
             boolean near = false;
             for (Player p : l.body.getWorld().getPlayers()) if (p.getLocation().distanceSquared(l.body.getLocation()) < 96 * 96) { near = true; break; }
             if (near) l.sinceSeen = now;
+            if (l.bar != null) {
+                var hp = l.body.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+                l.bar.setProgress(Math.max(0, Math.min(1, l.body.getHealth() / (hp == null ? l.def.maxHp() : hp.getValue()))));
+                for (Player p : new ArrayList<>(l.bar.getPlayers()))
+                    if (!p.isOnline() || p.getWorld() != l.body.getWorld() || p.getLocation().distanceSquared(l.body.getLocation()) > 48 * 48) l.bar.removePlayer(p);
+                for (Player p : l.body.getWorld().getPlayers())
+                    if (p.getLocation().distanceSquared(l.body.getLocation()) <= 48 * 48 && !l.bar.getPlayers().contains(p)) l.bar.addPlayer(p);
+            }
             else if (now - l.sinceSeen > 60_000) { cleanup(l, true); continue; }
             mechanics(l);
         }
@@ -157,6 +175,24 @@ public final class FieldBossRuntime implements Listener {
         if (e instanceof Slime sl) sl.setSize(6);
         e.setFireTicks(0);
         Live l = new Live(b, e, gen);
+        if (io.versaera.platform.bukkit.ui.Menu.background) {   // 리소스팩 모델: 바닐라 몸은 숨기고 그 위에 모델을 태운다 (판정은 바닐라 몸)
+            e.setInvisible(true);
+            if (e.getEquipment() != null) e.getEquipment().clear();
+            ItemStack it = new ItemStack(Material.PAPER);
+            var meta = it.getItemMeta();
+            meta.setCustomModelData(io.versaera.domain.pack.PackIds.fieldBoss(b.id()));
+            it.setItemMeta(meta);
+            float sc = (float) b.size(), lift = (float) (-e.getHeight() + 0.5 * sc);
+            l.model = at.getWorld().spawn(at, ItemDisplay.class, x -> {
+                x.setItemStack(it);
+                x.setTransformation(new org.bukkit.util.Transformation(new org.joml.Vector3f(0, lift, 0), new org.joml.Quaternionf(),
+                        new org.joml.Vector3f(sc, sc, sc), new org.joml.Quaternionf()));
+                x.setPersistent(false);
+                x.setViewRange(3f);
+            });
+            e.addPassenger(l.model);
+        }
+        l.bar = Bukkit.createBossBar(Ui.c("&4" + b.name()), org.bukkit.boss.BarColor.RED, org.bukkit.boss.BarStyle.SEGMENTED_10);
         live.put(b.id(), l);
         byBody.put(e.getUniqueId(), l);
         if (b.mechanics().contains("VESSEL")) {
@@ -239,6 +275,8 @@ public final class FieldBossRuntime implements Listener {
         byBody.remove(l.body.getUniqueId());
         for (Entity x : l.minions) if (x.isValid()) x.remove();
         if (l.vessel != null && l.vessel.isValid()) l.vessel.remove();
+        if (l.model != null && l.model.isValid()) l.model.remove();
+        if (l.bar != null) l.bar.removeAll();
         if (remove && l.body.isValid()) l.body.remove();
     }
 

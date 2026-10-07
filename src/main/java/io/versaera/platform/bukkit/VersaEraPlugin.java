@@ -65,6 +65,37 @@ public final class VersaEraPlugin extends JavaPlugin {
     private PackServer pack;
 
     @Override
+    public void onLoad() {
+        installDatapack();
+    }
+
+    /**
+     * 입은 갑옷 모습용 데이터팩 (갑옷 장식 무늬)을 기본 세계의 datapacks 폴더에 쓴다. 세계보다 먼저 읽혀야 하므로
+     * 처음 설치하거나 무늬가 바뀐 뒤에는 서버를 한 번 더 켜야 적용된다.
+     */
+    private void installDatapack() {
+        try {
+            java.util.Properties props = new java.util.Properties();
+            java.io.File sp = new java.io.File(getServer().getWorldContainer(), "server.properties");
+            if (!sp.exists()) sp = new java.io.File("server.properties");
+            if (sp.exists()) try (var in = new java.io.FileInputStream(sp)) { props.load(in); }
+            java.io.File root = new java.io.File(getServer().getWorldContainer(), props.getProperty("level-name", "world") + "/datapacks/versaera");
+            var files = io.versaera.pack.ArmorLooks.datapack(io.versaera.content.ContentBundle.fromClasspath(getClass().getClassLoader()));
+            boolean changed = false;
+            for (var e : files.entrySet()) {
+                java.io.File f = new java.io.File(root, e.getKey());
+                if (f.exists() && java.util.Arrays.equals(java.nio.file.Files.readAllBytes(f.toPath()), e.getValue())) continue;
+                f.getParentFile().mkdirs();
+                java.nio.file.Files.write(f.toPath(), e.getValue());
+                changed = true;
+            }
+            if (changed) getLogger().warning("갑옷 모습 데이터팩을 " + root + " 에 설치했습니다 — 서버를 한 번 다시 켜야 입은 갑옷 모습이 보입니다");
+        } catch (Exception e) {
+            getLogger().log(Level.WARNING, "갑옷 모습 데이터팩 설치 실패 (갑옷은 바닐라 모습으로 보입니다)", e);
+        }
+    }
+
+    @Override
     public void onEnable() {
         try {
             saveDefaultConfig();
@@ -140,6 +171,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         // 필드 보스 · 생활 스킬 · 감정 (BOS-02 · SKL-05 · ITM-02)
         fieldBosses = new io.versaera.platform.bukkit.world.FieldBossRuntime(this, services, async, sessions::deliver);
         io.versaera.platform.bukkit.command.LifeCommands lifeCmd = new io.versaera.platform.bukkit.command.LifeCommands(services, async, codec, combat, fieldBosses, sessions::deliver);
+        getCommand("menu").setExecutor(new io.versaera.platform.bukkit.ui.MainMenu());
         for (String c : List.of("appraise", "bandage", "whet", "polish", "iron", "roar", "shatter", "fieldboss")) getCommand(c).setExecutor(lifeCmd);
         codec.requirementNames(k -> k.startsWith("mastery.") ? services.growth.discipline(k.substring(8)).name()
                 : k.startsWith("stat.") ? services.growth.stats().stream().filter(st -> st.id().equals(k.substring(5))).map(st -> st.name()).findFirst().orElse(k)
