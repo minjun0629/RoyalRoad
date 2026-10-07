@@ -40,6 +40,13 @@ public final class GatherListener implements Listener {
     private final ResourceNode river, sea;
     private final RandomGenerator rng = RandomGenerator.getDefault();
 
+    private java.util.function.BiPredicate<java.util.UUID, String> petSkill = (u, k) -> false;
+
+    /** 곁의 펫 스킬 (SCAVENGE: 가끔 하나 더) */
+    public void petSkill(java.util.function.BiPredicate<java.util.UUID, String> f) {
+        this.petSkill = f;
+    }
+
     public GatherListener(Plugin plugin, GameServices s, Async async, ItemCodec codec, SessionListener sessions) {
         this.plugin = plugin;
         this.s = s;
@@ -97,7 +104,8 @@ public final class GatherListener implements Listener {
         Set<String> tags = tagsAt(at);
         String id = p.getUniqueId().toString(), region = regionAt(at);
         long seed = rng.nextLong();
-        async.run("gather", () -> s.gathering.gather(id, n.id(), region, tags, seed), g -> {
+        boolean scav = petSkill.test(p.getUniqueId(), "SCAVENGE");
+        async.run("gather", () -> s.gathering.gather(id, n.id(), region, tags, seed, scav), g -> {
             if (g == null) p.sendMessage(Ui.error("아직 다룰 수 없는 자원입니다"));
             else {
                 if (g.bonus() > 0) Ui.bar(p, "&a+" + g.bonus());
@@ -137,9 +145,10 @@ public final class GatherListener implements Listener {
         Set<String> tags = tagsAt(hook);
         String id = p.getUniqueId().toString(), region = regionAt(hook);
         long seed = rng.nextLong();
+        boolean scav = petSkill.test(p.getUniqueId(), "SCAVENGE");
         async.run("fish", () -> {
-            var g = sea != null && tags.contains("sea") ? s.gathering.gather(id, sea.id(), region, tags, seed) : null;
-            return g != null ? g : s.gathering.gather(id, river.id(), region, tags, seed);
+            var g = sea != null && tags.contains("sea") ? s.gathering.gather(id, sea.id(), region, tags, seed, scav) : null;
+            return g != null ? g : s.gathering.gather(id, river.id(), region, tags, seed, scav);
         }, g -> sessions.deliver(p), p);
     }
 }

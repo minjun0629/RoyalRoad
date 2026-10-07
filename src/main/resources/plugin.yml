@@ -90,6 +90,36 @@ commands:
   menu:
     description: 메인 메뉴 (모든 기능 단추)
     aliases: [메뉴]
+  achievements:
+    description: 업적 (분야별 · 숨은 업적)
+    aliases: [업적]
+  title:
+    description: 칭호 달기 · 떼기
+    aliases: [칭호]
+  record:
+    description: 모험가 기록 (발견 · 행적 · 숙련 · 업적 · 칭호)
+    aliases: [기록, 모험가기록]
+  pet:
+    description: 펫 (부르기 · 먹이 · 이름 · 놓아주기) — 길들이기는 쉬프트 + 먹이 들고 우클릭
+    aliases: [펫]
+  mount:
+    description: 탈것 부르기 · 내리기
+    aliases: [탈것]
+  raid:
+    description: 레이드 (공격대 초대 · 수락 · 나가기 · 시작)
+    aliases: [레이드, 공격대]
+  weather:
+    description: 지금 지역의 날씨 · 효과 · 예보
+    aliases: [날씨]
+  gstorage:
+    description: 길드 창고 (재료 넣기 · 꺼내기)
+    aliases: [길드창고]
+  gquest:
+    description: 길드 주간 의뢰
+    aliases: [길드의뢰]
+  sculpt:
+    description: 대형 조각 (만들기 · 허물기)
+    aliases: [조각]
   versaadmin:
     description: VersaEra 관리자
     aliases: [va]

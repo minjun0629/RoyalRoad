@@ -126,6 +126,16 @@ public final class BossRuntime implements Listener {
         spawn(id, at, null, null);
     }
 
+    /** 보스 하나를 물린다 (레이드 시간 초과) — 전투는 실패로 기록 */
+    public boolean stop(UUID hitbox) {
+        Live l = byHitbox.remove(hitbox);
+        if (l == null) return false;
+        remove(l);
+        String id = l.fightId;
+        async.fire("boss_fail", () -> { s.bosses.fail(id); return null; });
+        return true;
+    }
+
     /** @param record 전투 실패를 DB 에 남길지 (서버 종료 때는 false — 다음 시작 때 recover 가 정리) */
     public int stopAll(boolean record) {
         int n = byHitbox.size();

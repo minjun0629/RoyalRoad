@@ -29,7 +29,7 @@ public final class ArtworkService {
     public record Pick(String slot, String typeId, int quality, int amount) {}
 
     /** 감상 결과: buffMinutes 0 이면 오늘 이미 봄 */
-    public record View(Artwork artwork, String ownerName, int buffMinutes, int buffLevel, boolean fresh) {}
+    public record View(Artwork artwork, String owner, int buffMinutes, int buffLevel, boolean fresh) {}
 
     public static final int MIN_GAP = 6;
 
@@ -111,18 +111,28 @@ public final class ArtworkService {
         DomainException.require(lv >= k.level(), "art.level", k.name() + " 은(는) 조각 " + k.level() + " 이 있어야 합니다 (지금 " + lv + ")");
         String t = title == null ? "" : title.strip();
         DomainException.require(t.length() >= 1 && t.length() <= 24 && !t.contains("&") && !t.contains("§"), "art.bad_title", "작품 이름은 1~24자 (색 코드 없이)");
-        DomainException.require(picks.size() == k.parts().size(), "art.parts", "재료 자리가 맞지 않습니다");
+        Set<String> slots = new HashSet<>();
+        for (ArtworkKind.Part part : k.parts()) slots.add(part.slot());
+        for (Pick p : picks) DomainException.require(slots.contains(p.slot()) && p.amount() > 0, "art.parts", "없는 재료 자리: " + p.slot());
         List<int[]> qa = new ArrayList<>();
         List<String> mats = new ArrayList<>();
         for (ArtworkKind.Part part : k.parts()) {
-            Pick p = picks.stream().filter(x2 -> x2.slot().equals(part.slot())).findFirst()
-                    .orElseThrow(() -> DomainException.of("art.parts", part.slot() + " 재료가 없습니다"));
-            ItemType it = s.items.types().get(p.typeId());
-            DomainException.require(!it.category().unique() && it.tags().stream().anyMatch(part.tags()::contains), "art.material",
-                    it.name() + " 은(는) " + part.slot() + " 에 쓸 수 없습니다 (" + String.join("·", part.tags()) + ")");
-            DomainException.require(p.amount() == part.amount(), "art.amount", part.slot() + " 재료는 " + part.amount() + "개");
-            qa.add(new int[]{p.quality(), p.amount()});
-            mats.add(part.slot() + "=" + ArtMaterials.look(it) + ":" + p.typeId() + ":" + p.quality());
+            // 한 자리에 여러 묶음(품질이 다른 같은 재료 등)을 쓸 수 있다 — 모양은 가장 많이 쓴 재료
+            List<Pick> ps = picks.stream().filter(x2 -> x2.slot().equals(part.slot())).toList();
+            DomainException.require(!ps.isEmpty(), "art.parts", part.slot() + " 재료가 없습니다");
+            int total = 0;
+            long qsum = 0;
+            for (Pick p : ps) {
+                ItemType it = s.items.types().get(p.typeId());
+                DomainException.require(!it.category().unique() && it.tags().stream().anyMatch(part.tags()::contains), "art.material",
+                        it.name() + " 은(는) " + part.slot() + " 에 쓸 수 없습니다 (" + String.join("·", part.tags()) + ")");
+                total += p.amount();
+                qsum += (long) p.quality() * p.amount();
+                qa.add(new int[]{p.quality(), p.amount()});
+            }
+            DomainException.require(total == part.amount(), "art.amount", part.slot() + " 재료는 " + part.amount() + "개 (지금 " + total + ")");
+            Pick main = ps.stream().max(Comparator.comparingInt(Pick::amount)).orElseThrow();
+            mats.add(part.slot() + "=" + ArtMaterials.look(s.items.types().get(main.typeId())) + ":" + main.typeId() + ":" + (qsum / total));
         }
         // 땅 · 간격
         var plot = s.realm.plot(world, Math.floorDiv(x, 16), Math.floorDiv(z, 16));

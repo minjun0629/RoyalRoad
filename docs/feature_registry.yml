@@ -567,6 +567,265 @@ features:
     tests: [NpcWorldTest]
     server_test: BLOCKED
     status: IMPLEMENTED
+  - id: ACH-01
+    feature: "업적 (45개, 분야별 · 숨은 업적)"
+    category: "성장"
+    source: "정식 출시 사양 §25"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "행동 기록 · 숙련 · 발견 · 관계 조건(히든과 같은 문법). 기록이 바뀌면 그 기록을 쓰는 업적만 다시 판정. 돈 · 명성 · 칭호를 한 트랜잭션에서, 서버 최초면 전체 알림"
+    player_experience: "하는 일마다 이름이 남는다"
+    dependencies: [HID-01, QST-01]
+    implementation: "application.AchievementService · listener.AdventureListener · /업적"
+    data_model: "discovery kind 'achievement' · world_first"
+    ui: "업적 창 (분야 탭 · 달성/미달성 · 숨은 업적 ???)"
+    resource_pack: "아이콘 achievement · achievement_locked"
+    performance_risk: "카운터 키로 색인 — 바뀐 기록의 업적만, 접속 · 10분마다 전체"
+    security_risk: "보상은 discovery 삽입이 성공했을 때만 (두 번 없음)"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: ACH-02
+    feature: "칭호"
+    category: "성장"
+    source: "정식 출시 사양 §25"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "업적 · 레이드 · 히든으로 얻은 칭호 중 하나를 달면 이름 앞(목록 · 채팅)에 보인다"
+    player_experience: "남들이 내 길을 알아본다"
+    dependencies: [ACH-01, RAID-01]
+    implementation: "AchievementService.equip · AdventureListener · /칭호"
+    data_model: "player_title (V7) · discovery kind 'title'"
+    ui: "칭호 창"
+    resource_pack: "아이콘 title"
+    performance_risk: "접속 · 변경 때만 읽음"
+    security_risk: "얻지 않은 칭호는 달 수 없음 (서버 검증)"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: ACH-03
+    feature: "모험가 기록"
+    category: "성장"
+    source: "정식 출시 사양 §26"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "명성 · 업적 점수 · 서버 최초 · 발견 수 · 행적(처치 · 의뢰 · 여행 …) · 숙련 상위 · 칭호 · 펫/탈것 · 레이드 공략"
+    player_experience: "한 장으로 보는 나의 모험"
+    dependencies: [ACH-01]
+    implementation: "AchievementService.record · /기록"
+    data_model: "기존 기록 (새 저장 없음)"
+    ui: "기록 창"
+    resource_pack: "아이콘 record"
+    performance_risk: "창을 열 때만 몇 번 읽음"
+    security_risk: "없음 (읽기)"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: PTY-02
+    feature: "파티 경험치 · 전리품 분배 · 공격대"
+    category: "사회"
+    source: "정식 출시 사양 §17"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "40 블록 안 파티원이 처치 경험을 (1+0.15·(n−1))/n 씩 나눔, 의뢰 처치도 함께. 전리품: 자유 · 차례 · 무작위 (주인 지정 30초). 공격대 = 파티 최대 5개"
+    player_experience: "함께 싸우면 손해 없이 나눈다"
+    dependencies: [PTY-01]
+    implementation: "domain.party.Parties · CombatListener.onKill · /파티 분배 · /레이드 초대"
+    data_model: "메모리 (접속 중에만)"
+    ui: "파티 · 레이드 명령"
+    resource_pack: "없음"
+    performance_risk: "처치 때 파티원 수만큼"
+    security_risk: "분배는 서버가 정함 (클라이언트 값 없음)"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: GLD-02
+    feature: "길드 창고"
+    category: "사회"
+    source: "정식 출시 사양 §16"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "묶음 재료를 넣고 계급별 하루 한도(길드원 128)로 꺼냄. 꺼낸 것은 배달함. 요청 key 로 한 번만, 감사 로그"
+    player_experience: "길드가 함께 쓰는 재료"
+    dependencies: [GLD-01]
+    implementation: "application.GuildVaultService · /길드창고"
+    data_model: "guild_storage · guild_storage_log (V7)"
+    ui: "창고 창"
+    resource_pack: "아이콘 vault"
+    performance_risk: "창을 열 때만"
+    security_risk: "한도 · 수량 서버 검증, 실패하면 배달함으로 돌려줌"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: GLD-03
+    feature: "길드 주간 의뢰"
+    category: "사회"
+    source: "정식 출시 사양 §16"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "길드 id · 주로 결정적인 3개. 길드원의 행동 기록 증가(또는 창고 비축)를 합쳐 채우면 금고 · 활동 · 기여자 명성"
+    player_experience: "길드가 함께 목표를 채운다"
+    dependencies: [GLD-02]
+    implementation: "GuildVaultService.counterAdded · /길드의뢰"
+    data_model: "guild_quest · guild_quest_contrib (V7)"
+    ui: "의뢰 창 (진행 · 상위 기여자)"
+    resource_pack: "아이콘 gquest"
+    performance_risk: "행동 기록 한 번에 길드원 확인 1번"
+    security_risk: "한 주 한 번 (UPDATE done_at=0)"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: PET-01
+    feature: "펫 · 길들이기"
+    category: "동료"
+    source: "정식 출시 사양 §9"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "10종. 쉬프트 + 먹이 우클릭: 길들이기 숙련 · 먹이 품질 · 사는 곳. 레벨 · 충성 · 스킬(BITE · GUARD · HOWL · SCAVENGE · MEND · SPOT) · 쓰러지면 5분"
+    player_experience: "들의 동물이 동료가 된다"
+    dependencies: [SKL-01]
+    implementation: "application.PetService · world.PetRuntime · /펫"
+    data_model: "pet (V7)"
+    ui: "펫 창 (부르기 · 먹이)"
+    resource_pack: "아이콘 pet"
+    performance_risk: "불러낸 펫만 1초마다"
+    security_risk: "확률 굴림은 서버, 남의 펫 · 파티원 공격 차단"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: TRV-01
+    feature: "탈것"
+    category: "이동"
+    source: "정식 출시 사양 §23"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "마구간지기에게 7종. 승마 숙련만큼 빠름. 내리면 사라짐, 100 블록마다 승마 숙련"
+    player_experience: "말을 타고 대륙을 달린다"
+    dependencies: [NPC-03]
+    implementation: "TravelService.buy · summon · world.TravelRuntime · /탈것"
+    data_model: "mount (V7)"
+    ui: "마구간 · 탈것 창"
+    resource_pack: "아이콘 mount"
+    performance_risk: "탄 사람만 2초마다"
+    security_risk: "남의 말에 못 탐, 요청 key"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: TRV-02
+    feature: "마차 · 배 노선"
+    category: "이동"
+    source: "정식 출시 사양 §23"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "지역에서 결정적으로 만든 노선망 (도시마다 가까운 3곳, 항구끼리 배). 표를 사면 실제 시간 동안 여행, 끊겨도 도착. 폭풍이면 배가 뜨지 않음"
+    player_experience: "먼 도시로 안전하게"
+    dependencies: [TRV-01, WTH-01]
+    implementation: "domain.travel.TravelNetwork · TravelService · TravelRuntime"
+    data_model: "travel_journey (V7)"
+    ui: "마부 · 선장 창, 진행 막대"
+    resource_pack: "아이콘 carriage · ship"
+    performance_risk: "여행 중인 사람만"
+    security_risk: "출발 도시 · NPC · 날씨 서버 검증"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: WTH-01
+    feature: "날씨"
+    category: "세계"
+    source: "정식 출시 사양 §24"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "기후 5종 × 날씨 9종, 서버 시드 · 40분 칸 · 3000 블록 칸으로 결정 (예보 가능). 채집 배율 · 근접/활 피해 · NPC 실내 · 배 결항, 플레이어별 하늘 · 입자"
+    player_experience: "날씨가 하루를 바꾼다"
+    dependencies: [GAT-01, NPC-02]
+    implementation: "domain.weather.* · WeatherService · WeatherRuntime · /날씨"
+    data_model: "없음 (계산)"
+    ui: "/날씨, 바뀔 때 한 줄"
+    resource_pack: "아이콘 weather"
+    performance_risk: "2초마다 접속자만, DB 없음"
+    security_risk: "시드는 secret.key"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: RAID-01
+    feature: "레이드"
+    category: "전투"
+    source: "정식 출시 사양 §17"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "5개. 공격대(여러 파티) · 지역 · 숙련 · 주간 귀속 확인 → 지역 가운데 거대 보스. 제한 시간, 공략 보상 · 칭호 · 최고 기록"
+    player_experience: "대륙의 큰 적을 여럿이 쓰러뜨린다"
+    dependencies: [BOS-01, PTY-02]
+    implementation: "application.RaidService · world.RaidRuntime · /레이드"
+    data_model: "raid_lockout · raid_clear (V7)"
+    ui: "레이드 창 (귀속 · 최고 기록)"
+    resource_pack: "아이콘 raid"
+    performance_risk: "5초마다 시간 초과 확인"
+    security_risk: "주간 귀속 · 보상은 귀속이 새로 생길 때만"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: ART-02
+    feature: "대형 조각 작품 (여러 재료)"
+    category: "생활"
+    source: "정식 출시 사양 §6"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "흉상 · 입상 · 짐승상 · 기념비 · 분수. 받침 · 몸체 · 장식에 다른 재료 → 품질 · 모양. 세상에 세우고 하루 한 번 감상 (버프 · 만든 사람 명성 · 지역 번영)"
+    player_experience: "내 작품이 마을의 자랑이 된다"
+    dependencies: [ART-01, NPC-05]
+    implementation: "application.ArtworkService · world.ArtworkRuntime · /조각"
+    data_model: "artwork · artwork_view (V7)"
+    ui: "3D 모습 · 이름표 · 클릭 감상"
+    resource_pack: "artwork/종류/자리/모양 140개 모델"
+    performance_risk: "64 블록 칸 색인, 근처에서만 엔티티"
+    security_risk: "남의 땅 · 6 블록 간격, 실패하면 재료 반환"
+    persistence: DB
+    tests: [AdventureTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: RP-02
+    feature: "리소스팩 GitHub 배포 · 보호"
+    category: "플랫폼"
+    source: "사용자 요청"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "저장소 맨 위 VersaEra-ResourcePack.zip 을 플레이어가 GitHub 에서 직접 받음 (어느 IP 든). 해시를 붙인 주소. 게임은 읽고 압축 프로그램은 못 여는 zip"
+    player_experience: "받아서 넣기만 하면 된다"
+    dependencies: [RP-01]
+    implementation: "pack.PackProtector · platform.bukkit.pack.ExternalPack · gradle release"
+    data_model: "없음"
+    ui: "받기 창 문구 · required"
+    resource_pack: "전체"
+    performance_risk: "서버 시작 때 한 번 받음"
+    security_risk: "내용 열람을 막음 (프로그램으로 읽는 것까지는 못 막음)"
+    persistence: DB
+    tests: [ResourcePackBuilderTest, ExternalPackTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
   - id: QST-01
     feature: "의뢰 (일상 · 숙련 · 험로 · 전설 · 숨은 의뢰)"
     category: "퀘스트"

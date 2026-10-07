@@ -86,6 +86,16 @@ public final class ResourcePackBuilder {
         var mask = ModelKit.build("iron_mask", List.of(new ModelKit.Part("mask", "NONE", 8, 8, 8, 0, maskMade.cubes())), maskMade.style(), "mob/iron_mask", maskMade.display());
         b.text("assets/versaera/models/mob/iron_mask.json", mask.models().get("mask"));
         b.png("assets/versaera/textures/mob/iron_mask.png", mask.texture());
+        // 대형 조각 작품: 종류 × 자리 × 재료 모양 (ART-02) — 종이 덮어쓰기
+        for (var k : content.expansion().artworks())
+            for (var part : k.parts())
+                for (String look : io.versaera.domain.art.ArtMaterials.LOOKS) {
+                    String key = ArtworkModels.key(k.id(), part.slot(), look);
+                    put(models, key);
+                    ModelKit.Built built = ArtworkModels.build(k.id(), part.slot(), look);
+                    b.text("assets/versaera/models/" + key + ".json", built.models().get("art"));
+                    b.png("assets/versaera/textures/artwork/" + k.id() + "_" + part.slot() + "_" + look + ".png", built.texture());
+                }
         // 아이템: 바닐라 재질마다 덮어쓰기 목록
         Map<String, Map<String, Integer>> byMaterial = new TreeMap<>();
         byMaterial.put("PAPER", models);
@@ -274,7 +284,8 @@ public final class ResourcePackBuilder {
     public static final List<String> UI_ICONS = List.of("quest", "quest_active", "shop", "gift", "news", "combat", "life", "guild", "money",
             "auction", "sell", "stat", "map_known", "map_unknown", "member", "reputation",
             "arts", "fieldboss", "appraise", "bandage", "land", "castle", "nation", "party", "trial", "gods", "history", "character", "close", "job",
-            "rumor", "train", "inn", "heal", "repair", "song", "people");
+            "rumor", "train", "inn", "heal", "repair", "song", "people",
+            "achievement", "achievement_locked", "title", "record", "pet", "mount", "raid", "weather", "vault", "gquest", "carriage", "ship", "sculpt");
 
     private void uiIcon(String key) {
         text("assets/versaera/models/ui/" + key + ".json",
@@ -493,6 +504,79 @@ public final class ResourcePackBuilder {
                 c.layer().ellipse(9, 23, 6, 6).ellipse(23, 23, 6, 6).cutRect(0, 27, 32, 5).commit(Canvas.ramp(blue), 0.05);
                 c.layer().ellipse(16, 9, 4, 4).commit(Canvas.ramp(skin), 0.05);
                 c.layer().ellipse(16, 23, 7, 7).cutRect(0, 28, 32, 4).commit(Canvas.ramp(green), 0.05);
+            }
+            case "achievement", "achievement_locked" -> {   // 별이 박힌 메달
+                Color m = key.equals("achievement") ? gold : new Color(110, 110, 120);
+                c.layer().poly(new double[]{10, 14, 16, 12}, new double[]{2, 2, 14, 14}).poly(new double[]{22, 18, 16, 20}, new double[]{2, 2, 14, 14}).commit(Canvas.ramp(key.equals("achievement") ? red : dark), 0.05);
+                c.layer().ellipse(16, 20, 10, 10).commit(Canvas.ramp(m), 0.1);
+                c.layer().poly(new double[]{16, 18.2, 23, 19.2, 20.5, 16, 11.5, 12.8, 9, 13.8}, new double[]{13, 17.6, 18, 21, 26, 23.2, 26, 21, 18, 17.6})
+                        .commit(Canvas.ramp(key.equals("achievement") ? Canvas.mix(gold, Color.WHITE, 0.35) : new Color(150, 150, 160)), 0);
+            }
+            case "title" -> {   // 이름표 + 끈
+                c.layer().poly(new double[]{4, 22, 29, 22, 4}, new double[]{9, 9, 16, 23, 23}).commit(Canvas.ramp(paper), 0.08);
+                c.layer().ellipse(23.5, 16, 1.6, 1.6).commit(Canvas.ramp(dark), 0);
+                c.layer().line(7, 13, 18, 13, 1.2).line(7, 17, 16, 17, 1.2).line(7, 20, 13, 20, 1.2).commit(Canvas.ramp(purple), 0);
+                c.layer().line(25, 16, 30, 5, 1.2).commit(Canvas.ramp(red), 0);
+            }
+            case "record" -> {   // 가죽 장부 + 깃펜
+                c.layer().rect(5, 4, 18, 25).commit(Canvas.ramp(new Color(110, 64, 40)), 0.15);
+                c.layer().rect(7, 6, 14, 21).commit(Canvas.ramp(Canvas.mix(new Color(110, 64, 40), Color.WHITE, 0.15)), 0.1);
+                c.layer().ellipse(14, 14, 4.5, 4.5).commit(Canvas.ramp(gold), 0);
+                c.layer().line(20, 28, 29, 6, 1.4).commit(Canvas.ramp(paper), 0);
+                c.layer().poly(new double[]{26, 31, 29}, new double[]{4, 2, 10}).commit(Canvas.ramp(Color.WHITE), 0);
+            }
+            case "pet" -> {   // 발바닥
+                c.layer().ellipse(16, 21, 7.5, 6.5).commit(Canvas.ramp(new Color(150, 100, 70)), 0.1);
+                c.layer().ellipse(7.5, 12, 3, 3.6).ellipse(13, 7, 3, 3.6).ellipse(19, 7, 3, 3.6).ellipse(24.5, 12, 3, 3.6).commit(Canvas.ramp(new Color(150, 100, 70)), 0.1);
+            }
+            case "mount" -> {   // 말 머리 옆모습
+                c.layer().poly(new double[]{9, 15, 25, 28, 26, 20, 18, 12, 9}, new double[]{29, 10, 4, 9, 13, 14, 20, 29, 29}).commit(Canvas.ramp(new Color(140, 92, 52)), 0.12);
+                c.layer().poly(new double[]{15, 18, 12, 9}, new double[]{10, 6, 18, 26}).commit(Canvas.ramp(dark), 0.05);
+                c.layer().ellipse(22, 8, 1.2, 1.2).commit(Canvas.ramp(dark), 0);
+                c.layer().line(20, 14, 26, 11, 1.2).commit(Canvas.ramp(gold), 0);
+            }
+            case "raid" -> {   // 용 머리 방패 + 엇갈린 검
+                c.layer().line(5, 27, 27, 5, 2.2).line(27, 27, 5, 5, 2.2).commit(Canvas.ramp(steel), 0);
+                c.layer().poly(new double[]{9, 23, 23, 16, 9}, new double[]{7, 7, 18, 27, 18}).commit(Canvas.ramp(purple), 0.1);
+                c.layer().poly(new double[]{12, 16, 20, 18, 14}, new double[]{12, 9, 12, 19, 19}).commit(Canvas.ramp(gold), 0);
+            }
+            case "weather" -> {   // 해 + 구름 + 빗방울
+                c.layer().ellipse(11, 11, 6, 6).commit(Canvas.ramp(gold), 0);
+                c.layer().ellipse(17, 17, 7, 5).ellipse(23, 15, 6, 5).ellipse(12, 19, 5, 4).commit(Canvas.ramp(Canvas.mix(paper, blue, 0.15)), 0.08);
+                c.layer().line(12, 25, 11, 29, 1.2).line(18, 25, 17, 29, 1.2).line(24, 24, 23, 28, 1.2).commit(Canvas.ramp(blue), 0);
+            }
+            case "vault" -> {   // 쇠테 두른 궤짝
+                c.layer().rect(4, 12, 24, 15).commit(Canvas.ramp(wood), 0.15);
+                c.layer().ellipse(16, 12, 12, 5).commit(Canvas.ramp(Canvas.mix(wood, Color.WHITE, 0.1)), 0.1);
+                c.layer().rect(4, 15, 24, 2).rect(9, 7, 2, 20).rect(21, 7, 2, 20).commit(Canvas.ramp(steel), 0);
+                c.layer().rect(14, 16, 4, 5).commit(Canvas.ramp(gold), 0);
+            }
+            case "gquest" -> {   // 깃발 + 두루마리
+                c.layer().rect(6, 3, 2, 26).commit(Canvas.ramp(wood), 0);
+                c.layer().poly(new double[]{8, 22, 18, 22, 8}, new double[]{4, 4, 9, 14, 14}).commit(Canvas.ramp(blue), 0.1);
+                c.layer().rect(12, 18, 16, 10).commit(Canvas.ramp(paper), 0.08);
+                c.layer().line(14, 21, 25, 21, 1).line(14, 24, 22, 24, 1).commit(Canvas.ramp(new Color(120, 100, 80)), 0);
+            }
+            case "carriage" -> {   // 마차
+                c.layer().rect(5, 8, 19, 12).commit(Canvas.ramp(red), 0.1);
+                c.layer().rect(8, 10, 5, 5).rect(15, 10, 5, 5).commit(Canvas.ramp(Canvas.mix(paper, blue, 0.3)), 0);
+                c.layer().rect(3, 6, 23, 2).commit(Canvas.ramp(gold), 0);
+                c.layer().ellipse(9, 24, 4.5, 4.5).ellipse(21, 24, 4.5, 4.5).commit(Canvas.ramp(wood), 0.1);
+                c.layer().ellipse(9, 24, 1.3, 1.3).ellipse(21, 24, 1.3, 1.3).commit(Canvas.ramp(dark), 0);
+                c.layer().line(24, 18, 30, 22, 1.2).commit(Canvas.ramp(wood), 0);
+            }
+            case "ship" -> {   // 돛배
+                c.layer().poly(new double[]{3, 29, 25, 7}, new double[]{21, 21, 27, 27}).commit(Canvas.ramp(wood), 0.12);
+                c.layer().rect(15, 3, 2, 18).commit(Canvas.ramp(Canvas.mix(wood, dark, 0.3)), 0);
+                c.layer().poly(new double[]{17, 27, 17}, new double[]{4, 17, 17}).poly(new double[]{15, 15, 6}, new double[]{6, 18, 18}).commit(Canvas.ramp(paper), 0.08);
+                c.layer().line(2, 29, 30, 29, 1.4).commit(Canvas.ramp(blue), 0);
+            }
+            case "sculpt" -> {   // 받침 위의 흉상 + 조각칼
+                c.layer().rect(8, 23, 16, 6).commit(Canvas.ramp(new Color(130, 126, 120)), 0.12);
+                c.layer().poly(new double[]{9, 23, 21, 11}, new double[]{23, 23, 17, 17}).commit(Canvas.ramp(new Color(230, 226, 218)), 0.08);
+                c.layer().ellipse(16, 11, 5, 6).commit(Canvas.ramp(new Color(230, 226, 218)), 0.08);
+                c.layer().line(24, 3, 29, 14, 1.4).commit(Canvas.ramp(steel), 0);
+                c.layer().line(29, 14, 30, 17, 2).commit(Canvas.ramp(wood), 0);
             }
             default -> c.layer().rect(8, 8, 16, 16).commit(Canvas.ramp(gold), 0);
         }

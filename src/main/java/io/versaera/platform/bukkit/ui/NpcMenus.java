@@ -40,6 +40,15 @@ public final class NpcMenus {
         this.facts = facts;
     }
 
+    private io.versaera.platform.bukkit.command.AdventureCommands adventure;
+    private java.util.function.Function<UUID, String> regionOf = u -> null;
+
+    /** 마구간 · 마차 · 배 창 (V7) */
+    public void adventure(io.versaera.platform.bukkit.command.AdventureCommands a, java.util.function.Function<UUID, String> regionOf) {
+        this.adventure = a;
+        this.regionOf = regionOf;
+    }
+
     private record Home(NpcDefinition npc, io.versaera.domain.npc.Relation.Stage stage, int affinity, List<QuestDefinition> available,
                         List<QuestService.Active> active, boolean shop, Map<String, Long> forecast, Set<String> services, List<String> info,
                         List<String> people) {}
@@ -120,6 +129,13 @@ public final class NpcMenus {
         if (sv.contains("REPAIR")) m.set(23, Menu.ui("repair", Material.ANVIL, "&f수리", List.of("&7손에 든 장비")), e -> repair(p, npc));
         m.set(24, Menu.ui("gift", Material.POPPY, "&d선물", List.of("&7손에 든 재료 1개")), e -> gift(p, npc));
         if (sv.contains("SONG")) m.set(25, Menu.ui("song", Material.NOTE_BLOCK, "&d노래", List.of("&7하루 한 번")), e -> song(p, npc));
+        if (adventure != null) {
+            if (sv.contains("STABLE")) m.set(0, Menu.ui("mount", Material.SADDLE, "&6마구간", List.of("&7탈것 사기")), e -> adventure.stable(p, npc));
+            if (sv.contains("CARRIAGE")) m.set(8, Menu.ui("carriage", Material.MINECART, "&f마차", List.of("&7이 도시에서 떠나는 마차")),
+                    e -> adventure.routes(p, npc, regionOf.apply(p.getUniqueId()), false));
+            if (sv.contains("SHIP")) m.set(8, Menu.ui("ship", Material.OAK_BOAT, "&b배", List.of("&7이 항구에서 떠나는 배 · 폭풍엔 뜨지 않음")),
+                    e -> adventure.routes(p, npc, regionOf.apply(p.getUniqueId()), true));
+        }
         if (!h.people().isEmpty()) m.set(26, Menu.ui("people", Material.BOOK, "&f아는 사람들", h.people().subList(0, Math.min(12, h.people().size()))), null);
         m.open(p);
     }
