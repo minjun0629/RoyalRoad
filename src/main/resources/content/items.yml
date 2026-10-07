@@ -33,7 +33,10 @@ items:
   # ---- 음식 · 소모품
   grilled_fish:    {name: 생선 구이,   category: FOOD, material: COOKED_SALMON, weight: 1, tags: [food]}
   hearty_stew:     {name: 든든한 스튜, category: FOOD, material: RABBIT_STEW,   weight: 1, tags: [food]}
-  minor_tonic:     {name: 작은 강장제, category: CONSUMABLE, material: POTION,   weight: 1, tags: [potion]}
+  minor_tonic:     {name: 작은 강장제, category: CONSUMABLE, material: POTION,   weight: 1, tags: [potion, potion_t1]}
+  healing_draught: {name: 회복 물약,   category: CONSUMABLE, material: POTION,   weight: 1, tags: [potion, potion_t2]}
+  greater_draught: {name: 상급 회복 물약, category: CONSUMABLE, material: POTION, weight: 1, tags: [potion, potion_t3]}
+  barley_bread:    {name: 보리빵,      category: FOOD, material: BREAD,          weight: 1, tags: [food, grain], source: CANON}
   # ---- 도구 (고유)
   smithing_hammer: {name: 대장 망치,   category: TOOL, material: IRON_AXE,     durability: 300, weight: 3, tags: [tool_hammer]}
   carving_knife:   {name: 조각칼,      category: TOOL, material: SHEARS,       durability: 250, weight: 1, tags: [tool_carving]}
@@ -47,6 +50,9 @@ items:
   iron_longsword:  {name: 철 장검,     category: WEAPON, material: IRON_SWORD,  durability: 400, weight: 4, tags: [sword], stats: {attack: 12}, requires: {mastery.swordsmanship: 3}}
   iron_dagger:     {name: 철 단검,     category: WEAPON, material: IRON_SWORD,  durability: 300, weight: 2, tags: [dagger], stats: {attack: 8}}
   ash_bow:         {name: 물푸레 활,   category: WEAPON, material: BOW,         durability: 300, weight: 2, tags: [bow], stats: {attack: 10}}
+  oak_staff:       {name: 참나무 지팡이, category: WEAPON, material: STICK, durability: 280, weight: 2, tags: [staff], stats: {attack: 9}}
+  ash_bow_fine:    {name: 고원 장궁,   category: WEAPON, material: BOW,  durability: 380, weight: 3, tags: [bow], stats: {attack: 13}, requires: {mastery.archery: 8}}
+  buckler:         {name: 둥근 방패,   category: ARMOR,  material: SHIELD, durability: 350, weight: 4, tags: [shield], stats: {defense: 5}}
   silver_spear:    {name: 은 창,       category: WEAPON, material: TRIDENT,     durability: 450, weight: 4, tags: [spear], stats: {attack: 14}, requires: {mastery.spearmanship: 8}}
   leather_jerkin:  {name: 가죽 조끼,   category: ARMOR,  material: LEATHER_CHESTPLATE, durability: 300, weight: 3, stats: {defense: 6}}
   iron_mail:       {name: 철 사슬 갑옷, category: ARMOR, material: CHAINMAIL_CHESTPLATE, durability: 500, weight: 8, stats: {defense: 12}, requires: {mastery.smithing: 1}}
@@ -54,5 +60,67 @@ items:
   # ---- 예술품 (고유, 실제 아이템 — 인벤토리 보관 · 거래 · 판매 가능)
   figurine:        {name: 작은 조각상, category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 2, tags: [art, sculpture]}
   statuette:       {name: 대리석 조각상, category: ARTWORK, material: ARMOR_STAND, durability: 150, weight: 6, tags: [art, sculpture]}
+  # 비기의 조각상 (던전의 숨은 보상) — 손에 들고 /비기 배우기
+  relic_life_statue:      {name: 생명이 깃든 조각상,   category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 4, tags: [art, sculpture, relic], source: CANON}
+  relic_transform_statue: {name: 모습을 바꾸는 조각상, category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 4, tags: [art, sculpture, relic], source: CANON}
+  emperor_crown:          {name: 황제의 왕관, category: ARMOR, material: PAPER, durability: 2000, weight: 2, tags: [helmet, crown], stats: {defense: 6}, source: CANON}
+  relic_revival_statue:   {name: 되살리는 조각상,     category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 4, tags: [art, sculpture, relic], source: CANON}
   relief_plaque:   {name: 부조 명판,   category: ARTWORK, material: ITEM_FRAME, durability: 120, weight: 4, tags: [art, relief]}
   wind_chime:      {name: 바람 풍경,   category: ARTWORK, material: BELL,       durability: 80,  weight: 1, tags: [art, sky]}
+  # ---- 원작에 이름이 나온 장비
+  # 투구는 material: PAPER — 머리에 쓰면 리소스팩의 입체 모델이 그대로 보인다 (바닐라 투구 재질이면 납작한 갑옷 그림으로만 보임). 쓰기는 플러그인이 (우클릭 · 투구 칸) (이름 CANON — 나무위키 「로열 로드/아이템」 사용자 제공 본문. 능력 수치는 ORIGINAL)
+  # 공격력 · 방어력 말고 다른 능력과 내력(lore)은 /감정 으로 감정해야 보인다. requires: 착용 조건 (대장 기술 숙련 1마다 1% 줄어든다)
+  hard_iron_sword:  {name: 단단한 철검, category: WEAPON, material: IRON_SWORD, durability: 700, weight: 4, tags: [sword], stats: {attack: 14, crit: 3}, source: CANON,
+                     lore: "초급 수련관을 통과한 사람에게 주는 튼튼한 철검. 잘 부러지지 않는다"}
+  zahab_carving_knife: {name: 자하브의 조각칼, category: TOOL, material: SHEARS, durability: 900, weight: 1, tags: [tool_carving, dagger], stats: {attack: 22, craft: 8, crit: 10}, requires: {mastery.sculpting: 10}, source: CANON,
+                     lore: "전설의 조각사 자하브가 쓰던 조각칼. 조각품의 품질을 높이고, 무기로도 날카롭다"}
+  clay_sword:       {name: 클레이 소드, category: WEAPON, material: IRON_SWORD, durability: 500, weight: 4, tags: [sword], stats: {attack: 18, slow: 10}, requires: {mastery.swordsmanship: 8}, source: CANON,
+                     lore: "흙의 기운이 깃든 검. 맞은 상대의 발을 무겁게 한다"}
+  calamor_sword:    {name: 칼라모르의 검, category: WEAPON, material: IRON_SWORD, durability: 800, weight: 5, tags: [sword], stats: {attack: 24, crit: 8, vs_human: 10}, requires: {mastery.swordsmanship: 12}, source: CANON,
+                     lore: "사막의 왕국 칼라모르의 기사가 쓰던 검"}
+  agatha_holy_sword: {name: 아가사의 거룩한 검, category: WEAPON, material: GOLDEN_SWORD, durability: 900, weight: 4, tags: [sword], stats: {attack: 26, holy: 6, vs_undead: 30, vs_demon: 20}, requires: {mastery.swordsmanship: 15, fame: 300}, source: CANON,
+                     lore: "성기사 아가사의 축복이 남은 검. 언데드와 악마에게 큰 피해를 준다"}
+  cold_lot_sword:   {name: 차가운 로트의 검, category: WEAPON, material: DIAMOND_SWORD, durability: 850, weight: 4, tags: [sword], stats: {attack: 25, ice: 6, slow: 20}, requires: {mastery.swordsmanship: 14}, source: CANON,
+                     lore: "서리가 늘 맺혀 있는 검. 베인 자리가 얼어붙는다"}
+  coldrim_demon_sword: {name: 콜드림의 데몬 소드, category: WEAPON, material: NETHERITE_SWORD, durability: 1200, weight: 6, tags: [sword, cursed], stats: {attack: 40, dark: 8, lifesteal: 6, drain: 1}, requires: {mastery.swordsmanship: 20}, source: CANON,
+                     lore: "악마가 깃든 검. 강하지만 든 사람의 생명을 조금씩 먹는다 (저주)"}
+  roa_masterpiece:  {name: 로아의 명검, category: WEAPON, material: DIAMOND_SWORD, durability: 1100, weight: 4, tags: [sword], stats: {attack: 34, crit: 12, pierce: 15}, requires: {mastery.swordsmanship: 18}, source: CANON,
+                     lore: "명장 로아가 평생을 바쳐 벼린 검. 갑옷 틈을 파고든다"}
+  red_star:         {name: 레드 스타, category: WEAPON, material: NETHERITE_SWORD, durability: 1500, weight: 5, tags: [sword], stats: {attack: 38, fire: 10, crit: 8, vs_large: 15}, requires: {mastery.swordsmanship: 22}, source: CANON,
+                     lore: "붉은 별이 떨어진 쇠로 만든 검. 불꽃이 인다"}
+  chaos_axe:        {name: 혼돈의 도끼, category: WEAPON, material: NETHERITE_AXE, durability: 1300, weight: 8, tags: [sword, axe], stats: {attack: 42, vs_large: 25, stun: 8, speed: -10}, requires: {mastery.swordsmanship: 20, stat.strength: 12}, source: CANON,
+                     lore: "혼돈의 힘이 깃든 거대한 도끼. 무겁지만 큰 몬스터를 쪼갠다"}
+  yerika_bow:       {name: 예리카의 활, category: WEAPON, material: BOW, durability: 900, weight: 2, tags: [bow], stats: {attack: 26, lightning: 5, crit: 10}, requires: {mastery.archery: 15}, source: CANON,
+                     lore: "엘프 궁수 예리카의 활. 화살에 번개가 실린다"}
+  saint_staff:      {name: 성자의 지팡이, category: WEAPON, material: BLAZE_ROD, durability: 800, weight: 2, tags: [staff], stats: {attack: 20, holy: 12, vs_undead: 40, regen: 1}, requires: {mastery.spellcraft: 15}, source: CANON,
+                     lore: "성자가 짚던 지팡이. 든 사람의 상처를 천천히 낫게 한다"}
+  graham_helm:      {name: 그라함의 투구, category: ARMOR, material: PAPER, durability: 700, weight: 3, tags: [helmet], stats: {defense: 7}, set: graham, requires: {mastery.swordsmanship: 10}, source: CANON,
+                     lore: "기사 그라함의 갑주 중 투구"}
+  graham_plate:     {name: 그라함의 갑옷, category: ARMOR, material: IRON_CHESTPLATE, durability: 900, weight: 8, stats: {defense: 14}, set: graham, requires: {mastery.swordsmanship: 10}, source: CANON,
+                     lore: "기사 그라함의 갑주 중 몸통"}
+  graham_greaves:   {name: 그라함의 각반, category: ARMOR, material: IRON_LEGGINGS, durability: 800, weight: 6, stats: {defense: 10}, set: graham, requires: {mastery.swordsmanship: 10}, source: CANON,
+                     lore: "기사 그라함의 갑주 중 각반"}
+  graham_boots:     {name: 그라함의 장화, category: ARMOR, material: IRON_BOOTS, durability: 700, weight: 3, stats: {defense: 6}, set: graham, requires: {mastery.swordsmanship: 10}, source: CANON,
+                     lore: "기사 그라함의 갑주 중 장화"}
+  talok_helm:       {name: 탈로크의 투구, category: ARMOR, material: PAPER, durability: 1000, weight: 4, tags: [helmet], stats: {defense: 10, health: 2}, set: talok, requires: {stat.strength: 10}, source: CANON,
+                     lore: "바바리안 전사 탈로크의 투구"}
+  talok_armor:      {name: 탈로크의 갑옷, category: ARMOR, material: NETHERITE_CHESTPLATE, durability: 1400, weight: 10, stats: {defense: 20, health: 4}, set: talok, requires: {stat.strength: 10}, source: CANON,
+                     lore: "바바리안 전사 탈로크의 갑옷. 함께 입으면 짐승 같은 힘이 난다"}
+  van_hawk_helm:    {name: 반 호크의 투구, category: ARMOR, material: PAPER, durability: 1200, weight: 4, tags: [helmet, cursed], stats: {defense: 14, health: 4, thorns: 5}, requires: {mastery.swordsmanship: 16}, source: CANON,
+                     lore: "데스 나이트 반 호크가 쓰던 투구. 죽음의 기운이 서려 있다"}
+  kubicha_boots:    {name: 쿠비챠의 부츠, category: ARMOR, material: LEATHER_BOOTS, durability: 600, weight: 1, stats: {defense: 5, speed: 15}, requires: {stat.endurance: 10}, source: CANON,
+                     lore: "가볍기 짝이 없는 부츠. 신으면 발걸음이 빨라진다"}
+  # ---- 보스 재료 (ORIGINAL)
+  dragon_bone:      {name: 용의 뼈,     category: MATERIAL, material: BONE,        weight: 3, tags: [bone, dragon]}
+  dragon_scale:     {name: 용의 비늘,   category: MATERIAL, material: PRISMARINE_SHARD, weight: 1, tags: [scale, dragon]}
+  vampire_blood:    {name: 뱀파이어의 피, category: MATERIAL, material: REDSTONE,  weight: 1, tags: [blood]}
+  demon_horn:       {name: 악마의 뿔,   category: MATERIAL, material: RABBIT_FOOT,   weight: 1, tags: [horn, demon]}
+  lich_phylactery_shard: {name: 생명의 그릇 조각, category: MATERIAL, material: ECHO_SHARD, weight: 1, tags: [undead]}
+  bandage:          {name: 붕대,        category: CONSUMABLE, material: PAPER,     weight: 1, tags: [bandage], source: CANON}
+  whetstone:        {name: 숫돌,        category: MATERIAL, material: FLINT,       weight: 1, tags: [whetstone]}
+  raw_meat:         {name: 날고기,      category: MATERIAL, material: BEEF,        weight: 2, tags: [meat]}
+
+# 세트 (2개 · 4개 입으면 보너스, 아래 단계도 함께). 이름 CANON, 수치 ORIGINAL
+sets:
+  graham: {name: 그라함의 갑주, source: CANON, bonuses: {2: {defense: 6}, 4: {health: 6, resist: 10}}}
+  talok:  {name: 탈로크의 전투복, source: CANON, bonuses: {2: {health: 6, vs_large: 10, resist: 5}}}

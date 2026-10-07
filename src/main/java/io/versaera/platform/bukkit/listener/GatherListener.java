@@ -63,6 +63,11 @@ public final class GatherListener implements Listener {
         Bukkit.getScheduler().runTaskTimer(plugin, this::tickRegrow, 100L, 100L);
     }
 
+    private String regionAt(Location l) {
+        Region r = s.regions.at(l.getWorld().getName(), l.getBlockX(), l.getBlockY(), l.getBlockZ());
+        return r == null ? null : r.id();
+    }
+
     private Set<String> tagsAt(Location l) {
         Region r = s.regions.at(l.getWorld().getName(), l.getBlockX(), l.getBlockY(), l.getBlockZ());
         return r == null ? Set.of() : r.tags();
@@ -90,19 +95,14 @@ public final class GatherListener implements Listener {
         BlockData before = b.getBlockData().clone();
         Location at = b.getLocation();
         Set<String> tags = tagsAt(at);
-        String id = p.getUniqueId().toString();
+        String id = p.getUniqueId().toString(), region = regionAt(at);
         long seed = rng.nextLong();
-        async.run("gather", () -> {
-            int level = s.growth.level(id, n.discipline());
-            if (level < n.minLevel()) return null;
-            ResourceNode.Gather g = n.gather(level, tags, new SplittableRandom(seed));
-            s.items.deliverBulk(id, n.yield(), g.quality(), g.amount(), "gather:" + n.id());
-            s.growth.addXp(id, n.discipline(), n.xp(), n.actionLevel());
-            s.growth.record(id, "gather." + n.discipline(), 1);
-            return g;
-        }, g -> {
+        async.run("gather", () -> s.gathering.gather(id, n.id(), region, tags, seed), g -> {
             if (g == null) p.sendMessage(Ui.error("아직 다룰 수 없는 자원입니다"));
-            else sessions.deliver(p);
+            else {
+                if (g.bonus() > 0) Ui.bar(p, "&a+" + g.bonus());
+                sessions.deliver(p);
+            }
         }, p);
         if (n.respawnSeconds() > 0) {
             Bukkit.getScheduler().runTask(plugin, () ->
@@ -133,17 +133,13 @@ public final class GatherListener implements Listener {
         Player p = e.getPlayer();
         if (e.getCaught() != null) e.getCaught().remove();   // 바닐라 물고기 대신 지역 · 숙련에 맞는 어획
         e.setExpToDrop(0);
-        Set<String> tags = tagsAt(e.getHook().getLocation());
-        String id = p.getUniqueId().toString();
+        Location hook = e.getHook().getLocation();
+        Set<String> tags = tagsAt(hook);
+        String id = p.getUniqueId().toString(), region = regionAt(hook);
         long seed = rng.nextLong();
         async.run("fish", () -> {
-            int level = s.growth.level(id, "fishing");
-            ResourceNode n = sea != null && tags.contains("sea") && level >= sea.minLevel() ? sea : river;
-            ResourceNode.Gather g = n.gather(level, tags, new SplittableRandom(seed));
-            s.items.deliverBulk(id, n.yield(), g.quality(), g.amount(), "fish:" + n.id());
-            s.growth.addXp(id, "fishing", n.xp(), n.actionLevel());
-            s.growth.record(id, "gather.fishing", 1);
-            return g;
+            var g = sea != null && tags.contains("sea") ? s.gathering.gather(id, sea.id(), region, tags, seed) : null;
+            return g != null ? g : s.gathering.gather(id, river.id(), region, tags, seed);
         }, g -> sessions.deliver(p), p);
     }
 }

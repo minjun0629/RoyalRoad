@@ -1,0 +1,93 @@
+package io.versaera.domain.death;
+
+import io.versaera.domain.skill.Mastery;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * 사망 페널티. 두 방식이 있다 (config death.mode):
+ * <p><b>canon</b> (기본, CANON): 원작처럼 스킬 숙련도 하락(레벨은 그대로) · 행동 스탯 하락 · 무작위 아이템 드롭 — {@link #computeCanon}. (원작의 24시간 접속 불가는 넣지 않음)
+ * 악명 · 살인자면 더 크게 (Reputation.deathMult). 초보 기간(성문 밖에 못 나가는 동안)에는 없다.
+ * <p><b>soft</b> (ORIGINAL 완화판):
+ * <ul>
+ *   <li>숙련: 각 분야의 <b>지금 단계 진행도</b>만 (3 + 위험도 × 2)% 잃는다 — 레벨은 내려가지 않는다</li>
+ *   <li>장비: 입은 고유 장비가 (위험도 × 2 + 2) 닳고, 위험도 4 이상이면 최대 내구도 1 감소</li>
+ *   <li>쇠약: 부활 뒤 (60 + 위험도 × 30)초 동안 약해짐</li>
+ *   <li>아이템 드롭 · 접속 제한 없음 (복제 · 분쟁 위험 대비 이득이 작음)</li>
+ * </ul>
+ */
+public final class DeathPenalty {
+    /** @param statLoss 행동 기록(스탯의 바탕)에서 빼는 양 — 기록이 줄면 스탯 포인트도 준다 */
+    public record Result(Map<String, Long> xpLoss, int wear, boolean heavyWear, int weakSeconds, int drops, Map<String, Long> statLoss) {
+        public Result(Map<String, Long> xpLoss, int wear, boolean heavyWear, int weakSeconds) {
+            this(xpLoss, wear, heavyWear, weakSeconds, 0, Map.of());
+        }
+
+        public long totalStatLoss() {
+            return statLoss.values().stream().mapToLong(Long::longValue).sum();
+        }
+
+        public long totalXpLoss() {
+            return xpLoss.values().stream().mapToLong(Long::longValue).sum();
+        }
+    }
+
+    private DeathPenalty() {
+    }
+
+    public static Result compute(Map<String, Long> mastery, int danger) {
+        int d = Math.max(0, Math.min(6, danger));
+        double pct = (3 + d * 2) / 100.0;
+        Map<String, Long> loss = new LinkedHashMap<>();
+        for (Map.Entry<String, Long> e : mastery.entrySet()) {
+            long xp = e.getValue();
+            int lv = Mastery.levelOf(xp);
+            if (lv >= Mastery.MAX_LEVEL) continue;
+            long into = xp - Mastery.cumulative(lv);
+            long l = (long) Math.floor(into * pct);
+            if (l > 0) loss.put(e.getKey(), l);
+        }
+        return new Result(loss, d * 2 + 2, d >= 4, 60 + d * 30);
+    }
+
+    /**
+     * 원작식: 분야마다 <b>지금 레벨 한 칸 크기</b>의 (3 + 위험도 × 2)% × 배율을 숙련도에서 잃는다.
+     * 원작에서 스킬 레벨은 죽어도 떨어지지 않고 숙련도만 떨어지므로, 지금 레벨의 진행도까지만 깎는다 (0%에서 멈춤).
+     * 드롭: (1 + 위험도/3) × ⌈배율⌉ 칸, 최대 6. 어느 칸이 떨어질지는 서버가 고른다.
+     * 스탯: 스탯의 바탕이 되는 행동 기록을 (2 + 위험도)% × 배율 잃는다 (원작: 사망하면 스탯도 떨어진다).
+     *
+     * @param statCounters 행동 스탯이 쓰는 기록 → 지금 값
+     */
+    public static Result computeCanon(Map<String, Long> mastery, Map<String, Long> statCounters, int danger, double mult) {
+        int d = Math.max(0, Math.min(6, danger));
+        double m = Math.max(1, Math.min(4, mult));
+        double pct = (3 + d * 2) / 100.0 * m;
+        Map<String, Long> loss = new LinkedHashMap<>();
+        for (Map.Entry<String, Long> e : mastery.entrySet()) {
+            long xp = e.getValue();
+            int lv = Mastery.levelOf(xp);
+            if (lv >= Mastery.MAX_LEVEL) continue;
+            long into = xp - Mastery.cumulative(lv);
+            long l = Math.min(into, (long) Math.floor(Mastery.need(lv) * pct));
+            if (l > 0) loss.put(e.getKey(), l);
+        }
+        int drops = canonDrops(d, m);
+        Map<String, Long> stat = new LinkedHashMap<>();
+        double sp = (2 + d) / 100.0 * m;
+        for (Map.Entry<String, Long> e : statCounters.entrySet()) {
+            long l = (long) Math.floor(e.getValue() * sp);
+            if (l > 0) stat.put(e.getKey(), l);
+        }
+        return new Result(loss, d * 2 + 2, d >= 4, 60 + d * 30, drops, Map.copyOf(stat));
+    }
+
+    /** 원작식 드롭 칸 수 (플랫폼이 사망 순간에 바로 고를 수 있게 따로) */
+    public static int canonDrops(int danger, double mult) {
+        int d = Math.max(0, Math.min(6, danger));
+        double m = Math.max(1, Math.min(4, mult));
+        return Math.min(6, (1 + d / 3) * (int) Math.ceil(m));
+    }
+
+    public static final Result NONE = new Result(Map.of(), 0, false, 0, 0, Map.of());
+}

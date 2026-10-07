@@ -177,7 +177,10 @@ public final class StationListener implements Listener {
             if (tool != null) {
                 ItemInstance t = s.items.find(tool).filter(x -> x.custody().ownedBy(id)).orElse(null);
                 if (t != null && !t.broken()) {
-                    tq = t.quality();
+                    // 도구 능력 '제작 품질' (자하브의 조각칼 …) — 착용 조건을 채웠을 때만
+                    var tt = s.items.types().get(t.typeId());
+                    int bonus = io.versaera.application.GearService.unmet(tt, s.gear.context(id)).isEmpty() ? tt.stats().getOrDefault("craft", 0) * 10 : 0;
+                    tq = Math.min(1000, t.quality() + bonus);
                     s.items.wear(tool, id, 1, false);
                 }
             }

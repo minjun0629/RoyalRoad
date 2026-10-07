@@ -21,3 +21,8 @@ npcs:
                    likes: [cloth, metal], schedule: ["0-24:caravanserai"]}
   hana_scout:     {name: 하나, job: 개척 정찰병, personality: 지도에 없는 길을 좋아함, faction: settlers_council, region: risvel_outpost,
                    likes: [wood, food], schedule: ["5-19:palisade", "19-5:bunk"]}
+  garen_instructor: {name: 가렌, job: 기사단 교관, personality: 엄격하지만 버티는 자를 존중함, faction: harden_merchants, region: harden,
+                   likes: [metal, food], dislikes: [potion], schedule: ["6-18:drill_yard", "18-6:barracks"]}
+  # 악한 NPC (evil: true) — 악명 100 이상인 사람과만 거래한다 (원작: 악명이 높으면 악한 성향의 NPC 와 의뢰 · 거래가 된다)
+  verik_fence:    {name: 베릭, job: 장물아비, personality: 묻지 않고 사고 묻지 않고 판다, region: plains_of_despair, evil: true,
+                   likes: [gem, metal], dislikes: [food], schedule: ["0-24:den"]}

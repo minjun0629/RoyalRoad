@@ -1,222 +1,2840 @@
-# 지역 (02_WORLD.md). min/max: [x, y, z]. 겹치면 priority 가 높은 지역이 이긴다.
-# purpose(존재 이유)는 필수, 원작 지명(source: CANON)은 changed(후대의 변화)도 필수 — 없으면 로드 실패.
+# 지역 — tools/gen_regions.py 로 생성 (손으로 고치면 다음 생성 때 덮어씀).
+# 근거: 나무위키 「로열 로드/지리」 (2026 사용자 제공 본문) · 01_RESEARCH.md. x 동쪽(+) · z 남쪽(+). 겹치면 priority 가 높은 지역이 이긴다.
+# 세계 world 는 30000 × 30000 (-15000 ~ 15000, 베르사 대륙 ±11250). versa_realms 는 ±8000.
+# 원작 지명(CANON)은 changed(후대의 변화)가 필수. tags: landmark · dungeon_site · wall 은 지형을 바꾸지 않고 구조물만 세운다.
+# 원작에 위치가 없는 곳(카올랴 · 신대륙 · 극지 · 이름 없는 미궁/비경 · 수련관 · 다른 차원)은 이 게임이 정한 자리 — purpose · changed 에 그렇게 적었다.
+# portal 태그 = 문 (content/gates.yml). 다른 차원은 world: versa_realms.
 regions:
-  central_plains:
-    name: 중앙 평원
-    source: SOURCE-BASED
-    danger: 1
-    min: [-2500, -64, -2000]
-    max: [2500, 320, 2400]
-    priority: 0
-    tags: [plains]
-    purpose: 황제의 길이 지나는 넓은 평원. 도시 사이를 오가는 이동 자체가 탐험이 되도록 일부러 비워 둔 공간
-    resources: [oak_timber, flax_fiber]
-  harden:
-    name: 하르덴 교역시
-    danger: 0
-    min: [-300, 40, -300]
-    max: [300, 320, 300]
-    priority: 20
-    parent: central_plains
-    tags: [city, market]
-    purpose: 황제의 길 세 갈래가 만나는 옛 역참이 커진 대륙 최대 시장. 모든 재료가 모이지만 산지보다 비싸다
-    factions: [harden_merchants]
-  serven_granary:
-    name: 세르벤 곡창
-    danger: 1
-    min: [-1500, -64, 600]
-    max: [500, 320, 2200]
-    priority: 10
-    parent: central_plains
-    tags: [farmland, plains, river]
-    purpose: 대륙의 식량 창고. 요리 재료와 초보 사냥터
-    resources: [wheat_sheaf, flax_fiber, salmon]
-  calamor_ruins:
-    name: 칼라모르 폐도
-    source: CANON
-    danger: 3
-    min: [-800, 40, 2400]
-    max: [400, 320, 3400]
-    priority: 10
-    parent: central_plains
-    tags: [ruins]
-    purpose: 무너진 왕도의 발굴 현장. 역사 기록 발견 · 고고학 의뢰 · 거대 보스 「무너진 파수거상」
-    changed: 원작에서 하벤 제국에 멸망한 왕국의 도읍이, 대분열 때 다시 전쟁터가 되어 완전한 폐허가 됨. 지금은 새벽 기록관이 발굴 중
-    resources: [sandstone_block, raw_gem]
-    factions: [dawn_archive]
-  fallen_crater:
-    name: 추락 분화구
-    danger: 4
-    min: [1200, -64, 400]
-    max: [2200, 320, 1400]
-    priority: 10
-    parent: central_plains
-    tags: [sky, crater]
-    purpose: 하늘섬 파편이 떨어진 둥근 호수와 기울어진 섬 조각 — 대륙 어디서나 보이는 랜드마크. 하늘 금속 산지
-    resources: [sky_metal]
-  emperor_aqueduct:
-    name: 황제의 수로
-    danger: 3
-    min: [-1200, -64, -400]
-    max: [1200, 39, 4600]
-    priority: 12
-    tags: [underground, ruins, deep]
-    purpose: 통일 제국이 만든 지하 물길 · 창고 · 피난처. 하르덴 · 칼라모르 · 아스트라 아래를 잇는 수직 탐험 공간
-    resources: [silver_ore, raw_gem]
+
+  # ============================================================ 북부 — 아르펜 제국 · 옛 니플하임 제국 (나무위키 §6)
   north_reach:
-    name: 북부 고지
-    source: SOURCE-BASED
+    name: 북부 (옛 니플하임 · 아르펜 땅)
+    source: CANON
     danger: 2
-    min: [-3000, -64, -5000]
-    max: [3000, 320, -2001]
+    min: [-10125, -64, -9375]
+    max: [9376, 320, -5999]
     priority: 0
     tags: [highland, forest]
-    purpose: 잿빛 겨울 뒤 다시 사람이 살기 시작한 서늘한 고지대. 목재 · 사냥
+    purpose: 잿빛 겨울 뒤 다시 사람이 사는 서늘한 고지대. 목재 · 사냥 · 북부 탐험
+    changed: "원작에서 세르비안의 구슬로 얼었다가 풀려 아르펜 왕국 → 제국이 된 북부가, 수백 년 뒤 잿빛 겨울로 다시 비었다가 개척민이 돌아오는 땅이 됨"
     resources: [highland_timber, hide]
-  morata_free_city:
-    name: 모라타 자유시
-    source: CANON
-    danger: 0
-    min: [-400, 40, -4200]
-    max: [400, 320, -3600]
-    priority: 20
-    parent: north_reach
-    tags: [city, artisan]
-    purpose: 장인과 예술가의 도시. 생산 길드 · 염료 · 대리석 거래, 북부 탐험 보급
-    changed: 원작의 북부 마을이 잿빛 겨울의 피난민을 받아들이며 커져 어느 나라에도 속하지 않은 자유시가 됨. 옛 광장의 조각상은 풍화되어 「풍화의 정원」이 됨
-    resources: [marble_block, indigo_dye, madder_dye]
-    factions: [northern_artisans]
-  thor_deep_hammer:
-    name: 깊은 망치 (토르 산맥)
-    source: CANON
-    danger: 2
-    min: [-3600, -64, -4600]
-    max: [-2400, 320, -3400]
-    priority: 15
-    parent: north_reach
-    tags: [mountain, city, deep]
-    purpose: 계단식으로 파 들어간 광산 도시. 금속 · 보석 생산과 대장 기술의 중심
-    changed: 원작의 드워프 왕국이 「망치 맹약」이라는 광산 도시 연합이 됨. 산 하나가 통째로 파였고 폐광은 몬스터 서식지
-    resources: [iron_ore, copper_ore, silver_ore, raw_gem]
-    factions: [hammer_pact]
   niflheim_wastes:
     name: 니플하임 빙원 폐허
     source: CANON
     danger: 5
-    min: [-3000, -64, -6000]
-    max: [3000, 320, -5001]
+    min: [-10125, -64, -11250]
+    max: [9376, 320, -9376]
     priority: 5
     tags: [frozen, ruins]
     purpose: 얼음에 묻힌 옛 제국 도시. 서리 수정 · 고대 생물 · 거대 보스 「서리 군주의 껍데기」
-    changed: 원작의 옛 제국 역사가 남은 땅이 잿빛 겨울로 얼음에 덮임. 얼음 위로 첨탑 꼭대기만 보인다
+    changed: 니플하임 마지막 황제가 세르비안의 구슬로 얼린 북부의 북쪽 끝이 잿빛 겨울로 다시 빙원이 됨. 얼음 위로 첨탑 꼭대기만 보인다
     resources: [frost_crystal]
-  brent_highlands:
-    name: 브렌트 고원
+  jigolas:
+    name: 지골라스 (열화의 땅)
     source: CANON
-    danger: 2
-    min: [2500, -64, -1500]
-    max: [4200, 320, 500]
-    priority: 5
-    tags: [highland, forest]
-    purpose: 동로를 따라 펼쳐진 고원 숲. 목재 · 가죽 산지
-    changed: 원작의 브렌트 왕국은 사라졌고, 고원 숲은 벌목 개척지가 됨
-    resources: [highland_timber, hide]
-  nehales_bastion:
-    name: 네할레스 성채
+    danger: 6
+    min: [2250, -64, -11250]
+    max: [4876, 320, -9937]
+    priority: 15
+    tags: [volcano]
+    purpose: "대륙 극북부의 화산 금역. 지진 · 분화 · 극열 몬스터, 보석과 희귀 금속"
+    changed: "원작의 10대 금역. 대마법사 임벌의 마법진이 약해져 분화가 잦아지고, 얼지 않는 강이 빙원까지 흘러내림"
+    resources: [raw_gem, frost_crystal]
+  unfreezing_river:
+    name: 얼지 않는 강
+    source: CANON
+    danger: 5
+    min: [2344, -64, -10219]
+    max: [4782, 320, -9955]
+    priority: 18
+    parent: jigolas
+    tags: [river]
+    purpose: 지골라스에서 흘러내리는 따뜻한 강. 빙원 한가운데의 물길
+    changed: 원작 지골라스의 강이 후대에 빙원 남쪽까지 길게 흘러내림
+  inferno:
+    name: 인페르노
+    source: CANON
+    danger: 6
+    min: [3000, -64, -11250]
+    max: [3563, 320, -10874]
+    priority: 20
+    parent: jigolas
+    tags: [volcano]
+    purpose: 지골라스 북쪽의 작은 화산 분지
+    changed: 원작 지골라스의 지명. 후대에는 용암 호수가 굳어 검은 평원이 됨
+  imbel_circle:
+    name: 임벌의 마법진
+    source: CANON
+    danger: 5
+    min: [2625, -64, -11062]
+    max: [2813, 320, -10874]
+    priority: 22
+    parent: jigolas
+    tags: [landmark]
+    purpose: 화산 분화를 억누르던 대마법사 임벌의 마법진 터
+    changed: 원작에서 지골라스의 마나를 다스리던 마법진이 후대에 반쯤 꺼져 돌 고리만 남음
+  volcano_heart:
+    name: 화산 심장
+    source: CANON
+    danger: 6
+    min: [3375, -64, -10688]
+    max: [3751, 320, -10405]
+    priority: 22
+    parent: jigolas
+    tags: [dungeon_site]
+    purpose: 지골라스 깊은 곳 최상위 던전의 입구
+    changed: 원작의 레벨 400~500대 던전. 입구가 분화로 반쯤 묻힘
+  silent_tower:
+    name: 영웅을 기다리는 고요한 탑
+    source: CANON
+    danger: 6
+    min: [4312, -64, -11062]
+    max: [4501, 320, -10874]
+    priority: 22
+    parent: jigolas
+    tags: [landmark]
+    purpose: 생명을 받은 거대 조각 탑. 덩치 때문에 지골라스에 남은 필드 보스
+    changed: 원작에서 생명이 부여된 탑이 후대에는 움직이지 않는 거대한 석상처럼 서 있음
+  sendeim_valley:
+    name: 센데임 계곡 (죽음의 계곡)
+    source: CANON
+    danger: 5
+    min: [-4875, -64, -9375]
+    max: [-2999, 320, -8062]
+    priority: 12
+    parent: north_reach
+    tags: [valley, ruins]
+    purpose: 마지막 황제가 쓰러진 계곡. 무덤 돌 고리 · 언데드
+    changed: "니플하임 마지막 황제가 최후를 맞은 계곡이, 얼음이 녹으며 깊게 패여 순례지 겸 위험 지대가 됨"
+    resources: [frost_crystal, raw_gem]
+  furghol_ruins:
+    name: 푸르골 요새 터
+    source: CANON
+    danger: 4
+    min: [-9938, -64, -9188]
+    max: [-8812, 320, -8062]
+    priority: 12
+    parent: north_reach
+    tags: [ruins]
+    purpose: 북부 북서쪽 끝의 무너진 요새
+    changed: 북서쪽 요새가 잿빛 겨울에 버려져 반쯤 얼음에 묻힘 (번역명 확인 필요)
+    resources: [iron_ore, frost_crystal]
+  morata_free_city:
+    name: 모라타 자유시
     source: CANON
     danger: 0
-    min: [3200, 40, -900]
-    max: [3600, 320, -500]
+    min: [-750, 40, -8062]
+    max: [751, 320, -6937]
     priority: 20
-    parent: brent_highlands
-    tags: [fortress]
-    purpose: 동로를 지키는 요새이자 옛 왕도를 보러 오는 순례지
-    changed: 원작에서 브렌트 왕국의 수도였던 성이 왕국이 사라진 뒤 교역로 요새로 바뀜
-  rosaim_harbor:
-    name: 로자임 항만 연합
+    parent: north_reach
+    tags: [city, artisan]
+    purpose: "장인과 예술가의 도시. 생산 길드 · 염료 · 대리석 거래, 북부 탐험 보급"
+    changed: "니플하임 말기에 왕비를 배출하고 아르펜 왕국의 중심이 된 도시가, 후대에는 어느 나라에도 속하지 않은 자유시가 됨. 옛 광장 조각상은 「풍화의 정원」"
+    resources: [marble_block, indigo_dye, madder_dye]
+    factions: [northern_artisans]
+  mist_forest:
+    name: 안개 협곡 숲
+    source: CANON
+    danger: 3
+    min: [-2812, -64, -8062]
+    max: [-937, 320, -6562]
+    priority: 10
+    parent: north_reach
+    tags: [canyon, forest]
+    purpose: 모라타 서쪽의 안개 낀 협곡
+    changed: 모라타 서쪽 협곡에 숲이 바닥까지 내려와 덮음 (번역명 확인 필요)
+    resources: [highland_timber, moonleaf]
+  dawn_city:
+    name: 새벽의 도시
+    source: CANON
+    danger: 0
+    min: [1875, 40, -7688]
+    max: [3001, 320, -6562]
+    priority: 20
+    parent: north_reach
+    tags: [city, market]
+    purpose: 아르펜 제국이 세운 새 수도. 북부 교역 · 기록 보관
+    changed: "아르펜 제국의 신도시 수도가, 제국이 사라진 뒤 북부 상인들의 자치 도시가 됨"
+  barna_port:
+    name: 항구 바르나
+    source: CANON
+    danger: 0
+    min: [8250, 40, -8438]
+    max: [9376, 320, -7499]
+    priority: 20
+    parent: north_reach
+    tags: [city, coast]
+    purpose: 북부 동해안의 항구. 북해 어업 · 해상 교역
+    changed: 아르펜 제국의 항구가 잿빛 겨울 뒤 얼지 않는 항구로 다시 열림
+  bent_castle:
+    name: 벤트 성
+    source: CANON
+    danger: 0
+    min: [-4500, 40, -7312]
+    max: [-3749, 320, -6562]
+    priority: 20
+    parent: north_reach
+    tags: [city, fortress]
+    purpose: 북부 서쪽의 성
+    changed: 아르펜 제국의 성이 후대에 개척민의 보급 성이 됨
+  bargo_fortress:
+    name: 바르고 성채
     source: CANON
     danger: 1
-    min: [4600, 40, -800]
-    max: [5600, 320, 800]
-    priority: 10
-    tags: [city, coast, river]
-    purpose: 어업 · 해상 교역 · 조선. 군도 · 난파선 탐험의 출발점
-    changed: 원작의 동부 왕국이 무역으로 바닷가 항구 도시들의 연합이 됨
-    resources: [salmon, sea_salt]
-    factions: [rosaim_ports]
-  eastern_sea:
-    name: 동쪽 바다
+    min: [4875, 40, -6938]
+    max: [5626, 320, -6187]
+    priority: 20
+    parent: north_reach
+    tags: [fortress]
+    purpose: 북부 남동쪽을 지키는 성채
+    changed: 아르펜 제국의 성채가 후대에 북부 관문 요새가 됨
+  lavias:
+    name: 천공도시 라비아스
+    source: CANON
     danger: 3
-    min: [5601, -64, -6000]
-    max: [6000, 320, 6000]
+    min: [2438, 200, -8812]
+    max: [3938, 320, -7312]
+    priority: 25
+    parent: north_reach
+    tags: [sky]
+    purpose: 북부 하늘에 떠 있는 조인족의 섬 도시
+    changed: 원작에서 로자임 하늘에 있다가 아르펜 왕국으로 옮겨 온 하늘섬. 옮겨 오던 길에 떨어진 파편이 로자임의 추락 분화구가 됨
+  light_tower:
+    name: 빛의 탑
+    source: CANON
+    danger: 0
+    min: [3188, -64, -6938]
+    max: [3301, 320, -6824]
+    priority: 25
+    parent: north_reach
+    tags: [landmark]
+    purpose: 새벽의 도시 남동쪽의 하얀 탑
+    changed: 아르펜 제국의 랜드마크가 후대에는 등대처럼 길잡이 불을 밝힘
+  freya_statue:
+    name: 프레야 여신상
+    source: CANON
+    danger: 0
+    min: [938, -64, -6844]
+    max: [1051, 320, -6730]
+    priority: 25
+    parent: north_reach
+    tags: [landmark]
+    purpose: 모라타 동쪽 들판의 여신상
+    changed: 아르펜 제국의 랜드마크가 풍화되었지만 여전히 순례자를 맞음
+  morata_art_hall:
+    name: 모라타 예술회관
+    source: CANON
+    danger: 0
+    min: [-1050, -64, -6938]
+    max: [-899, 320, -6787]
+    priority: 25
+    parent: north_reach
+    tags: [landmark]
+    purpose: 모라타 서쪽의 예술회관
+    changed: 아르펜 제국의 예술회관이 후대에는 장인 동맹의 전시관이 됨
+  garden_of_gods:
+    name: 신들의 정원
+    source: CANON
+    danger: 0
+    min: [-375, -64, -6788]
+    max: [376, 320, -6468]
+    priority: 25
+    parent: north_reach
+    tags: [landmark]
+    purpose: 모라타 남쪽의 정원과 샘
+    changed: 아르펜 제국의 정원이 야생화 들판으로 남음
+  alcazar_bridge:
+    name: 알카사르의 다리
+    source: CANON
+    danger: 0
+    min: [1125, -64, -7500]
+    max: [1501, 320, -7424]
+    priority: 25
+    parent: north_reach
+    tags: [landmark]
+    purpose: 모라타와 새벽의 도시 사이의 큰 다리
+    changed: 아르펜 제국의 다리가 강이 마른 뒤에도 아치로 남음
+  northern_sea:
+    name: 북동쪽 바다
+    source: SOURCE-BASED
+    danger: 3
+    min: [9377, -64, -11250]
+    max: [10970, 320, -2813]
     priority: 1
     tags: [sea]
-    purpose: 군도 · 난파선 · 해저 유적과 해양 보스 「심해 갑각왕」
-    resources: [deep_eel, sea_salt]
-  astra_academy:
-    name: 아스트라 학술도시
-    source: SOURCE-BASED
-    danger: 0
-    min: [-1200, 40, 3800]
-    max: [-400, 320, 4600]
-    priority: 20
-    tags: [city, scholar]
-    purpose: 공국 연맹이 세운 연구 도시. 연금 · 시약 · 유적 연구
-    resources: [moonleaf, glass_sand]
-    factions: [astra_academy]
-  sand_sea:
-    name: 모래바다
-    source: SOURCE-BASED
+    purpose: 북부 동해안 밖의 차가운 바다
+
+  # ============================================================ 중부 — 하벤 · 칼라모르 · 톨렌 · 라살 · 브리튼 · 아이데른 · 리튼 · 토르 · 그라디안 · 기타 (나무위키 §2)
+  central_plains:
+    name: 중앙 대륙
+    source: CANON
+    danger: 1
+    min: [-8250, -64, -5998]
+    max: [9095, 320, 6938]
+    priority: 0
+    tags: [plains]
+    purpose: 왕국들이 흥하고 망한 대륙의 중심. 인구 · 경제력이 가장 큰 땅
+    changed: 하벤 · 아르펜 두 제국의 전쟁 뒤 중앙 대륙은 왕국 대신 도시 · 연합 · 폐허로 나뉨
+    resources: [oak_timber, flax_fiber]
+  thor_kingdom:
+    name: 토르 왕국 (드워프 연합)
+    source: CANON
+    danger: 2
+    min: [-3562, -64, -5998]
+    max: [5999, 320, -4501]
+    priority: 4
+    parent: central_plains
+    tags: [mountain]
+    purpose: "세 산맥에 2,300여 마을이 흩어진 드워프의 나라. 금속 · 보석 · 대장 기술"
+    changed: "드래곤 일곱에게 공물을 바치던 드워프 왕국이, 후대에 공물 계약이 끝나고 광산 도시 연합 「망치 맹약」이 됨"
+  ulta_range:
+    name: 울타 산맥
+    source: CANON
     danger: 3
-    min: [-3000, -64, 4401]
-    max: [3000, 320, 6000]
-    priority: 2
-    tags: [desert]
-    purpose: 남부의 사막. 소금 · 유리 모래 · 사막 가죽, 모래폭풍 이벤트와 보스 「사구 갈퀴웜」
-    resources: [sandstone_block, glass_sand, saltroot]
-  azil_oasis:
-    name: 아질 오아시스
-    danger: 0
-    min: [400, 40, 5000]
-    max: [1000, 320, 5600]
-    priority: 20
-    parent: sand_sea
-    tags: [city, desert, market]
-    purpose: 사막 한가운데 유일한 큰 샘에 대상단이 머물며 생긴 도시
-    factions: [sand_caravan]
-  buried_city:
-    name: 매몰 도시
-    danger: 5
-    min: [1600, -64, 5400]
-    max: [2400, 60, 6000]
-    priority: 15
-    parent: sand_sea
-    tags: [ruins, desert, deep]
-    purpose: 사구 아래 묻힌 옛 도시. 바람이 모래를 걷어 낼 때만 입구가 드러나는 발견 콘텐츠
-  west_frontier:
-    name: 서부 변경
+    min: [-3562, -64, -5998]
+    max: [-374, 320, -4501]
+    priority: 8
+    parent: thor_kingdom
+    tags: [mountain]
+    purpose: 토르 서쪽 산맥
+    changed: 원작 토르의 산맥. 깊은 곳 마을들은 지금도 바깥과 거의 왕래가 없다
+  saigorn_range:
+    name: 사이고른 산맥
+    source: CANON
+    danger: 3
+    min: [-373, -64, -5998]
+    max: [2626, 320, -4874]
+    priority: 8
+    parent: thor_kingdom
+    tags: [mountain]
+    purpose: 토르 가운데 산맥
+    changed: 원작 토르의 산맥. 남쪽 기슭(우고트)이 후대 광산 개발로 깎임
+  norn_range:
+    name: 노른 산맥
+    source: CANON
+    danger: 3
+    min: [2627, -64, -5998]
+    max: [5999, 320, -4501]
+    priority: 8
+    parent: thor_kingdom
+    tags: [mountain]
+    purpose: 토르 동쪽 산맥
+    changed: 원작 토르의 산맥. 드워프 회합 마을 그루터기가 있다
+  ugot:
+    name: 우고트
+    source: CANON
     danger: 4
-    min: [-6000, -64, -2000]
-    max: [-2501, 320, 2600]
-    priority: 2
+    min: [-373, -64, -4873]
+    max: [2626, 320, -4501]
+    priority: 9
+    parent: thor_kingdom
+    tags: [highland]
+    purpose: "사이고른 산맥 남쪽, 드워프 전사들이 몬스터를 막는 던전 지대"
+    changed: 원작에서 던전이 많이 발견되던 곳. 후대에도 국경 수비대가 지킨다
+  thor_deep_hammer:
+    name: 아이언 핸드 (깊은 망치)
+    source: CANON
+    danger: 1
+    min: [562, -64, -5812]
+    max: [1313, 320, -5062]
+    priority: 20
+    parent: saigorn_range
+    tags: [mountain, city, deep]
+    purpose: 뛰어난 대장장이 마을. 계단식 광산 도시와 대장 기술의 중심
+    changed: "원작에서 대장장이가 많기로 유명한 마을 아이언 핸드가, 산 하나를 통째로 파 들어간 광산 도시 「깊은 망치」로 커짐"
+    resources: [iron_ore, copper_ore, silver_ore, raw_gem]
+    factions: [hammer_pact]
+  kurso:
+    name: 쿠르소 (지하 도시)
+    source: CANON
+    danger: 2
+    min: [1500, -64, -5625]
+    max: [2251, 30, -5062]
+    priority: 15
+    parent: saigorn_range
+    tags: [underground, deep]
+    purpose: 지하 호수와 어우러진 고대 드워프 도시
+    changed: 네인핸드 마을 폐광 아래의 지하 도시. 후대에 지하 호수가 넓어짐
+  shaspen_cave:
+    name: 샤스펜 동굴
+    source: CANON
+    danger: 4
+    min: [2344, -64, -5438]
+    max: [2457, 320, -5324]
+    priority: 22
+    parent: saigorn_range
+    tags: [dungeon_site]
+    purpose: 최고급 루비 광맥 동굴 입구
+    changed: 원작에서 쿠르소 호수 너머의 동굴. 후대에 지상 입구가 새로 뚫림
+  debrado_village:
+    name: 데브라도 마을
+    source: CANON
+    danger: 1
+    min: [-2250, 40, -5625]
+    max: [-1874, 320, -5249]
+    priority: 20
+    parent: ulta_range
+    tags: [city]
+    purpose: 울타 산맥 최심부의 비밀 마을
+    changed: "원작에서 드래곤 레어의 보물을 노리던 비밀 기지가, 후대에는 평범한 산골 마을이 됨"
+  stump_village:
+    name: 그루터기 마을
+    source: CANON
+    danger: 0
+    min: [4125, 40, -5438]
+    max: [4501, 320, -5062]
+    priority: 20
+    parent: norn_range
+    tags: [city]
+    purpose: 노른 산맥의 드워프 회합 마을
+    changed: 원작의 회합 마을이 후대 망치 맹약의 의회가 열리는 곳이 됨
+  agoldia:
+    name: 아골디아 (백야의 땅)
+    source: CANON
+    danger: 6
+    min: [6000, -64, -5998]
+    max: [9095, 320, -4501]
+    priority: 10
+    parent: central_plains
+    tags: [mountain]
+    purpose: 비가 내리지 않는 깊은 산악 금역. 비행 몬스터 · 키메라 · 루 교단의 성역
+    changed: 원작의 10대 금역. 다크우드 마법사들이 풀어 놓은 키메라의 후손이 지금도 산다
+  lu_sanctum:
+    name: 루의 성역
+    source: CANON
+    danger: 5
+    min: [7312, -64, -5438]
+    max: [7688, 320, -5062]
+    priority: 22
+    parent: agoldia
+    tags: [landmark]
+    purpose: 아골디아 한가운데 루 교단의 성역
+    changed: 원작 루 교단의 성역이 후대에 순례자만 찾는 흰 첨탑으로 남음
+  dwarf_vault:
+    name: 드워프들의 특급 창고
+    source: CANON
+    danger: 5
+    min: [6562, -64, -5062]
+    max: [6676, 320, -4949]
+    priority: 22
+    parent: agoldia
+    tags: [dungeon_site]
+    purpose: 아골디아 산속 드워프 보물 창고 입구
+    changed: 원작의 드워프 창고. 후대 망치 맹약이 되찾으려 하는 곳
+  bakuba_kingdom:
+    name: 바쿠바 왕국
+    source: CANON
+    danger: 2
+    min: [-6750, -64, -5998]
+    max: [-3563, 320, -4501]
+    priority: 4
+    parent: central_plains
+    tags: [plains]
+    purpose: 중앙 대륙 북서쪽의 작은 왕국 땅
+    changed: 원작에 이름만 나온 왕국. 후대에는 목축 마을들이 흩어진 들판 (위치는 이 게임의 설정)
+  west_frontier:
+    name: 서부 변경 (옛 브레멘 땅)
+    source: SOURCE-BASED
+    danger: 4
+    min: [-6750, -64, -4500]
+    max: [-3563, 320, -1501]
+    priority: 4
+    parent: central_plains
     tags: [forest, frontier]
-    purpose: 원작 자료가 부족한 서부를 새로 만든 미개척지. 지도에 없는 땅을 처음 밟는 탐험 콘텐츠
+    purpose: 칼라모르 북쪽 · 하벤 서쪽의 옛 왕국 땅이 숲으로 덮인 미개척지
     resources: [highland_timber, moonleaf]
   risvel_outpost:
     name: 개척지 리스벨
     danger: 1
-    min: [-2900, 40, -200]
-    max: [-2500, 320, 200]
+    min: [-6000, 40, -3375]
+    max: [-5249, 320, -2624]
     priority: 20
+    parent: west_frontier
     tags: [outpost]
-    purpose: 문명의 서쪽 끝 목책 마을. 개척 의뢰와 보급
+    purpose: 서부 변경의 목책 마을. 개척 의뢰와 보급
     factions: [settlers_council]
+  lost_road_badlands:
+    name: 잃어버린 길의 황무지
+    source: CANON
+    danger: 5
+    min: [-8250, -64, -5998]
+    max: [-6751, 320, 1501]
+    priority: 6
+    parent: central_plains
+    tags: [badlands]
+    purpose: 중앙 대륙과 서부 사이의 거대한 미로 황무지. 길을 모르면 끝없이 헤맨다
+    changed: 원작의 10대 금역. 후대에 바람이 협곡을 더 깎아 미로가 깊어짐
+  kallamore_lands:
+    name: 칼라모르 옛 영토
+    source: CANON
+    danger: 2
+    min: [-6750, -64, -1500]
+    max: [-3563, 320, 2813]
+    priority: 4
+    parent: central_plains
+    tags: [plains]
+    purpose: "기사도의 왕국 땅. 서쪽은 바다, 북서쪽에 몬스터 소굴 센바인 산맥"
+    changed: 하벤에 멸망한 칼라모르 땅이 후대에 서해안 침식으로 바다가 안쪽으로 들어옴
+    resources: [oak_timber, sandstone_block]
+  senbain_range:
+    name: 센바인 산맥
+    source: CANON
+    danger: 4
+    min: [-6656, -64, -1462]
+    max: [-5062, 320, -562]
+    priority: 10
+    parent: kallamore_lands
+    tags: [mountain]
+    purpose: 칼라모르의 핵심 몬스터 소굴
+    changed: 원작에서 몬스터 대군이 내려오던 산맥. 후대에도 산 아래 평야에 감시탑이 늘어서 있다
+  calamor_ruins:
+    name: 칼라모르 폐도
+    source: CANON
+    danger: 3
+    min: [-6375, -64, 0]
+    max: [-5062, 320, 1313]
+    priority: 10
+    parent: kallamore_lands
+    tags: [ruins]
+    purpose: 무너진 왕도의 발굴 현장. 역사 기록 발견 · 고고학 의뢰 · 거대 보스 「무너진 파수거상」
+    changed: "하벤 제국에 멸망한 왕국의 도읍이, 대분열 때 다시 전쟁터가 되어 완전한 폐허가 됨. 새벽 기록관이 발굴 중"
+    resources: [sandstone_block, raw_gem]
+    factions: [dawn_archive]
+  evaruk_castle:
+    name: 에바루크 성
+    source: CANON
+    danger: 1
+    min: [-4875, 40, 1500]
+    max: [-4312, 320, 2063]
+    priority: 20
+    parent: kallamore_lands
+    tags: [city, fortress]
+    purpose: 칼라모르 남동쪽의 성
+    changed: 원작 칼라모르의 성이 왕국이 망한 뒤 기사 수도회의 성이 됨
+  orun_fortress:
+    name: 오룬 요새
+    source: CANON
+    danger: 2
+    min: [-6281, 40, 1969]
+    max: [-5718, 320, 2532]
+    priority: 20
+    parent: kallamore_lands
+    tags: [fortress]
+    purpose: 칼라모르 서해안의 요새
+    changed: 원작 칼라모르의 요새가 해안 침식으로 바다 절벽 위에 서게 됨
+  gradian_lands:
+    name: 그라디안 왕국 옛 땅
+    source: CANON
+    danger: 3
+    min: [-9000, -64, 2814]
+    max: [-6189, 320, 6938]
+    priority: 4
+    parent: central_plains
+    tags: [highland, forest]
+    purpose: "중앙 대륙 최서부. 바다처럼 펼쳐진 산과 숲, 엘프와 이종족"
+    changed: "블랙소드 용병단과 하벤 제국에 차례로 정복된 왕국이, 후대에는 엘프 숲 부족들의 땅으로 돌아감"
+    resources: [wheat_sheaf, flax_fiber, salmon]
+  bergen_castle:
+    name: 버겐 성
+    source: CANON
+    danger: 1
+    min: [-8062, 40, 4875]
+    max: [-7312, 320, 5626]
+    priority: 20
+    parent: gradian_lands
+    tags: [city, fortress]
+    purpose: 그라디안의 옛 수도
+    changed: 그라디안 수도가 후대에 숲 부족들의 회의 도시가 됨
+  nod_grape:
+    name: 노드 그라페
+    source: CANON
+    danger: 2
+    min: [-7969, 40, 4125]
+    max: [-7499, 320, 4595]
+    priority: 20
+    parent: gradian_lands
+    tags: [fortress]
+    purpose: 버겐 성 북쪽 절벽 위의 요새 (성벽 40미터)
+    changed: 하벤 총독부였던 절벽 요새가 후대에 버려져 반쯤 무너짐
+  ruvidum_range:
+    name: 루비둠 산맥
+    source: CANON
+    danger: 3
+    min: [-6188, -64, 4502]
+    max: [-5626, 320, 6938]
+    priority: 8
+    parent: central_plains
+    tags: [mountain]
+    purpose: 그라디안과 노튼 사이의 거대한 산맥
+    changed: 원작에서 전투가 벌어진 산맥. 후대에는 고갯길 하나만 남음
+  haisaa_peak:
+    name: 하이사아 봉우리
+    source: CANON
+    danger: 3
+    min: [-6000, -64, 5625]
+    max: [-5812, 320, 5813]
+    priority: 15
+    parent: ruvidum_range
+    tags: [mountain]
+    purpose: 루비둠 산맥의 높은 봉우리
+    changed: 원작에서 군단이 배치된 봉우리에 후대 망루가 남음
+  nest_kingdom:
+    name: 네스트 왕국
+    source: CANON
+    danger: 2
+    min: [-5625, -64, 2814]
+    max: [-3563, 320, 4501]
+    priority: 4
+    parent: central_plains
+    tags: [plains]
+    purpose: 그라디안 근처의 왕국 땅
+    changed: 그라디안 근처의 왕국이 후대에 곡창 마을 연합이 됨 (위치는 이 게임의 설정)
+  serven_granary:
+    name: 세르벤 곡창
+    danger: 1
+    min: [-5438, -64, 3000]
+    max: [-3749, 320, 4313]
+    priority: 10
+    parent: nest_kingdom
+    tags: [farmland, plains, river]
+    purpose: 대륙의 식량 창고. 요리 재료와 초보 사냥터
+    resources: [wheat_sheaf, flax_fiber, salmon]
+  norton_kingdom:
+    name: 노튼 왕국
+    source: CANON
+    danger: 2
+    min: [-5625, -64, 4502]
+    max: [-3563, 320, 6938]
+    priority: 4
+    parent: central_plains
+    tags: [plains]
+    purpose: 루비둠 산맥 동쪽의 왕국 땅
+    changed: 원작에 이름만 나온 왕국. 후대에는 호수 주변 어촌과 들판
+  benzen_plains:
+    name: 벤젠 평원
+    source: CANON
+    danger: 2
+    min: [-5625, -64, 4502]
+    max: [-4687, 320, 6001]
+    priority: 6
+    parent: norton_kingdom
+    tags: [plains]
+    purpose: 루비둠 산맥 앞의 대평원
+    changed: 원작에서 연합군이 대패한 평원. 후대에 전사자 비석이 줄지어 있다
+  tochen_lake:
+    name: 토첸 호수
+    source: CANON
+    danger: 1
+    min: [-4312, -64, 5625]
+    max: [-3749, 320, 6188]
+    priority: 12
+    parent: norton_kingdom
+    tags: [lake]
+    purpose: 노튼의 호수
+    changed: 원작의 매복 장소였던 호수가 후대에 어촌의 호수가 됨
+  haven_lands:
+    name: 하벤 왕국 옛 영토
+    source: CANON
+    danger: 1
+    min: [-3562, -64, -2812]
+    max: [751, 320, 2813]
+    priority: 4
+    parent: central_plains
+    tags: [plains]
+    purpose: 넓고 비옥한 영토와 광물 산지를 가진 전통의 강국 땅
+    changed: "하벤 제국이 가르나프 평원 전투로 무너진 뒤, 옛 수도권은 국경 없는 교역 지대가 됨"
+    resources: [wheat_sheaf, oak_timber]
+  harden:
+    name: 하르덴 교역시
+    danger: 0
+    min: [-2438, 40, -562]
+    max: [-1312, 320, 563]
+    priority: 20
+    parent: haven_lands
+    tags: [city, market]
+    purpose: 황제의 길 세 갈래가 만나는 옛 역참이 커진 대륙 최대 시장
+    factions: [harden_merchants]
+  aren_castle:
+    name: 아렌 성
+    source: CANON
+    danger: 0
+    min: [-3188, 40, -2438]
+    max: [-2437, 320, -1687]
+    priority: 20
+    parent: haven_lands
+    tags: [city, fortress]
+    purpose: 하벤의 옛 수도. 투쟁의 길 수련관이 있던 곳
+    changed: 케이베른에게 파괴된 수도를 후대에 성벽만 다시 쌓아 기록 도시로 씀
+  struggle_road:
+    name: 투쟁의 길 (고급 수련관)
+    source: CANON
+    danger: 3
+    min: [-2362, -64, -2362]
+    max: [-2174, 320, -2174]
+    priority: 25
+    parent: haven_lands
+    tags: [landmark]
+    purpose: "아렌 성 밖, 투신 바탈리 교단의 수련 길 입구"
+    changed: 원작의 고급 수련관. 후대에는 도전자만 들어가는 돌문으로 남음
+  octon:
+    name: 옥턴 (학문의 도시)
+    source: CANON
+    danger: 0
+    min: [-938, 40, 1125]
+    max: [-187, 320, 1876]
+    priority: 20
+    parent: haven_lands
+    tags: [city, scholar]
+    purpose: 지도 제작 · 식물학 · 몬스터 · 역사를 배우는 도시
+    changed: 모험가만 찾던 학문의 도시가 후대에 지도 제작 길드의 본부가 됨
+  valkis_castle:
+    name: 발키스 성
+    source: CANON
+    danger: 2
+    min: [0, 40, -1875]
+    max: [563, 320, -1312]
+    priority: 20
+    parent: haven_lands
+    tags: [fortress]
+    purpose: 하벤의 핵심 성 중 하나
+    changed: 바르칸과의 전투로 초토화된 성을 후대에 요새로 다시 지음
+  pirta_castle:
+    name: 피르타 성
+    source: CANON
+    danger: 1
+    min: [-3469, -64, 1594]
+    max: [-2812, 320, 2251]
+    priority: 15
+    parent: haven_lands
+    tags: [mountain]
+    purpose: 산꼭대기에 지어진 아름다운 고성
+    changed: 산 위 고성이 후대에 관광 순례지가 됨
+  agolta_region:
+    name: 아골타 지역
+    source: CANON
+    danger: 2
+    min: [-3562, -64, -375]
+    max: [-2530, 320, 1126]
+    priority: 8
+    parent: haven_lands
+    tags: [highland]
+    purpose: 하벤 서쪽의 광물 산지
+    changed: 하벤의 광물 산지가 후대에 노천 광산이 됨
+  anaboress_village:
+    name: 아나보레스 마을
+    source: CANON
+    danger: 0
+    min: [-1594, 40, 1500]
+    max: [-1218, 320, 1876]
+    priority: 20
+    parent: haven_lands
+    tags: [city]
+    purpose: 하벤 남쪽의 마을
+    changed: 하벤의 마을이 후대에 하르덴의 배후 농촌이 됨
+  frig_region:
+    name: 프리그 지역
+    source: CANON
+    danger: 3
+    min: [-562, -64, -2812]
+    max: [751, 320, -2062]
+    priority: 8
+    parent: haven_lands
+    tags: [ruins]
+    purpose: 초토화된 옛 성 지역
+    changed: 반헤르메스 성주가 있던 곳이 초토화된 뒤 후대까지 폐허로 남음
+  garnaf_plains:
+    name: 가르나프 평원
+    source: CANON
+    danger: 2
+    min: [-3562, -64, -2812]
+    max: [-655, 320, -2474]
+    priority: 6
+    parent: haven_lands
+    tags: [plains]
+    purpose: 아르펜과 하벤의 결전이 벌어진 평원
+    changed: 대륙의 운명을 가른 전장. 후대에 전쟁 기념비가 선다
+  jubelin_dungeon:
+    name: 쥬벨린 던전
+    source: CANON
+    danger: 3
+    min: [-2062, -64, 2250]
+    max: [-1949, 320, 2363]
+    priority: 22
+    parent: haven_lands
+    tags: [dungeon_site]
+    purpose: 하벤 남쪽 던전 입구
+    changed: 원작 하벤의 던전. 후대에 입구가 무너져 새 길이 뚫림
+  emperor_aqueduct:
+    name: 황제의 수로
+    danger: 3
+    min: [-4500, -64, -2812]
+    max: [1876, 39, 6563]
+    priority: 12
+    tags: [underground, ruins, deep]
+    purpose: 통일 제국이 만든 지하 물길 · 창고 · 피난처. 하르덴 · 옥턴 · 아이데른 아래를 잇는다
+    resources: [silver_ore, raw_gem]
+  tolen_lands:
+    name: 톨렌 왕국 옛 영토
+    source: CANON
+    danger: 2
+    min: [-3562, -64, -4500]
+    max: [751, 320, -2813]
+    priority: 4
+    parent: central_plains
+    tags: [plains, forest]
+    purpose: 숲 · 평원 · 산악 지대의 왕국 땅. 흑마법 연구의 흔적
+    changed: "하벤 제국에 멸망하고 베덴 길드 자치령이었던 땅이, 후대에는 폐허 마을과 광산만 남음"
+    resources: [oak_timber, sandstone_block]
+  haineff_mountains:
+    name: 하이네프 산악지대
+    source: CANON
+    danger: 4
+    min: [-3562, -64, -4500]
+    max: [-2062, 320, -2999]
+    priority: 8
+    parent: tolen_lands
+    tags: [mountain]
+    purpose: 톨렌의 산악지대
+    changed: 원작의 산악지대. 후대에도 도적과 마수의 소굴
+  treypeak_fortress:
+    name: 트레이피크 요새
+    source: CANON
+    danger: 2
+    min: [-2812, 40, -3281]
+    max: [-2343, 320, -2849]
+    priority: 20
+    parent: haineff_mountains
+    tags: [fortress]
+    purpose: 하이네프를 지키던 요새
+    changed: 6만 대군이 주둔하던 요새가 후대에는 국경 초소가 됨
+  complete_citadel:
+    name: 완전한 성채
+    source: CANON
+    danger: 4
+    min: [-3469, -64, -4406]
+    max: [-2999, 320, -3937]
+    priority: 15
+    parent: haineff_mountains
+    tags: [ruins]
+    purpose: "반쯤 짓다 버려진 산악 성채, 도둑의 소굴"
+    changed: 원작에서 도둑의 소굴이던 미완성 성채가 후대에 더 무너짐
+  portmos_castle:
+    name: 포트모스 성
+    source: CANON
+    danger: 1
+    min: [-750, 40, -4125]
+    max: [-187, 320, -3562]
+    priority: 20
+    parent: tolen_lands
+    tags: [city, fortress]
+    purpose: 톨렌의 성
+    changed: 톨렌의 성이 후대에 광산 상인들의 성이 됨
+  rakone_fortress:
+    name: 라코느 요새
+    source: CANON
+    danger: 2
+    min: [844, 40, -3094]
+    max: [1313, 320, -2662]
+    priority: 20
+    parent: tolen_lands
+    tags: [fortress]
+    purpose: 톨렌과 라살 경계의 요새
+    changed: 흑사자 길드가 지은 강한 요새가 후대에 국경 세관이 됨
+  melbourne_mine:
+    name: 멜버른 광산
+    source: CANON
+    danger: 3
+    min: [-2438, -64, -3750]
+    max: [-2324, 320, -3637]
+    priority: 22
+    parent: haineff_mountains
+    tags: [dungeon_site]
+    purpose: 대륙 최고의 철광산 · 사파이어
+    changed: 흑사자 길드 독점이던 광산이 후대에 망치 맹약이 다시 엶
+  belkain_lair:
+    name: 벨카인의 은신처
+    source: CANON
+    danger: 5
+    min: [-3188, -64, -3562]
+    max: [-3074, 320, -3449]
+    priority: 22
+    parent: haineff_mountains
+    tags: [dungeon_site]
+    purpose: 지옥 마수 벨카인이 새끼를 키우던 굴
+    changed: 원작의 은신처가 후대에도 봉인되지 않은 채 남음
+  goldmine_dungeon:
+    name: 골드마인 던전
+    source: CANON
+    danger: 3
+    min: [-1688, -64, -4312]
+    max: [-1574, 320, -4199]
+    priority: 22
+    parent: tolen_lands
+    tags: [dungeon_site]
+    purpose: 대륙 최고의 황금 광산
+    changed: 원작의 금광이 후대에 거의 바닥나 몬스터 굴이 됨
+  atarog_cave:
+    name: 아타로그 마굴
+    source: CANON
+    danger: 4
+    min: [-375, -64, -3375]
+    max: [-262, 320, -3262]
+    priority: 22
+    parent: tolen_lands
+    tags: [dungeon_site]
+    purpose: "톨렌 왕국의 흑마법 연구소, 악령의 굴"
+    changed: 왕국이 망한 뒤 악령이 된 경비병들이 지금도 떠돈다
+  rotten_foam_swamp:
+    name: 썩은 거품의 늪
+    source: CANON
+    danger: 4
+    min: [-188, -64, -4500]
+    max: [751, 320, -3749]
+    priority: 10
+    parent: tolen_lands
+    tags: [swamp]
+    purpose: 흑마법 생명체가 사는 늪
+    changed: 원작의 늪이 후대에 조금 맑아졌지만 여전히 위험
+  rasal_kingdom:
+    name: 라살 왕국 옛 영토
+    source: CANON
+    danger: 2
+    min: [752, -64, -2812]
+    max: [3001, 320, -562]
+    priority: 4
+    parent: central_plains
+    tags: [plains, forest]
+    purpose: 중앙 대륙의 소왕국 땅
+    changed: 하벤에 순식간에 정복된 소왕국 땅이 후대에 숲 마을들이 됨
+  averian_forest:
+    name: 아베리안 숲
+    source: CANON
+    danger: 6
+    min: [1688, -64, -2438]
+    max: [2813, 320, -1312]
+    priority: 10
+    parent: rasal_kingdom
+    tags: [forest]
+    purpose: 라살의 금역. 울창한 숲과 미궁 조드
+    changed: 원작의 10대 금역. 악룡 케이베른 연구의 흔적이 지금도 숲을 뒤틀고 있다
+  maze_zod:
+    name: 미궁 조드
+    source: CANON
+    danger: 6
+    min: [2156, -64, -1969]
+    max: [2270, 320, -1855]
+    priority: 22
+    parent: averian_forest
+    tags: [dungeon_site]
+    purpose: 아베리안 숲의 미궁 입구
+    changed: 하프엘프 비슈르가 사라진 미궁. 후대에도 입구만 알려짐
+  suakun_fortress:
+    name: 수어쿤 요새
+    source: CANON
+    danger: 2
+    min: [844, 40, -1219]
+    max: [1313, 320, -749]
+    priority: 20
+    parent: rasal_kingdom
+    tags: [fortress]
+    purpose: 공략이 어렵기로 소문난 요새
+    changed: 라살의 요새가 후대에 숲 순찰대의 본부가 됨
+  elnavis_plains:
+    name: 엘나비스 평원
+    source: CANON
+    danger: 1
+    min: [752, -64, -2812]
+    max: [1595, 320, -1499]
+    priority: 6
+    parent: rasal_kingdom
+    tags: [plains]
+    purpose: 라살 서쪽의 평원
+    changed: 원작의 평원이 후대에 목초지가 됨
+  massen_kingdom:
+    name: 마센 왕국
+    source: CANON
+    danger: 2
+    min: [752, -64, -4500]
+    max: [3001, 320, -2813]
+    priority: 4
+    parent: central_plains
+    tags: [plains]
+    purpose: 중앙 대륙 북쪽의 왕국 땅
+    changed: 원작에 이름만 나온 왕국 (위치는 이 게임의 설정). 오래된 궁전과 미궁이 남음
+  roderick_labyrinth:
+    name: 로드릭 미궁
+    source: CANON
+    danger: 6
+    min: [1688, -64, -4125]
+    max: [1876, 320, -3937]
+    priority: 22
+    parent: massen_kingdom
+    tags: [dungeon_site]
+    purpose: "중앙 대륙 약간 북쪽, 옛 궁전 정원의 부서진 동상 아래 지하 계단 — 8대 미궁"
+    changed: 몰락한 왕국의 별궁을 대마법사 로드릭이 지하로 옮긴 미궁. 후대에도 공간 왜곡이 풀리지 않음
+  litten_kingdom:
+    name: 리튼 왕국
+    source: CANON
+    danger: 1
+    min: [752, -64, -561]
+    max: [3001, 320, 2813]
+    priority: 4
+    parent: central_plains
+    tags: [plains]
+    purpose: 하벤 동쪽 · 브리튼 서쪽의 왕국 땅
+    changed: 원작에 이름만 나온 왕국 (위치는 이 게임의 설정). 후대에는 교역로 마을
+  harpan_kingdom:
+    name: 하르판 왕국
+    source: CANON
+    danger: 2
+    min: [3000, -64, -4500]
+    max: [5999, 320, -2813]
+    priority: 4
+    parent: central_plains
+    tags: [plains]
+    purpose: 브리튼 북쪽 · 토르 남쪽의 왕국 땅
+    changed: 원작에 이름만 나온 왕국 (위치는 이 게임의 설정)
+  britten_alliance:
+    name: 브리튼 연합 왕국 (루가 강)
+    source: CANON
+    danger: 1
+    min: [3000, -64, -2812]
+    max: [5999, 320, 4688]
+    priority: 4
+    parent: central_plains
+    tags: [plains, river]
+    purpose: 중앙 동쪽 일곱 소국의 연합. 동부와 중앙을 잇는 교통 · 교역 중심
+    changed: 하벤에 흡수됐던 연합이 후대에 루가 강의 자유 도시 동맹으로 되살아남
+    resources: [salmon, flax_fiber, moonleaf]
+  sisley_castle:
+    name: 시슬레 성
+    source: CANON
+    danger: 0
+    min: [4219, 40, -656]
+    max: [4782, 320, -93]
+    priority: 20
+    parent: britten_alliance
+    tags: [city, fortress]
+    purpose: 루가 강 옆의 군사 · 교통 요충지
+    changed: 하루 만에 함락됐던 성이 후대에는 강 항구를 낀 상업 성이 됨
+  moros_castle:
+    name: 모로스 성
+    source: CANON
+    danger: 0
+    min: [3562, 40, 938]
+    max: [4220, 320, 1595]
+    priority: 20
+    parent: britten_alliance
+    tags: [city, market]
+    purpose: 가구 · 벨벳 · 향료 거래의 상업 도시
+    changed: 원작의 상업 도시(옛 헬튼 성)가 후대에도 향료 시장으로 이름남
+  freidal_castle:
+    name: 프레이달 성
+    source: CANON
+    danger: 0
+    min: [3188, 40, 1781]
+    max: [3657, 320, 2251]
+    priority: 20
+    parent: britten_alliance
+    tags: [city]
+    purpose: 모로스 성 가까이의 성
+    changed: 모로스 옆 성이 후대에 직조 공방 거리가 됨
+  edgar_castle:
+    name: 에드가 성
+    source: CANON
+    danger: 0
+    min: [5062, 40, -2438]
+    max: [5626, 320, -1874]
+    priority: 20
+    parent: britten_alliance
+    tags: [city, fortress]
+    purpose: 브리튼 북동쪽의 성
+    changed: 원작의 성이 후대에 사냥꾼 길드의 거점이 됨
+  rondis_mountain:
+    name: 론디스 산
+    source: CANON
+    danger: 3
+    min: [5062, -64, -1781]
+    max: [5813, 320, -1218]
+    priority: 10
+    parent: britten_alliance
+    tags: [mountain]
+    purpose: 에드가 성 근처 붉은 늑대의 산
+    changed: 붉은 늑대 서식지가 후대에도 이어짐
+  bermer:
+    name: 베르메르
+    source: CANON
+    danger: 0
+    min: [3094, 40, -2062]
+    max: [3563, 320, -1593]
+    priority: 20
+    parent: britten_alliance
+    tags: [city]
+    purpose: 브리튼 북서쪽 도시
+    changed: 구원군이 출발했던 도시가 후대에 작은 성곽 도시로 남음
+  bermer_mountain:
+    name: 베르메르 산
+    source: CANON
+    danger: 2
+    min: [3094, -64, -1500]
+    max: [3657, 320, -937]
+    priority: 10
+    parent: britten_alliance
+    tags: [mountain]
+    purpose: 베르메르 남쪽의 산
+    changed: 원작의 산이 후대에 채석장이 됨
+  somren_free_city:
+    name: 소므렌 자유도시
+    source: CANON
+    danger: 0
+    min: [4875, 40, 2438]
+    max: [5626, 320, 3188]
+    priority: 20
+    parent: britten_alliance
+    tags: [city, scholar]
+    purpose: 프레야 교단 본거지였던 자유도시
+    changed: 케이베른에게 파괴됐던 자유도시가 순례 · 치유의 도시로 다시 섬
+  antarosa_ruins:
+    name: 안타로사 폐허
+    source: CANON
+    danger: 4
+    min: [3188, -64, 2812]
+    max: [4501, 320, 4126]
+    priority: 10
+    parent: britten_alliance
+    tags: [ruins]
+    purpose: "옛 아르펜 제국 수도의 폐허. 지하도와 던전, 고대 서적 발굴지"
+    changed: 원작에서 이미 폐허였던 옛 수도가 후대에 발굴 도시와 몬스터 굴이 함께 있는 곳이 됨
+  water_pit_south:
+    name: 물구덩이 남쪽
+    source: CANON
+    danger: 4
+    min: [3562, -64, 3750]
+    max: [3938, 320, 4032]
+    priority: 18
+    parent: antarosa_ruins
+    tags: [ruins]
+    purpose: 안타로사 남쪽 웅덩이 근처의 유적
+    changed: 원작 안타로사의 지명
+  hidram_manor:
+    name: 히드람 백작 저택
+    source: CANON
+    danger: 4
+    min: [3750, -64, 3862]
+    max: [3863, 320, 3976]
+    priority: 24
+    parent: water_pit_south
+    tags: [dungeon_site]
+    purpose: 물구덩이 남쪽의 저택 유적 입구
+    changed: 원작에서 수색되던 저택 유적
+  yavolis_fortress:
+    name: 야볼리스 군사 요새
+    source: CANON
+    danger: 2
+    min: [5250, 40, 3750]
+    max: [5813, 320, 4313]
+    priority: 20
+    parent: britten_alliance
+    tags: [fortress]
+    purpose: 브리튼 남동쪽 군사 요새
+    changed: 포위를 버텼던 요새가 후대에 보급 기지가 됨
+  odein_fortress:
+    name: 오데인 요새
+    source: CANON
+    danger: 1
+    min: [2812, 40, 3562]
+    max: [3282, 320, 4032]
+    priority: 20
+    parent: britten_alliance
+    tags: [fortress]
+    purpose: 대륙 최대 요새 중 하나 (아이데른 · 브리튼 접경)
+    changed: 대륙 최대 요새가 후대에는 국경 박물관 겸 수비대 본부가 됨
+  odein_plains:
+    name: 오데인 평원
+    source: SOURCE-BASED
+    danger: 2
+    min: [3000, -64, 3000]
+    max: [3751, 320, 3526]
+    priority: 6
+    parent: britten_alliance
+    tags: [plains]
+    purpose: 오데인 요새 앞 들판 (게임판 지명)
+    resources: [hide, wheat_sheaf]
+  langbot_fortress:
+    name: 랭봇 요새
+    source: CANON
+    danger: 2
+    min: [5531, 40, -375]
+    max: [5999, 320, 188]
+    priority: 20
+    parent: britten_alliance
+    tags: [fortress]
+    purpose: 브리튼 동쪽 끝 요새
+    changed: 4만 8천이 쓰러진 요새가 후대에 위령탑과 함께 다시 지어짐
+  hepen_castle:
+    name: 헤펜 성
+    source: CANON
+    danger: 0
+    min: [4500, 40, 4219]
+    max: [4970, 320, 4651]
+    priority: 20
+    parent: britten_alliance
+    tags: [city]
+    purpose: 브리튼 남쪽의 성
+    changed: 원작의 성이 후대에 남쪽 교역 관문이 됨
+  drapukin_dungeon:
+    name: 드라푸킨 던전
+    source: CANON
+    danger: 5
+    min: [4875, -64, 1125]
+    max: [4988, 320, 1238]
+    priority: 22
+    parent: britten_alliance
+    tags: [dungeon_site]
+    purpose: 흑마법 도마뱀 드라킨의 던전 입구
+    changed: 원작의 고레벨 던전
+  basra_cave:
+    name: 바스라 마굴
+    source: SOURCE-BASED
+    danger: 4
+    min: [4125, -64, 1875]
+    max: [4501, 38, 2251]
+    priority: 14
+    parent: britten_alliance
+    tags: [underground, deep]
+    purpose: 브리튼 땅 아래 몬스터 소굴 (게임판 지명)
+    resources: [silver_ore, raw_gem]
+  aidern_lands:
+    name: 아이데른 왕국 옛 영토
+    source: CANON
+    danger: 2
+    min: [-3562, -64, 2814]
+    max: [2999, 320, 6938]
+    priority: 4
+    parent: central_plains
+    tags: [plains]
+    purpose: 남쪽 바다를 낀 왕국. 일스 대평원 곡창과 네 종족의 기원
+    changed: 원작의 왕국이 후대에 곡창 도시 연합이 됨
+    resources: [oak_timber, wheat_sheaf]
+  hillshade_castle:
+    name: 힐쉐이드 성
+    source: CANON
+    danger: 0
+    min: [-750, 40, 4125]
+    max: [1, 320, 4876]
+    priority: 20
+    parent: aidern_lands
+    tags: [city, market]
+    purpose: 아이데른의 수도. 큰 상점과 사치품
+    changed: 원작의 수도가 후대에도 사치품 시장으로 이름남
+  ils_plains:
+    name: 일스 대평원
+    source: CANON
+    danger: 1
+    min: [-2812, -64, 3188]
+    max: [938, 320, 5438]
+    priority: 6
+    parent: aidern_lands
+    tags: [farmland, plains]
+    purpose: 아이데른의 핵심 곡창지대
+    changed: 원작의 곡창이 후대에 더 넓어짐
+  pedra_wall:
+    name: 페드라 성벽
+    source: CANON
+    danger: 2
+    min: [-2812, -64, 5531]
+    max: [938, 320, 5626]
+    priority: 15
+    parent: aidern_lands
+    tags: [wall]
+    purpose: 일스 대평원을 지키려 오크와 드워프가 쌓은 방벽
+    changed: 원작의 방벽이 후대에 곳곳이 무너졌지만 여전히 서 있다
+  borniss_castle:
+    name: 보르니스 성
+    source: CANON
+    danger: 0
+    min: [-2062, 40, 3562]
+    max: [-1593, 320, 4032]
+    priority: 20
+    parent: ils_plains
+    tags: [city]
+    purpose: "일스 대평원의 옛 성, 여행자의 숙소"
+    changed: 원작에서 이미 여행자 숙소였던 고성
+  olgor_plateau:
+    name: 올고르 고원
+    source: CANON
+    danger: 2
+    min: [1125, -64, 3000]
+    max: [2813, 320, 4313]
+    priority: 8
+    parent: aidern_lands
+    tags: [highland]
+    purpose: 일스 대평원 동쪽의 고원
+    changed: 원작의 고원. 뒤편에 옛 왕성이 있었다
+  vanessa_flower_road:
+    name: 바네사의 꽃길
+    source: CANON
+    danger: 0
+    min: [0, -64, 3375]
+    max: [751, 320, 3470]
+    priority: 8
+    parent: aidern_lands
+    tags: [plains]
+    purpose: 나비 축제가 열리는 꽃길
+    changed: 원작의 축제 꽃길이 후대에도 봄마다 축제를 연다
+  tinus_river:
+    name: 티너스 강
+    source: CANON
+    danger: 1
+    min: [1125, -64, 4500]
+    max: [1688, 320, 6938]
+    priority: 12
+    parent: aidern_lands
+    tags: [river]
+    purpose: 아이데른 동쪽을 흐르는 강
+    changed: 원작의 강이 후대에 남쪽 만으로 흘러듦
+  torone_mountain:
+    name: 토론 산
+    source: CANON
+    danger: 2
+    min: [1031, -64, 5662]
+    max: [1876, 320, 6376]
+    priority: 12
+    parent: aidern_lands
+    tags: [mountain]
+    purpose: 일스 대평원 동쪽의 험한 산
+    changed: 거의 방치된 산이 후대에도 사람 발길이 드묾
+  lachburg:
+    name: 라체부르그
+    source: CANON
+    danger: 4
+    min: [2062, -64, 6188]
+    max: [2813, 320, 6845]
+    priority: 12
+    parent: aidern_lands
+    tags: [ruins, desert]
+    purpose: "네 종족이 함께 살았던 최초의 신화 도시, 모래에 묻힘"
+    changed: 모래에 깊이 묻힌 신화 도시가 후대에 일부 발굴됨
+  lachburg_fishing:
+    name: 라체부르그의 낚시터
+    source: CANON
+    danger: 1
+    min: [1688, -64, 6188]
+    max: [1970, 320, 6413]
+    priority: 14
+    parent: aidern_lands
+    tags: [lake]
+    purpose: 인간과 드워프가 물고기를 잡던 곳 (어획 증가)
+    changed: 원작의 낚시터가 후대에도 이어짐
+  mongbeltroria:
+    name: 몽벨트로리아
+    source: CANON
+    danger: 5
+    min: [1969, -64, 6469]
+    max: [2082, 320, 6582]
+    priority: 22
+    parent: lachburg
+    tags: [dungeon_site]
+    purpose: 네 종족이 흩어지기 전 모여 살던 동굴 (드워프 · 엘프 · 오크 · 인간 동굴)
+    changed: 대륙에서 가장 오래된 종족의 기원. 후대에 신상 동굴은 성지가 됨
+  vulcan_seal:
+    name: 불칸의 봉인
+    source: CANON
+    danger: 6
+    min: [-3188, -64, 6188]
+    max: [-3074, 320, 6301]
+    priority: 22
+    parent: aidern_lands
+    tags: [dungeon_site]
+    purpose: 대악마를 가둔 봉인 던전 입구
+    changed: 원작의 봉인이 후대에 조금씩 풀려 수호병이 바깥까지 나온다
+  dwarf_storehouse:
+    name: 드워프의 창고
+    source: CANON
+    danger: 4
+    min: [-375, -64, 6375]
+    max: [-262, 320, 6488]
+    priority: 22
+    parent: aidern_lands
+    tags: [dungeon_site]
+    purpose: 도굴꾼이 들끓는 창고 던전
+    changed: 원작의 던전
+  grapes:
+    name: 그라페스 (괴수의 땅)
+    source: CANON
+    danger: 6
+    min: [2062, -64, 4500]
+    max: [2813, 320, 5438]
+    priority: 10
+    parent: aidern_lands
+    tags: [forest]
+    purpose: 아이데른의 가장 좁은 금역. 수풀 속 괴수와 보석
+    changed: 원작의 10대 금역. 다크 게이머의 집 세 채가 후대에 사냥꾼 쉼터가 됨
+  karayak_habitat:
+    name: 카라약의 서식지
+    source: CANON
+    danger: 6
+    min: [2344, -64, 4875]
+    max: [2457, 320, 4988]
+    priority: 22
+    parent: grapes
+    tags: [dungeon_site]
+    purpose: 그라페스의 괴수 서식지 입구
+    changed: 원작 그라페스의 지명
+  bernert_castle:
+    name: 베르네르트 성
+    source: CANON
+    danger: 1
+    min: [-1688, 40, 6188]
+    max: [-937, 320, 6845]
+    priority: 20
+    parent: aidern_lands
+    tags: [city, coast]
+    purpose: 남쪽 바다를 낀 성
+    changed: 엠비뉴의 침공을 막아 낸 바닷가 성이 후대에 항구가 됨
+  south_bay:
+    name: 남쪽 만
+    source: SOURCE-BASED
+    danger: 2
+    min: [-2438, -64, 6862]
+    max: [188, 320, 7688]
+    priority: 9
+    tags: [sea]
+    purpose: 베르네르트 성 앞바다 (아이데른 해안)
+
+  # ============================================================ 서부 — 부족 국가 · 엠비뉴 총본영 (나무위키 §4 · §1.1)
+  west_tribes:
+    name: 서부 부족 지대
+    source: CANON
+    danger: 4
+    min: [-11250, -64, -5998]
+    max: [-8251, 320, 1501]
+    priority: 3
+    tags: [highland]
+    purpose: 큰 왕국 없이 민족별 부족 국가가 선 땅. 바바리안 전사들
+    changed: 원작의 서부 부족들이 후대에도 왕국을 세우지 않고 부족 연맹으로 남음
+  withered_ruins:
+    name: 메마른 울부짖는 폐허
+    source: CANON
+    danger: 6
+    min: [-11062, -64, -4312]
+    max: [-9374, 320, -2437]
+    priority: 8
+    parent: west_tribes
+    tags: [badlands, ruins]
+    purpose: 잃어버린 길 너머 숨은 땅. 갈라진 암반과 용암 연기
+    changed: 원작에서 엠비뉴 총본영을 감추던 땅. 교단이 사라진 뒤에도 몬스터가 변형된 채 남음
+  unknown_wall:
+    name: 알 수 없는 장벽
+    source: CANON
+    danger: 6
+    min: [-9469, -64, -4312]
+    max: [-9374, 320, -2437]
+    priority: 20
+    parent: withered_ruins
+    tags: [wall]
+    purpose: 엠비뉴와 세상을 나누던 장벽
+    changed: 원작의 장벽. 신성력이 빠져 지금은 낡은 돌벽
+  rotten_river:
+    name: 시커멓게 썩은 강
+    source: CANON
+    danger: 6
+    min: [-10500, -64, -4312]
+    max: [-10274, 320, -2437]
+    priority: 20
+    parent: withered_ruins
+    tags: [river]
+    purpose: 시체가 떠다니던 독 안개의 강
+    changed: 아우솔레토가 깨어난 뒤 조금 더러운 강으로 바뀜
+  slave_bridge:
+    name: 노예들이 지은 다리
+    source: CANON
+    danger: 5
+    min: [-10500, -64, -3412]
+    max: [-10274, 320, -3337]
+    priority: 23
+    parent: withered_ruins
+    tags: [landmark]
+    purpose: 썩은 강을 잇는 석조 다리
+    changed: "7,600명이 희생된 다리. 후대에 위령비가 섬"
+  embinyu_sanctum:
+    name: 엠비뉴의 성지 (거대한 구멍)
+    source: CANON
+    danger: 6
+    min: [-10219, -64, -4031]
+    max: [-9655, 320, -3468]
+    priority: 22
+    parent: withered_ruins
+    tags: [hole]
+    purpose: 엠비뉴 교단 총본영이 있던 끝을 알 수 없는 구멍
+    changed: "혼돈의 드래곤 아우솔레토의 '영겁의 대침식'으로 총본영이 사라지고 거대한 구멍만 남음"
+  embinyu_quarry:
+    name: 채석장
+    source: CANON
+    danger: 5
+    min: [-11062, -64, -2812]
+    max: [-10687, 320, -2530]
+    priority: 20
+    parent: withered_ruins
+    tags: [valley]
+    purpose: 하늘로 오르는 탑의 돌을 캐던 채석장
+    changed: 노예들이 일하던 채석장이 후대에 버려진 골짜기가 됨
+  sky_tower_ruins:
+    name: 하늘로 오르는 탑 (무너진 밑동)
+    source: CANON
+    danger: 6
+    min: [-9975, -64, -3225]
+    max: [-9787, 320, -3037]
+    priority: 23
+    parent: withered_ruins
+    tags: [landmark]
+    purpose: 12km 높이로 짓던 탑의 무너진 밑동
+    changed: 교단이 무너진 뒤 탑은 아래 몇 층만 남음
+
+  # ============================================================ 동부 — 로자임 · 브렌트 · 절망의 평원 · 오크랜드 · 대수림 (나무위키 §3 · §1.1)
+  brent_highlands:
+    name: 브렌트 왕국 옛 땅
+    source: CANON
+    danger: 2
+    min: [6000, -64, -4500]
+    max: [9095, 320, 563]
+    priority: 4
+    parent: central_plains
+    tags: [highland, forest]
+    purpose: 로자임 북쪽 왕국. 중앙 대륙에서 로자임으로 가는 유일한 길
+    changed: "로자임과 앙숙이던 브렌트 왕국은 사라졌고, 고원 숲은 벌목 개척지가 됨"
+    resources: [highland_timber, hide]
+  nehales_bastion:
+    name: 네할레스 성
+    source: CANON
+    danger: 0
+    min: [7312, 40, -1688]
+    max: [8063, 320, -937]
+    priority: 20
+    parent: brent_highlands
+    tags: [fortress]
+    purpose: 브렌트의 옛 수도
+    changed: 브렌트 수도였던 성이 왕국이 사라진 뒤 교역로 요새로 바뀜
+  mirror_lake:
+    name: 거울의 호수
+    source: CANON
+    danger: 1
+    min: [8062, -64, -2438]
+    max: [8813, 320, -1874]
+    priority: 12
+    parent: brent_highlands
+    tags: [lake]
+    purpose: 브렌트의 맑은 호수
+    changed: 원작의 호수가 후대에도 하늘을 비춘다
+  baroque_range:
+    name: 바로크 산맥 (서쪽 줄기)
+    source: CANON
+    danger: 3
+    min: [6000, -64, 564]
+    max: [6563, 320, 6938]
+    priority: 6
+    parent: central_plains
+    tags: [mountain]
+    purpose: "로자임 서쪽, 브리튼 연합과의 경계를 이루는 험한 산맥"
+    changed: 위드가 뚫었던 바로크 산맥에 후대 상인들이 고갯길 터널을 넓혀 씀
+    resources: [iron_ore, copper_ore]
+  baroque_north:
+    name: 바로크 산맥 (북쪽 줄기)
+    source: CANON
+    danger: 3
+    min: [6000, -64, 564]
+    max: [8626, 320, 1032]
+    priority: 6
+    parent: central_plains
+    tags: [mountain]
+    purpose: 로자임 북쪽을 막는 산맥 줄기
+    changed: 북쪽에서 서쪽으로 휘감는 산맥 — 로자임을 천혜의 요새로 만든 줄기
+  rosenheim:
+    name: 로자임 왕국 옛 땅
+    source: CANON
+    danger: 1
+    min: [6564, -64, 1033]
+    max: [9095, 320, 6938]
+    priority: 4
+    parent: central_plains
+    tags: [plains]
+    purpose: 모험가들이 처음 길을 나서던 땅. 세라보그 · 바란 · 조각사의 성지
+    changed: 시오데른 · 윈스터 · 위드가 다스린 왕국은 사라지고 도시들의 땅이 됨. 라비아스 파편이 떨어져 북동쪽에 분화구가 생김
+    resources: [wheat_sheaf, oak_timber, hide]
+  serabourg:
+    name: 세라보그 성
+    source: CANON
+    danger: 0
+    min: [7500, 40, 2812]
+    max: [8251, 320, 3563]
+    priority: 20
+    parent: rosenheim
+    tags: [city, fortress]
+    purpose: 로자임의 옛 수도. 수련관 터
+    changed: 왕가가 끊긴 뒤 시민 의회가 다스리는 성벽 도시가 됨. 수련관은 박물관이 됨
+  royal_underpass:
+    name: 왕성의 지하도
+    source: CANON
+    danger: 4
+    min: [7781, -64, 3094]
+    max: [7970, 38, 3282]
+    priority: 22
+    parent: serabourg
+    tags: [underground]
+    purpose: 세라보그 궁전 아래 비밀 통로 던전
+    changed: 왕족의 비상 통로가 몬스터 굴이 됨
+  serabourg_north:
+    name: 세라보그 성 북부
+    source: SOURCE-BASED
+    danger: 1
+    min: [7125, -64, 2062]
+    max: [8251, 320, 2811]
+    priority: 8
+    parent: rosenheim
+    tags: [plains]
+    purpose: 세라보그 북쪽 초보 사냥터 (게임판 지명)
+    resources: [wheat_sheaf, hide]
+  star_palace:
+    name: 별의 궁전
+    source: CANON
+    danger: 4
+    min: [8344, -64, 3656]
+    max: [8457, 320, 3770]
+    priority: 22
+    parent: rosenheim
+    tags: [dungeon_site]
+    purpose: 이베인 왕비가 살던 저주받은 궁전
+    changed: 원작의 던전이 후대에 저주가 약해져 반쯤 개방됨
+  baran_village:
+    name: 바란 마을
+    source: CANON
+    danger: 0
+    min: [7688, 40, 4312]
+    max: [8063, 320, 4688]
+    priority: 20
+    parent: rosenheim
+    tags: [city]
+    purpose: 세라보그 남쪽의 작은 마을
+    changed: 하늘섬이 떠난 뒤 남쪽 미개척지로 가는 쉼터 마을이 됨
+  lavias_peak:
+    name: 라비아스 산
+    source: CANON
+    danger: 2
+    min: [7219, -64, 3938]
+    max: [7595, 320, 4276]
+    priority: 12
+    parent: rosenheim
+    tags: [mountain]
+    purpose: 바란 북서쪽 산 — 하늘섬이 떠 있던 자리 아래
+    changed: 하늘섬이 북부로 떠난 뒤 산 이름만 남음 (번역명 확인 필요)
+    resources: [iron_ore, copper_ore]
+  ulken_mountain:
+    name: 울켄 산
+    source: CANON
+    danger: 2
+    min: [7219, -64, 4725]
+    max: [7595, 320, 5157]
+    priority: 12
+    parent: rosenheim
+    tags: [mountain]
+    purpose: 바란 남서쪽의 낮은 산
+    changed: 후대에 계단식 약초밭이 됨 (번역명 확인 필요)
+    resources: [moonleaf, copper_ore]
+  quiet_plains:
+    name: 고요한 평원
+    source: SOURCE-BASED
+    danger: 1
+    min: [6656, -64, 3750]
+    max: [7126, 320, 5438]
+    priority: 8
+    parent: rosenheim
+    tags: [plains]
+    purpose: 로자임 서쪽 풀밭 (게임판 지명)
+    resources: [flax_fiber, wheat_sheaf]
+  howling_valley:
+    name: 울부짖는 골짜기
+    source: SOURCE-BASED
+    danger: 3
+    min: [6656, -64, 2250]
+    max: [7126, 320, 3001]
+    priority: 12
+    parent: rosenheim
+    tags: [valley]
+    purpose: 바로크 산맥 기슭의 골짜기 (게임판 지명)
+    resources: [hide, iron_ore]
+  baroque_gate:
+    name: 바로크 산맥 입구
+    source: SOURCE-BASED
+    danger: 2
+    min: [6656, 40, 1125]
+    max: [7032, 320, 1501]
+    priority: 12
+    parent: rosenheim
+    tags: [outpost]
+    purpose: 고갯길 입구의 숙영지 (게임판 지명)
+  hunters_hill:
+    name: 사냥꾼의 언덕
+    source: SOURCE-BASED
+    danger: 2
+    min: [8250, -64, 1219]
+    max: [9001, 320, 1876]
+    priority: 8
+    parent: rosenheim
+    tags: [highland]
+    purpose: 로자임 북동쪽 언덕 (게임판 지명)
+    resources: [hide, highland_timber]
+  fallen_crater:
+    name: 추락 분화구
+    danger: 4
+    min: [8250, -64, 2062]
+    max: [9095, 320, 2907]
+    priority: 10
+    parent: rosenheim
+    tags: [sky, crater]
+    purpose: 라비아스가 북부로 옮겨 갈 때 떨어진 파편의 둥근 호수와 섬 조각. 하늘 금속 산지
+    resources: [sky_metal]
+  birch_lake:
+    name: 자작나무 호수
+    source: SOURCE-BASED
+    danger: 1
+    min: [8438, -64, 4875]
+    max: [9001, 320, 5345]
+    priority: 12
+    parent: rosenheim
+    tags: [lake]
+    purpose: 자작나무 숲의 호수 (게임판 지명)
+    resources: [salmon, oak_timber]
+  rosenheim_frontier:
+    name: 로자임 남부 미개척지
+    source: CANON
+    danger: 3
+    min: [6564, -64, 5533]
+    max: [9095, 320, 6938]
+    priority: 5
+    parent: rosenheim
+    tags: [forest, frontier]
+    purpose: 로자임 남쪽의 넓은 미개척지
+    changed: 원작에서 개척되지 않았던 남쪽이 후대에 바다까지 길이 뚫림
+  sand_plains:
+    name: 모래평원
+    source: SOURCE-BASED
+    danger: 2
+    min: [6750, -64, 6188]
+    max: [7501, 320, 6657]
+    priority: 8
+    parent: rosenheim_frontier
+    tags: [desert]
+    purpose: 미개척지의 모래 띠 (게임판 지명)
+    resources: [glass_sand, sandstone_block]
+  rosaim_harbor:
+    name: 로자임 항
+    source: CANON
+    danger: 1
+    min: [8062, 40, 6188]
+    max: [9095, 320, 6938]
+    priority: 15
+    parent: rosenheim_frontier
+    tags: [city, coast]
+    purpose: 어업 · 해상 교역 · 조선. 남쪽 바다 탐험의 출발점
+    changed: "원작의 로자임은 바다가 없었지만, 후대 개척민이 남부 미개척지를 지나 남동쪽 만에 항구 연합을 세움"
+    resources: [salmon, sea_salt]
+    factions: [rosaim_ports]
+  rosenheim_bay:
+    name: 로자임 만
+    source: SOURCE-BASED
+    danger: 2
+    min: [8438, -64, 6939]
+    max: [10126, 320, 8063]
+    priority: 9
+    tags: [sea]
+    purpose: 로자임 항 앞바다
+  exile_wall:
+    name: 추방의 장벽
+    source: CANON
+    danger: 3
+    min: [9096, -64, -2812]
+    max: [9188, 320, 6938]
+    priority: 15
+    parent: central_plains
+    tags: [wall]
+    purpose: 로자임 · 브렌트 동쪽의 장벽 — 150년 전 죄수를 너머로 추방
+    changed: 원작의 장벽이 후대에 군데군데 문이 뚫림
+  plains_of_despair:
+    name: 절망의 평원
+    source: CANON
+    danger: 5
+    min: [9189, -64, -2812]
+    max: [10126, 320, 6938]
+    priority: 4
+    tags: [plains, frontier]
+    purpose: 로자임과 유로키나 산맥 사이 거대 평원. 추방자의 후손 마을과 몬스터 — 10대 금역
+    changed: 백만 오크가 살던 평원이 후대에 몇 부족과 추방자 후손 마을만 남음
+    resources: [hide, iron_ore]
+  yunopu_canyon:
+    name: 유노프 협곡
+    source: CANON
+    danger: 4
+    min: [9281, -64, -2812]
+    max: [9938, 320, -1687]
+    priority: 12
+    parent: plains_of_despair
+    tags: [canyon]
+    purpose: "평원 북쪽, 쌍둥이 산이 문처럼 선 협곡"
+    changed: 협곡 바닥이 무너져 더 깊어짐
+    resources: [iron_ore, raw_gem]
+  rotten_lich_dungeon:
+    name: 썩은 리치 던전
+    source: CANON
+    danger: 6
+    min: [9562, -64, 938]
+    max: [9676, 320, 1051]
+    priority: 22
+    parent: plains_of_despair
+    tags: [dungeon_site]
+    purpose: 리치 샤이어의 던전 입구
+    changed: 원작에서 리치 샤이어가 쓰러진 뒤에도 언데드가 남음
+  yurokina_range:
+    name: 유로키나 산맥
+    source: CANON
+    danger: 4
+    min: [10127, -64, -2812]
+    max: [10595, 320, 1501]
+    priority: 10
+    tags: [mountain]
+    purpose: 절망의 평원 동쪽 산맥. 엘프와 오크가 함께 리치를 막은 곳
+    changed: 동쪽이 바다로 무너져 해안 절벽이 됨
+    resources: [highland_timber, silver_ore]
+  orc_land:
+    name: 오크랜드
+    source: CANON
+    danger: 4
+    min: [10127, -64, 1502]
+    max: [10595, 320, 6938]
+    priority: 10
+    tags: [frontier]
+    purpose: 절망의 평원 너머 오크의 주 서식지
+    changed: 원작의 오크 땅이 후대에 오크 부족 연맹의 교역 마을이 됨
+    resources: [hide, iron_ore]
+  great_forest:
+    name: 대수림
+    source: CANON
+    danger: 6
+    min: [10596, -64, -2812]
+    max: [10970, 320, 6938]
+    priority: 10
+    tags: [forest, frontier]
+    purpose: "오크랜드 너머, 아무도 끝까지 간 적 없는 숲"
+    changed: 원작에서 아무도 도달하지 못한 숲. 후대에도 끝을 본 사람이 없다
+  east_coast_waters:
+    name: 동해안 연안
+    source: SOURCE-BASED
+    danger: 2
+    min: [9096, -64, -5998]
+    max: [10970, 320, 8063]
+    priority: 0
+    tags: [sea]
+    purpose: 브렌트 · 절망의 평원 바깥 연안의 얕은 바다
+  eastern_sea:
+    name: 동쪽 바다
+    danger: 3
+    min: [10971, -64, -11250]
+    max: [11251, 320, 11251]
+    priority: 1
+    tags: [sea]
+    purpose: 동쪽 대륙(불의 고리)으로 가는 바다 · 해양 보스 「심해 갑각왕」
+    resources: [deep_eel, sea_salt]
+  wolhof_coral:
+    name: 울호프 산호지대
+    source: CANON
+    danger: 2
+    min: [10988, -64, -1875]
+    max: [11241, 320, 3751]
+    priority: 8
+    parent: eastern_sea
+    tags: [sea]
+    purpose: 대륙 최대의 산호지대 — 9대 비경
+    changed: 원작에서 초토화될 뻔했다 시간여행으로 지켜진 산호지대가 후대에도 남음 (위치는 이 게임의 설정)
+  abyss_trench:
+    name: 심연 해구 (바다의 금역)
+    source: SOURCE-BASED
+    danger: 6
+    min: [10988, -64, 8438]
+    max: [11241, 320, 10313]
+    priority: 15
+    parent: eastern_sea
+    tags: [sea]
+    purpose: "작가가 말한 마지막 금역 '바다'를 이 게임식으로 만든 해구"
+    resources: [deep_eel]
+
+  # ============================================================ 남부 — 공국 지대 · 사막 (나무위키 §5 · §1.1)
+  southern_duchies:
+    name: 남부 공국 지대
+    source: CANON
+    danger: 1
+    min: [-9000, -64, 6939]
+    max: [8437, 320, 8063]
+    priority: 3
+    tags: [plains, scholar]
+    purpose: 중앙과 사막 사이 마법 공국들의 완충 지대
+    changed: 원작의 마법 공국들이 후대에 학술 연맹이 됨
+    resources: [moonleaf, glass_sand]
+  borges_duchy:
+    name: 보르헤스 공국
+    source: CANON
+    danger: 0
+    min: [-3562, 40, 7125]
+    max: [-2812, 320, 7876]
+    priority: 20
+    parent: southern_duchies
+    tags: [city, scholar]
+    purpose: 남부 공국 중 하나
+    changed: 원작의 공국이 후대 학술 연맹의 의장국이 됨
+  astra_academy:
+    name: 아스트라 학술도시
+    source: SOURCE-BASED
+    danger: 0
+    min: [-2250, 40, 7125]
+    max: [-749, 320, 8626]
+    priority: 20
+    parent: southern_duchies
+    tags: [city, scholar]
+    purpose: 공국 연맹이 세운 연구 도시. 연금 · 시약 · 유적 연구
+    resources: [moonleaf, glass_sand]
+    factions: [astra_academy]
+  desert_of_tranquility:
+    name: 고요의 사막 (열사의 땅)
+    source: CANON
+    danger: 6
+    min: [4500, -64, 6939]
+    max: [6563, 320, 8438]
+    priority: 12
+    tags: [desert]
+    purpose: 마나가 폭주해 스킬이 막히는 금역 — 신들이 만든 오아시스
+    changed: 원작의 10대 금역. 로자임 남서쪽 사막이 후대에도 생명 없는 땅
+  sand_sea:
+    name: 남부 사막 (모래바다)
+    source: CANON
+    danger: 3
+    min: [-9000, -64, 8064]
+    max: [10970, 320, 10688]
+    priority: 2
+    tags: [desert]
+    purpose: "오아시스 부족들의 사막. 소금 · 유리 모래 · 사막 가죽, 모래폭풍과 보스 「사구 갈퀴웜」"
+    changed: 위드의 퀘스트로 크게 발전한 사막이 후대에도 대상단의 땅으로 남음
+    resources: [sandstone_block, glass_sand, saltroot]
+  agselia:
+    name: 아그셀리아
+    source: CANON
+    danger: 0
+    min: [2812, 40, 8625]
+    max: [3938, 320, 9563]
+    priority: 20
+    parent: sand_sea
+    tags: [city, desert, market]
+    purpose: 사막 최고의 도시. 부호의 별장과 사막 전사
+    changed: 원작에서 크게 커진 사막 도시가 후대 대상단 연합의 수도가 됨
+  chakmak:
+    name: 차크마크
+    source: CANON
+    danger: 0
+    min: [-4688, 40, 9000]
+    max: [-3749, 320, 9751]
+    priority: 20
+    parent: sand_sea
+    tags: [city, desert]
+    purpose: 오아시스를 중심으로 자란 사막 도시
+    changed: 원작의 오아시스 도시
+  problen:
+    name: 프로블렌
+    source: CANON
+    danger: 0
+    min: [-938, 40, 8156]
+    max: [1, 320, 8813]
+    priority: 20
+    parent: sand_sea
+    tags: [city, fortress, desert]
+    purpose: 사막 가장자리의 성벽 도시 (해자 · 수로)
+    changed: 원작에서 수만 채로 발전한 도시가 후대에도 사막의 관문
+  oldras:
+    name: 올드라스
+    source: CANON
+    danger: 0
+    min: [-938, 40, 9375]
+    max: [-280, 320, 9938]
+    priority: 20
+    parent: sand_sea
+    tags: [city, desert]
+    purpose: 프로블렌 남쪽 도시
+    changed: 원작의 사막 도시
+  azil_oasis:
+    name: 아질 오아시스
+    danger: 0
+    min: [750, 40, 9375]
+    max: [1876, 320, 10501]
+    priority: 20
+    parent: sand_sea
+    tags: [city, desert, market]
+    purpose: 사막 한가운데 큰 샘에 대상단이 머물며 생긴 도시
+    factions: [sand_caravan]
+  nukod_oasis:
+    name: 누코드 오아시스
+    source: CANON
+    danger: 1
+    min: [5625, -64, 8812]
+    max: [6188, 320, 9376]
+    priority: 12
+    parent: sand_sea
+    tags: [desert]
+    purpose: 사막 동쪽의 오아시스
+    changed: 원작의 오아시스
+  romskute_lake:
+    name: 로므스커테 호수
+    source: CANON
+    danger: 1
+    min: [7125, -64, 9562]
+    max: [8063, 320, 10126]
+    priority: 12
+    parent: sand_sea
+    tags: [lake]
+    purpose: 사막 동쪽의 큰 호수
+    changed: 원작의 호수
+  kosoma_river:
+    name: 코소마 강가
+    source: CANON
+    danger: 2
+    min: [-6562, -64, 8250]
+    max: [-6187, 320, 10688]
+    priority: 12
+    parent: sand_sea
+    tags: [river, desert]
+    purpose: 사막 서쪽을 흐르는 강
+    changed: 원작의 강가
+  consera_desert:
+    name: 컨세라 사막
+    source: CANON
+    danger: 2
+    min: [-8625, -64, 8250]
+    max: [-6937, 320, 9376]
+    priority: 8
+    parent: sand_sea
+    tags: [plains]
+    purpose: 흰털 영양이 뛰놀던 사막 목초지
+    changed: 전쟁의 시대 목초지가 후대에 다시 풀밭이 됨
+  heated_desert:
+    name: 달구어진 사막
+    source: CANON
+    danger: 4
+    min: [2062, -64, 9750]
+    max: [4501, 320, 10688]
+    priority: 6
+    parent: sand_sea
+    tags: [desert]
+    purpose: 사막 웜이 출몰하는 뜨거운 모래
+    changed: 원작의 웜 사막. 후대 「사구 갈퀴웜」의 터
+  giants_mountain:
+    name: 거인족의 산
+    source: CANON
+    danger: 5
+    min: [8062, -64, 8438]
+    max: [9376, 320, 9376]
+    priority: 10
+    parent: sand_sea
+    tags: [mountain]
+    purpose: 사막 동쪽의 거인 산
+    changed: 원작의 레벨 600대 사냥터
+  gordle_habitat:
+    name: 고르들의 서식지
+    source: CANON
+    danger: 5
+    min: [-2812, -64, 9750]
+    max: [-1687, 320, 10501]
+    priority: 8
+    parent: sand_sea
+    tags: [desert]
+    purpose: 고르들 무리의 서식지
+    changed: 원작의 레벨 600대 사냥터
+  sun_altar:
+    name: 태양의 제단
+    source: CANON
+    danger: 3
+    min: [4875, -64, 9938]
+    max: [5063, 320, 10126]
+    priority: 22
+    parent: sand_sea
+    tags: [landmark]
+    purpose: 붉은 바위의 전사 유적
+    changed: 가장 뛰어난 사막 전사가 태양의 힘을 얻는다는 제단
+  metapeia:
+    name: 메타페이아 (신기루 도시)
+    source: CANON
+    danger: 4
+    min: [6375, -64, 10125]
+    max: [7126, 320, 10595]
+    priority: 15
+    parent: sand_sea
+    tags: [ruins, desert]
+    purpose: 정오 신기루 때만 들어갈 수 있는 유적 도시
+    changed: 원작의 신비 도시. 지금도 게임 시각 정오 무렵에만 입구가 열린다
+  flame_sanctuary:
+    name: 화염의 생츄어리
+    source: CANON
+    danger: 6
+    min: [6750, -64, 10312]
+    max: [6826, 320, 10388]
+    priority: 25
+    parent: metapeia
+    tags: [dungeon_site]
+    purpose: 불의 근원 — 화염의 크리스탈로 들어가는 곳
+    changed: 원작에서 이름만 알려진 곳
+  mutta_tomb:
+    name: 뭇타의 무덤
+    source: CANON
+    danger: 3
+    min: [6000, -64, 9750]
+    max: [6113, 320, 9863]
+    priority: 22
+    parent: sand_sea
+    tags: [dungeon_site]
+    purpose: 메타페이아의 단서가 있는 무덤
+    changed: 원작의 무덤
+  buharess:
+    name: 부하레스 유적
+    source: CANON
+    danger: 3
+    min: [-5625, -64, 9938]
+    max: [-4874, 320, 10501]
+    priority: 12
+    parent: sand_sea
+    tags: [ruins, desert]
+    purpose: 전쟁의 시대 사막 도시 유적
+    changed: 원작의 옛 사막 도시가 유적으로 남음
+  ozalem:
+    name: 오잘렘 유적
+    source: CANON
+    danger: 3
+    min: [0, -64, 10219]
+    max: [751, 320, 10595]
+    priority: 12
+    parent: sand_sea
+    tags: [ruins, desert]
+    purpose: 전쟁의 시대 사막 도시 유적
+    changed: 원작의 옛 사막 도시가 유적으로 남음
+  lahos:
+    name: 라호스
+    source: CANON
+    danger: 2
+    min: [-8438, -64, 9562]
+    max: [-7499, 320, 10501]
+    priority: 6
+    parent: sand_sea
+    tags: [desert]
+    purpose: 사막 서쪽 지역
+    changed: 원작의 사막 지명
+  mald_region:
+    name: 말드 지역
+    source: CANON
+    danger: 2
+    min: [8438, -64, 9562]
+    max: [9938, 320, 10501]
+    priority: 6
+    parent: sand_sea
+    tags: [desert]
+    purpose: 사막 동쪽 지역
+    changed: 원작의 사막 지명
+  urgan_region:
+    name: 우르간 지역
+    source: CANON
+    danger: 2
+    min: [1125, -64, 8156]
+    max: [2626, 320, 8813]
+    priority: 6
+    parent: sand_sea
+    tags: [desert]
+    purpose: 사막 북쪽 지역
+    changed: 원작의 사막 지명
+  hot_underground:
+    name: 뜨거운 땅속 던전
+    source: CANON
+    danger: 5
+    min: [938, -64, 9188]
+    max: [1051, 320, 9301]
+    priority: 22
+    parent: sand_sea
+    tags: [dungeon_site]
+    purpose: 들어가면 입구가 닫히는 오래된 던전
+    changed: 원작의 던전
+  ibelia_dungeon:
+    name: 이벨리아 던전
+    source: CANON
+    danger: 4
+    min: [-1500, -64, 9188]
+    max: [-1387, 320, 9301]
+    priority: 22
+    parent: sand_sea
+    tags: [dungeon_site]
+    purpose: 사막의 던전 입구
+    changed: 원작의 던전
+  takun_cave:
+    name: 타쿤 동굴
+    source: CANON
+    danger: 4
+    min: [4500, -64, 9000]
+    max: [4613, 320, 9113]
+    priority: 22
+    parent: sand_sea
+    tags: [dungeon_site]
+    purpose: 사막의 동굴 입구
+    changed: 원작의 던전
+  buried_city:
+    name: 매몰 도시
+    danger: 5
+    min: [3000, -64, 10125]
+    max: [4501, 60, 10670]
+    priority: 15
+    parent: sand_sea
+    tags: [ruins, desert, deep]
+    purpose: 사구 아래 묻힌 옛 사막 왕국의 도시. 바람이 모래를 걷어 낼 때만 입구가 드러남
+  southern_sea:
+    name: 남쪽 바다
+    source: SOURCE-BASED
+    danger: 3
+    min: [-11250, -64, 10689]
+    max: [10970, 320, 11251]
+    priority: 1
+    tags: [sea]
+    purpose: 남쪽 대륙(메아드의 숲) · 남극으로 가는 바다
+
+  # ============================================================ 서쪽 바다 · 금역
+  western_sea:
+    name: 서쪽 바다 (북)
+    source: SOURCE-BASED
+    danger: 3
+    min: [-11250, -64, -11250]
+    max: [-10126, 320, -5999]
+    priority: 1
+    tags: [sea]
+    purpose: 북부 서해안 밖의 바다
+    resources: [deep_eel, sea_salt]
+  western_sea_south:
+    name: 서쪽 바다 (남)
+    source: SOURCE-BASED
+    danger: 3
+    min: [-11250, -64, 1502]
+    max: [-9001, 320, 10688]
+    priority: 1
+    tags: [sea]
+    purpose: "칼라모르 · 그라디안 서해안 밖의 바다, 서쪽 신대륙으로 가는 길"
+  kallamore_bay:
+    name: 칼라모르 만
+    source: SOURCE-BASED
+    danger: 2
+    min: [-9000, -64, 1502]
+    max: [-6751, 320, 2813]
+    priority: 2
+    tags: [sea]
+    purpose: "칼라모르 서쪽, 침식으로 생긴 만"
   mist_wall:
     name: 안개 장벽
     danger: 6
-    min: [-6000, -64, -2000]
-    max: [-5600, 320, 2600]
+    min: [-11250, -64, 1875]
+    max: [-10874, 320, 7501]
     priority: 10
-    parent: west_frontier
+    parent: western_sea_south
     tags: [mist]
-    purpose: 서쪽 끝을 가리는 이상한 안개. 현재 버전에서는 넘을 수 없는 경계 (향후 확장)
+    purpose: 서쪽 바다 끝을 가리는 이상한 안개. 신대륙으로 가는 길을 막는다
+  todum_depths:
+    name: 토둠 (뱀파이어의 세계로 가는 굴)
+    source: CANON
+    danger: 6
+    min: [-11156, -64, 2812]
+    max: [-10218, 20, 4688]
+    priority: 15
+    parent: western_sea_south
+    tags: [underground, deep]
+    purpose: 서쪽 바다 밑 깊은 동굴 — 뱀파이어 세계 토둠으로 이어진다는 곳
+    changed: "원작의 다른 차원 '뱀파이어 토둠'으로 가는 길이 후대에는 바다 밑 동굴로 전해짐"
+    resources: [silver_ore, raw_gem]
+
+  # ============================================================ 카올랴 · 이름 없는 미궁 · 비경 · 수련관 (원작에 위치 없음 → 이 게임의 배치)
+  kaolya_blight:
+    name: 카올랴의 오염된 땅
+    source: CANON
+    danger: 6
+    min: [-8625, -64, -7875]
+    max: [-5999, 320, -6187]
+    priority: 10
+    parent: north_reach
+    tags: [badlands, ruins]
+    purpose: 10대 금역 중 최악. 갈라진 땅에서 몬스터가 끝없이 솟는다 — 악마계의 문이 숨은 곳
+    changed: 원작에 위치가 없어 이 게임은 북부 북서쪽 끝에 둠. 악마 집사장이 숨었던 균열이 지금은 악마계로 열린 문이 됨
+  devil_gate:
+    name: 마힐고르타의 은신처 (악마계의 문)
+    danger: 6
+    min: [-7335, -64, -7054]
+    max: [-7289, 320, -7008]
+    priority: 26
+    parent: kaolya_blight
+    tags: [portal]
+    purpose: 카올랴 한가운데 균열 — 악마계로 건너가는 문
+  ice_heart_labyrinth:
+    name: 얼음 심장 미궁
+    danger: 6
+    min: [-3750, -64, -10500]
+    max: [-3637, 320, -10387]
+    priority: 22
+    parent: niflheim_wastes
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 빙원 아래 얼어붙은 궁전
+  mirror_corridor_labyrinth:
+    name: 거울 회랑 미궁
+    danger: 6
+    min: [-4875, -64, -1125]
+    max: [-4762, 320, -1012]
+    priority: 22
+    parent: kallamore_lands
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 길이 비쳐 갈라지는 회랑
+  sunken_archive_labyrinth:
+    name: 가라앉은 서고 미궁
+    danger: 6
+    min: [375, -64, 750]
+    max: [488, 320, 863]
+    priority: 22
+    parent: haven_lands
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 땅속으로 내려앉은 옛 서고
+  stopped_gear_labyrinth:
+    name: 멈춘 톱니 미궁
+    danger: 6
+    min: [3750, -64, 1688]
+    max: [3863, 320, 1801]
+    priority: 22
+    parent: britten_alliance
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 멈춘 기계 장치의 성
+  hourglass_labyrinth:
+    name: 모래시계 미궁
+    danger: 6
+    min: [-3375, -64, 9375]
+    max: [-3262, 320, 9488]
+    priority: 22
+    parent: sand_sea
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 모래가 흐르며 방이 바뀌는 지하
+  root_labyrinth:
+    name: 뿌리 미궁
+    danger: 6
+    min: [10688, -64, 4688]
+    max: [10801, 320, 4801]
+    priority: 22
+    parent: great_forest
+    tags: [dungeon_site]
+    purpose: 8대 미궁 (이 게임) — 대수림 거목의 뿌리 속
+  starfall_lake:
+    name: 별이 내려앉는 호수
+    danger: 1
+    min: [-5906, -64, -8906]
+    max: [-5155, 320, -8155]
+    priority: 12
+    parent: north_reach
+    tags: [lake]
+    purpose: 9대 비경 (이 게임) — 밤하늘이 그대로 비치는 북부의 호수
+  rainbow_falls:
+    name: 무지개 폭포 골짜기
+    danger: 2
+    min: [4594, -64, -5906]
+    max: [5157, 320, -5530]
+    priority: 12
+    parent: norn_range
+    tags: [valley]
+    purpose: 9대 비경 (이 게임) — 노른 산맥 사이 물보라 골짜기
+  thousand_pillars:
+    name: 천 개의 돌기둥 협곡
+    danger: 3
+    min: [6188, -64, -4312]
+    max: [6938, 320, -3562]
+    priority: 12
+    parent: brent_highlands
+    tags: [canyon]
+    purpose: 9대 비경 (이 게임) — 바람이 깎은 돌기둥 숲
+  white_salt_flats:
+    name: 하얀 소금 평원
+    danger: 2
+    min: [-5438, -64, 8250]
+    max: [-3937, 320, 8907]
+    priority: 12
+    parent: sand_sea
+    tags: [salt]
+    purpose: 9대 비경 (이 게임) — 끝없이 흰 소금 바닥
+  firefly_forest:
+    name: 반딧불 숲
+    danger: 1
+    min: [-3525, -64, 4312]
+    max: [-2849, 320, 5438]
+    priority: 12
+    parent: aidern_lands
+    tags: [forest]
+    purpose: 9대 비경 (이 게임) — 밤마다 빛이 떠다니는 숲
+  cloud_plateau:
+    name: 구름 위 고원
+    danger: 3
+    min: [-6169, -64, 4594]
+    max: [-5643, 320, 5438]
+    priority: 12
+    parent: ruvidum_range
+    tags: [mountain]
+    purpose: 9대 비경 (이 게임) — 루비둠 산맥 위 구름 바다를 내려다보는 고원
+  crimson_maple_valley:
+    name: 붉은 단풍 골짜기
+    danger: 2
+    min: [-2812, -64, -4462]
+    max: [-2155, 320, -3937]
+    priority: 12
+    parent: haineff_mountains
+    tags: [valley, forest]
+    purpose: 9대 비경 (이 게임) — 하이네프 산속 단풍 골짜기
+  glacier_grotto:
+    name: 푸른 빙하 동굴
+    danger: 3
+    min: [5438, -64, -10688]
+    max: [5551, 320, -10574]
+    priority: 22
+    parent: niflheim_wastes
+    tags: [landmark]
+    purpose: 9대 비경 (이 게임) — 빙원 끝 푸른 얼음 동굴 입구
+  basic_training_hall:
+    name: 기초 수련관
+    source: CANON
+    danger: 0
+    min: [7519, -64, 2831]
+    max: [7613, 320, 2926]
+    priority: 25
+    parent: serabourg
+    tags: [landmark]
+    purpose: 허수아비를 오래 때리는 첫 수련관
+    changed: 원작에 위치가 없어 이 게임은 시작 도시 세라보그 성 한쪽에 둠. 후대에는 마을 아이들도 드나드는 훈련장
+  novice_training_hall:
+    name: 초급 수련관
+    source: CANON
+    danger: 1
+    min: [8138, -64, 3450]
+    max: [8232, 320, 3545]
+    priority: 25
+    parent: serabourg
+    tags: [landmark]
+    purpose: 철인 100명과 겨루는 수련관
+    changed: 원작에 위치가 없어 이 게임은 세라보그 성 반대편 귀퉁이에 둠
+  hero_tower:
+    name: 영웅의 탑 (중급 수련관)
+    source: CANON
+    danger: 3
+    min: [1688, -64, 375]
+    max: [1801, 320, 488]
+    priority: 22
+    parent: litten_kingdom
+    tags: [landmark]
+    purpose: 층을 오르며 겨루는 중급 수련관
+    changed: 원작에 위치가 없어 이 게임은 대륙 한가운데 리튼 왕국에 둠
+  dead_ferry:
+    name: 망자의 나루 (거인계로 가는 배터)
+    danger: 5
+    min: [-8981, -64, 4856]
+    max: [-8935, 320, 4902]
+    priority: 26
+    parent: gradian_lands
+    tags: [portal]
+    purpose: 그라디안 서해안 — 거인계로 건너가는 배가 닿는 곳
+  spirit_spring:
+    name: 정령의 샘 (정령계의 문)
+    danger: 3
+    min: [-3022, -64, -6548]
+    max: [-2977, 320, -6502]
+    priority: 26
+    parent: north_reach
+    tags: [portal]
+    purpose: 북부 숲속 샘 — 정령계로 이어진다
+  fairy_ring:
+    name: 요정의 고리 (요정계의 문)
+    danger: 4
+    min: [10762, -64, -938]
+    max: [10808, 320, -892]
+    priority: 26
+    parent: great_forest
+    tags: [portal]
+    purpose: 대수림 깊은 곳 버섯 고리 — 요정계의 문
+  hell_rift:
+    name: 지옥의 틈
+    danger: 6
+    min: [-3038, -64, -3412]
+    max: [-2992, 320, -3367]
+    priority: 26
+    parent: haineff_mountains
+    tags: [portal]
+    purpose: 벨카인이 기어 나왔다는 은신처 옆 틈 — 지옥으로 내려간다
+  demonkind_gate:
+    name: 마계의 문 (구멍 바닥)
+    danger: 6
+    min: [-9960, -64, -3772]
+    max: [-9914, 320, -3727]
+    priority: 26
+    parent: embinyu_sanctum
+    tags: [portal]
+    purpose: 엠비뉴 성지의 거대한 구멍 바닥 — 마계로 이어진다
+  todum_gate:
+    name: 토둠으로 가는 굴 끝
+    danger: 5
+    min: [-10710, -64, 3728]
+    max: [-10664, 320, 3773]
+    priority: 26
+    parent: todum_depths
+    tags: [portal]
+    purpose: 바다 밑 굴 끝 — 뱀파이어 토둠의 문
+
+  # ============================================================ 바깥 바다 · 북극 · 남극 · 남쪽/동쪽/서쪽 신대륙 (나무위키 §1 · §3.3 · §4.2 · §5.2)
+  outer_ocean:
+    name: 먼 바다
+    source: SOURCE-BASED
+    danger: 4
+    min: [-15000, -64, -15000]
+    max: [15000, 320, 15000]
+    priority: -1
+    tags: [sea]
+    purpose: 베르사 대륙과 신대륙 · 극지 사이의 깊은 바다
+  north_pole:
+    name: 북극
+    source: CANON
+    danger: 5
+    min: [-15000, -64, -15000]
+    max: [15000, 320, -13876]
+    priority: 3
+    tags: [frozen]
+    purpose: 세상의 북쪽 끝 얼음 땅
+    changed: 원작에 존재만 언급. 이 게임은 지도 북쪽 끝 띠로 둠
+  south_pole:
+    name: 남극 (혹한의 땅)
+    source: CANON
+    danger: 6
+    min: [-15000, -64, 13877]
+    max: [15000, 320, 15000]
+    priority: 3
+    tags: [frozen]
+    purpose: 10대 금역. 펭귄도 얼어 죽는 추위 · 눈의 정령 · 얼음의 영혼
+    changed: 원작에 위치 서술이 없어 이 게임은 지도 남쪽 끝 띠로 둠. 남쪽 대륙 너머
+  south_continent:
+    name: 남쪽 대륙
+    source: CANON
+    danger: 4
+    min: [-5625, -64, 12000]
+    max: [5626, 320, 13501]
+    priority: 3
+    tags: [forest, frontier]
+    purpose: 베르사 남쪽 끝에서 바다를 건너면 나오는 대륙
+    changed: 원작에서 저주로 얼었다가 풀린 땅. 후대에는 숲이 다시 우거짐
+  meard_forest:
+    name: 메아드의 숲
+    source: CANON
+    danger: 3
+    min: [-1312, -64, 12281]
+    max: [1313, 320, 13220]
+    priority: 10
+    parent: south_continent
+    tags: [forest]
+    purpose: 세계수의 후손이 지내는 숲
+    changed: 원작의 세계수 후손이 자라 숲 한가운데 거목이 됨
+  world_tree_scion:
+    name: 세계수의 후손
+    source: CANON
+    danger: 2
+    min: [-56, -64, 12694]
+    max: [57, 320, 12807]
+    priority: 25
+    parent: meard_forest
+    tags: [landmark]
+    purpose: 숲 한가운데 거목
+    changed: 원작의 세계수 후손 — 후대에 하늘을 덮을 만큼 자람
+  east_continent:
+    name: 동쪽 대륙
+    source: CANON
+    danger: 5
+    min: [12000, -64, -6562]
+    max: [14438, 320, 6563]
+    priority: 3
+    tags: [highland, forest]
+    purpose: 베르사 동쪽 바다 건너 — 높은 산과 숲
+    changed: 원작에서 골동품 지도로 알려진 대륙. 이 게임은 동쪽 바다 건너에 둠
+  east_peaks:
+    name: 동쪽 대륙 높은 산들
+    source: SOURCE-BASED
+    danger: 5
+    min: [12375, -64, 1500]
+    max: [14063, 320, 6001]
+    priority: 8
+    parent: east_continent
+    tags: [mountain]
+    purpose: 엄청난 높이의 산들
+  ring_of_fire:
+    name: 불의 고리
+    source: CANON
+    danger: 6
+    min: [12562, -64, -4688]
+    max: [14063, 320, -937]
+    priority: 10
+    parent: east_continent
+    tags: [volcano]
+    purpose: 쉴 새 없이 분화하는 대화산 지대
+    changed: 원작의 대화산 지대 — 후대에도 분화가 멈추지 않음
+  randoni_lair:
+    name: 랜도니의 레어 (대화산)
+    source: CANON
+    danger: 6
+    min: [13256, -64, -2869]
+    max: [13370, 320, -2755]
+    priority: 22
+    parent: ring_of_fire
+    tags: [dungeon_site]
+    purpose: 대화산 꼭대기의 레어 입구
+    changed: 원작의 레어. 후대에는 주인 없는 빈 레어로 전해짐
+  west_new_continent:
+    name: 서쪽 신대륙 (거인들이 잊은 땅)
+    source: CANON
+    danger: 6
+    min: [-14438, -64, -6562]
+    max: [-11999, 320, 6563]
+    priority: 3
+    tags: [highland]
+    purpose: 거인들이 만들어 놓고 잊어버린 대륙
+    changed: 원작에선 이름만 나온 맥거핀. 이 게임은 서쪽 바다 건너에 둠
+  magic_barrier:
+    name: 마법의 장벽
+    source: CANON
+    danger: 6
+    min: [-12150, -64, -6562]
+    max: [-12037, 320, 6563]
+    priority: 15
+    parent: west_new_continent
+    tags: [wall, sealed]
+    purpose: 신대륙 동해안을 막은 장벽 — 통로가 없다 (돌아서 북쪽 · 남쪽 해안으로)
+    changed: "원작의 '몬스터와 마법의 장벽'. 후대에도 무너지지 않음"
+  giants_gold_vault:
+    name: 거인의 황금 창고
+    source: SOURCE-BASED
+    danger: 6
+    min: [-13312, -64, -188]
+    max: [-13199, 320, -74]
+    priority: 22
+    parent: west_new_continent
+    tags: [dungeon_site]
+    purpose: 거인들이 베르사에서 캐 간 황금을 쌓았다는 창고 입구
+
+  # ============================================================ 다른 차원 — 세계 versa_realms (나무위키 §4.1 · §7)
+  realm_rift:
+    name: 차원의 틈
+    danger: 6
+    world: versa_realms
+    min: [-8000, -64, -8000]
+    max: [8000, 320, 8000]
+    priority: -1
+    tags: [sea]
+    purpose: 차원과 차원 사이의 빈 바다
+  giant_realm:
+    name: 거인계
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [-6000, -64, -3000]
+    max: [-3200, 320, -200]
+    priority: 4
+    tags: [highland, forest]
+    purpose: 거인들이 지배하는 세계 — 인간 마을도 있다
+    changed: "원작의 거인계. 후대에도 거인이 다스리고, 신들의 영역과 맞닿음"
+  roadseeker_tomb:
+    name: 로드시커의 무덤
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [-5000, -64, -2500]
+    max: [-4940, 320, -2440]
+    priority: 22
+    parent: giant_realm
+    tags: [dungeon_site]
+    purpose: 대모험가 로드시커의 무덤
+    changed: 원작의 무덤. 깨우는 방법은 옮기지 않음 — 이 게임에서는 입구만 남은 무덤
+  derrick_village:
+    name: 마을 데릭
+    source: CANON
+    danger: 2
+    world: versa_realms
+    min: [-4300, 40, -1500]
+    max: [-3900, 320, -1100]
+    priority: 20
+    parent: giant_realm
+    tags: [city, forest]
+    purpose: 깊은 숲 속 인간 · 수인족 마을
+    changed: 원작의 마을. 후대에는 차원을 건너온 모험가의 쉼터
+  giant_return:
+    name: 거인계 귀환의 배터
+    danger: 2
+    world: versa_realms
+    min: [-4612, -64, -812]
+    max: [-4588, 320, -788]
+    priority: 26
+    parent: giant_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 배
+  divine_gate:
+    name: 신들의 문
+    danger: 6
+    world: versa_realms
+    min: [-3312, -64, -1612]
+    max: [-3288, 320, -1588]
+    priority: 26
+    parent: giant_realm
+    tags: [portal]
+    purpose: 거인계 동쪽 끝 — 파수꾼이 지키는 신계의 문
+  divine_realm:
+    name: 신계
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [-3000, -64, -3000]
+    max: [-200, 320, -200]
+    priority: 4
+    tags: [divine]
+    purpose: 거인들의 영역 가까운 신들의 영역
+    changed: 원작의 신계. 이 게임은 탐험 숙련 마스터만 건너게 함
+  divine_return:
+    name: 신계 내려가는 문
+    danger: 4
+    world: versa_realms
+    min: [-1612, -64, -1612]
+    max: [-1588, 320, -1588]
+    priority: 26
+    parent: divine_realm
+    tags: [portal]
+    purpose: 거인계로 돌아가는 문
+  spirit_realm:
+    name: 정령계
+    source: CANON
+    danger: 4
+    world: versa_realms
+    min: [200, -64, -3000]
+    max: [3000, 320, -200]
+    priority: 4
+    tags: [mist]
+    purpose: 정령술사들이 갈 수 있는 세계
+    changed: 원작의 정령계. 이 게임은 정령의 샘으로 누구나 (탐험 숙련만 되면) 건넘
+  spirit_return:
+    name: 정령계 귀환의 샘
+    danger: 2
+    world: versa_realms
+    min: [1588, -64, -1612]
+    max: [1612, 320, -1588]
+    priority: 26
+    parent: spirit_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 샘
+  fairy_realm:
+    name: 요정계
+    source: CANON
+    danger: 4
+    world: versa_realms
+    min: [3200, -64, -3000]
+    max: [6000, 320, -200]
+    priority: 4
+    tags: [forest]
+    purpose: 요정들의 세계
+    changed: 원작에 이름만 나온 세계 — 모습은 이 게임의 설정
+  fairy_return:
+    name: 요정계 귀환의 고리
+    danger: 2
+    world: versa_realms
+    min: [4588, -64, -1612]
+    max: [4612, 320, -1588]
+    priority: 26
+    parent: fairy_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 고리
+  demonkind_realm:
+    name: 마계
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [-6000, -64, 200]
+    max: [-3200, 320, 3000]
+    priority: 4
+    tags: [badlands]
+    purpose: 마족들의 세계 — 악마와는 사이가 나쁘다
+    changed: 원작에 이름만 나온 세계 — 모습은 이 게임의 설정
+  demonkind_return:
+    name: 마계 귀환의 문
+    danger: 4
+    world: versa_realms
+    min: [-4612, -64, 1588]
+    max: [-4588, 320, 1612]
+    priority: 26
+    parent: demonkind_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 문
+  devil_realm:
+    name: 악마계
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [-3000, -64, 200]
+    max: [-200, 320, 3000]
+    priority: 4
+    tags: [badlands, ruins]
+    purpose: 악마들의 세계 — 옛 원정의 폐허
+    changed: 원작에서 악마 대공 원정이 있었던 세계. 후대에는 원정대의 무너진 진지가 남음
+  devil_return:
+    name: 악마계 귀환의 문
+    danger: 4
+    world: versa_realms
+    min: [-1612, -64, 1588]
+    max: [-1588, 320, 1612]
+    priority: 26
+    parent: devil_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 문
+  hell_realm:
+    name: 지옥
+    source: CANON
+    danger: 6
+    world: versa_realms
+    min: [200, -64, 200]
+    max: [3000, 320, 3000]
+    priority: 4
+    tags: [volcano]
+    purpose: 악마와 마물의 세계 — 중간계에서 구하기 힘든 광석
+    changed: 원작의 지옥. 이 게임은 지옥의 틈으로 건넘
+  hell_return:
+    name: 지옥 귀환의 틈
+    danger: 4
+    world: versa_realms
+    min: [1588, -64, 2388]
+    max: [1612, 320, 2412]
+    priority: 26
+    parent: hell_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 틈
+  todum_realm:
+    name: 뱀파이어 토둠
+    source: CANON
+    danger: 5
+    world: versa_realms
+    min: [3200, -64, 200]
+    max: [6000, 320, 3000]
+    priority: 4
+    tags: [mist, ruins]
+    purpose: 뱀파이어들의 세계
+    changed: 원작의 토둠. 후대에는 바다 밑 굴로만 이어짐
+  todum_return:
+    name: 토둠 귀환의 굴
+    danger: 3
+    world: versa_realms
+    min: [4588, -64, 1588]
+    max: [4612, 320, 1612]
+    priority: 26
+    parent: todum_realm
+    tags: [portal]
+    purpose: 베르사로 돌아가는 굴

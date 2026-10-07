@@ -17,11 +17,15 @@ recipes:
                      slots: {head: {accepts: "type:silver_ingot", count: 2, weight: 3}, shaft: {accepts: "type:highland_timber", count: 2}}}
   forge_knife:      {name: 조각칼,    discipline: smithing, min_level: 2, action_level: 3, output: carving_knife, xp: 15,
                      slots: {blade: {accepts: "type:iron_ingot", count: 1, weight: 2}, handle: {accepts: "tag:wood", count: 1}}}
+  grind_whetstone:  {name: 숫돌,     discipline: smithing, min_level: 1, action_level: 1, output: whetstone, xp: 3,
+                     slots: {stone: {accepts: "type:sandstone_block", count: 1}}}
   forge_pickaxe:    {name: 철 곡괭이, discipline: smithing, min_level: 2, action_level: 3, output: iron_pickaxe, xp: 15,
                      slots: {head: {accepts: "type:iron_ingot", count: 3, weight: 2}, handle: {accepts: "tag:wood", count: 2}}}
   # ---- 재봉 · 가죽
   weave_linen:      {name: 리넨 짜기, discipline: tailoring, min_level: 1, action_level: 1, output: linen_cloth, xp: 6,
                      slots: {fiber: {accepts: "type:flax_fiber", count: 3}}}
+  cut_bandage:      {name: 붕대,     discipline: tailoring, min_level: 1, action_level: 1, output: bandage, xp: 3,
+                     slots: {cloth: {accepts: "type:linen_cloth", count: 1}}}
   sew_robe:         {name: 리넨 로브, discipline: tailoring, min_level: 3, action_level: 5, output: linen_robe, tool: tool_sewing, xp: 25,
                      slots: {cloth: {accepts: "tag:cloth", count: 4, weight: 3}, dye: {accepts: "tag:dye", count: 1, optional: true, bonus: 50}}}
   tan_leather:      {name: 무두질,   discipline: leatherwork, min_level: 1, action_level: 1, output: leather, xp: 6,
@@ -36,6 +40,10 @@ recipes:
                              herb: {accepts: "tag:herb", count: 1, optional: true, bonus: 50}}}
   brew_tonic:       {name: 작은 강장제, discipline: alchemy, min_level: 1, action_level: 2, output: minor_tonic, tool: tool_alchemy, xp: 10,
                      slots: {herb: {accepts: "tag:herb", count: 2, weight: 2}, base: {accepts: "type:glass_sand", count: 1}}}
+  brew_draught:     {name: 회복 물약, discipline: alchemy, min_level: 10, action_level: 12, output: healing_draught, tool: tool_alchemy, xp: 30,
+                     slots: {herb: {accepts: "tag:herb", count: 4, weight: 2}, base: {accepts: "type:minor_tonic", count: 1}}}
+  brew_greater:     {name: 상급 회복 물약, discipline: alchemy, min_level: 20, action_level: 22, output: greater_draught, tool: tool_alchemy, xp: 60,
+                     slots: {herb: {accepts: "tag:herb", count: 4, weight: 2}, base: {accepts: "type:healing_draught", count: 1}, crystal: {accepts: "tag:frost", count: 1}}}
   # ---- 조각 (여러 재료 조합)
   carve_figurine:   {name: 작은 조각상, discipline: sculpting, min_level: 1, action_level: 2, output: figurine, tool: tool_carving, xp: 12,
                      slots: {base: {accepts: "tag:wood", count: 2, weight: 3}, detail: {accepts: "tag:mineral", count: 1},
@@ -50,3 +58,13 @@ recipes:
   craft_wind_chime: {name: 바람 풍경, discipline: sculpting, min_level: 10, action_level: 14, output: wind_chime, tool: tool_carving, xp: 60,
                      discovery: required, slots: {chimes: {accepts: "type:sky_metal", count: 3, weight: 3}, frame: {accepts: "tag:wood", count: 1},
                      tone: {accepts: "type:frost_crystal", count: 1, optional: true, bonus: 90}}}
+  # ---- 목공
+  carve_staff:      {name: 참나무 지팡이, discipline: woodworking, min_level: 1, action_level: 2, output: oak_staff, xp: 12,
+                     slots: {shaft: {accepts: "tag:wood", count: 2, weight: 3}, focus: {accepts: "tag:gem", count: 1, optional: true, bonus: 70}}}
+  bend_bow:         {name: 물푸레 활, discipline: woodworking, min_level: 1, action_level: 2, output: ash_bow, xp: 12,
+                     slots: {limb: {accepts: "tag:wood", count: 2, weight: 3}, string: {accepts: "tag:fiber", count: 2}}}
+  bend_longbow:     {name: 고원 장궁, discipline: woodworking, min_level: 8, action_level: 11, output: ash_bow_fine, xp: 40,
+                     slots: {limb: {accepts: "type:highland_timber", count: 3, weight: 3}, string: {accepts: "tag:fiber", count: 2},
+                             grip: {accepts: "tag:leather", count: 1, optional: true, bonus: 40}}}
+  make_buckler:     {name: 둥근 방패, discipline: woodworking, min_level: 3, action_level: 5, output: buckler, xp: 20,
+                     slots: {boards: {accepts: "tag:wood", count: 3, weight: 2}, rim: {accepts: "type:iron_ingot", count: 1, weight: 1}}}

@@ -1,0 +1,35 @@
+# 신 · 신전 (GOD-01). 신 이름 · 권능은 나무위키 「로열 로드」 §6.1 (CANON). 축복 효과 · 기부 규칙은 ORIGINAL.
+# 선한 신의 신전 지역에서 /기부 <골드> → 악명이 씻기고(악명이 많을수록 비싸다), 남은 돈만큼 축복(최대 30분)을 받는다.
+gods:
+  gaia:      {name: 가이아,     domain: "주신 — 자유인(플레이어)을 이 세계로 불러온 신", blessing: LUCK}
+  lu:        {name: 루,         domain: 태양신,               blessing: NIGHT_VISION}
+  freya:     {name: 프레야,     domain: 풍요의 여신,          blessing: REGENERATION}
+  atrok:     {name: 아트록,     domain: 군신,                 blessing: INCREASE_DAMAGE}
+  batali:    {name: 바탈리,     domain: 투신,                 blessing: INCREASE_DAMAGE}
+  valhalla:  {name: 발할라,     domain: 군신,                 blessing: DAMAGE_RESISTANCE}
+  mine:      {name: 미네,       domain: 대지의 여신,          blessing: FAST_DIGGING}
+  trochet:   {name: 트로체트,   domain: 여행과 시간의 신,     blessing: SPEED}
+  hestia:    {name: 헤스티아,   domain: 주방의 신,            blessing: SATURATION}
+  matallost: {name: 마탈로스트, domain: 죽음의 신,            blessing: DAMAGE_RESISTANCE}
+  galerias:  {name: 갈레리아스, domain: 싸움의 신,            blessing: INCREASE_DAMAGE}
+  horgan:    {name: 호르간,     domain: 바바리안의 신,        blessing: INCREASE_DAMAGE}
+  spiren:    {name: 스피렌,     domain: 축복과 영광의 신,     blessing: LUCK}
+  belzebelt: {name: 벨제벨튀,   domain: 악신,                 evil: true}
+  embinyu:   {name: 엠비뉴,     domain: 악신 — 엠비뉴 교단,   evil: true}
+
+# 신전: 원작에 자리가 나온 곳만 CANON, 나머지는 이 게임이 정한 자리 (ORIGINAL)
+temples:
+  freya_somren:     {god: freya,     region: somren_free_city, source: CANON,    note: "프레야 교단의 본거지 소므렌 자유도시"}
+  lu_sanctum:       {god: lu,        region: lu_sanctum,       source: CANON,    note: "아골디아 한가운데 루 교단의 성역"}
+  batali_struggle:  {god: batali,    region: struggle_road,    source: CANON,    note: "투신 바탈리 교단이 만든 투쟁의 길"}
+  gaia_serabourg:   {god: gaia,      region: serabourg,        source: ORIGINAL, note: "시작 도시마다 주신의 작은 신전"}
+  gaia_hillshade:   {god: gaia,      region: hillshade_castle, source: ORIGINAL}
+  valhalla_aren:    {god: valhalla,  region: aren_castle,      source: ORIGINAL}
+  atrok_nehales:    {god: atrok,     region: nehales_bastion,  source: ORIGINAL}
+  galerias_sisley:  {god: galerias,  region: sisley_castle,    source: ORIGINAL}
+  spiren_morata:    {god: spiren,    region: morata_free_city, source: ORIGINAL}
+  hestia_harden:    {god: hestia,    region: harden,           source: ORIGINAL}
+  mine_hammer:      {god: mine,      region: thor_deep_hammer, source: ORIGINAL}
+  trochet_rosaim:   {god: trochet,   region: rosaim_harbor,    source: ORIGINAL}
+  matallost_calamor: {god: matallost, region: calamor_ruins,   source: ORIGINAL}
+  horgan_west:      {god: horgan,    region: west_tribes,      source: ORIGINAL, note: "바바리안 전사가 많은 서부 부족 땅"}

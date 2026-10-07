@@ -41,6 +41,11 @@ public final class BossFight {
         return enraged;
     }
 
+    /** 예고 중이면 움직이지 않는다 (예고한 범위가 보스와 함께 움직이지 않도록) */
+    public boolean casting(long now) {
+        return now < busyUntil;
+    }
+
     public double scaled(double v) {
         return v * def.scale();
     }

@@ -85,4 +85,17 @@ public final class RelationService {
         bus.publish(new GameEvents.NpcRelationChanged(uuid, npcId, na, gain));
         return gain;
     }
+
+    /** 퀘스트 보상 등으로 호감을 직접 바꿈 (대화 시각은 그대로) */
+    public int adjust(String uuid, String npcId, int delta) {
+        npc(npcId);
+        int na = tx.inTx(() -> {
+            ProgressRepository.RelationRow row = progress.relation(uuid, npcId);
+            int v = Relation.clamp((long) row.affinity() + delta);
+            progress.setRelation(uuid, npcId, v, row.lastTalk());
+            return v;
+        });
+        if (delta != 0) bus.publish(new GameEvents.NpcRelationChanged(uuid, npcId, na, delta));
+        return na;
+    }
 }

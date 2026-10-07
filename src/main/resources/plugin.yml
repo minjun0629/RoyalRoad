@@ -2,19 +2,99 @@ name: VersaEra
 version: '${version}'
 main: io.versaera.platform.bukkit.VersaEraPlugin
 api-version: '1.20'
+# STARTUP: bukkit.yml 의 기본 세계에 VersaEra 지형 생성기를 쓸 수 있게 (세계가 필요한 일은 첫 틱으로 미룬다)
+load: STARTUP
 description: 베르사 새벽기 — 『달빛조각사』 이후 시대를 무대로 한 독립형 MMORPG (팬 프로젝트, 비공식)
 commands:
   versa:
-    description: 캐릭터 · 지도
+    description: 캐릭터 · 지도 · 지도책
     aliases: [베르사]
   trade:
     description: 거래 요청 · 수락
     aliases: [거래]
+  job:
+    description: 직업
+    aliases: [직업]
+  quest:
+    description: 진행 중인 의뢰 · 평판
+    aliases: [의뢰, 퀘스트]
+  guild:
+    description: 길드
+    aliases: [길드]
+  auction:
+    description: 지역 경매장
+    aliases: [경매]
+  dungeon:
+    description: 던전 입장
+    aliases: [던전]
+  party:
+    description: 파티 (초대 · 수락 · 나가기 · 말)
+    aliases: [파티]
+  donate:
+    description: 신전에 기부 (악명 씻기 · 축복)
+    aliases: [기부]
+  gods:
+    description: 신 · 교단 · 신전
+    aliases: [신]
+  history:
+    description: 베르사 연대기
+    aliases: [연대기]
+  fame:
+    description: 명성 · 악명 · 출신
+    aliases: [명성]
+  arts:
+    description: 비기 (목록 · 배우기 · 쓰기)
+    aliases: [비기]
+  trial:
+    description: 초급 수련관 철인 100명 시련 (시작 · 포기)
+    aliases: [수련]
+  land:
+    description: 땅 (구입 · 팔기 · 허가 · 금지 · 목록)
+    aliases: [땅]
+  pshop:
+    description: 개인 상점 (개설 · 등록 · 닫기)
+    aliases: [상점]
+  castle:
+    description: 성 (목록 · 구입 · 세금 · 공성)
+    aliases: [성]
+  nation:
+    description: 국가 (건국 · 목록)
+    aliases: [국가]
+  emperor:
+    description: 황제
+    aliases: [황제]
+  appraise:
+    description: 손에 든 아이템 감정 (숨은 능력 · 내력)
+    aliases: [감정]
+  bandage:
+    description: 붕대 감기 (붕대 하나로 회복)
+    aliases: [붕대]
+  whet:
+    description: 검 갈기 (숫돌 하나 — 10분 공격력 +)
+    aliases: [검갈기]
+  polish:
+    description: 방어구 닦기 (쇠 · 판금 방어구 — 10분 방어력 +)
+    aliases: [닦기]
+  iron:
+    description: 다림질 (천 · 가죽 방어구 — 10분 방어력 +)
+    aliases: [다림질]
+  roar:
+    description: 사자후 (주위 몬스터를 겁주고 파티원에게 힘)
+    aliases: [사자후]
+  shatter:
+    description: 조각 파괴술 (손에 든 조각품을 부수고 예술 스탯만큼 힘을 얻음)
+    aliases: [조각파괴]
+  fieldboss:
+    description: 필드 보스 목록 · 둥지 · 다시 나타나는 때
+    aliases: [필드보스]
+  menu:
+    description: 메인 메뉴 (모든 기능 단추)
+    aliases: [메뉴]
   versaadmin:
     description: VersaEra 관리자
     aliases: [va]
     permission: versaera.admin
 permissions:
   versaera.admin:
-    description: 관리자 명령 (/versaadmin)
+    description: 관리자 명령 (/versaadmin) · 드러나지 않은 지역 통과
     default: op

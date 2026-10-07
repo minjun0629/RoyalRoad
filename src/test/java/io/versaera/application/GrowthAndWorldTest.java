@@ -5,6 +5,7 @@ import io.versaera.domain.event.GameEvents;
 import io.versaera.domain.world.Region;
 import org.junit.jupiter.api.Test;
 
+import static io.versaera.Scale.s;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GrowthAndWorldTest {
@@ -34,10 +35,31 @@ class GrowthAndWorldTest {
     @Test
     void regionsResolveMostSpecificAndUndergroundSeparately() throws Exception {
         try (TestWorld w = new TestWorld()) {
-            assertEquals("harden", w.s.regions.at("world", 0, 70, 0).id());
-            assertEquals("emperor_aqueduct", w.s.regions.at("world", 0, 0, 0).id(), "도시 아래 지하는 수로");
-            assertEquals("central_plains", w.s.regions.at("world", 1000, 70, -1000).id());
-            assertEquals("nehales_bastion", w.s.regions.at("world", 3400, 80, -700).id());
+            assertEquals("harden", w.s.regions.at("world", s(-1000), 70, s(0)).id());
+            assertEquals("emperor_aqueduct", w.s.regions.at("world", s(-1000), 0, s(0)).id(), "도시 아래 지하는 수로");
+            assertEquals("central_plains", w.s.regions.at("world", s(-3200), 70, s(2000)).id());
+            assertEquals("aren_castle", w.s.regions.at("world", s(-1500), 70, s(-1100)).id(), "하벤의 수도 아렌 성");
+            assertEquals("sisley_castle", w.s.regions.at("world", s(2400), 70, s(-150)).id(), "브리튼 연합의 시슬레 성");
+            assertEquals("yunopu_canyon", w.s.regions.at("world", s(5100), 70, s(-1200)).id(), "절망의 평원 북쪽 협곡");
+            assertEquals("jigolas", w.s.regions.at("world", s(1300), 70, s(-5600)).id());
+            assertEquals("rosenheim", w.s.regions.at("world", s(4700), 70, s(2200)).id());
+            assertEquals("lavias", w.s.regions.at("world", s(1700), 210, s(-4300)).id(), "천공도시는 북부 하늘");
+            assertEquals("serabourg", w.s.regions.at("world", s(4200), 70, s(1700)).id());
+            assertEquals("nehales_bastion", w.s.regions.at("world", s(4100), 80, s(-700)).id());
+            assertEquals("embinyu_sanctum", w.s.regions.at("world", s(-5200), 70, s(-2100)).id(), "서부 폐허의 거대한 구멍");
+            assertEquals("metapeia", w.s.regions.at("world", s(3500), 70, s(5500)).id());
+            assertEquals("roderick_labyrinth", w.s.regions.at("world", s(950), 70, s(-2150)).id(), "8대 미궁 로드릭");
+            assertEquals("wolhof_coral", w.s.regions.at("world", s(5900), 50, s(0)).id(), "9대 비경 울호프 산호지대");
+            assertEquals("kaolya_blight", w.s.regions.at("world", s(-4300), 70, s(-3500)).id(), "카올랴의 오염된 땅 (이 게임의 배치)");
+            assertEquals("south_pole", w.s.regions.at("world", s(0), 70, s(7800)).id());
+            assertEquals("meard_forest", w.s.regions.at("world", s(300), 70, s(6700)).id(), "남쪽 대륙의 메아드의 숲");
+            assertEquals("ring_of_fire", w.s.regions.at("world", s(7000), 70, s(-1000)).id(), "동쪽 대륙 불의 고리");
+            assertEquals("west_new_continent", w.s.regions.at("world", s(-7000), 70, s(2000)).id());
+            assertEquals("outer_ocean", w.s.regions.at("world", s(7000), 70, s(6000)).id());
+            assertEquals("hero_tower", w.s.regions.at("world", s(930), 70, s(230)).id(), "영웅의 탑");
+            assertEquals("derrick_village", w.s.regions.at("versa_realms", -4100, 70, -1300).id(), "거인계 마을 데릭");
+            assertEquals("hell_realm", w.s.regions.at("versa_realms", 1000, 70, 1000).id());
+            assertNull(w.s.regions.at("world", s(-4100), 70, s(9000)), "지도 밖");
             assertNull(w.s.regions.at("world_nether", 0, 70, 0));
             for (Region r : w.s.regions.all()) {
                 assertFalse(r.purpose().isBlank(), r.id());

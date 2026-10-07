@@ -25,7 +25,11 @@ public final class ItemCodec {
     private final NamespacedKey idKey, typeKey, qualityKey;
     private final ItemTypeRegistry types;
 
+    /** 아이템 id → 입은 갑옷 모습 (갑옷 장식 무늬 versaera:&lt;모습&gt;) */
+    private final java.util.Map<String, String> looks;
+
     public ItemCodec(Plugin plugin, ItemTypeRegistry types) {
+        this.looks = io.versaera.pack.ArmorLooks.looks(types.all());
         this.idKey = new NamespacedKey(plugin, "item_id");
         this.typeKey = new NamespacedKey(plugin, "type");
         this.qualityKey = new NamespacedKey(plugin, "quality");
@@ -44,18 +48,46 @@ public final class ItemCodec {
         m.setDisplayName(Ui.c(Ui.gradeColor(it.quality()) + (it.props().containsKey("title") ? it.props().get("title") : t.name())));
         List<String> lore = new ArrayList<>();
         lore.add(Ui.c("&7" + Quality.gradeName(it.quality()) + " · " + it.quality() / 10));
-        for (var e : t.stats().entrySet())
-            lore.add(Ui.c("&f" + statName(e.getKey()) + " " + Math.round(e.getValue() * Quality.statMultiplier(it.quality()))));
+        boolean appraised = io.versaera.application.GearService.appraised(it);
+        int hidden = 0;
+        for (var e : t.stats().entrySet()) {
+            boolean h = io.versaera.domain.item.ItemOptions.hidden(e.getKey());
+            if (h && !appraised) { hidden++; continue; }
+            // 속성 피해 · 기본 능력은 품질 배율, 나머지(% · 확률)는 그대로
+            boolean scaled = !h || io.versaera.domain.item.ItemOptions.ELEMENTS.contains(e.getKey());
+            long v = scaled ? Math.round(e.getValue() * Quality.statMultiplier(it.quality())) : e.getValue();
+            lore.add(Ui.c((h ? (e.getValue() < 0 || e.getKey().equals("drain") ? "&c" : "&b") : "&f") + statName(e.getKey()) + " " + v));
+        }
+        if (hidden > 0 || (t.lore() != null && !appraised)) lore.add(Ui.c("&8??? 감정하지 않은 능력" + (hidden > 0 ? " " + hidden + "개" : "") + " (/감정)"));
+        if (t.set() != null && types.sets().containsKey(t.set())) lore.add(Ui.c("&a세트: " + types.sets().get(t.set()).name()));
+        if (!t.requires().isEmpty()) {
+            StringBuilder r = new StringBuilder();
+            for (var e : t.requires().entrySet()) r.append(r.length() == 0 ? "" : " · ").append(requirementName.apply(e.getKey())).append(" ").append(e.getValue());
+            lore.add(Ui.c("&7착용: " + r));
+        }
+        if (appraised && t.lore() != null) lore.add(Ui.c("&o&7" + t.lore()));
         if (it.maxDurability() > 0) lore.add(Ui.c("&7내구 " + it.durability() + "/" + it.maxDurability()));
         if (it.creatorName() != null) lore.add(Ui.c("&8" + it.creatorName()));
         m.setLore(lore);
         m.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        model(m, t);
         m.setUnbreakable(true);   // 내구도는 서버가 관리 (바닐라 내구도로 부서지지 않게)
         PersistentDataContainer pdc = m.getPersistentDataContainer();
         pdc.set(idKey, PersistentDataType.STRING, it.id());
         pdc.set(typeKey, PersistentDataType.STRING, it.typeId());
         s.setItemMeta(m);
         return s;
+    }
+
+    /** 리소스팩 모델 (CustomModelData) + 입은 갑옷 모습 (갑옷 장식) */
+    private void model(ItemMeta m, ItemType t) {
+        if (io.versaera.pack.ResourcePackBuilder.modeled(t)) m.setCustomModelData(io.versaera.domain.pack.PackIds.item(t.id()));
+        String look = looks.get(t.id());
+        if (look == null || !(m instanceof org.bukkit.inventory.meta.ArmorMeta am)) return;
+        org.bukkit.inventory.meta.trim.TrimPattern pattern = org.bukkit.Registry.TRIM_PATTERN.get(new NamespacedKey("versaera", look));
+        if (pattern == null) return;   // 데이터팩이 아직 읽히지 않음 (처음 설치 뒤 서버를 한 번 다시 켜야 한다)
+        am.setTrim(new org.bukkit.inventory.meta.trim.ArmorTrim(org.bukkit.inventory.meta.trim.TrimMaterial.IRON, pattern));
+        am.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
     }
 
     public static int bucket(int quality) {
@@ -71,16 +103,20 @@ public final class ItemCodec {
         m.setLore(List.of(Ui.c("&7" + Quality.gradeName(q) + " · " + q / 10)));
         m.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, typeId);
         m.getPersistentDataContainer().set(qualityKey, PersistentDataType.INTEGER, q);
+        model(m, t);
         s.setItemMeta(m);
         return s;
     }
 
     private static String statName(String k) {
-        return switch (k) {
-            case "attack" -> "공격력";
-            case "defense" -> "방어력";
-            default -> k;
-        };
+        return io.versaera.domain.item.ItemOptions.name(k);
+    }
+
+    private java.util.function.Function<String, String> requirementName = k -> k;
+
+    /** 착용 조건 이름 (mastery.swordsmanship → 검술 …) */
+    public void requirementNames(java.util.function.Function<String, String> f) {
+        requirementName = f;
     }
 
     public String instanceId(ItemStack s) {

@@ -7,3 +7,4 @@ stats:
   insight:     {name: 통찰,   counter: discover.landmark,  per: 3,   unlock_at: 5,   effect: "숨은 지형 · 기록을 알아봄", source: ORIGINAL}
   seafaring:   {name: 항해감, counter: gather.fishing,     per: 40,  unlock_at: 300,  effect: "바다 위 이동 · 해상 이벤트", source: ORIGINAL}
   steady_hand: {name: 정밀,   counter: craft.smithing,     per: 25,  unlock_at: 100, effect: "대장 · 조각 품질 흔들림 감소", source: ORIGINAL}
+  strength:    {name: 힘,     counter: hit.training,       per: 200, effect: "근접 피해 +0.5% / 포인트 (최대 15%) — 수련관 허수아비 치기", source: CANON}

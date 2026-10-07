@@ -33,6 +33,53 @@ class ContentIntegrityTest {
     }
 
     @Test
+    void npcSchedulesHavePlacesInsideTheirRegion() {
+        Set<String> wanderers = new HashSet<>();
+        for (var pr : c.npcProfiles()) if (pr.wanderer()) {
+            wanderers.add(pr.id());
+            for (String r : pr.route()) assertTrue(c.regions().stream().anyMatch(x -> x.id().equals(r)), pr.id() + " 경로의 없는 지역: " + r);
+        }
+        for (var n : c.npcs()) {
+            if (wanderers.contains(n.id())) continue;   // 떠돌이는 경로를 따라 움직인다 (NpcRuntime)
+            var places = c.places().get(n.id());
+            assertNotNull(places, "장소가 없는 NPC: " + n.id());
+            var region = c.regions().stream().filter(r -> r.id().equals(n.region())).findFirst().orElseThrow();
+            for (String s : n.schedule()) {
+                String key = s.substring(s.indexOf(':') + 1);
+                var p = places.get(key);
+                assertNotNull(p, n.id() + " 일과의 장소 좌표가 없음: " + key);
+                assertTrue(p.x() >= region.minX() && p.x() <= region.maxX() && p.z() >= region.minZ() && p.z() <= region.maxZ(),
+                        n.id() + "." + key + " 가 " + region.id() + " 밖에 있음");
+            }
+            for (int h = 0; h < 24; h++) assertNotNull(n.placeAt(h), n.id() + " " + h + "시에 갈 곳이 없음");
+        }
+    }
+
+    @Test
+    void shopsAndMarketsAreConsistent() {
+        Set<String> items = new HashSet<>();
+        c.items().forEach(i -> items.add(i.id()));
+        assertEquals(items, c.market().prices().keySet(), "모든 아이템에 시세가 있어야 한다");
+        for (var m : c.market().markets().values()) assertTrue(c.regions().stream().anyMatch(r -> r.id().equals(m.region())), m.id());
+        for (var sh : c.market().shops().values()) {
+            assertTrue(c.npcs().stream().anyMatch(n -> n.id().equals(sh.npcId())), sh.npcId());
+            assertFalse(sh.buys().isEmpty());
+        }
+    }
+
+    @Test
+    void jobsAndQuestsReferenceRealThings() {
+        Set<String> disc = new HashSet<>(), skills = new HashSet<>();
+        c.disciplines().forEach(d -> disc.add(d.id()));
+        c.skills().forEach(s -> skills.add(s.id()));
+        for (var j : c.jobs()) for (String s : j.skills()) assertTrue(skills.contains(s), j.id() + " 의 스킬 " + s);
+        for (var s : c.skills()) assertTrue(disc.contains(s.discipline()), s.id());
+        for (var cb : c.combos()) assertTrue(skills.contains(cb.finisher()), cb.id());
+        assertTrue(c.quests().size() >= 12);
+        assertTrue(c.quests().stream().anyMatch(q -> !q.choices().isEmpty()), "선택지가 있는 퀘스트");
+    }
+
+    @Test
     void productionIsNotOnlySculpting() {
         long sculpt = c.recipes().stream().filter(r -> r.discipline().equals("sculpting")).count();
         long other = c.recipes().stream().filter(r -> !r.discipline().equals("sculpting")).count();

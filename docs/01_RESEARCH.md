@@ -34,8 +34,53 @@
 | **헤르메스 길드**의 **하벤 제국**이 톨렌 · 칼라모르 등을 멸망시켰다 | CANON | 위키백과 요약 |
 | 결말: 주인공이 중앙 · 북부 · 남부를 아우르고 동부를 합병해 **베르사 대륙 최초의 황제**가 된다 | CANON | 위키백과 요약 |
 | **천공도시 라비아스**: 하늘의 조인족 도시. 던전 · 사냥터 · 상점이 있어 작은 대륙에 가깝다 | CANON | 나무위키 「로열 로드」 요약 |
-| 서부 대륙의 구체적인 지리 | RESEARCH_REQUIRED | 확인 못 함 |
+| 로자임: 북쪽 **브렌트**, 서쪽(북서) **브리튼 연합**, 남서 사막(Desert of Tranquility), 동쪽 **절망의 평원**(오크 땅). 수도 **세라보그 성**, **바란 마을** | CANON | Legendary Moonlight Sculptor Wiki 「Rosenheim Kingdom」 · 「Plains of Despair」 검색 요약, 달빛조각사 게임 공식카페 검색 요약 |
+| 로자임의 방향: 한 자료는 "동쪽 변경 왕국", 다른 자료는 "대륙 남쪽" → **남동쪽**에 둠 | CANON (자료 차이) | 위 두 자료 |
+| **바로크 산맥**은 로자임과 브리튼 연합의 경계, 그 너머가 북부로 가는 길 | CANON | 검색 요약 (Rosenheim 지역 목록 · Morata 문서) |
+| **브리튼 연합**: 일곱 작은 왕국의 연합, 대륙 가운데, **루카 강**(시슬리 성) | CANON | 「Britten Alliance」 · 「Other places」 검색 요약 |
+| **칼라모르**: 중앙 대륙 둘째 강국, 서쪽은 바다, 동쪽 **하벤**, 남쪽 그라디안, 북쪽 수바인 · 브레멘 | CANON | 「Kallamore Kingdom」 검색 요약 |
+| **하벤**: 칼라모르 멸망 뒤 중앙 대륙의 패권 국가, 서쪽 브레멘, 남쪽 그라디안 | CANON | 「Haven Kingdom」 검색 요약 |
+| **라비아스**: 로자임 하늘에 숨어 있던 떠 있는 섬 (조인족) | CANON | 「Lavias」 검색 요약 |
+| **토르**: 북부, 아르펜 가까이의 드워프 왕국 (큰 산맥 3개) · 모라타 서쪽은 안개 협곡, 동쪽은 산 | CANON | 「Thor Kingdom」 · 「Morata」 검색 요약 |
+| **센데임 계곡**(죽음의 계곡): 니플하임 마지막 황제가 죽은 북부 계곡 | CANON | 「Valley of Death」 검색 요약 |
+| **바란 마을**: 세라보그 남쪽, 라비아스 **바로 아래**, 울켄 산 북동 · 라비아스 산 남동 | CANON | 「Baran Village」 · 게임 공식카페 검색 요약 |
+| **절망의 평원**: 로자임과 **유로키나 산맥** 사이의 거대 평원, 오크 100만 이상 · 북쪽에 **유노프 협곡**(쌍둥이 산) | CANON | 나무위키 · 「Plains of Despair」 검색 요약 |
+| **하벤** 수도 **아렌 성** · **톨렌 왕국**(중앙, 하벤에 멸망) | CANON | 나무위키 「헤르메스 길드」 · 위키백과 검색 요약 |
+| **프레야 교단** 본거지 **소므렌 자유도시** (중앙 대륙 남쪽) · **엠비뉴 교단** 총본영 = 엠비뉴의 성지(숨겨진 곳) | CANON | 「Freya's Church」 · 「Embinyu Church」 검색 요약 |
+| **시슬리 성**: 브리튼 연합, 루카 강가 | CANON | 「Other places」 검색 요약 |
+| 모라타 서쪽 **안개 협곡**, 북부 북서쪽 **푸르골 요새** | CANON (한국어 표기 미확인) | 「Morata」 · 「Other places」 검색 요약 |
+| 10대 금역: 절망의 평원 · 지골라스 · 그라페스 · 아골디아 · 고요의 사막 · 남극 · 아베리안 숲 · 잃어버린 길의 황무지(너머 메마른 울부짖는 폐허) · 카올랴의 오염된 땅 · 바다(작가 QnA). 8대 미궁 중 이름이 나온 곳은 로드릭 미궁, 9대 비경 중 이름이 나온 곳은 울호프 산호지대 | CANON | 나무위키 「로열 로드/지리」 본문 (2026, 사용자 제공) |
+| 게임판(모바일 『달빛조각사』) 지역: 세라보그 성 북부 · 고요한 평원 · 자작나무 호수 · 사냥꾼의 언덕 · 바로크 산맥 입구 · 울부짖는 골짜기 · 모래평원 · 오데인 요새/평원(아이데른과 브리튼 접경) · 바스라 마굴 | SOURCE-BASED | 게임 공식카페 · 게임 기사 검색 요약 (정확한 좌표 관계는 없음 → 로자임 · 브리튼 안에 이 게임이 배치) |
+| 위치가 없어 **넣지 않은 곳**: 카올랴의 오염된 땅 · 남극 · 남쪽/동쪽/서쪽 신대륙 · 거인계 · 다른 차원(신계 · 마계 · 정령계) · 이름 없는 나머지 미궁 · 비경 | RESEARCH_REQUIRED | 같은 문서에 위치 서술이 없음 |
+| 그라디안 · 브레멘 · 고요의 사막 등 일부 지명의 **한국어 표기** | RESEARCH_REQUIRED | 영어 위키 요약만 확인 — 게임 안 이름은 SOURCE-BASED 로 표시 |
+| 서부: 중앙과 서부 사이 잃어버린 길의 황무지, 그 너머 메마른 울부짖는 폐허(알 수 없는 장벽 · 시커멓게 썩은 강 · 노예들이 지은 다리 · 엠비뉴의 성지 — 지금은 거대한 구멍 · 채석장 · 하늘로 오르는 탑) | CANON | 나무위키 「로열 로드/지리」 본문 |
+| 중부 왕국(하벤 · 칼라모르 · 톨렌 · 라살 · 브리튼 · 아이데른 · 리튼 · 토르 · 그라디안 · 기타), 동부(로자임 · 브렌트), 남부 사막, 북부(아르펜 · 모라타)의 도시 · 성 · 산 · 던전 이름과 상대 위치 — 전체 목록과 좌표는 02_WORLD.md §2 | CANON | 나무위키 「로열 로드/지리」 본문. 문장의 "북쪽 · 사이 · 근처" 관계만 좌표로 옮김 |
 | 결말 이후 수십 ~ 수백 년의 역사 | RESEARCH_REQUIRED | 원작에 없음. 이 게임은 `ORIGINAL` 로 새로 만든다 (02_WORLD.md) |
+
+## 1-2. 게임 규칙 (나무위키 「로열 로드」 본문, 2026 사용자 제공)
+
+| 내용 | 분류 | 이 게임에서 |
+|---|---|---|
+| 게임 속 시간은 현실보다 약 4배 빠르다 | CANON | TIME-01 (config time.ratio) |
+| 시작 종족 29 → 49 (오크는 위드가 엶, 32권 조인족), 성별 남 · 여 · 중성 | CANON | CHR-01 — 전체 종족 목록은 출처에 없어 원작에 나온 다섯만 |
+| 스타팅 도시에서 소환, 1달 동안 성 · 도시 밖 금지, 그동안 사망 페널티 없음, 보리빵 10개 | CANON | CHR-01 · BEG-01 |
+| 허수아비치기로 스탯 — 허수아비가 아니라 반복 행동이 스탯을 만든다 | CANON | TRN-01 (힘 스탯) |
+| 사망: 현실 24시간 접속 불가 · 무작위 아이템 드롭 · 경험치/레벨 · 스탯 · 숙련 하락 | CANON | DTH-02 — 숙련 레벨 · 행동 스탯 하락 · 드롭. 접속 제한은 사용자 요청으로 뺌 |
+| 물약은 회복력을 잠시 올리는 방식, 여러 개를 이어 마셔도 안 됨, 레벨이 높을수록 효율이 떨어짐 | CANON | POT-01 |
+| 던전은 대부분 파티 플레이 | CANON | PTY-01 |
+| 명성: NPC 에게 유명, 퀘스트 제한 완화 · 보상 증가. 악명: 퀘스트 거절 · 보상 감소 · 큰 사망 페널티 · 악한 NPC 와 거래 | CANON | REP-01 |
+| 살인자: 붉은 이름, 살인자를 죽이면 페널티 없음, NPC 적대, 몬스터 사냥 · 신전 기부 · 축복으로 해소 | CANON | REP-01 · GOD-01 |
+| 신 15 · 역사 시대 (여명 · 네 종족 · 고전 · 전쟁 · 혼돈 · 낭만) | CANON | GOD-01 · LORE-01 |
+| 땅 구입 · 상점 · 성 · 국가 건설 | CANON | LND-01 · SHP-01 · CST-01 · NAT-01 (처음의 '하우징 없음' 원칙은 사용자 요청으로 해제) |
+| 비기 · 최후의 비기 (조각 생명술 · 변신술 · 부활술 · 정령창조, 시간 조작, 천상의 맛, 대륙 창조) | CANON | ART-01 — 대륙 창조는 화가 직업이 없어 제외 |
+| 초급 수련관: 100명의 철인과 싸워 이긴다 | CANON | TRN-02 — 통과 보상 단단한 철검 |
+| 아이템 옵션 · 착용 제한 · 대장장이 스킬의 제한 감소 · 세트 · 감정 | CANON | ITM-05 — 수치 ORIGINAL |
+| 원작 아이템 (자하브의 조각칼 · 로아의 명검 · 레드 스타 · 그라함 · 탈로크 · 반 호크 …) | CANON | ITM-06 — 이름만, 능력 ORIGINAL |
+| 원작 보스 몬스터 (반 호크 · 토리도 · 바스라 · 리치 샤이어 · 쿠렌베르크 · 바르칸 · 케이베른 · 랜도니 …) | CANON | BOS-03 — 둥지 · 몸 · 수치 ORIGINAL |
+| 생활 스킬 (감정 · 붕대 감기 · 검 갈기 · 방어구 닦기 · 다림질 · 도축 · 사자후 · 조각 파괴술) | CANON | SKL-04 |
+| 스킬 레벨은 죽어도 떨어지지 않고 숙련도만 떨어진다 | CANON | DTH-02 |
+| 살인자는 몬스터조차 끝까지 쫓는다 | CANON | REP-01 |
+| 대륙 통일 황제에게 상금 | CANON | NAT-01 — 게임 골드 상금 · 황제의 왕관 |
 
 ## 2. 성장 · 스탯
 
@@ -127,4 +172,23 @@
 - [나무위키 「모라타(달빛조각사)」](https://namu.wiki/w/%EB%AA%A8%EB%9D%BC%ED%83%80(%EB%8B%AC%EB%B9%9B%EC%A1%B0%EA%B0%81%EC%82%AC))
 - [나무위키 「아르펜 제국」](https://namu.wiki/w/%EC%95%84%EB%A5%B4%ED%8E%9C%20%EC%A0%9C%EA%B5%AD)
 - [위키백과 「달빛조각사」](https://ko.wikipedia.org/wiki/%EB%8B%AC%EB%B9%9B%EC%A1%B0%EA%B0%81%EC%82%AC)
+- [Legendary Moonlight Sculptor Wiki — Rosenheim Kingdom](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Rosenheim_Kingdom)
+- [Legendary Moonlight Sculptor Wiki — Kallamore Kingdom](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Kallamore_Kingdom)
+- [Legendary Moonlight Sculptor Wiki — Haven Kingdom](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Haven_Kingdom)
+- [Legendary Moonlight Sculptor Wiki — Britten Alliance](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Britten_Alliance)
+- [Legendary Moonlight Sculptor Wiki — Plains of Despair](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Plains_of_Despair)
+- [Legendary Moonlight Sculptor Wiki — Lavias](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Lavias)
+- [Legendary Moonlight Sculptor Wiki — Thor Kingdom](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Thor_Kingdom)
+- [Legendary Moonlight Sculptor Wiki — Morata](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Morata)
+- [Legendary Moonlight Sculptor Wiki — Valley of Death](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Valley_of_Death)
+- [달빛조각사 게임 공식카페 — 지역별 히든퀘스트 정리](https://m.cafe.daum.net/moonlight-rpg/qEZQ/116)
+- [Legendary Moonlight Sculptor Wiki — Baran Village](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Baran_Village)
+- [Legendary Moonlight Sculptor Wiki — Forbidden Zones](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Forbidden_Zones)
+- [Legendary Moonlight Sculptor Wiki — Freya's Church](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Freya's_Church)
+- [Legendary Moonlight Sculptor Wiki — Embinyu Church](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Embinyu_Church)
+- [Legendary Moonlight Sculptor Wiki — Other places/locations](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Other_places/locations)
+- [나무위키 「헤르메스 길드」](https://namu.wiki/w/%ED%97%A4%EB%A5%B4%EB%A9%94%EC%8A%A4%20%EA%B8%B8%EB%93%9C)
+- [에누리 — 달빛조각사 2.0 업데이트 프리뷰 (게임판 지역)](https://m.enuri.com/knowcom/detail.jsp?kbno=1101287)
+- [게임와이 — 달빛조각사 신규 외전 지역 (오데인 요새)](http://www.gamey.kr/news/articleView.html?idxno=1612588)
+- (지도 작업 때 위 문서 본문은 개발 환경에서 열 수 없어 **검색 결과 요약**으로만 확인했습니다. 원작 지도 그림은 쓰지 않았습니다.)
 - [Legendary Moonlight Sculptor Wiki — Character Stats](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Character_Stats)

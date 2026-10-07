@@ -7,11 +7,18 @@ import java.util.Set;
 
 /**
  * NPC 정의 (content/npcs.yml). 퀘스트 지급기가 아니라 이름 · 직업 · 성격 · 소속 · 일과 · 취향을 가진 주민.
+ * evil = 악한 NPC: 악명 높은 사람과만 상대한다 (REP-01).
  *
  * @param schedule "06-12:market", "12-20:forge" 처럼 시간대(게임 시각) → 장소 키
  */
 public record NpcDefinition(String id, String name, String job, String personality, String faction, String region,
-                            Set<String> likes, Set<String> dislikes, List<String> schedule, String source) {
+                            Set<String> likes, Set<String> dislikes, List<String> schedule, String source, boolean evil) {
+    /** 보통 NPC (악하지 않음) */
+    public NpcDefinition(String id, String name, String job, String personality, String faction, String region,
+                         Set<String> likes, Set<String> dislikes, List<String> schedule, String source) {
+        this(id, name, job, personality, faction, region, likes, dislikes, schedule, source, false);
+    }
+
     public NpcDefinition {
         DomainException.require(id != null && id.matches("[a-z0-9_]+"), "npc.bad_id", "NPC id 형식이 잘못되었습니다: " + id);
         likes = Set.copyOf(likes == null ? Set.of() : likes);

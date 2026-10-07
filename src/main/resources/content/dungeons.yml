@@ -1,0 +1,70 @@
+# 던전 — 모두 ORIGINAL (원작 던전의 이름 · 구조 · 공략을 쓰지 않음). 배치는 입장할 때마다 시드로 새로 만들어진다.
+# palette: [바닥, 벽, 장식, (조명)] · monsters: 엔티티 종류 · boss: bosses.yml 의 거대 보스 (없으면 boss_mob 강화형)
+# cooldown_hours: 같은 사람이 보상을 다시 받기까지 (입장은 언제든 가능, 보상만 제한)
+dungeons:
+  aqueduct_cistern:
+    name: 수로 아래 저수조
+    region: emperor_aqueduct
+    danger: 3
+    rooms: 9
+    party: [1, 4]
+    time_limit_minutes: 30
+    levers: 4
+    palette: [MOSSY_STONE_BRICKS, STONE_BRICKS, CHAIN, LANTERN]
+    monsters: [DROWNED, ZOMBIE, SPIDER]
+    monsters_per_room: 4
+    monster_health: 1.6
+    boss_mob: ELDER_GUARDIAN
+    boss_health: 6.0
+    reward: {money: 800, items: ["silver_ore:550:6"], xp: {exploration: 300}}
+    hidden_reward: {money: 400, items: ["raw_gem:650:2", "relic_life_statue:700:1"]}
+    cooldown_hours: 20
+  calamor_vault:
+    name: 칼라모르 서고 금고
+    region: calamor_ruins
+    danger: 3
+    rooms: 11
+    party: [2, 5]
+    time_limit_minutes: 40
+    levers: 5
+    palette: [DEEPSLATE_TILES, CHISELED_DEEPSLATE, BOOKSHELF, SOUL_LANTERN]
+    monsters: [SKELETON, STRAY, VINDICATOR]
+    monsters_per_room: 5
+    monster_health: 1.8
+    boss_mob: EVOKER
+    boss_health: 10.0
+    reward: {money: 1300, items: ["linen_cloth:600:6"], xp: {exploration: 500}, reputation: {dawn_archive: 20}}
+    hidden_reward: {items: ["relief_plaque:700:1", "relic_revival_statue:700:1"]}
+    cooldown_hours: 20
+  crater_heart:
+    name: 분화구의 심장
+    region: fallen_crater
+    danger: 4
+    rooms: 13
+    party: [3, 6]
+    time_limit_minutes: 45
+    levers: 6
+    palette: [BLACKSTONE, POLISHED_BLACKSTONE_BRICKS, AMETHYST_CLUSTER, SHROOMLIGHT]
+    monsters: [BLAZE, MAGMA_CUBE, WITHER_SKELETON]
+    monsters_per_room: 5
+    monster_health: 2.2
+    boss: fallen_colossus
+    reward: {money: 2500, items: ["sky_metal:650:2"], xp: {exploration: 900}}
+    hidden_reward: {items: ["frost_crystal:700:2", "relic_transform_statue:700:1"]}
+    cooldown_hours: 44
+  buried_archive:
+    name: 모래에 묻힌 기록고
+    region: buried_city
+    danger: 5
+    rooms: 15
+    party: [3, 8]
+    time_limit_minutes: 55
+    levers: 7
+    palette: [CUT_SANDSTONE, CHISELED_SANDSTONE, SUSPICIOUS_SAND, LANTERN]
+    monsters: [HUSK, SKELETON, CAVE_SPIDER]
+    monsters_per_room: 6
+    monster_health: 2.6
+    boss: dune_rake_worm
+    reward: {money: 4000, items: ["raw_gem:700:4"], xp: {exploration: 1400}, reputation: {sand_caravan: 40}}
+    hidden_reward: {money: 1500}
+    cooldown_hours: 44

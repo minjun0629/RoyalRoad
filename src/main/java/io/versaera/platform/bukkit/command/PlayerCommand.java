@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * 플레이어 명령은 최소한만: /versa (캐릭터 · 기록) · /versa 지도 · /거래 <이름> · /거래 수락.
+ * 플레이어 명령은 최소한만: /versa (캐릭터 · 기록) · /versa 지도 (지역 목록) · /versa 지도책 (탐험 지도) · /거래 <이름> · /거래 수락.
  * 나머지 플레이는 월드 상호작용(제작대 · NPC · 자원 · 보스)으로 한다.
  */
 public final class PlayerCommand implements CommandExecutor {
@@ -30,7 +30,10 @@ public final class PlayerCommand implements CommandExecutor {
     private final Consumer<Player> deliver;
     private final Map<UUID, UUID> requests = new HashMap<>();   // 받는 사람 → 보낸 사람
 
-    public PlayerCommand(GameServices s, Async async, ItemCodec codec, Consumer<Player> deliver) {
+    private final Consumer<Player> atlas;
+
+    public PlayerCommand(GameServices s, Async async, ItemCodec codec, Consumer<Player> deliver, Consumer<Player> atlas) {
+        this.atlas = atlas;
         this.s = s;
         this.async = async;
         this.codec = codec;
@@ -41,7 +44,8 @@ public final class PlayerCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player p)) return true;
         if (cmd.getName().equals("trade")) return trade(p, args);
-        if (args.length > 0 && (args[0].equals("지도") || args[0].equalsIgnoreCase("map"))) map(p);
+        if (args.length > 0 && (args[0].equals("지도책") || args[0].equalsIgnoreCase("atlas"))) atlas.accept(p);
+        else if (args.length > 0 && (args[0].equals("지도") || args[0].equalsIgnoreCase("map"))) map(p);
         else character(p);
         return true;
     }
@@ -53,7 +57,7 @@ public final class PlayerCommand implements CommandExecutor {
             @SuppressWarnings("unchecked") Map<String, Integer> stats = (Map<String, Integer>) r[1];
             long money = (long) r[2];
             Menu m = new Menu(4, "&8" + p.getName());
-            m.set(4, Menu.icon(Material.GOLD_INGOT, "&e" + money, List.of()), null);
+            m.set(4, Menu.ui("money", Material.GOLD_INGOT, "&e" + money, List.of()), null);
             int slot = 9;
             List<Map.Entry<String, Long>> top = new ArrayList<>(mastery.entrySet());
             top.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
@@ -67,7 +71,7 @@ public final class PlayerCommand implements CommandExecutor {
             for (Map.Entry<String, Integer> e : stats.entrySet()) {
                 if (slot > 35) break;
                 String name = s.growth.stats().stream().filter(x -> x.id().equals(e.getKey())).findFirst().map(x -> x.name()).orElse(e.getKey());
-                m.set(slot++, Menu.icon(Material.NETHER_STAR, "&f" + name + " &e" + e.getValue(), List.of()), null);
+                m.set(slot++, Menu.ui("stat", Material.NETHER_STAR, "&f" + name + " &e" + e.getValue(), List.of()), null);
             }
             m.open(p);
         }, p);
@@ -85,7 +89,7 @@ public final class PlayerCommand implements CommandExecutor {
         };
     }
 
-    /** 지도 (MAP-01 PARTIAL): 발견한 지역만, 이름 · 위험도 · 최초 발견자. 미발견 지역은 "???" */
+    /** 지역 목록: 발견한 지역만, 이름 · 위험도 · 최초 발견자. 미발견 지역은 "???" */
     private void map(Player p) {
         String id = p.getUniqueId().toString();
         async.run("map", () -> {
@@ -104,9 +108,9 @@ public final class PlayerCommand implements CommandExecutor {
                 Region r = (Region) row[0];
                 boolean known = (boolean) row[1];
                 m.set(slot++, known
-                        ? Menu.icon(r.danger() == 0 ? Material.LIME_BANNER : r.danger() <= 2 ? Material.YELLOW_BANNER : r.danger() <= 4 ? Material.ORANGE_BANNER : Material.RED_BANNER,
+                        ? Menu.ui("map_known", r.danger() == 0 ? Material.LIME_BANNER : r.danger() <= 2 ? Material.YELLOW_BANNER : r.danger() <= 4 ? Material.ORANGE_BANNER : Material.RED_BANNER,
                         "&f" + r.name(), List.of(Ui.danger(r.danger()), "&8" + row[2]))
-                        : Menu.icon(Material.GRAY_STAINED_GLASS_PANE, "&8???", List.of()), null);
+                        : Menu.ui("map_unknown", Material.GRAY_STAINED_GLASS_PANE, "&8???", List.of()), null);
             }
             m.open(p);
         }, p);

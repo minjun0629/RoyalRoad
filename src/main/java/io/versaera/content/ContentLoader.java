@@ -2,6 +2,11 @@ package io.versaera.content;
 
 import io.versaera.domain.boss.BossDefinition;
 import io.versaera.domain.boss.Shape;
+import io.versaera.domain.combat.CombatState;
+import io.versaera.domain.combat.SkillDefinition;
+import io.versaera.domain.combat.StatusEffect;
+import io.versaera.domain.job.JobDefinition;
+import io.versaera.domain.quest.QuestDefinition;
 import io.versaera.domain.crafting.MaterialSlot;
 import io.versaera.domain.crafting.Recipe;
 import io.versaera.domain.gathering.ResourceNode;
@@ -128,7 +133,78 @@ public final class ContentLoader {
     public static List<ItemType> items(Map<String, Object> root, String file) {
         return each(root, "items", file, (id, m) -> new ItemType(id, req(m, "name"), ItemCategory.valueOf(req(m, "category")), req(m, "material"),
                 i(m, "durability", 0), i(m, "weight", 0), new LinkedHashSet<>(list(m, "tags")), intMap(m, "stats"), intMap(m, "requires"),
-                str(m, "source", "ORIGINAL")));
+                str(m, "source", "ORIGINAL"), str(m, "lore", null), str(m, "set", null)));
+    }
+
+    /** items.yml 의 sets (없어도 됨) */
+    public static List<io.versaera.domain.item.ItemSet> itemSets(Map<String, Object> root, String file) {
+        if (!root.containsKey("sets")) return List.of();
+        return each(root, "sets", file, (id, m) -> {
+            Map<Integer, Map<String, Integer>> b = new LinkedHashMap<>();
+            Object raw = m.get("bonuses");   // 키가 숫자라 YAML 이 Integer 로 읽는다
+            if (raw instanceof Map<?, ?> rb) for (var e : rb.entrySet()) {
+                Map<String, Integer> v = new LinkedHashMap<>();
+                if (e.getValue() instanceof Map<?, ?> rv) for (var x : rv.entrySet()) v.put(x.getKey().toString(), ((Number) x.getValue()).intValue());
+                b.put(Integer.parseInt(e.getKey().toString()), v);
+            }
+            return new io.versaera.domain.item.ItemSet(id, req(m, "name"), b, str(m, "source", "ORIGINAL"));
+        });
+    }
+
+    // ------------------------------------------------------------------ 주민 생성 규칙 (npc_population.yml)
+    public static io.versaera.domain.npc.NpcPopulation.Rules population(Map<String, Object> root, String file) {
+        Map<String, io.versaera.domain.npc.Archetype> arch = new LinkedHashMap<>();
+        for (var a : each(root, "archetypes", file, (id, m) -> {
+            List<io.versaera.domain.npc.Archetype.QuestTemplate> qs = new ArrayList<>();
+            if (m.get("quests") instanceof List<?> l) for (Object o : l) {
+                Map<String, Object> q = map(o);
+                qs.add(new io.versaera.domain.npc.Archetype.QuestTemplate(req(q, "target"), i(q, "amount", 1), l(q, "money", 0), intMap(q, "xp"),
+                        i(q, "affinity", 5), b(q, "daily", false), b(q, "hidden", false), req(q, "title"), str(q, "label", "")));
+            }
+            List<String> lv = list(m, "level");
+            int lo = lv.isEmpty() ? 5 : Integer.parseInt(lv.get(0)), hi = lv.size() < 2 ? lo + 10 : Integer.parseInt(lv.get(1));
+            return new io.versaera.domain.npc.Archetype(id, req(m, "job"), str(m, "category", "LIFE"), new LinkedHashSet<>(list(m, "services")),
+                    new LinkedHashSet<>(list(m, "likes")), new LinkedHashSet<>(list(m, "dislikes")), list(m, "personalities"), list(m, "schedule"),
+                    list(m, "stock"), new LinkedHashSet<>(list(m, "buys")), new LinkedHashSet<>(list(m, "produces")), new LinkedHashSet<>(list(m, "consumes")),
+                    list(m, "lines"), lo, hi, b(m, "evil", false), str(m, "trains", null), qs);
+        })) arch.put(a.id(), a);
+        Map<String, Map<String, Integer>> cultures = new LinkedHashMap<>();
+        for (var e : section(root, "cultures", file).entrySet()) {
+            Map<String, Integer> c = new LinkedHashMap<>();
+            for (var x : map(e.getValue()).entrySet()) {
+                if (!arch.containsKey(x.getKey())) throw new ContentException(file + " / cultures." + e.getKey() + ": 없는 직업 틀 " + x.getKey());
+                c.put(x.getKey(), ((Number) x.getValue()).intValue());
+            }
+            cultures.put(e.getKey(), c);
+        }
+        Map<String, io.versaera.domain.npc.NpcPopulation.Wander> wanderers = new LinkedHashMap<>();
+        for (var e : section(root, "wanderers", file).entrySet()) {
+            Map<String, Object> m = map(e.getValue());
+            wanderers.put(e.getKey(), new io.versaera.domain.npc.NpcPopulation.Wander(i(m, "count", 1), i(m, "stops", 4), d(m, "speed", 100)));
+        }
+        List<io.versaera.domain.npc.NpcPopulation.RareSpec> rare = new ArrayList<>(each(root, "rare", file, (id, m) -> {
+            List<String> h = list(m, "hours");
+            return new io.versaera.domain.npc.NpcPopulation.RareSpec(id, req(m, "name"), req(m, "archetype"), req(m, "region"),
+                    Integer.parseInt(h.get(0)), Integer.parseInt(h.get(1)), i(m, "every_days", 1), i(m, "level", 50), str(m, "line", null), str(m, "trains", null));
+        }));
+        Object max = root.get("max_per_region");
+        return new io.versaera.domain.npc.NpcPopulation.Rules(arch, cultures, max instanceof Number n ? n.intValue() : 16, wanderers, rare);
+    }
+
+    public static List<io.versaera.domain.fieldboss.FieldBoss> fieldBosses(Map<String, Object> root, String file) {
+        return each(root, "field_bosses", file, (id, m) -> {
+            List<io.versaera.domain.fieldboss.FieldBoss.Drop> drops = new ArrayList<>();
+            for (String x : list(m, "drops")) {   // "item:품질:확률"
+                String[] p = x.split(":");
+                drops.add(new io.versaera.domain.fieldboss.FieldBoss.Drop(p[0], Integer.parseInt(p[1]), Double.parseDouble(p[2])));
+            }
+            Set<io.versaera.domain.item.ItemOptions.Kind> kinds = new LinkedHashSet<>();
+            for (String k : list(m, "kinds")) kinds.add(io.versaera.domain.item.ItemOptions.Kind.valueOf(k));
+            return new io.versaera.domain.fieldboss.FieldBoss(id, req(m, "name"), req(m, "entity"), req(m, "region"), d(m, "hp", 100), d(m, "damage", 6),
+                    i(m, "respawn_minutes", 60), new LinkedHashSet<>(list(m, "mechanics")), str(m, "minion", null), kinds, drops,
+                    reward(m.get("reward")), str(m, "description", ""), str(m, "source", "CANON"),
+                    str(m, "look", "KNIGHT"), d(m, "size", 2));
+        });
     }
 
     public static List<Discipline> disciplines(Map<String, Object> root, String file) {
@@ -175,7 +251,7 @@ public final class ContentLoader {
     public static List<NpcDefinition> npcs(Map<String, Object> root, String file) {
         return each(root, "npcs", file, (id, m) -> new NpcDefinition(id, req(m, "name"), req(m, "job"), str(m, "personality", ""),
                 str(m, "faction", null), req(m, "region"), new LinkedHashSet<>(list(m, "likes")), new LinkedHashSet<>(list(m, "dislikes")),
-                list(m, "schedule"), str(m, "source", "ORIGINAL")));
+                list(m, "schedule"), str(m, "source", "ORIGINAL"), b(m, "evil", false)));
     }
 
     public static List<BossDefinition> bosses(Map<String, Object> root, String file) {
@@ -194,7 +270,170 @@ public final class ContentLoader {
                 phases.add(new BossDefinition.Phase(d(pm, "hp_below", 1.0), list(pm, "patterns"), str(pm, "announce", "")));
             }
             return new BossDefinition(id, req(m, "name"), d(m, "scale", 1), d(m, "hit_radius", 2), d(m, "max_hp", 1000), d(m, "arena_radius", 40),
-                    d(m, "weak_arc", 90), l(m, "enrage_ms", 0), phases, pats, str(m, "model", null), str(m, "source", "ORIGINAL"));
+                    d(m, "weak_arc", 90), l(m, "enrage_ms", 0), phases, pats, str(m, "model", null), d(m, "speed", 2.5), reward(m.get("reward")),
+                    str(m, "source", "ORIGINAL"));
+        });
+    }
+
+    private static Map<String, Double> doubleMap(Map<String, Object> m) {
+        Map<String, Double> out = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> e : m.entrySet()) out.put(e.getKey(), ((Number) e.getValue()).doubleValue());
+        return out;
+    }
+
+    public static List<JobDefinition> jobs(Map<String, Object> root, String file) {
+        return each(root, "jobs", file, (id, m) -> new JobDefinition(id, req(m, "name"), req(m, "slot"), i(m, "tier", 1), str(m, "parent", null),
+                condition(m.get("requires")), doubleMap(map(m.get("perks"))), list(m, "skills"), str(m, "source", "ORIGINAL")));
+    }
+
+    private static SkillDefinition skill(String id, Map<String, Object> m) {
+        String shape = str(m, "shape", null), effect = str(m, "effect", null);
+        return new SkillDefinition(id, req(m, "name"), SkillDefinition.Kind.valueOf(req(m, "kind")), str(m, "weapon", null), req(m, "discipline"),
+                i(m, "min_level", 1), SkillDefinition.Resource.valueOf(str(m, "resource", "STAMINA")), i(m, "cost", 10), l(m, "cooldown_ms", 3000),
+                shape == null ? null : Shape.valueOf(shape), d(m, "radius", 3), d(m, "width", 90), d(m, "damage", 1),
+                effect == null ? null : StatusEffect.valueOf(effect), i(m, "effect_seconds", 0), b(m, "basic", false), str(m, "source", "ORIGINAL"));
+    }
+
+    public static List<SkillDefinition> skills(Map<String, Object> root, String file) {
+        List<SkillDefinition> out = new ArrayList<>(each(root, "skills", file, ContentLoader::skill));
+        out.addAll(each(root, "combo_skills", file, ContentLoader::skill));
+        return out;
+    }
+
+    public static List<CombatState.Combo> combos(Map<String, Object> root, String file) {
+        return each(root, "combos", file, (id, m) -> new CombatState.Combo(id,
+                list(m, "sequence").stream().map(CombatState.Input::valueOf).toList(), l(m, "window_ms", 1500), req(m, "finisher")));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static QuestDefinition.Reward reward(Object o) {
+        Map<String, Object> m = map(o);
+        if (m.isEmpty()) return QuestDefinition.Reward.NONE;
+        return new QuestDefinition.Reward(l(m, "money", 0), list(m, "items"), intMap(m, "xp"), intMap(m, "affinity"), intMap(m, "reputation"),
+                i(m, "fame", 0), list(m, "unlocks"));
+    }
+
+    public static List<QuestDefinition> quests(Map<String, Object> root, String file) {
+        return each(root, "quests", file, (id, m) -> {
+            List<QuestDefinition.Objective> objs = new ArrayList<>();
+            if (m.get("objectives") instanceof List<?> l) for (Object o : l) {
+                Map<String, Object> om = map(o);
+                objs.add(new QuestDefinition.Objective(QuestDefinition.Type.valueOf(req(om, "type")), req(om, "target"), i(om, "amount", 1),
+                        i(om, "min_quality", 0), str(om, "label", "")));
+            }
+            List<QuestDefinition.Choice> choices = new ArrayList<>();
+            if (m.get("choices") instanceof List<?> l) for (Object o : l) {
+                Map<String, Object> cm = map(o);
+                choices.add(new QuestDefinition.Choice(req(cm, "id"), req(cm, "label"), reward(cm.get("reward"))));
+            }
+            return new QuestDefinition(id, req(m, "title"), str(m, "giver", null), QuestDefinition.Grade.valueOf(str(m, "grade", "DAILY")),
+                    m.containsKey("requires") ? condition(m.get("requires")) : null, list(m, "after"), b(m, "hidden", false), b(m, "daily", false),
+                    objs, reward(m.get("reward")), choices, str(m, "source", "ORIGINAL"));
+        });
+    }
+
+    public static io.versaera.domain.market.MarketCatalog market(Map<String, Object> root, String file) {
+        Map<String, io.versaera.domain.market.MarketCatalog.Market> markets = new LinkedHashMap<>();
+        for (var m : each(root, "markets", file, (id, m) -> new io.versaera.domain.market.MarketCatalog.Market(id, req(m, "name"), req(m, "region"),
+                d(m, "tax", 0.05), new LinkedHashSet<>(list(m, "cheap")), new LinkedHashSet<>(list(m, "dear"))))) markets.put(m.id(), m);
+        Map<String, Long> prices = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> e : section(root, "prices", file).entrySet()) {
+            long v = ((Number) e.getValue()).longValue();
+            if (v <= 0) throw new ContentException(file + " / prices / " + e.getKey() + ": 시세는 1 이상");
+            prices.put(e.getKey(), v);
+        }
+        Map<String, io.versaera.domain.market.MarketCatalog.Shop> shops = new LinkedHashMap<>();
+        for (var sh : each(root, "shops", file, (id, m) -> {
+            List<io.versaera.domain.market.MarketCatalog.Offer> sells = new ArrayList<>();
+            for (String o : list(m, "sells")) {
+                String[] p = o.split(":");
+                if (p.length != 2) throw new IllegalArgumentException("sells 는 종류:품질 — " + o);
+                sells.add(new io.versaera.domain.market.MarketCatalog.Offer(p[0], Integer.parseInt(p[1])));
+            }
+            String market = req(m, "market");
+            if (!markets.containsKey(market)) throw new IllegalArgumentException("없는 시장: " + market);
+            return new io.versaera.domain.market.MarketCatalog.Shop(id, market, sells, new LinkedHashSet<>(list(m, "buys")));
+        })) shops.put(sh.npcId(), sh);
+        return new io.versaera.domain.market.MarketCatalog(markets, prices, shops);
+    }
+
+    /** npc → 장소 키 → 좌표 */
+    public static Map<String, Map<String, io.versaera.domain.npc.NpcSchedule.Point>> places(Map<String, Object> root, String file) {
+        Map<String, Map<String, io.versaera.domain.npc.NpcSchedule.Point>> out = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> e : section(root, "places", file).entrySet()) {
+            Map<String, io.versaera.domain.npc.NpcSchedule.Point> m = new LinkedHashMap<>();
+            for (Map.Entry<String, Object> p : map(e.getValue()).entrySet()) {
+                if (!(p.getValue() instanceof List<?> l) || l.size() != 2) throw new ContentException(file + " / " + e.getKey() + "." + p.getKey() + ": [x, z]");
+                m.put(p.getKey(), new io.versaera.domain.npc.NpcSchedule.Point(((Number) l.get(0)).doubleValue(), ((Number) l.get(1)).doubleValue()));
+            }
+            out.put(e.getKey(), m);
+        }
+        return out;
+    }
+
+    public static List<io.versaera.domain.dungeon.DungeonDefinition> dungeons(Map<String, Object> root, String file) {
+        return each(root, "dungeons", file, (id, m) -> {
+            List<String> party = list(m, "party");
+            if (party.size() != 2) throw new IllegalArgumentException("party 는 [최소, 최대]");
+            return new io.versaera.domain.dungeon.DungeonDefinition(id, req(m, "name"), req(m, "region"), i(m, "danger", 1), i(m, "rooms", 9),
+                    Integer.parseInt(party.get(0)), Integer.parseInt(party.get(1)), l(m, "time_limit_minutes", 30) * 60_000L, i(m, "levers", 4),
+                    list(m, "palette"), list(m, "monsters"), i(m, "monsters_per_room", 4), d(m, "monster_health", 1.5), str(m, "boss", null),
+                    str(m, "boss_mob", null), d(m, "boss_health", 5), reward(m.get("reward")), reward(m.get("hidden_reward")),
+                    l(m, "cooldown_hours", 20) * 3_600_000L, str(m, "source", "ORIGINAL"));
+        });
+    }
+
+    public static List<io.versaera.domain.worldevent.WorldEventDefinition> worldEvents(Map<String, Object> root, String file) {
+        return each(root, "world_events", file, (id, m) -> new io.versaera.domain.worldevent.WorldEventDefinition(id, req(m, "name"), req(m, "region"),
+                io.versaera.domain.worldevent.WorldEventDefinition.Kind.valueOf(req(m, "kind")), (long) (d(m, "period_hours", 24) * 3_600_000),
+                (long) (d(m, "duration_minutes", 30) * 60_000), (long) (d(m, "jitter_hours", 0) * 3_600_000), (long) (d(m, "forecast_hours", 1) * 3_600_000),
+                str(m, "forecaster", null), stringMap(map(m.get("effects"))), str(m, "announce", ""), str(m, "source", "ORIGINAL")));
+    }
+
+    // ------------------------------------------------------------------ 캐릭터 만들기 · 신 · 연대기
+    public static io.versaera.domain.origin.Origins origins(Map<String, Object> root, String file) {
+        try {
+            List<io.versaera.domain.origin.Race> races = each(root, "races", file, (id, m) -> {
+                Map<String, Double> bonus = new LinkedHashMap<>();
+                for (Map.Entry<String, Object> e : map(m.get("xp_bonus")).entrySet()) bonus.put(e.getKey(), Double.parseDouble(String.valueOf(e.getValue())));
+                return new io.versaera.domain.origin.Race(id, req(m, "name"), str(m, "source", "ORIGINAL"), str(m, "note", ""), bonus, str(m, "perk", "none"));
+            });
+            List<io.versaera.domain.origin.StartCity> cities = each(root, "cities", file, (id, m) -> new io.versaera.domain.origin.StartCity(id, req(m, "name"),
+                    req(m, "region"), str(m, "kingdom", ""), str(m, "source", "ORIGINAL"), str(m, "note", "")));
+            return new io.versaera.domain.origin.Origins(races, cities, i(root, "beginner_game_days", 30), list(root, "starting_kit"));
+        } catch (RuntimeException e) {
+            if (e instanceof ContentException) throw e;
+            throw new ContentException(file, e);
+        }
+    }
+
+    public static List<io.versaera.domain.faith.God> gods(Map<String, Object> root, String file) {
+        return each(root, "gods", file, (id, m) -> new io.versaera.domain.faith.God(id, req(m, "name"), str(m, "domain", ""), b(m, "evil", false),
+                str(m, "blessing", null), str(m, "source", "CANON")));
+    }
+
+    public static List<io.versaera.domain.faith.Temple> temples(Map<String, Object> root, String file) {
+        return each(root, "temples", file, (id, m) -> new io.versaera.domain.faith.Temple(id, req(m, "god"), req(m, "region"), str(m, "source", "ORIGINAL"),
+                str(m, "note", "")));
+    }
+
+    public static List<io.versaera.domain.faith.Era> eras(Map<String, Object> root, String file) {
+        return each(root, "eras", file, (id, m) -> new io.versaera.domain.faith.Era(id, req(m, "name"), req(m, "when"), req(m, "summary"),
+                str(m, "source", "ORIGINAL")));
+    }
+
+    public static List<io.versaera.domain.art.SecretArt> arts(Map<String, Object> root, String file) {
+        return each(root, "arts", file, (id, m) -> new io.versaera.domain.art.SecretArt(id, req(m, "name"), req(m, "job"), req(m, "discipline"),
+                i(m, "min_level", 25), str(m, "relic", null), m.containsKey("discover") ? condition(m.get("discover")) : null, req(m, "effect"),
+                l(m, "cooldown_minutes", 30) * 60_000L, b(m, "final", false), str(m, "description", ""), str(m, "source", "CANON")));
+    }
+
+    public static List<io.versaera.domain.world.Gate> gates(Map<String, Object> root, String file) {
+        return each(root, "gates", file, (id, m) -> {
+            List<String> to = list(m, "to");
+            if (to.size() != 3) throw new IllegalArgumentException("to 는 [세계, x, z]");
+            return new io.versaera.domain.world.Gate(id, req(m, "name"), req(m, "region"), to.get(0), Integer.parseInt(to.get(1)), Integer.parseInt(to.get(2)),
+                    i(m, "min_exploration", 1), str(m, "source", "ORIGINAL"), str(m, "note", ""));
         });
     }
 

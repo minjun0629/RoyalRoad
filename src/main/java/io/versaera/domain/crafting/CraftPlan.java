@@ -44,6 +44,15 @@ public final class CraftPlan {
      * @param statPoints  관련 행동 스탯 포인트 (예: 조각 → 예술)
      */
     public static Outcome evaluate(Recipe r, List<MaterialInput> inputs, int level, int toolQuality, int statPoints, RandomGenerator rng) {
+        return evaluate(r, inputs, level, toolQuality, statPoints, 0, 1.0, rng);
+    }
+
+    /**
+     * @param flatBonus    직업 등 고정 품질 보너스
+     * @param varianceMult 흔들림 배율 (1 = ±40, 정밀 스탯이 높을수록 작아짐)
+     */
+    public static Outcome evaluate(Recipe r, List<MaterialInput> inputs, int level, int toolQuality, int statPoints, int flatBonus,
+                                   double varianceMult, RandomGenerator rng) {
         DomainException.require(level >= r.minLevel(), "craft.low_level", "숙련이 부족합니다: " + Mastery.label(r.minLevel()) + " 필요");
         DomainException.require(r.tool() == null || toolQuality >= 0, "craft.no_tool", "도구가 필요합니다: " + r.tool());
         List<Assignment> used = assign(r, inputs);
@@ -60,7 +69,9 @@ public final class CraftPlan {
         double stat = Math.min(1000, statPoints * 20.0);
         double q = 0.40 * mastery + 0.35 * material + 0.15 * tool + 0.10 * stat + bonus;
         if (level < r.actionLevel()) q -= (r.actionLevel() - level) * 25;   // 아직 어려운 레시피
-        q += rng.nextInt(-40, 41);
+        q += flatBonus;
+        int spread = (int) Math.round(40 * Math.max(0, Math.min(1, varianceMult)));
+        q += spread == 0 ? 0 : rng.nextInt(-spread, spread + 1);
         long xp = Mastery.gain(r.xp(), r.actionLevel(), level, 1.0);
         return new Outcome(Quality.clamp(q), xp, List.copyOf(used));
     }

@@ -17,15 +17,26 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * 임시 메뉴 (상자 창 기반). 최종 UI 는 리소스팩 폰트 · 전용 배경으로 바꿀 예정 → Feature Registry UI-01 (PARTIAL).
+ * 메뉴 (상자 창 기반). 리소스팩을 쓰는 서버는 제목에 배경 글자(U+E000~)를 깔아 전용 배경을 보여 준다 (UI-01).
+ * 팩을 끈 서버에서는 배경 글자가 네모로 보이므로 쓰지 않는다 (background 가 false).
  * 규칙: 아이콘 + 짧은 이름 + 숫자. 설명 문장은 쓰지 않는다. 모든 클릭은 취소되고, 정해진 칸만 동작한다.
  */
 public class Menu implements InventoryHolder {
     private final Inventory inv;
     private final Map<Integer, Consumer<InventoryClickEvent>> actions = new HashMap<>();
 
+    /** 리소스팩 배경 사용 여부 (플러그인이 팩 서버를 켰을 때만 true) */
+    public static volatile boolean background = false;
+
     public Menu(int rows, String title) {
-        inv = Bukkit.createInventory(this, rows * 9, Ui.c(title));
+        // 배경이 어두워 바닐라의 짙은 회색 제목은 안 보인다 → 금빛으로
+        inv = Bukkit.createInventory(this, rows * 9, Ui.c(background ? bg(rows) + title.replaceFirst("^&8", "&e") : title));
+    }
+
+    /** 왼쪽으로 8 당김 + 배경 + 다시 169 당겨 제목 자리로 */
+    private static String bg(int rows) {
+        char glyph = io.versaera.pack.ResourcePackBuilder.menuGlyph(rows);
+        return "&f" + io.versaera.pack.ResourcePackBuilder.SHIFT_LEFT_8 + glyph + io.versaera.pack.ResourcePackBuilder.SHIFT_LEFT_169;
     }
 
     @Override
@@ -39,6 +50,19 @@ public class Menu implements InventoryHolder {
         meta.setDisplayName(Ui.c(name));
         meta.setLore(lines.stream().map(Ui::c).toList());
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    /**
+     * 메뉴 버튼 아이콘: 리소스팩이 켜져 있으면 팩의 전용 아이콘(종이 + CustomModelData), 아니면 대신할 바닐라 아이템.
+     * @param key ResourcePackBuilder.UI_ICONS 의 키
+     */
+    public static ItemStack ui(String key, Material fallback, String name, List<String> lines) {
+        if (!background) return icon(fallback, name, lines);
+        ItemStack it = icon(Material.PAPER, name, lines);
+        ItemMeta meta = it.getItemMeta();
+        meta.setCustomModelData(io.versaera.domain.pack.PackIds.modelData("ui/" + key));
         it.setItemMeta(meta);
         return it;
     }

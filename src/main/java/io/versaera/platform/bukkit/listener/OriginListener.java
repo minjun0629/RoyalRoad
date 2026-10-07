@@ -1,0 +1,256 @@
+package io.versaera.platform.bukkit.listener;
+
+import io.versaera.application.GameServices;
+import io.versaera.application.OriginService;
+import io.versaera.domain.origin.Gender;
+import io.versaera.domain.origin.Race;
+import io.versaera.domain.origin.StartCity;
+import io.versaera.domain.world.Region;
+import io.versaera.persistence.DbExecutor;
+import io.versaera.platform.bukkit.Async;
+import io.versaera.platform.bukkit.Ui;
+import io.versaera.platform.bukkit.ui.Menu;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * 캐릭터 만들기 · 초보 기간 (CHR-01 · BEG-01).
+ * <ul>
+ *   <li>처음 들어오면 움직일 수 없고, 종족 → 성별 → 시작 도시 창이 뜬다. 고르면 그 도시 광장으로 소환되고 그곳이 부활 지점이 된다</li>
+ *   <li>초보 기간(게임 30일)에는 시작 도시 밖으로 나갈 수 없다 (RegionTracker.confine)</li>
+ *   <li>종족 특성: 오크 최대 체력 +4 · 조인족 낙하 피해 없음 · 엘프 밤눈</li>
+ * </ul>
+ */
+public final class OriginListener implements Listener {
+    private final Plugin plugin;
+    private final GameServices s;
+    private final Async async;
+    private final DbExecutor exec;
+    private final Map<UUID, OriginService.Character> chars = new ConcurrentHashMap<>();
+    private final Set<UUID> creating = ConcurrentHashMap.newKeySet();
+    private final Map<UUID, String[]> picks = new ConcurrentHashMap<>();   // [종족, 성별]
+
+    public OriginListener(Plugin plugin, GameServices s, Async async, DbExecutor exec) {
+        this.plugin = plugin;
+        this.s = s;
+        this.async = async;
+        this.exec = exec;
+    }
+
+    public Optional<OriginService.Character> character(UUID u) {
+        return Optional.ofNullable(chars.get(u));
+    }
+
+    /** 초보는 시작 도시 밖으로 못 나간다 — RegionTracker 가 지역이 바뀔 때 부른다 */
+    public String confine(Player p, String regionId) {
+        if (creating.contains(p.getUniqueId())) return "먼저 캐릭터를 만들어야 한다";
+        OriginService.Character c = chars.get(p.getUniqueId());
+        if (c == null || !c.beginner(System.currentTimeMillis()) || s.origins.insideCity(c, regionId)) return null;
+        long left = c.beginnerUntil() - System.currentTimeMillis();
+        return "초보 기간 — 아직 " + c.city().name() + " 밖으로 나갈 수 없다 (현실 " + hours(left) + " 남음)";
+    }
+
+    public double extraHealth(UUID u) {
+        OriginService.Character c = chars.get(u);
+        return c != null && "max_health".equals(c.race().perk()) ? 4 : 0;
+    }
+
+    private static String hours(long ms) {
+        long h = Math.max(0, ms) / 3_600_000L, m = Math.max(0, ms) / 60_000L % 60;
+        return h > 0 ? h + "시간 " + m + "분" : m + "분";
+    }
+
+    // ------------------------------------------------------------------ 들어옴 · 나감
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        String id = p.getUniqueId().toString();
+        async.run("origin", () -> s.origins.character(id), c -> {
+            if (!p.isOnline()) return;
+            if (c.isEmpty()) {
+                creating.add(p.getUniqueId());
+                Bukkit.getScheduler().runTaskLater(plugin, () -> raceMenu(p), 20L);
+                return;
+            }
+            chars.put(p.getUniqueId(), c.get());
+            applyPerks(p, c.get());
+            if (c.get().beginner(System.currentTimeMillis())) {
+                Region here = s.regions.at(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ());
+                if (!s.origins.insideCity(c.get(), here == null ? null : here.id())) spawnIn(p, c.get().city());
+                p.sendMessage(Ui.info("초보 기간: " + c.get().city().name() + " 안에서 일하고 수련하세요 (현실 " + hours(c.get().beginnerUntil() - System.currentTimeMillis()) + " 남음)"));
+            }
+        }, p);
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        chars.remove(e.getPlayer().getUniqueId());
+        creating.remove(e.getPlayer().getUniqueId());
+        picks.remove(e.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onMove(PlayerMoveEvent e) {
+        if (!creating.contains(e.getPlayer().getUniqueId()) || e.getTo() == null) return;
+        if (e.getFrom().getX() != e.getTo().getX() || e.getFrom().getZ() != e.getTo().getZ() || e.getFrom().getY() < e.getTo().getY())
+            e.setTo(e.getFrom().setDirection(e.getTo().getDirection()));
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onFall(EntityDamageEvent e) {
+        if (e.getCause() != EntityDamageEvent.DamageCause.FALL || !(e.getEntity() instanceof Player p)) return;
+        OriginService.Character c = chars.get(p.getUniqueId());
+        if (c != null && "no_fall_damage".equals(c.race().perk())) e.setCancelled(true);   // 조인족
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent e) {
+        OriginService.Character c = chars.get(e.getPlayer().getUniqueId());
+        if (c != null) Bukkit.getScheduler().runTaskLater(plugin, () -> applyPerks(e.getPlayer(), c), 5L);
+    }
+
+    private void applyPerks(Player p, OriginService.Character c) {
+        if ("night_vision".equals(c.race().perk())) p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, true, false));
+    }
+
+    // ------------------------------------------------------------------ 캐릭터 만들기 창
+    private final class Step extends Menu {
+        Step(int rows, String title) {
+            super(rows, title);
+        }
+
+        @Override
+        public void closed(Player p) {
+            // 다 만들기 전에는 창을 닫아도 다시 연다
+            if (creating.contains(p.getUniqueId()))
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (p.isOnline() && creating.contains(p.getUniqueId()) && !(p.getOpenInventory().getTopInventory().getHolder() instanceof Step)) reopen(p);
+                }, 2L);
+        }
+    }
+
+    private void reopen(Player p) {
+        String[] k = picks.get(p.getUniqueId());
+        if (k == null) raceMenu(p);
+        else if (k[1] == null) genderMenu(p);
+        else cityMenu(p);
+    }
+
+    private static Material raceIcon(String id) {
+        return switch (id) {
+            case "elf" -> Material.BOW;
+            case "dwarf" -> Material.IRON_PICKAXE;
+            case "orc" -> Material.IRON_AXE;
+            case "birdfolk" -> Material.FEATHER;
+            default -> Material.PLAYER_HEAD;
+        };
+    }
+
+    private void raceMenu(Player p) {
+        if (!p.isOnline()) return;
+        picks.remove(p.getUniqueId());
+        Step m = new Step(3, "&8종족 선택");
+        List<Race> races = s.origins.options().races();
+        for (int i = 0; i < races.size(); i++) {
+            Race r = races.get(i);
+            List<String> lore = new ArrayList<>();
+            lore.add("&7" + r.note());
+            r.xpBonus().forEach((d, v) -> lore.add("&a" + s.growth.discipline(d).name() + " 숙련 +" + Math.round(v * 100) + "%"));
+            switch (r.perk()) {
+                case "max_health" -> lore.add("&a최대 체력 +4");
+                case "no_fall_damage" -> lore.add("&a떨어져도 다치지 않음");
+                case "night_vision" -> lore.add("&a밤눈");
+                default -> { }
+            }
+            m.set(11 + i, Menu.icon(raceIcon(r.id()), "&6" + r.name(), lore), ev -> {
+                picks.put(p.getUniqueId(), new String[]{r.id(), null});
+                genderMenu(p);
+            });
+        }
+        m.open(p);
+        p.sendTitle(Ui.c("&6로열 로드에 오신 것을 환영합니다"), Ui.c("&7종족 · 성별 · 시작 도시를 고르세요 — 한 번 고르면 바꿀 수 없습니다"), 10, 80, 20);
+    }
+
+    private void genderMenu(Player p) {
+        Step m = new Step(3, "&8성별 선택");
+        Gender[] gs = Gender.values();
+        for (int i = 0; i < gs.length; i++) {
+            Gender g = gs[i];
+            m.set(11 + i * 2, Menu.icon(g == Gender.MALE ? Material.IRON_HELMET : g == Gender.FEMALE ? Material.GOLDEN_HELMET : Material.LEATHER_HELMET,
+                    "&6" + g.label, List.of("&7능력 차이는 없습니다")), ev -> {
+                String[] k = picks.get(p.getUniqueId());
+                if (k == null) {
+                    raceMenu(p);
+                    return;
+                }
+                k[1] = g.name();
+                cityMenu(p);
+            });
+        }
+        m.set(18, Menu.icon(Material.ARROW, "&7뒤로", List.of()), ev -> raceMenu(p));
+        m.open(p);
+    }
+
+    private void cityMenu(Player p) {
+        Step m = new Step(3, "&8시작 도시 선택");
+        List<StartCity> cities = s.origins.options().cities();
+        for (int i = 0; i < cities.size(); i++) {
+            StartCity c = cities.get(i);
+            m.set(10 + i, Menu.icon(Material.LODESTONE, "&6" + c.name(), List.of("&e" + c.kingdom(), "&7" + c.note(),
+                    "&8처음 게임 30일(현실 " + hours(s.rules().time().realMillisFor(s.origins.options().beginnerGameDays())) + ")은 이 도시 밖으로 못 나갑니다")),
+                    ev -> create(p, c));
+        }
+        m.set(18, Menu.icon(Material.ARROW, "&7뒤로", List.of()), ev -> genderMenu(p));
+        m.open(p);
+    }
+
+    private void create(Player p, StartCity city) {
+        String[] k = picks.get(p.getUniqueId());
+        if (k == null || k[1] == null) {
+            raceMenu(p);
+            return;
+        }
+        String id = p.getUniqueId().toString();
+        String race = k[0];
+        Gender g = Gender.valueOf(k[1]);
+        async.run("origin-create", () -> s.origins.create(id, race, g, city.id()), c -> {
+            creating.remove(p.getUniqueId());
+            picks.remove(p.getUniqueId());
+            chars.put(p.getUniqueId(), c);
+            if (!p.isOnline()) return;
+            p.closeInventory();
+            spawnIn(p, city);
+            applyPerks(p, c);
+            p.sendTitle(Ui.c("&6" + city.name()), Ui.c("&7" + c.race().name() + " · " + g.label + " — 여기서 시작합니다"), 10, 70, 20);
+            p.sendMessage(Ui.info("보리빵 10개가 배달함으로 왔습니다. 처음 한 달(게임 시간) 동안은 도시 밖으로 나갈 수 없습니다 — 일거리를 찾고, 수련관에서 허수아비를 치세요."));
+        }, p);
+    }
+
+    /** 도시 광장 옆 (우물에서 세 칸) 지면 위, 그곳을 부활 지점으로 */
+    private void spawnIn(Player p, StartCity city) {
+        Region r = s.regions.byId(city.region());
+        World w = r == null ? null : Bukkit.getWorld(r.world());
+        if (w == null) return;
+        int x = (r.minX() + r.maxX()) / 2 + 3, z = (r.minZ() + r.maxZ()) / 2 + 3;
+        Location l = new Location(w, x + 0.5, w.getHighestBlockYAt(x, z) + 1, z + 0.5);
+        p.teleport(l);
+        p.setBedSpawnLocation(l, true);
+    }
+}

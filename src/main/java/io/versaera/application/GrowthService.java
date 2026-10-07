@@ -44,6 +44,13 @@ public final class GrowthService {
         this.bus = bus;
     }
 
+    private java.util.function.ToDoubleBiFunction<String, String> xpBonus = (u, d) -> 1.0;
+
+    /** 종족 숙련 보너스 같은 배율 (DB 스레드에서 불림) */
+    public void xpBonus(java.util.function.ToDoubleBiFunction<String, String> f) {
+        xpBonus = f;
+    }
+
     public void onCounter(CounterListener l) {
         counterListeners.add(l);
     }
@@ -80,7 +87,7 @@ public final class GrowthService {
             long xp = progress.masteryXp(uuid, discipline);
             int before = Mastery.levelOf(xp);
             double hand = d.hand() && disciplines.containsKey(HAND_DISCIPLINE) ? 1 + Mastery.levelOf(progress.masteryXp(uuid, HAND_DISCIPLINE)) * 0.015 : 1;
-            long g = Mastery.gain(base, actionLevel, before, hand);
+            long g = Math.round(Mastery.gain(base, actionLevel, before, hand) * xpBonus.applyAsDouble(uuid, discipline));
             if (g == 0) return new XpResult(0, before, before);
             long cap = Mastery.cumulative(Mastery.MAX_LEVEL);
             long nx = Math.min(cap, xp + g);

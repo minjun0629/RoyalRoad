@@ -1,1 +1,6 @@
 V1__init.sql
+V2__systems.sql
+V3__map_and_boss.sql
+V4__origin.sql
+V5__realm.sql
+V6__npc_world.sql

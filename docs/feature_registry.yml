@@ -133,19 +133,19 @@ features:
     source: 요구 §40 · §59
     source_type: 설계 요구
     classification: ORIGINAL
-    description: 접속 · 2초마다 한 명씩 인벤토리 · 엔더 상자의 고유 아이템을 DB 와 대조. 위조 · 파괴됨 · 남의 것 · 보관 중 · 같은 id 두 개 → 회수 + 감사 로그
+    description: "접속 · 2초마다 한 명씩 인벤토리 · 엔더 상자의 고유 아이템을 DB 와 대조 (위조 · 파괴됨 · 남의 것 · 보관 중 · 같은 id 두 개 → 회수 + 감사 로그). 고유 아이템은 플레이어 밖으로 나갈 수 없음: 버리기 · 상자 · 화로 · 호퍼 · 액자 · 갑옷 거치대 금지 → 검사되지 않는 곳에 복제품을 숨길 수 없고, 넘기는 길은 서버가 검증하는 거래 · 경매뿐. 줍기 · 손에 들기 · 손 바꾸기 때 곧바로(5초에 한 번) 다시 검사, 전투 수치는 DB 소유 확인된 아이템만"
     player_experience: "(정상 플레이어는 느끼지 못함)"
     dependencies: [ITM-01]
-    implementation: platform.bukkit.listener.InventoryGuard · ItemService.validate
+    implementation: "platform.bukkit.listener.InventoryGuard · CustodyGuard · ItemService.validate · CombatListener(소유 확인 캐시)"
     data_model: 없음
     ui: "확인되지 않은 아이템 N개를 회수했습니다"
     resource_pack: 없음
     performance_risk: 한 번에 한 명 · 2초 간격
-    security_risk: 검사 사이 짧은 창(최대 접속자 × 2초)에는 복제품이 잠시 존재할 수 있음 → 사용 · 거래 시점 검증으로 보완 (거래는 서버 검증 완료)
+    security_risk: "검사 주기 사이 짧은 창은 남지만, 복제품은 플레이어 밖으로 옮기거나 넘길 수 없고 사용 시점(거래 · 경매 · 전투 수치)은 서버가 검증"
     persistence: 없음
     tests: [ItemServiceTest]
     server_test: BLOCKED
-    status: PARTIAL
+    status: IMPLEMENTED
 
   - id: ITM-04
     feature: 내구도 · 수리
@@ -208,23 +208,24 @@ features:
     status: IMPLEMENTED
 
   - id: TRD-02
-    feature: 묶음 재료 거래 · 경매장 · 개인 상점
-    category: 경제
-    source: 원작 경제 세부 미확인
-    source_type: RESEARCH_REQUIRED
-    classification: RESEARCH_REQUIRED
-    description: 재료 묶음 거래, 하르덴 경매장, 지역 시세
-    player_experience: 지역 간 교역
-    dependencies: [TRD-01]
-    implementation: 없음
-    data_model: "(설계 예정)"
-    ui: "(설계 예정)"
-    resource_pack: 없음
-    performance_risk: 경매 검색 인덱스
-    security_risk: 경매 낙찰 동시성
-    persistence: DB
-    tests: []
-    status: PLANNED
+    feature: "지역 경매장 · NPC 상점 · 지역 시세"
+    category: "경제"
+    source: "원작 경제 세부 미확인 → 후대 설계"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "시장 6곳(market.yml). 경매장은 시장마다 따로: 고유 아이템은 ESCROW(auction:<id>), 묶음 재료는 인벤토리에서 빼서 등록, 구매는 OPEN→SOLD 조건부 갱신으로 한 명만 성공, 수수료(상인 직업 감면), 48시간 만료 → 배달함. NPC 상점: 지역(흔함 ×0.8 · 귀함 ×1.3) · 공급(판 만큼 값 하락, 시간마다 회복) · 품질로 값이 정해지고, 판매가 ×1.25 / 매입가 ×0.6 이라 되팔기 이득이 없다. 대상단 이벤트 할인"
+    player_experience: "지역마다 싸고 비싼 것이 달라 교역할 이유가 생김"
+    dependencies: [TRD-01, ECO-01, NPC-01]
+    implementation: "domain.market.MarketPricing · MarketCatalog · application.MarketService · AuctionService · NpcMenus(상점) · /경매"
+    data_model: "auction_listing · market_supply · content/market.yml"
+    ui: "NPC 창 → 상점 (클릭 1개 · 쉬프트 16개 · 손에 든 것 팔기), /경매 (목록 · 등록 · 내리기)"
+    resource_pack: "없음"
+    performance_risk: "경매 검색은 (state, market, type) 인덱스 · 만료는 10분마다 50건"
+    security_risk: "구매 경쟁은 조건부 UPDATE · 돈 · 수수료 · 아이템 이동은 한 트랜잭션 · 같은 요청 키 반복 무시"
+    persistence: "DB"
+    tests: [MarketAuctionTest, ContentIntegrityTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: SKL-01
     feature: 숙련 (초급 · 중급 · 고급 · 마스터)
@@ -267,42 +268,44 @@ features:
     status: IMPLEMENTED
 
   - id: SKL-03
-    feature: 행동 스탯의 실제 효과 (체력 · 가격 등)
-    category: 성장
-    source: 효과 수치 미확인
-    source_type: RESEARCH_REQUIRED
+    feature: "행동 스탯의 실제 효과"
+    category: "성장"
+    source: "효과 수치 미확인 → ORIGINAL"
+    source_type: "RESEARCH_REQUIRED"
     classification: ORIGINAL
-    description: 인내 → 최대 체력, 매력 → NPC 가격 등 실제 반영
-    player_experience: 스탯이 숫자로 끝나지 않음
+    description: "인내 → 최대 체력(+1%/점, 상한 30%), 매력 → NPC 상점 할인(상한 15%), 항해감 → 낚시 숙련 보정, 정밀 → 제작 품질 흔들림 감소, 통찰 → 던전 숨은 벽에 실마리가 보임, 예술 → 제작 품질"
+    player_experience: "스탯이 숫자로 끝나지 않음"
     dependencies: [SKL-02, CMB-01]
-    implementation: 예술 → 제작 품질만 반영됨. 나머지 없음
-    data_model: 없음
-    ui: 없음
-    resource_pack: 없음
-    performance_risk: 낮음
-    security_risk: 낮음
-    persistence: 없음
-    tests: [CraftingServiceTest]
-    status: PARTIAL
+    implementation: "domain.skill.StatEffects · GameServices(제작 보정 · 할인) · GatheringService · SkillListener(최대 체력) · DungeonRuntime(통찰)"
+    data_model: "action_counter"
+    ui: "캐릭터 창"
+    resource_pack: "없음"
+    performance_risk: "스탯은 무기 변경 · 접속 때 한 번 읽음"
+    security_risk: "모든 효과에 상한"
+    persistence: "DB"
+    tests: [JobQuestDeathTest, WorldEventGatherTest, CraftingServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: CLS-01
-    feature: 직업 체계
-    category: 성장
-    source: 로열 로드/직업 (검사 · 기사 · 궁수 · 암살자 · 마법사 확인, 나머지 미확인)
-    source_type: 원작 개념
-    classification: RESEARCH_REQUIRED
-    description: 숙련 · 행동 기록 조합으로 열리는 직업 (레벨 만능 금지). 원작 히든 직업 조건은 쓰지 않음
-    player_experience: 자연스럽게 생기는 전문성
-    dependencies: [SKL-01, SKL-02]
-    implementation: 없음
-    data_model: "(설계 예정)"
-    ui: "(설계 예정)"
-    resource_pack: 직업 아이콘
-    performance_risk: 낮음
-    security_risk: 낮음
-    persistence: DB
-    tests: []
-    status: RESEARCH_REQUIRED
+    feature: "직업 체계 (전투 1 + 생활 1)"
+    category: "성장"
+    source: "로열 로드/직업 (검사 · 기사 · 궁수 · 암살자 · 마법사 이름만 CANON)"
+    source_type: "원작 개념"
+    classification: SOURCE-BASED
+    description: "18개 직업. 숙련 · 행동 기록 · NPC 호감 · 발견의 조합으로 열림 (레벨 조건 없음, 원작 전직 · 히든 직업 조건 미사용). 상위 직업은 하위 직업이 있어야. 다른 계열로 바꾸기는 7일에 한 번. 효과: 공격 · 방어 · 체력 · 제작 품질 · 채집량 · 할인 · 경매 수수료 감면, 직업 스킬"
+    player_experience: "하는 일에 맞는 전문성이 생김"
+    dependencies: [SKL-01, SKL-02, NPC-01]
+    implementation: "domain.job.JobDefinition · application.JobService · /직업"
+    data_model: "player_job · content/jobs.yml"
+    ui: "/직업 (현재 직업 · 오를 수 있는 직업)"
+    resource_pack: "직업 아이콘 (바닐라 아이템)"
+    performance_risk: "효과는 필요할 때 합산"
+    security_risk: "조건 판정은 서버 기록만 사용"
+    persistence: "DB"
+    tests: [JobQuestDeathTest, SkillBookTest, ContentIntegrityTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: CRF-01
     feature: 제작 공통 엔진 (대장 · 재봉 · 가죽 · 요리 · 연금 · 조각)
@@ -345,24 +348,24 @@ features:
     status: IMPLEMENTED
 
   - id: GAT-01
-    feature: 채집 · 채광 · 벌목 · 낚시
-    category: 생산
-    source: 생활 스킬 (원작 개념)
-    source_type: 원작 개념
+    feature: "채집 · 채광 · 벌목 · 낚시"
+    category: "생산"
+    source: "생활 스킬 (원작 개념)"
+    source_type: "원작 개념"
     classification: SOURCE-BASED
-    description: 자원 블록 → 숙련 · 지역 풍부도에 따른 양 · 품질. 도구 필요. 캔 자리는 정해진 시간 뒤 재생, 종료 시 복구. 낚시는 지역(강 · 바다)과 숙련에 따라 어종이 다름
-    player_experience: 지역마다 나는 것이 달라 교역이 생김
+    description: "자원 블록 → 숙련 · 지역 풍부도에 따른 양 · 품질. 생활 직업 · 월드 이벤트로 추가량, 항해감 스탯으로 낚시 보정. 도구 필요. 캔 자리는 정해진 시간 뒤 재생, 종료 시 복구. 의뢰(GATHER) 진행"
+    player_experience: "지역마다 나는 것이 달라 교역이 생김"
     dependencies: [SKL-01, WLD-01, ITM-02]
-    implementation: domain.gathering.ResourceNode · GatherListener
-    data_model: content/resources.yml
-    ui: 배달 메시지
-    resource_pack: 없음
-    performance_risk: 재생 목록 5초마다 확인. 서버가 꺼질 때 재생 대기 블록 복구
-    security_risk: 숙련 부족 · 도구 없음 거부
-    persistence: 재생 대기는 메모리 (종료 시 복구)
-    tests: [ContentIntegrityTest]
+    implementation: "domain.gathering.ResourceNode · application.GatheringService · GatherListener"
+    data_model: "content/resources.yml"
+    ui: "배달 메시지 · 추가량 표시"
+    resource_pack: "없음"
+    performance_risk: "재생 목록 5초마다 확인. 서버가 꺼질 때 재생 대기 블록 복구"
+    security_risk: "숙련 부족 · 도구 없음 거부"
+    persistence: "재생 대기는 메모리 (종료 시 복구)"
+    tests: [WorldEventGatherTest, ContentIntegrityTest]
     server_test: BLOCKED
-    status: PARTIAL
+    status: IMPLEMENTED
 
   - id: WLD-01
     feature: 지역 · 위험도 · 공간 인덱스
@@ -370,7 +373,7 @@ features:
     source: 02_WORLD
     source_type: 원작 지리 + 후대 설계
     classification: ORIGINAL
-    description: 20개 지역(원작 지명은 후대 변화 필수), 위험도 0 ~ 6, 청크 격자 인덱스, 지하 수로는 높이로 구분
+    description: 지역 262곳(원작 지명은 후대 변화 필수, 세계 world 30000 × 30000 · versa_realms), 위험도 0 ~ 6, 128 블록 격자 인덱스, 지하 수로는 높이로 구분
     player_experience: 지역에 들어서면 이름 · 위험도
     dependencies: [CONT-01]
     implementation: domain.world.* · RegionTracker
@@ -385,23 +388,44 @@ features:
     status: IMPLEMENTED
 
   - id: WLD-02
-    feature: 실제 지형 · 건축 (월드맵 제작)
-    category: 월드
-    source: 02_WORLD
-    source_type: 후대 설계
+    feature: "지역 데이터로 만드는 지형 · 도시 · 랜드마크"
+    category: "월드"
+    source: "02_WORLD"
+    source_type: "후대 설계"
     classification: ORIGINAL
-    description: 12000 × 12000 월드의 도시 · 폐허 · 분화구 · 빙원 · 사막 · 수로 지형과 건축
-    player_experience: 살아 있는 대륙
+    description: "regions.yml 의 성격(tags)으로 높이 · 표면 · 바이옴을 정하는 세계 생성기 (경계 섞기 · 분화구 그릇 · 강 · 바다 · 평평한 도시). 도시 · 요새 · 전초기지에는 광장(우물) · 32 블록 간격 길 · 길가 장식 건물(지역별 재질, 하우징 아님) · 성벽, 지역마다 랜드마크 18종(탑 · 등대 · 첨탑 · 조각상 · 모루 기념비 · 오아시스 · 성채 · 망루 · 쓰러진 거상의 머리 · 아치 · 얼음 첨탑 · 오벨리스크 · 돌 고리 · 풍차 탑). NPC 일과 장소에는 짓지 않음. 유적 지역의 부서진 기둥"
+    player_experience: "지역 이름과 땅의 모양이 맞는 대륙"
     dependencies: [WLD-01]
-    implementation: 없음 (지역 데이터만 있음)
-    data_model: 월드 파일
-    ui: 없음
-    resource_pack: 없음
-    performance_risk: 월드 크기 · 청크 생성
-    security_risk: 없음
-    persistence: 월드 파일
-    tests: []
-    status: EXTERNAL_ASSET_REQUIRED
+    implementation: "domain.terrain.TerrainModel · SettlementPlanner · platform.bukkit.world.VersaChunkGenerator (bukkit.yml generator: VersaEra)"
+    data_model: "월드 파일"
+    ui: "없음"
+    resource_pack: "없음"
+    performance_risk: "열 5개 표본 · 지역 조회 O(1). 구조물은 블록 목록을 쌓지 않고 청크에 걸친 열만 그림. 불변 객체 → 병렬 생성 안전"
+    security_risk: "없음"
+    persistence: "월드 파일"
+    tests: [TerrainModelTest, SettlementPlannerTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: WLD-03
+    feature: "다른 땅 · 다른 차원으로 가는 문"
+    category: "월드"
+    source: "02_WORLD §2 · 나무위키 「로열 로드/지리」 §4.1 · §7"
+    source_type: "원작 지명 + 후대 설계"
+    classification: ORIGINAL
+    description: "세계 versa_realms 에 거인계 · 신계 · 정령계 · 요정계 · 마계 · 악마계 · 지옥 · 뱀파이어 토둠. 베르사의 문 지역(portal)에 들어서면 탐험 숙련 레벨(서버 DB)로만 판정해 옮긴다 — 확률 없음, 원작의 건너는 방법 미복제. 신계는 거인계를 거쳐서만. 돌아오는 문은 누구나. 도착점이 다른 문 안이면 로드 거부(왕복 반복 방지)"
+    player_experience: "탐험을 쌓을수록 열리는 바깥 세계"
+    dependencies: [WLD-01, WLD-02, SKL-01]
+    implementation: "domain.world.Gate · application.GateService · RegionTracker.cross · VersaEraPlugin (WorldCreator versa_realms, config realms.enabled)"
+    data_model: "content/gates.yml · regions.yml (world: versa_realms)"
+    ui: "타이틀 · 부족한 숙련 안내"
+    resource_pack: "없음"
+    performance_risk: "지역이 바뀔 때만 조회 · 숙련은 DB 스레드"
+    security_risk: "판정은 서버 DB 값. 관리자는 조건 무시"
+    persistence: "없음 (숙련은 GRW)"
+    tests: [GateServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: EXP-01
     feature: 발견 기록 · 최초 발견자
@@ -424,23 +448,24 @@ features:
     status: IMPLEMENTED
 
   - id: MAP-01
-    feature: MMORPG 지도
-    category: 탐험 · UI
-    source: 요구 §36
-    source_type: 설계 요구
+    feature: "탐험 지도 (안개)"
+    category: "탐험 · UI"
+    source: "요구 §36"
+    source_type: "설계 요구"
     classification: ORIGINAL
-    description: 발견한 지역만 보이고 미발견은 ???. 최종 목표는 리소스팩 지도 화면(안개 · 현재 위치 · 랜드마크)
-    player_experience: 지도를 채워 가는 재미
+    description: "걸어서 간 32 블록 칸만 밝혀지고 나머지는 안개. 지역 경계선 · 지역 색 · 현재 위치. 사람마다 다른 그림(contextual renderer). /versa 지도책 으로 받음, /versa 지도 는 발견한 지역 목록"
+    player_experience: "지도를 채워 가는 재미"
     dependencies: [EXP-01]
-    implementation: "/versa 지도 (임시: 지역 목록 창)"
-    data_model: discovery
-    ui: 임시 상자 창
-    resource_pack: 지도 텍스처 · 폰트 EXTERNAL_ASSET_REQUIRED
-    performance_risk: 지도 갱신은 열 때만
-    security_risk: 미발견 정보 노출 금지
-    persistence: DB
-    tests: []
-    status: PARTIAL
+    implementation: "domain.map.FogMap · application.MapService · platform.bukkit.map.MapRuntime"
+    data_model: "map_explored"
+    ui: "지도 아이템 · 지역 목록 창"
+    resource_pack: "없음 (바닐라 지도 색)"
+    performance_risk: "새 칸일 때만 DB 쓰기 · 그리기는 2초에 한 번"
+    security_risk: "남이 간 곳은 보이지 않음"
+    persistence: "DB"
+    tests: [MapServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: NPC-01
     feature: NPC 정의 · 관계
@@ -463,42 +488,104 @@ features:
     status: IMPLEMENTED
 
   - id: NPC-02
-    feature: NPC 일과 이동 · 상점 · 의뢰
-    category: 사회
-    source: 요구 §18 · §32 · §34
-    source_type: 설계 요구
+    feature: "NPC 일과 이동 · 상점 · 의뢰 · 예보"
+    category: "NPC"
+    source: "요구 §30"
+    source_type: "설계 요구"
     classification: ORIGINAL
-    description: 시간대별 장소 이동(거리 기반 활성화), 관계 단계별 상점 가격 · 정보 · 의뢰
-    player_experience: 도시가 살아 있음
-    dependencies: [NPC-01]
-    implementation: 일과 데이터 · placeAt 계산만 있음
-    data_model: npcs.yml schedule
-    ui: 없음
-    resource_pack: 없음
-    performance_risk: 근처 플레이어가 있을 때만 이동
-    security_risk: 낮음
-    persistence: DB
-    tests: []
-    status: PLANNED
+    description: "places.yml 의 장소로 시간에 맞춰 걸어감 (초당 3.5 블록). 근처 64 블록에 사람이 없으면 엔티티를 두지 않고 그 시각의 자리로 바로 옮김. NPC 창: 의뢰 받기 · 완료 · 상점 · 월드 이벤트 예보(맡은 NPC) · 선물"
+    player_experience: "같은 사람이 시간마다 다른 곳에 있음"
+    dependencies: [NPC-01, QST-01, TRD-02, EVT-01]
+    implementation: "domain.npc.NpcSchedule · platform.bukkit.listener.NpcRuntime · ui.NpcMenus"
+    data_model: "content/places.yml"
+    ui: "NPC 창"
+    resource_pack: "없음"
+    performance_risk: "1초마다 · 근처에 사람이 있는 NPC 만"
+    security_risk: "엔티티는 저장하지 않음 (재시작 시 겹침 없음)"
+    persistence: "없음"
+    tests: [NpcScheduleTest, ContentIntegrityTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
-  - id: QST-01
-    feature: 퀘스트 (탐험 · 생산 · 관계 · 연속 · 선택 · 숨김)
-    category: 콘텐츠
-    source: 퀘스트 난이도 등급 미확인
-    source_type: RESEARCH_REQUIRED
-    classification: RESEARCH_REQUIRED
-    description: 처치 반복이 아닌 다양한 목표. 원작 퀘스트 등급 체계는 확인 후 반영
-    player_experience: 하고 싶은 일이 곧 의뢰
-    dependencies: [NPC-01, EXP-01, CRF-01]
-    implementation: 없음
-    data_model: "(설계 예정)"
-    ui: "(설계 예정)"
-    resource_pack: 없음
-    performance_risk: 낮음
-    security_risk: 보상 중복 지급 — ECO-01 의 idempotency key 사용 예정
+
+  - id: NPC-03
+    feature: "NPC 인구 생성 (직업 틀 · 지역 문화 · 가족 · 관계 · 의뢰)"
+    category: "NPC"
+    source: "정식 출시 사양 §12-A · B · H · I · O"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "npc_population.yml 의 직업 틀 40종을 지역 태그별 문화에 맞춰 배치하는 결정적 생성기 (지역 id 시드). 936명 · 가족 · 사제 · 경쟁 · 주종 · 거래처 · 소문 · NPC 의뢰 1117 (숨은 89) · 상점 644"
+    player_experience: "모든 도시에 그 지역다운 사람들이 살고, 서로 아는 사이다"
+    dependencies: [NPC-01, NPC-02, QST-01, TRD-02]
+    implementation: "domain.npc.NpcPopulation · Archetype · NpcProfile · NpcNames · content.ContentLoader.population"
+    data_model: "content/npc_population.yml (생성 결과는 저장하지 않음 — 같은 입력이면 같은 결과)"
+    ui: "NPC 창 머리 (레벨 · 집안 · 아는 사람들)"
+    resource_pack: "NPC 메뉴 아이콘 rumor · train · inn · heal · repair · song · people"
+    performance_risk: "서버 시작 때 한 번 생성 (수십 ms)"
+    security_risk: "없음 (콘텐츠)"
+    persistence: "없음 (결정적)"
+    tests: [NpcPopulationTest, ContentIntegrityTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: NPC-04
+    feature: "NPC 관계 단계 · 기억 · 관계 전파 · NPC 의 일"
+    category: "NPC"
+    source: "정식 출시 사양 §12-E · F · G · N · P"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "10단계 관계(적대~특별 관계), 단계별 대사 · 할인 · 열리는 일. 기억(의뢰 · 선물 · 단골 · 지도 · 보스)이 대사가 됨. 호감이 크게 오르면 가족 · 거래처 · 스승에게 퍼지고 경쟁자는 반대. 소문 · 숙련 지도 · 숙소 · 치유 · 노래 · 수리. 신뢰 = 숨은 의뢰. 떠돌이 19 · 희귀 NPC 6"
+    player_experience: "NPC 가 나를 기억하고, 한 사람과 친해지면 그 가족도 반긴다"
+    dependencies: [NPC-03, ECO-01, SKL-01]
+    implementation: "application.NpcWorldService · domain.npc.Relation.Stage · domain.npc.Wandering · NpcListener · ui.NpcMenus · /va npc info"
+    data_model: "npc_memory (V6) · npc_relation"
+    ui: "대화 3줄 (대사 · 기억 · 단계/열림) + NPC 창 버튼"
+    resource_pack: "메뉴 아이콘"
+    performance_risk: "대화 · 창은 DB 스레드, 기억은 최근 1~3건만 읽음"
+    security_risk: "돈 드는 일은 요청 key 로 한 번만, 지도 · 노래는 하루 한 번 key, 적대면 거래 거부 (서버 검증)"
     persistence: DB
-    tests: []
-    status: RESEARCH_REQUIRED
+    tests: [NpcWorldTest, WanderingTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: NPC-05
+    feature: "지역 번영 · NPC 경제 · 대규모 NPC 런타임"
+    category: "NPC"
+    source: "정식 출시 사양 §12-J · K · R · U"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "지역 번영(-1000~1000, 1주 반감기): 의뢰 · 거래 · 필드 보스 토벌로 오름. 단계(쇠퇴 · 평범 · 번성 · 융성)가 상점 값과 귀한 물건 상인의 존재를 바꿈. 생산자 · 소비자 NPC 가 1시간마다 시장 공급을 움직임. 런타임은 128 블록 칸 공간 색인으로 플레이어 주변 NPC 만 계산"
+    player_experience: "내가 도운 마을이 번성하고 값이 내려간다"
+    dependencies: [NPC-04, ECO-01, BOS-03]
+    implementation: "NpcWorldService.contribute · tier · economyTick · refreshPresence · platform.bukkit.listener.NpcRuntime"
+    data_model: "region_state · region_contribution (V6)"
+    ui: "대화 줄의 '마을 번성' · NPC 창 머리"
+    resource_pack: "없음"
+    performance_risk: "전체 순회 없음 (주변 3×3 칸), 떠난 상인 목록은 5분마다 DB 스레드에서 캐시, 경제는 1시간마다 DB 스레드"
+    security_risk: "같은 일로 두 번 오르지 않음 (region_contribution key)"
+    persistence: DB
+    tests: [NpcWorldTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+  - id: QST-01
+    feature: "의뢰 (일상 · 숙련 · 험로 · 전설 · 숨은 의뢰)"
+    category: "퀘스트"
+    source: "원작 퀘스트 등급 세부 미확인 → 후대 설계"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "16개 의뢰. 목표: 처치 · 채집 · 제작(품질 조건) · 발견 · 대화 · 납품 · 관계 · 던전 · 보스. 선행 의뢰 · 조건 · 선택지(보상과 평판이 갈림) · 일일 의뢰(날마다) · 숨은 의뢰(히든 해금으로만 보임). 보상: 돈 · 아이템 · 숙련 · 호감 · 세력 평판 · 명성"
+    player_experience: "부탁의 결과가 관계와 평판으로 남음"
+    dependencies: [NPC-01, SKL-01, HID-01]
+    implementation: "domain.quest.* · application.QuestService · NpcMenus · /의뢰"
+    data_model: "quest_progress · reputation · content/quests.yml"
+    ui: "NPC 창(받기 · 완료 · 선택), /의뢰 (진행 · 평판 · 포기)"
+    resource_pack: "없음"
+    performance_risk: "진행은 행동마다 맞는 목표만 갱신"
+    security_risk: "완료 보상 키 quest:<id>:<uuid>:<횟수> 로 한 번만 · 납품은 먼저 빼고 실패하면 배달함으로"
+    persistence: "DB"
+    tests: [JobQuestDeathTest, SkillBookTest, ContentIntegrityTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: HID-01
     feature: 히든 콘텐츠 엔진 (봉인 · 행동 조합 · 최초 발견 · 소문)
@@ -521,62 +608,64 @@ features:
     status: IMPLEMENTED
 
   - id: HID-02
-    feature: 실제 히든 콘텐츠 목록
-    category: 발견
-    source: 원작 히든 요소 (복제 금지)
-    source_type: 설계 요구
+    feature: "서버마다 다른 히든 조건 생성"
+    category: "히든"
+    source: "요구 §33"
+    source_type: "설계 요구"
     classification: ORIGINAL
-    description: 실제 규칙은 저장소에 넣지 않는다 (공략 독점 방지). 서버 운영자가 hidden-src 로 작성 후 봉인
-    player_experience: 서버마다 다른 비밀
+    description: "/va hidden generate: 서버 비밀 시드로 행동 기록 · 장소 · (시간대 | NPC 관계 | 숙련) 3가지 조건을 묶은 규칙을 만들고 곧바로 봉인 (평문은 디스크에 쓰지 않음). 실제로 쌓이는 기록 · 있는 지역 · NPC 만 사용, 확률 없음. 소문은 조건 하나의 흐릿한 실마리"
+    player_experience: "다른 서버의 공략이 통하지 않는 발견"
     dependencies: [HID-01]
-    implementation: 테스트용 예시 1개(src/test/resources)만
-    data_model: hidden.sealed
-    ui: 없음
-    resource_pack: 없음
-    performance_risk: 없음
-    security_risk: 평문 원본은 서버에서 치울 것
-    persistence: 파일
-    tests: []
-    status: PLANNED
+    implementation: "domain.hidden.HiddenRuleGenerator · AdminCommand(hidden generate) · HiddenService(보상: 제작법 · 숨은 의뢰 · 칭호 · 장소)"
+    data_model: "hidden.sealed"
+    ui: "관리자 명령"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "조건 평문 노출 금지 (생성 즉시 AES-GCM 봉인)"
+    persistence: "봉인 파일"
+    tests: [HiddenGeneratorTest, HiddenServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: CMB-01
-    feature: 전투 기본 (무기 · 방어구 · 숙련 · 약점 · 마모)
-    category: 전투
-    source: 요구 §23 · §25
-    source_type: 설계 요구
+    feature: "전투 기본 (무기 · 방어구 · 숙련 · 약점 · 마모)"
+    category: "전투"
+    source: "요구 §23 · §25"
+    source_type: "설계 요구"
     classification: ORIGINAL
-    description: 고유 무기 공격력 × 품질 × 무기 숙련, 등 뒤 1.5배, 방어 = 100/(100+방어), 막기 0.4배, 피해 0 불가. 맞은 횟수 · 숙련 · 마모는 5초마다 묶어 저장
-    player_experience: 장비 품질 · 숙련이 전투에서 체감됨
+    description: "고유 무기 공격력 × 품질 × 무기 숙련, 등 뒤 1.5배, 방어 = 100/(100+방어), 막기 0.4배, 피해 0 불가. 직업 효과(공격 % · 방어 % 최대 50 · 치명 확률) 반영. 맞은 횟수 · 숙련 · 마모는 5초마다 묶어 저장"
+    player_experience: "장비 품질 · 숙련이 전투에서 체감됨"
     dependencies: [ITM-01, SKL-01]
-    implementation: domain.combat.DamageCalculator · CombatListener
-    data_model: mastery · action_counter · item_instance.durability
-    ui: 없음
-    resource_pack: 무기 모델 EXTERNAL_ASSET_REQUIRED
-    performance_risk: 타격마다 DB 쓰기 없음
-    security_risk: 아이템 수치는 DB 캐시값 (PDC 값 미사용)
-    persistence: DB (배치)
+    implementation: "domain.combat.DamageCalculator · CombatListener"
+    data_model: "mastery · action_counter · item_instance.durability"
+    ui: "없음"
+    resource_pack: "무기 모델 (바닐라)"
+    performance_risk: "타격마다 DB 쓰기 없음"
+    security_risk: "아이템 수치는 DB 캐시값 (PDC 값 미사용)"
+    persistence: "DB (배치)"
     tests: [BossAndCombatTest]
     server_test: BLOCKED
-    status: PARTIAL
+    status: IMPLEMENTED
 
   - id: CMB-02
-    feature: 스킬 · 콤보 · 회피 · 상태 이상 · 직업 특성
-    category: 전투
-    source: 로열 로드/스킬/전투 (세부 미확인)
-    source_type: RESEARCH_REQUIRED
-    classification: RESEARCH_REQUIRED
-    description: 좌클릭 외 전투 행동
-    player_experience: MMORPG 전투
+    feature: "스킬 · 콤보 · 회피 · 상태 이상"
+    category: "전투"
+    source: "로열 로드/스킬 (세부 미확인 → ORIGINAL 스킬)"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "F = 스킬 1 · 웅크리고 우클릭 = 스킬 2 · 웅크리고 F = 회피(0.4초 무적) · 약/강 입력 순서 = 콤보 마무리. 기력 · 마나 · 쿨다운은 서버 판정. 범위(원 · 부채꼴 · 직선) · 투사체 · 돌진 · 자기 강화. 상태 이상 9종(출혈 · 화상 · 중독은 지속 피해, 기절 · 빙결은 연달아 걸면 절반). 스킬은 무기 · 숙련 · 직업으로 정해짐"
+    player_experience: "조작으로 실력이 드러나는 전투"
     dependencies: [CMB-01, CLS-01]
-    implementation: 없음
-    data_model: "(설계 예정)"
-    ui: 스킬 바 (리소스팩)
-    resource_pack: 스킬 아이콘 · 이펙트
-    performance_risk: 이펙트 예산
-    security_risk: 쿨다운은 서버 판정
-    persistence: DB
-    tests: []
-    status: PLANNED
+    implementation: "domain.combat.CombatState · StatusTracker · SkillDefinition · application.SkillBook · platform.bukkit.combat.SkillListener"
+    data_model: "content/skills.yml"
+    ui: "화면 아래 기력 · 마나 · 스킬 이름"
+    resource_pack: "스킬 아이콘 (아직 없음, 글자 표시)"
+    performance_risk: "상태 이상은 걸린 대상만 0.5초마다"
+    security_risk: "쿨다운 · 자원 · 무적은 서버 판정 (클라이언트 값 미사용)"
+    persistence: "메모리 (전투 상태)"
+    tests: [CombatStateTest, SkillBookTest, ContentIntegrityTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: BOS-01
     feature: 거대 보스 규칙 (페이즈 · 패턴 · 예고 · 광폭화 · 약점)
@@ -599,137 +688,544 @@ features:
     status: IMPLEMENTED
 
   - id: BOS-02
-    feature: 거대 보스 실행 (모델 · 판정 상자 · 예고 연출 · 보상)
-    category: 보스
-    source: 요구 §27 · §52
-    source_type: 설계 요구
+    feature: "거대 보스 실행 (모델 · 이동 · 판정 상자 · 기여도 보상)"
+    category: "보스"
+    source: "요구 §27 · §52"
+    source_type: "설계 요구"
     classification: ORIGINAL
-    description: Interaction 1개 + ItemDisplay 1개. 예고는 외곽선 파티클 48개. 지금은 임시 블록 모델 · 이동 없음 · 보상 없음
-    player_experience: 멀리서도 보이는 보스
-    dependencies: [BOS-01]
-    implementation: platform.bukkit.boss.BossRuntime · /va boss spawn
-    data_model: 없음
-    ui: 보스바
-    resource_pack: 보스 모델 EXTERNAL_ASSET_REQUIRED
-    performance_risk: 엔티티 2개 · 0.25초 갱신
-    security_risk: 보스 피해는 서버 계산
-    persistence: 없음
-    tests: []
-    status: PARTIAL
+    description: "Interaction 1개 + ItemDisplay 1개 (리소스팩 모델, CustomModelData). 크기에 맞춰 천천히 돌고, 판정 반지름만큼 떨어져 서며, 전투 공간 밖으로 끌려가지 않음, 예고 중엔 멈춤. 기여도 = 준 피해 + 방패로 막은 피해 × 0.5 + 지원 × 0.8, 3% 미만은 보상 없음, 20% 이상은 추가 보상. 처음 잡은 사람 서버 기록"
+    player_experience: "멀리서도 보이는, 배워서 잡는 보스"
+    dependencies: [BOS-01, RP-01]
+    implementation: "domain.boss.BossMotion · BossRewards · application.BossService · platform.bukkit.boss.BossRuntime"
+    data_model: "boss_fight · boss_contribution · bosses.yml(speed · reward)"
+    ui: "보스바 · 페이즈 문구 · 보상 메시지"
+    resource_pack: "procedural 보스 모델 (RP-01)"
+    performance_risk: "엔티티 2개 · 0.25초 갱신 · 기여도는 메모리에 모아 끝날 때 저장"
+    security_risk: "보상 키 boss:<fight>:<uuid> · 전투 종료는 ACTIVE→DEFEATED 조건부 · 재시작 시 진행 중 전투는 실패"
+    persistence: "DB"
+    tests: [BossServiceTest, BossAndCombatTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: GLD-01
-    feature: 길드 · 사회
-    category: 사회
-    source: 원작 길드 (세부 미확인)
-    source_type: RESEARCH_REQUIRED
-    classification: RESEARCH_REQUIRED
-    description: 길드 · 길드원 · 길드 활동
-    player_experience: 함께하는 플레이
+    feature: "길드"
+    category: "사회"
+    source: "로열 로드/길드 (이름 개념만)"
+    source_type: "원작 개념"
+    classification: SOURCE-BASED
+    description: "창설(5,000 골드 소모) · 초대(5분) · 수락 · 탈퇴 · 추방(자기보다 낮은 직급) · 부길드장(레벨에 따라 자리 수) · 위임 · 해산(금고는 길드장에게). 금고는 지갑 guild:<id> — 넣고 빼기 모두 원장 · 감사 로그. 넣은 돈 1/10 · 던전 · 보스 활동이 공헌 · 길드 경험치. 레벨은 인원 상한만 올림(능력치 보너스 없음). 길드 채팅. 영지 · 성 · 하우징 없음"
+    player_experience: "함께 하는 이유"
     dependencies: [ECO-01]
-    implementation: 없음
-    data_model: "(설계 예정)"
-    ui: "(설계 예정)"
-    resource_pack: 길드 문장
-    performance_risk: 낮음
-    security_risk: 길드 금고 동시성
-    persistence: DB
-    tests: []
-    status: RESEARCH_REQUIRED
+    implementation: "domain.guild.GuildRules · application.GuildService · /길드"
+    data_model: "guild · guild_member · wallet(guild:<id>)"
+    ui: "/길드 (정보 창 · 창설 · 초대 · 수락 · 입금 · 출금 · 채팅 …)"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "금고 출금은 부길드장 이상 · 같은 요청 키 무시 · 이름 · 태그 형식 검사"
+    persistence: "DB"
+    tests: [GuildServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: DUN-01
-    feature: 던전 (구조 · 퍼즐 · 숨은 공간)
-    category: 콘텐츠
-    source: 02_WORLD (황제의 수로 · 매몰 도시 · 폐광)
-    source_type: 후대 설계
+    feature: "던전 (매번 새 배치)"
+    category: "던전"
+    source: "후대 설계 (원작 던전 구조 미사용)"
+    source_type: "설계 요구"
     classification: ORIGINAL
-    description: 역사가 있는 던전
-    player_experience: 수직 탐험
-    dependencies: [WLD-02, BOS-02]
-    implementation: 없음
-    data_model: "(설계 예정)"
-    ui: 없음
-    resource_pack: 없음
-    performance_risk: 인스턴스 · 엔티티 수
-    security_risk: 보상 중복
-    persistence: DB
-    tests: []
-    status: PLANNED
+    description: "4개 던전. 입장마다 시드로 방 배치 생성(격자 나무 · 막다른 방 · 숨은 방). 문은 들어갈 수 있을 때만 열림, 전투방은 다 잡아야 정리, 퍼즐방은 문양 표지판을 보고 레버를 순서대로(운 없음), 숨은 방은 금 간 벽, 보스방은 길 + 퍼즐을 끝내야 열림(거대 보스 또는 강화 몬스터). 인원 · 시간 제한, 전원 쓰러지면 실패. 보상은 사람마다 한 번 + 재사용 대기, 숨은 방을 찾으면 추가"
+    player_experience: "같은 던전도 매번 다른 길"
+    dependencies: [WLD-01, BOS-02, QST-01]
+    implementation: "domain.dungeon.* · application.DungeonService · platform.bukkit.dungeon.DungeonRuntime (빈 세계 versa_dungeons) · /던전"
+    data_model: "dungeon_run · content/dungeons.yml"
+    ui: "/던전 <id> · 방 정리 · 퍼즐 · 보상 타이틀"
+    resource_pack: "없음"
+    performance_risk: "방 하나씩 틱마다 건설 · 판이 끝난 자리는 재사용하지 않음(재시작 때 세계 정리)"
+    security_risk: "보상 키 dungeon:<run>:<uuid> · 재시작 때 진행 중이던 판은 실패(손실 없음) · 던전 세계 블록 파괴 · 설치 금지"
+    persistence: "DB (판 기록) · 메모리 (진행)"
+    tests: [DungeonTest, DungeonServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: EVT-01
-    feature: 월드 이벤트 (모래폭풍 · 매몰 도시 입구 등)
-    category: 월드
-    source: 02_WORLD
-    source_type: 후대 설계
+    feature: "월드 이벤트 (시간표 · 예보)"
+    category: "이벤트"
+    source: "후대 설계"
+    source_type: "설계 요구"
     classification: ORIGINAL
-    description: 실제로 월드가 바뀌는 이벤트
-    player_experience: 세계가 움직임
-    dependencies: [WLD-02]
-    implementation: 없음
-    data_model: "(설계 예정)"
-    ui: 없음
-    resource_pack: 없음
-    performance_risk: 블록 변경 예산
-    security_risk: 낮음
-    persistence: DB
-    tests: []
-    status: PLANNED
+    description: "대모래폭풍(매몰 도시 입구가 드러남) · 은빛 광맥 · 분화구의 빛(희귀 생물) · 대상단 도착(할인) · 서리 범람(위험도 · 채집) · 항구의 안개. 확률이 아니라 서버 시드로 정해진 시간표 — 맡은 NPC 가 몇 시간 전에 예보. 시작 · 끝은 한 번씩만 알림"
+    player_experience: "세계가 혼자 움직이고, 귀 기울이면 미리 안다"
+    dependencies: [WLD-01, NPC-01]
+    implementation: "domain.worldevent.WorldEventClock · application.WorldEventService · platform.bukkit.world.WorldEventRuntime · RegionTracker(입구 막기)"
+    data_model: "world_event_state · content/world_events.yml"
+    ui: "전체 알림 · 지역 타이틀 · NPC 창 소식"
+    resource_pack: "없음"
+    performance_risk: "1분마다 시간표 계산"
+    security_risk: "다른 서버 시간표로 미리 계산 불가 (secret.key 에서 시드)"
+    persistence: "DB"
+    tests: [WorldEventGatherTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: DTH-01
-    feature: 사망 페널티
-    category: 성장
-    source: 로열 로드 (24시간 접속 불가 · 레벨 · 숙련 하락)
-    source_type: 원작 개념
+    feature: "사망 페널티 — 완화판 (death.mode: soft)"
+    category: "전투"
+    source: "로열 로드/사망 (24시간 접속 불가 · 레벨 하락 — 원작)"
+    source_type: "원작 개념"
     classification: SOURCE-BASED
-    description: 서버 게임에 맞게 완화한 사망 규칙 (수치 설계 필요)
-    player_experience: 죽음이 가볍지 않음
-    dependencies: [SKL-01]
-    implementation: 없음
-    data_model: "(설계 예정)"
-    ui: 없음
-    resource_pack: 없음
-    performance_risk: 낮음
-    security_risk: 낮음
-    persistence: DB
-    tests: []
-    status: DESIGNED
+    description: "서버 설정으로 고르는 완화판 (기본은 원작식 DTH-02): 아이템 드롭 없음 · 숙련은 지금 단계 진행도만 (3 + 위험도 × 2)% 감소(레벨 유지) · 입은 장비 마모 · 위험도 4 이상이면 최대 내구도 -1 · 부활 뒤 쇠약. 월드 이벤트 위험도 반영. 던전 안이면 그 판에서 쓰러짐"
+    player_experience: "죽음이 아프지만 플레이를 막지 않음"
+    dependencies: [SKL-01, ITM-01]
+    implementation: "domain.death.DeathPenalty · application.DeathService · platform.bukkit.combat.DeathListener"
+    data_model: "death_log"
+    ui: "감소량 한 줄"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "드롭 없음 → 줍기 · 복제 분쟁 없음"
+    persistence: "DB"
+    tests: [JobQuestDeathTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: CHR-01
+    feature: "캐릭터 만들기 — 종족 · 성별 · 시작 도시"
+    category: "캐릭터"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "처음 접속하면 움직일 수 없고 종족(원작 시작 종족: 인간 · 엘프 · 드워프 · 오크 · 조인족) → 성별(남성 · 여성 · 중성) → 시작 도시(세라보그 · 아렌 · 네할레스 · 시슬레 · 힐쉐이드 · 모라타) 창이 뜬다. 한 번 고르면 못 바꾼다. 종족 보너스는 숙련 경험치 +5 ~ 10% · 몸 특성 하나 (수치 ORIGINAL). 원작의 49 종족 전체 목록은 출처에 없어 넣지 않음"
+    player_experience: "원작처럼 스타팅 도시를 골라 시작"
+    dependencies: [SKL-01, WLD-01]
+    implementation: "domain.origin.* · application.OriginService · platform.bukkit.listener.OriginListener"
+    data_model: "character_origin · content/origins.yml"
+    ui: "선택 창 3단계"
+    resource_pack: "없음"
+    performance_risk: "접속 때 한 번 조회"
+    security_risk: "출신은 서버 DB 값 · INSERT OR IGNORE 로 한 번만"
+    persistence: "DB"
+    tests: [CanonRulesTest, CanonDomainTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: BEG-01
+    feature: "초보 기간 (한 달 동안 성 밖 금지)"
+    category: "캐릭터"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "시작 도시에서 소환되고 게임 시간 30일(시간 4배면 현실 7.5일) 동안 그 도시 지역 밖으로 못 나간다. 그동안 사망 페널티 없음. 시작 물품 보리빵 10개(배달함). 세라보그의 기초 수련관에서 허수아비를 쳐 스탯을 쌓을 수 있다"
+    player_experience: "위드처럼 아르바이트 · 허수아비치기로 시작"
+    dependencies: [CHR-01, WLD-01]
+    implementation: "OriginService.insideCity · RegionTracker.confine · DeathService"
+    data_model: "character_origin.created_at"
+    ui: "액션바 · 남은 시간"
+    resource_pack: "없음"
+    performance_risk: "지역이 바뀔 때만 캐시로 판정"
+    security_risk: "관리자는 통과"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: TIME-01
+    feature: "게임 시간 4배"
+    category: "월드"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "게임 시각 = 현실 시각 × 4 (현실 하루 = 게임 4일, 낮밤 한 번 = 현실 6시간). 세계 낮밤 주기를 끄고 1초마다 맞춘다. NPC 일과 · 메타페이아 정오 · 초보 기간이 이 시간을 쓴다. config time.ratio (0 = 마인크래프트 기본)"
+    player_experience: "원작처럼 게임 속 시간이 빨리 흐름"
+    dependencies: []
+    implementation: "domain.time.GameTime · platform.bukkit.world.TimeRuntime"
+    data_model: "없음 (현실 시각에서 계산)"
+    ui: "없음"
+    resource_pack: "없음"
+    performance_risk: "1초마다 세계 시간 설정"
+    security_risk: "없음"
+    persistence: "없음"
+    tests: [CanonDomainTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: DTH-02
+    feature: "사망 페널티 — 원작식 (기본, 접속 제한 없음)"
+    category: "전투"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "스킬 숙련도가 떨어짐 (원작대로 레벨은 그대로) · 행동 스탯의 바탕 기록이 (2 + 위험도)% × 배율 줄어 스탯이 떨어짐 · 서버 난수로 고른 칸의 아이템이 그 자리에 떨어짐 · 장비 마모 · 쇠약. 악명 · 살인자면 더 크게. 초보 기간 · 던전 안은 드롭 없음. 원작의 24시간 접속 불가는 사용자 요청으로 뺐다. 떨어진 고유 아이템은 DB 에서 땅 상태, 처음 주운 사람만 서버 판정으로 임자, 5분 뒤 사라지면 아이템도 사라짐"
+    player_experience: "죽음이 원작처럼 무겁다"
+    dependencies: [SKL-01, ITM-01, REP-01, BEG-01]
+    implementation: "DeathPenalty.computeCanon · DeathService · ItemService.dropToGround/claimFromGround · DeathListener · OriginListener(접속 단계 차단)"
+    data_model: "item_instance(DELIVERY ground:) · death_log · progress counter (스탯 기록)"
+    ui: "감소량 · 드롭 수 · 킥 메시지"
+    resource_pack: "없음"
+    performance_risk: "사망 때만"
+    security_risk: "줍기는 서버 판정 · 먼저 온 요청만 성공 → 복제 불가. 호퍼 줍기 차단"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: REP-01
+    feature: "명성 · 악명 · 살인자"
+    category: "사회"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "명성: 의뢰 · 최초 발견 · 시련으로 오름 → 의뢰 돈 보상 +5%/단계, 명사 이상이면 일상 · 숙련 의뢰 조건 완화. 악명: 살인자가 아닌 사람을 죽이면 +100 → 100 이상이면 보통 NPC 가 의뢰 · 거래 거절, 보상 -25%, 악한 NPC(장물아비 베릭)와만 거래. 살인자: 붉은 이름 · 사망 페널티 2배 · 살인자를 죽인 사람은 페널티 없음 · 몬스터가 끝까지 쫓음(48 블록 안 몬스터가 노리고 표적을 놓지 않음). 공성 중 적 길드끼리는 악명 없음. 몬스터 사냥 · 신전 기부로 씻김 (수치 ORIGINAL)"
+    player_experience: "행동이 평판으로 돌아온다"
+    dependencies: [QST-01, NPC-01]
+    implementation: "domain.reputation.Reputation · application.ReputationService · QuestService · NpcMenus · ReputationListener"
+    data_model: "progress counter: fame · notoriety · murderer_until"
+    ui: "/명성 · 붉은 이름(스코어보드 팀)"
+    resource_pack: "없음"
+    performance_risk: "몬스터 처치는 악명 있을 때만 DB"
+    security_risk: "판정은 서버 사망 이벤트로만"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: GOD-01
+    feature: "신 · 교단 · 신전 기부"
+    category: "사회"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "원작의 신 15(가이아 · 루 · 프레야 · 아트록 · 바탈리 · 발할라 · 미네 · 트로체트 · 헤스티아 · 마탈로스트 · 갈레리아스 · 호르간 · 스피렌 + 악신 벨제벨튀 · 엠비뉴). 신전 14곳(프레야=소므렌 · 루=루의 성역 · 바탈리=투쟁의 길은 원작, 나머지는 이 게임의 자리). 신전 안 /기부: 악명을 씻고(많을수록 비쌈) 0 이 되면 살인자 해제, 남은 돈으로 그 신의 축복(최대 30분)"
+    player_experience: "신전이 의미 있는 장소"
+    dependencies: [REP-01, ECO-01]
+    implementation: "domain.faith.* · ReputationService.donate · CanonCommands"
+    data_model: "content/gods.yml · 원장"
+    ui: "/신 · /기부"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "돈과 악명은 한 트랜잭션 · 같은 key 한 번"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: POT-01
+    feature: "물약 — 회복력 상승 · 겹침 불가 · 레벨 따라 약해짐"
+    category: "전투"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "물약은 즉시 회복이 아니라 재생 효과. 효과가 남아 있으면 더 못 마심. 물약 등급 t 는 숙련 t×10 까지 온전히, 그 위로 10 레벨마다 지속 절반 → 너무 높으면 효과 없음 (수치 ORIGINAL). 작은 강장제 · 회복 물약 · 상급 회복 물약(연금 제작)"
+    player_experience: "물약을 쌓아 두고 버티는 플레이가 안 됨"
+    dependencies: [CRF-01, SKL-01]
+    implementation: "domain.potion.PotionRule · PotionListener"
+    data_model: "items.yml potion_t1~3"
+    ui: "효과 시간 한 줄"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "효과 시간은 서버가 기억"
+    persistence: "없음"
+    tests: [CanonDomainTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: PTY-01
+    feature: "파티"
+    category: "사회"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "/파티 초대 · 수락 · 나가기 · 말. 최대 8명, 파티장이 나가면 다음 사람이 이어받음. 파티원끼리 피해 없음, 던전은 32블록 안의 파티원이 함께 들어감. 접속 중에만 유지 (ORIGINAL 수치)"
+    player_experience: "원작처럼 던전은 파티로"
+    dependencies: [DUN-01]
+    implementation: "domain.party.Parties · CanonCommands · ReputationListener · DungeonRuntime"
+    data_model: "없음 (메모리)"
+    ui: "/파티"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "없음"
+    persistence: "없음"
+    tests: [CanonDomainTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: TRN-01
+    feature: "수련관 허수아비 · 힘 스탯"
+    category: "성장"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "기초 · 초급 수련관 가운데 허수아비 셋. 칠 때마다(0.4초에 한 번) 행동 기록 → 행동 스탯 힘 → 근접 피해 +0.5%/포인트 (최대 15%). 원작: 허수아비가 스탯을 주는 게 아니라 반복 행동이 스탯을 만든다"
+    player_experience: "위드처럼 허수아비 치기"
+    dependencies: [SKL-02, SKL-03]
+    implementation: "TrainingDummies · action_stats.yml strength · StatEffects.meleeDamagePct · CombatListener"
+    data_model: "progress counter hit.training"
+    ui: "허수아비 이름표"
+    resource_pack: "없음"
+    performance_risk: "10초마다 묶어서 기록"
+    security_risk: "연타 제한"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: LORE-01
+    feature: "연대기 · 신 목록"
+    category: "세계관"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "/연대기: 여명의 시대 → 네 종족 → 고전 → 전쟁 → 혼돈 → 낭만 → 아르펜 제국 (원작) → 잿빛 겨울 → 베르사 새벽기 (이 게임). /신: 신과 신전"
+    player_experience: "세계의 역사를 게임 안에서"
+    dependencies: []
+    implementation: "content/history.yml · CanonCommands"
+    data_model: "content"
+    ui: "/연대기 · /신"
+    resource_pack: "없음"
+    performance_risk: "없음"
+    security_risk: "없음"
+    persistence: "없음"
+    tests: [CanonDomainTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: TRN-02
+    feature: "초급 수련관 — 철인 100명"
+    category: "성장"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "초급 수련관에서 /수련: 철인(철 갑옷 변명자)이 한 번에 셋까지 차례로 나오고 도전자가 쓰러뜨린 것만 센다. 100명이면 통과 — 처음 한 번 명성 +300 · 인내 · 힘 기록 +300. 죽음 · 이탈(24 블록) · 30분 초과면 실패. 한 수련관에 한 사람"
+    player_experience: "위드가 통과한 초급 수련관 시련"
+    dependencies: [TRN-01, REP-01]
+    implementation: "application.TrialService · platform.bukkit.world.IronMenTrial"
+    data_model: "progress counter trial.ironmen"
+    ui: "/수련 · 액션바 진행"
+    resource_pack: "없음"
+    performance_risk: "철인 셋만"
+    security_risk: "보상은 DB 기록으로 한 번"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: ART-01
+    feature: "비기 · 최후의 비기"
+    category: "성장"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "조각사: 조각 생명술(조각품을 바쳐 철 골렘 동료) · 조각 변신술(5분 강화 · 이름 숨김) · 조각 부활술(파티에 부활의 가호) · 정령창조 조각술(정령 셋, 스스로 깨우침) · 최후의 비기 시간 조각술(숙련 29 가속 / 30 정지 / 31 여행). 요리사: 최후의 비기 천상의 맛(잔치 + 하루 한 번 영구 인내). 추가: 조각 검술(부채꼴 베기, 예술 스탯) · 대재앙의 자연조각술(폭풍 + 벼락) · 검사의 광휘의 검술(직선, 언데드 · 악마 두 배) · 분검술(주위 세 번) · 명예로운 약속(파티 힘 · 저항) · 다른 하나의 검(30초 추가 타격). 배우기: 직업 + 숙련 레벨 + 비기의 조각상(던전 숨은 보상)을 바치거나 스스로 깨우침 조건. 화가의 대륙 창조는 화가 직업이 없어 없음"
+    player_experience: "마스터 직전의 최상급 스킬"
+    dependencies: [CLS-01, SKL-01, DUN-01]
+    implementation: "domain.art.SecretArt · application.SecretArtService · platform.bukkit.combat.SecretArtRuntime"
+    data_model: "content/secret_arts.yml · discovery(kind art)"
+    ui: "/비기"
+    resource_pack: "없음"
+    performance_risk: "소환수는 저장하지 않음 · 시간 정지 8초"
+    security_risk: "조각상은 DB 에서 파괴 후 배움"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: LND-01
+    feature: "땅"
+    category: "영지"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "청크(16×16) 단위로 산다 (도시 5,000 + 위험 · 들판 500 + 위험, 금역 · 던전 입구 · 명소 · 문 · 바다 · NPC 일터는 불가, 1인 16칸). 산 땅은 주인과 허가받은 사람만 블록 · 상자 · 문 · 양동이를 쓰고 폭발도 막힘. 팔면 절반 환불. 성 안 땅을 사면 성 세금이 성 주인 길드로"
+    player_experience: "내 땅에 마음대로 짓기"
+    dependencies: [ECO-01, WLD-01]
+    implementation: "domain.realm.RealmRules · application.RealmService · platform.bukkit.world.RealmRuntime · RealmCommands"
+    data_model: "land_plot · plot_member (V5)"
+    ui: "/땅"
+    resource_pack: "없음"
+    performance_risk: "보호는 메모리 캐시 (DB 를 기다리지 않음)"
+    security_risk: "관리자는 통과"
+    persistence: "DB"
+    tests: [RealmServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: SHP-01
+    feature: "개인 상점"
+    category: "영지"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "내 땅의 블록을 상점으로 (/상점 개설). 물건은 서버가 쥔다: 고유 아이템은 ESCROW, 묶음은 수량 기록. 상점 블록 우클릭 = 창 (1개 · 16개 구매, 주인은 내리기). 돈은 원장 이체, 산 물건은 배달함, 성 안이면 세금이 성 주인 길드로. 1인 5곳 · 27칸"
+    player_experience: "길가에 내 가게"
+    dependencies: [LND-01, ITM-01, ECO-01]
+    implementation: "RealmService · RealmRuntime.openShop · RealmCommands"
+    data_model: "player_shop · shop_stock (V5)"
+    ui: "상점 창"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "물건이 인벤토리 · 상점에 동시에 있을 수 없음 (ESCROW) · 같은 구매 key 한 번"
+    persistence: "DB"
+    tests: [RealmServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: CST-01
+    feature: "성 · 공성 · 세금 · 수입"
+    category: "영지"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "도시 · 성 · 전초기지 하나가 성 하나. 길드장이 길드 금고로 산다 (수도 100,000 · 성 50,000 · 도시 30,000 · 전초기지 15,000). 하루마다 성 값의 1% 수입, 세율 0 ~ 20% (성 안 상점 거래 · 땅 구입). 공성: 5,000 골드로 선포 → 30분 동안 공격 길드원만 성 한가운데 8 블록 안에 있으면 1초씩, 300초면 성이 넘어감 (수비가 있으면 멈춤). 공성 중 두 길드는 그 성 안에서 악명 없이 싸움"
+    player_experience: "길드가 성을 차지하고 빼앗는다"
+    dependencies: [GLD-01, ECO-01, REP-01]
+    implementation: "RealmService · RealmRuntime.siegeTick · RealmCommands"
+    data_model: "castle (V5) · 공성 진행은 메모리"
+    ui: "/성 · 액션바 점령 진행"
+    resource_pack: "없음"
+    performance_risk: "1초마다 성 근처 사람 수만"
+    security_risk: "판정 · 소유 이전은 서버"
+    persistence: "DB"
+    tests: [RealmServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: NAT-01
+    feature: "국가 · 황제"
+    category: "영지"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "성을 가진 길드의 길드장이 /국가 건국. 한 나라가 수도 6곳(세라보그 · 아렌 · 네할레스 · 시슬레 · 힐쉐이드 · 모라타)을 모두 가지면 베르사 최초의 황제 — 서버에서 처음 한 번만. 상금(config emperor.reward_gold, 기본 1,000,000 골드)은 길드 금고로, 길드장에게 황제의 왕관. 원작의 현실 상금(매출 10% · 주식 5%) 대신 게임 골드"
+    player_experience: "대륙 통일이라는 원작의 목표"
+    dependencies: [CST-01]
+    implementation: "RealmService.foundNation/checkEmperor · RealmCommands"
+    data_model: "nation · emperor (V5)"
+    ui: "/국가 · /황제 · 전 서버 알림"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "황제 기록은 한 줄 (id = 1)"
+    persistence: "DB"
+    tests: [RealmServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: ITM-05
+    feature: "장비 능력 · 착용 조건 · 세트 · 감정"
+    category: "아이템"
+    source: "나무위키 「로열 로드/아이템」 · 「로열 로드/스킬」 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "속성 피해(화염 · 냉기 · 번개 · 독 · 암흑 · 신성) · 언데드 · 악마 · 거대 · 용 · 사람 추가 피해 · 치명 · 방어 무시 · 생명력 흡수 · 둔화 · 기절 · 최대 체력 · 피해 감소 · 이동 속도 · 재생 · 반사, 저주(체력 감소 · 느려짐). 착용 조건(숙련 · 행동 스탯 · 명성)을 못 채우면 무기는 20% 힘, 방어구는 0 — 대장 기술 숙련 1마다 조건 1% 감소(최대 31%). 세트 2 · 4벌 보너스. 숨은 능력 · 내력은 /감정 으로 (감정 숙련 · 난이도, 성공하면 아이템에 기록). 도구 능력 '제작 품질'. 수치 ORIGINAL"
+    player_experience: "같은 검이라도 감정해 봐야 진짜 힘을 안다"
+    dependencies: [ITM-01, CMB-01, SKL-01]
+    implementation: "domain.item.ItemOptions · ItemSet · application.GearService · platform CombatListener · ItemCodec · LifeCommands(/감정) · StationListener"
+    data_model: "items.yml stats · requires · lore · set · sets · item_instance.props.appraised"
+    ui: "아이템 설명 (??? 감정하지 않은 능력) · /감정"
+    resource_pack: "없음"
+    performance_risk: "장비 합계 2초마다 · 조건 값 1분마다 (메모리 캐시)"
+    security_risk: "조건 · 능력은 서버 값으로만, 감정 기록은 DB"
+    persistence: "DB"
+    tests: [GearAndFieldBossTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: ITM-06
+    feature: "원작 이름 장비 (단단한 철검 · 자하브의 조각칼 · 로아의 명검 …)"
+    category: "아이템"
+    source: "나무위키 「로열 로드/아이템」 (사용자 제공 본문)"
+    source_type: "원작 이름"
+    classification: CANON
+    description: "단단한 철검(철인 100명 통과 보상) · 자하브의 조각칼 · 클레이 소드 · 칼라모르의 검 · 아가사의 거룩한 검 · 차가운 로트의 검 · 콜드림의 데몬 소드 · 로아의 명검 · 레드 스타 · 혼돈의 도끼 · 예리카의 활 · 성자의 지팡이 · 그라함의 갑주(4벌 세트) · 탈로크의 전투복(2벌 세트) · 반 호크의 투구 · 쿠비챠의 부츠. 이름 CANON, 능력 수치 · 얻는 곳(필드 보스 드롭) ORIGINAL"
+    player_experience: "원작에 나온 물건을 보스에게서 얻는다"
+    dependencies: [ITM-05, BOS-03, TRN-02]
+    implementation: "content/items.yml · field_bosses.yml · TrialService"
+    data_model: "items.yml · market.yml 시세"
+    ui: "아이템 설명"
+    resource_pack: "없음 (바닐라 재질)"
+    performance_risk: "없음"
+    security_risk: "보상은 키로 한 번만"
+    persistence: "DB"
+    tests: [GearAndFieldBossTest, CanonRulesTest, ContentIntegrityTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: BOS-03
+    feature: "원작 이름 필드 보스 (반 호크 · 토리도 · 리치 샤이어 · 바르칸 · 케이베른 …)"
+    category: "전투"
+    source: "나무위키 「로열 로드/몬스터」 (사용자 제공 본문)"
+    source_type: "원작 이름"
+    classification: CANON
+    description: "16 보스: 데스 나이트 반 호크 · 뱀파이어 토리도 · 바스라 대공 · 리치 샤이어 · 본 드래곤 쿠렌베르크 · 쿠비챠 · 몬투스 · 말살의 불도마뱀 왕 · 벨카인 · 킹 히드라 · 프레이키스 · 바르칸 데몰라 · 케이베른 · 랜도니 · 마힐고르타 · 클레타. 둥지 64 블록 안에 사람이 오면 나타나고, 쓰러지면 정해진 분 뒤 다시. 패턴: 재생 · 부하 소환 · 공포 · 생명의 그릇(그릇을 먼저 부수지 않으면 한 번 부활) · 광폭 · 숨결 · 도약. 가장 많이 때린 사람에게 확률 드롭, 기여 10% 이상은 돈 · 숙련 · 명성. 출현 번호로 한 번만 보상 · 서버 최초 처치 기록. 둥지 · 몸 · 수치 ORIGINAL (본문에 위치가 없는 보스가 많음)"
+    player_experience: "이름난 보스를 찾아가 잡는다"
+    dependencies: [CMB-01, QST-01, ITM-06]
+    implementation: "domain.fieldboss.FieldBoss · application.FieldBossService · platform.bukkit.world.FieldBossRuntime · /필드보스"
+    data_model: "content/field_bosses.yml · progress counter(world): fboss.<id>.next · fboss.<id>.gen"
+    ui: "출현 제목 · 이름표 · /필드보스 · 처치 방송"
+    resource_pack: "없음 (바닐라 몸)"
+    performance_risk: "1초마다 살아 있는 보스만 · 출현 검사 10초마다 · 청크가 로드된 둥지만"
+    security_risk: "피해는 서버가 셈 · 출현 번호로 중복 보상 방지"
+    persistence: "DB (출현 시각 · 번호 · 보상) / 메모리 (몸 · 피해)"
+    tests: [GearAndFieldBossTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: SKL-04
+    feature: "생활 스킬 (감정 · 붕대 감기 · 검 갈기 · 방어구 닦기 · 다림질 · 도축 · 사자후 · 조각 파괴술 · 일점 공격)"
+    category: "성장"
+    source: "나무위키 「로열 로드/스킬」 (사용자 제공 본문)"
+    source_type: "원작 이름"
+    classification: CANON
+    description: "숙련 분야로: 감정 · 붕대 감기(붕대 하나로 회복, 전투 중 절반) · 검 갈기(숫돌, 10분 공격 +) · 방어구 닦기(쇠 방어구) · 다림질(천 · 가죽, 10분 방어 +) · 도축(동물에서 고기 · 가죽 더). 사자후(검술 5+, 주위 몬스터 공포 · 파티원 힘) · 조각 파괴술(조각가가 조각품을 부숴 예술 스탯만큼 근접 피해) · 일점 공격(검술 10+, 같은 상대를 이어 치면 최대 +30%). 붕대 · 숫돌 제작법 추가. 수치 ORIGINAL"
+    player_experience: "원작처럼 자잘한 생활 스킬도 숙련이 오른다"
+    dependencies: [SKL-01, CMB-01]
+    implementation: "domain.skill.LifeSkills · application.LifeSkillService · platform LifeCommands · CombatListener"
+    data_model: "disciplines.yml (appraisal · bandaging · whetting · polishing · ironing · butchery) · recipes.yml"
+    ui: "/붕대 · /검갈기 · /닦기 · /다림질 · /사자후 · /조각파괴"
+    resource_pack: "없음"
+    performance_risk: "버프는 메모리"
+    security_risk: "재료는 인벤토리에서 먼저 빼고, 실패하면 숫돌을 돌려줌 · 조각품은 DB 에서 파괴"
+    persistence: "DB (숙련) / 메모리 (버프)"
+    tests: [GearAndFieldBossTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: UI-01
-    feature: 전용 MMORPG UI (상자 창 탈피)
-    category: UI
-    source: 요구 §48-50
-    source_type: 설계 요구
+    feature: "전용 MMORPG UI"
+    category: "UI"
+    source: "요구 §48-50"
+    source_type: "설계 요구"
     classification: ORIGINAL
-    description: 리소스팩 폰트 · 배경으로 상자 창 느낌 제거. 지금은 짧은 문구 규칙만 지킨 임시 상자 창
-    player_experience: 고급 판타지 UI
-    dependencies: []
-    implementation: platform.bukkit.ui.Menu (임시)
-    data_model: 없음
-    ui: 임시
-    resource_pack: 폰트 · 배경 · 아이콘 EXTERNAL_ASSET_REQUIRED
-    performance_risk: 낮음
-    security_risk: 모든 클릭 취소 후 정해진 칸만 동작
-    persistence: 없음
-    tests: []
-    status: PARTIAL
+    description: "모든 창은 아이콘 + 이름 + 숫자만. 리소스팩을 쓰면 창 제목에 배경 글자(U+E000~, 뒤로 당기는 공백 글자)로 전용 배경, 버튼은 팩의 전용 32×32 아이콘 30종(의뢰 · 상점 · 선물 · 소식 · 전투 · 생활 · 길드 · 돈 · 경매 · 팔기 · 스탯 · 지도 · 길드원 · 평판 · 비기 · 필드 보스 · 감정 · 붕대 · 땅 · 성 · 국가 · 파티 · 시련 · 신 · 연대기 · 캐릭터 · 직업 · 닫기). /메뉴 = 모든 기능 단추판. 필드 보스 체력 막대(보스 바). 팩이 없으면 바닐라 아이템으로 대신"
+    player_experience: "고급 판타지 UI"
+    dependencies: [RP-01]
+    implementation: "platform.bukkit.ui.Menu(ui · 배경) · NpcMenus · GameCommands · PlayerCommand · ResourcePackBuilder(menu6 · menu3 · space · ui 아이콘)"
+    data_model: "없음"
+    ui: "상자 창 + 팩 배경"
+    resource_pack: "배경 글자 · 공백 글자 · UI 아이콘 (모두 코드 생성)"
+    performance_risk: "낮음"
+    security_risk: "모든 클릭 취소 후 정해진 칸만 동작"
+    persistence: "없음"
+    tests: [ResourcePackBuilderTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: RP-01
-    feature: 리소스팩 (모델 · 텍스처 · 폰트 · 보스 모델)
-    category: 리소스팩
-    source: 요구 §51-52
-    source_type: 설계 요구
+    feature: "리소스팩 (코드로 생성 · 배포)"
+    category: "리소스팩"
+    source: "요구 §51-52"
+    source_type: "설계 요구"
     classification: ORIGINAL
-    description: VersaEra 전용 리소스팩 (RpgCraft 리소스팩 재사용 금지)
-    player_experience: 고유한 외형
+    description: "ResourcePackBuilder 가 서버를 켤 때 팩을 만든다: 거대 보스 5종 큐브 모델(거상 · 날개 짐승 · 결정 · 마디 벌레 · 갑각 템플릿) + 절차 텍스처(등 약점 표시) · 모든 아이템 종류의 32×32 아이콘(PixelArt + Canvas: 색상을 비튼 5단계 색 사다리 · 왼쪽 위 빛 자동 음영 · 색 외곽선 — 검 · 단검 · 도끼 · 창 · 활 · 지팡이 · 갑옷 부위 · 원석 · 주괴 · 보석 · 목재 · 천 · 가죽 · 약초 · 생선 · 물약 · 조각상 …, 능력 속성색 · 원작 물건 금빛 표시)을 바닐라 재질 모델의 CustomModelData 로(방패 · 삼지창은 바닐라 렌더러라 제외). 무기 · 도구 · 투구 · 물약 · 주괴 · 보석 · 원석 · 통나무 · 빵 · 고기 · 뼈 · 조각상 등은 상자를 깎아 쌓은 입체 모델(Sculpt — 빗각 날 · 코등이 · 감은 손잡이 · 보주 · 둥근 팔각 투구 · 뿔 · 가시, 기울인 상자 포함). 입체 투구는 투구 재질이 아니어서 머리에 3D 그대로 보이고, 쓰기는 HeadGear 가 대신 (우클릭 · 투구 칸 · 쉬프트 클릭) · 입은 갑옷은 갑옷 장식(trim) 무늬로 아이템 · 세트마다 다른 겉모습(128×64, 판금 · 사슬 · 비늘 · 털가죽 · 로브 + 투구 T자 가리개 · 가슴 문장 · 깃 · 허리띠 · 어깨받이 · 무릎받이 · 장화 목, 플러그인이 데이터팩을 세계 datapacks 에 설치 — 처음 한 번 재시작) · 필드 보스 16종 관절 모델(ModelKit: 겹 어깨받이 · 허리 갑판 · 휜 뿔 · 등 가시 · 송곳니 · 발톱 등 기울인 상자로 입체감, 기사 · 뱀파이어 · 리치 · 악마 · 용 · 짐승 · 골렘 · 히드라 · 불도마뱀 · 비행체 뼈대, 부위마다 상자 면을 한 장에 펼친 텍스처 · 결 · 얼굴 · 문장, 보스마다 색 변주) — 바닐라 몸은 숨기고 부위별 ItemDisplay 를 태워 관절을 보간으로 돌린다(걷기 · 날갯짓 · 꼬리 · 무기 휘두르기 · 물기) · 거대 보스 5종도 같은 방식 텍스처 · 철인의 쇠 가면, 메뉴 배경(1 ~ 6줄 모두, 금빛 테두리 · 모서리 장식 · 우묵한 칸 · 인벤토리 칸까지) · 공백 글꼴. 같은 콘텐츠 = 같은 SHA-1. gradle buildPack 으로 pack/VersaEra-pack.zip 을 만들어 GitHub 에 올리고, 서버는 pack.urls(raw 주소)에서 받아 SHA-1 을 계산해 보냄. 외부 주소가 모두 실패하면 내장 HTTP 서버로 배포. 손으로 그린 고급 모델은 아님 (교체 가능)"
+    player_experience: "고유한 외형"
     dependencies: []
-    implementation: 없음
-    data_model: 없음
-    ui: 없음
-    resource_pack: 전부
-    performance_risk: 팩 크기
-    security_risk: 없음
-    persistence: 없음
-    tests: []
-    status: EXTERNAL_ASSET_REQUIRED
+    implementation: "io.versaera.pack.ResourcePackBuilder · PackMain · domain.pack.PackIds · platform.bukkit.pack.ExternalPack · PackSender · PackServer"
+    data_model: "없음"
+    ui: "거부 시 안내 한 줄"
+    resource_pack: "전부 코드 생성 (외부 에셋 · RpgCraft 팩 미사용)"
+    performance_risk: "팩 약 수십 KB"
+    security_risk: "팩 서버는 GET /versaera.zip 하나만"
+    persistence: "없음"
+    tests: [ResourcePackBuilderTest, ExternalPackTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
 
   - id: SRV-01
     feature: 실제 Paper 서버 테스트

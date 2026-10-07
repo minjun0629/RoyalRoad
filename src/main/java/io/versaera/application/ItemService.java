@@ -125,6 +125,76 @@ public final class ItemService {
         bus.publish(new GameEvents.ItemDestroyed(itemId, actor, reason));
     }
 
+    // ------------------------------------------------------------------ 땅에 떨어진 고유 아이템 (원작식 사망 드롭)
+    // 땅에 있는 동안은 DELIVERY("ground:<dropId>") — 아무의 것도 아니다. 처음 주운 사람이 서버 판정으로 임자가 된다 (먼저 온 요청만 성공).
+    public static final String GROUND = "ground:";
+
+    /** 죽은 사람의 아이템을 땅으로. 소유자만 */
+    public void dropToGround(String itemId, String owner, String dropId) {
+        tx.inTx(() -> {
+            ItemInstance it = items.find(itemId).orElseThrow(() -> DomainException.of("item.unknown", "없는 아이템"));
+            DomainException.require(it.custody().ownedBy(owner), "item.not_owner", "소유자가 아닙니다");
+            it.custody(Custody.delivery(GROUND + dropId));
+            items.update(it);
+            items.history(itemId, "DROPPED", owner, "death", clock.nowMillis());
+            audit.record("ITEM_DROPPED", owner, itemId, "death", "drop:" + dropId + ":" + itemId);
+            return null;
+        });
+    }
+
+    /** @return 주웠으면 true (이미 누가 주웠거나 땅에 없으면 false) */
+    public boolean claimFromGround(String itemId, String picker) {
+        return tx.inTx(() -> {
+            ItemInstance it = items.find(itemId).orElse(null);
+            if (it == null || it.custody().kind() != Custody.Kind.DELIVERY || !it.custody().ref().startsWith(GROUND)) return false;
+            String from = it.custody().ref();
+            it.custody(Custody.player(picker));
+            items.update(it);
+            items.history(itemId, "PICKED_UP", picker, from, clock.nowMillis());
+            audit.record("ITEM_PICKED_UP", picker, itemId, "ground", "pickup:" + itemId + ":" + clock.nowMillis());
+            return true;
+        });
+    }
+
+    /** 가진 사람의 가방이 가득 차서 손에 못 넣은 고유 아이템 → 그 사람의 배달함 */
+    public void redeliver(String itemId, String owner) {
+        tx.inTx(() -> {
+            ItemInstance it = items.find(itemId).orElseThrow(() -> DomainException.of("item.unknown", "없는 아이템"));
+            DomainException.require(it.custody().ownedBy(owner), "item.not_owner", "소유자가 아닙니다");
+            it.custody(Custody.delivery(owner));
+            items.update(it);
+            items.history(itemId, "REDELIVER", owner, "inventory_full", clock.nowMillis());
+            return null;
+        });
+    }
+
+    /** 개인 상점에 올리기: 주인 것 → ESCROW(ref). 트랜잭션 안에서 부른다 */
+    void toEscrowInTx(String itemId, String owner, String ref) {
+        ItemInstance it = items.find(itemId).orElseThrow(() -> DomainException.of("item.unknown", "없는 아이템"));
+        DomainException.require(it.custody().ownedBy(owner), "item.not_owner", "소유자가 아닙니다");
+        it.custody(Custody.escrow(ref));
+        items.update(it);
+        items.history(itemId, "ESCROW", owner, ref, clock.nowMillis());
+    }
+
+    /** 상점에서 내리기 · 팔기: ESCROW(ref) → 받는 사람의 배달함. 트랜잭션 안에서 부른다 */
+    void fromEscrowInTx(String itemId, String ref, String recipient) {
+        ItemInstance it = items.find(itemId).orElseThrow(() -> DomainException.of("item.unknown", "없는 아이템"));
+        DomainException.require(it.custody().equals(Custody.escrow(ref)), "item.moved", "물건 상태가 바뀌었습니다");
+        it.custody(Custody.delivery(recipient));
+        items.update(it);
+        items.history(itemId, "RELEASED", recipient, ref, clock.nowMillis());
+    }
+
+    /** 묶음 배달 (트랜잭션 안) */
+    void deliverBulkInTx(String uuid, String typeId, int quality, int amount, String reason) {
+        deliverBulk(uuid, typeId, quality, amount, reason);
+    }
+
+    public boolean onGround(String itemId) {
+        return items.find(itemId).map(it -> it.custody().kind() == Custody.Kind.DELIVERY && it.custody().ref().startsWith(GROUND)).orElse(false);
+    }
+
     /** 사용 · 피격 마모. 소유자만, 실제로 손에 있는 아이템만 (플랫폼이 확인 후 호출) */
     public ItemInstance wear(String itemId, String owner, int amount, boolean heavy) {
         return tx.inTx(() -> {
