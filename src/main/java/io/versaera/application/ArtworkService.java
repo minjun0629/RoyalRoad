@@ -83,9 +83,34 @@ public final class ArtworkService {
         Map<String, String> out = new LinkedHashMap<>();
         for (String part : a.materials().split(",")) {
             String[] kv = part.split("=");
-            if (kv.length == 2) out.put(kv[0], kv[1].split(":")[0]);
+            if (kv.length == 2 && !kv[0].equals("moon")) out.put(kv[0], kv[1].split(":")[0]);
         }
         return out;
+    }
+
+    /** 달빛 아래서 깎은 작품인가 (은은하게 빛난다) */
+    public static boolean moonlit(Artwork a) {
+        return a.materials().contains("moon=1");
+    }
+
+    /** 달빛 표시 (만든 직후 플랫폼이 부른다). 재료 기록 끝에 moon=1 */
+    public Artwork markMoonlit(String uuid, String artworkId) {
+        Artwork a = repo.artwork(artworkId).orElseThrow(() -> DomainException.of("art.gone", "사라진 작품입니다"));
+        DomainException.require(a.owner().equals(uuid), "art.not_owner", "내 작품이 아닙니다");
+        if (moonlit(a)) return a;
+        String m = a.materials() + ",moon=1";
+        tx.inTx(() -> {
+            repo.setArtworkMaterials(a.id(), m);
+            return null;
+        });
+        Artwork b = new Artwork(a.id(), a.owner(), a.kind(), a.title(), a.world(), a.x(), a.y(), a.z(), a.yaw(), a.quality(), m, a.views(), a.createdAt());
+        cache.replaceAll(x -> x.id().equals(b.id()) ? b : x);
+        return b;
+    }
+
+    /** 내 작품들 (어느 스레드에서나) */
+    public List<Artwork> mine(String uuid) {
+        return cache.stream().filter(a -> a.owner().equals(uuid)).toList();
     }
 
     /**
@@ -205,6 +230,7 @@ public final class ArtworkService {
         ArtworkKind k = kind(a.kind());
         for (String part : a.materials().split(",")) {
             String[] kv = part.split("=");
+            if (kv[0].equals("moon")) continue;
             String[] lt = kv[1].split(":");
             if (lt.length < 3) continue;
             int amount = k.parts().stream().filter(p -> p.slot().equals(kv[0])).mapToInt(ArtworkKind.Part::amount).findFirst().orElse(0) / 2;

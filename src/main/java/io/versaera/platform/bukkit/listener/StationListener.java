@@ -29,14 +29,14 @@ import java.util.*;
  * 제작대: 월드의 블록을 우클릭해 그 분야의 제작 창을 연다 (명령어 없이). 고르면 제작대 곁에서 시간을 들여 손으로 만든다 —
  * 모루는 망치질 불똥, 화덕은 지글지글 연기, 베틀은 북 소리, 양조기는 끓는 거품. 떠나면 멈추고 재료는 돌려받는다.
  * 명품 이상이 나오면 큰 제목, 걸작은 서버 전체에 알려진다.
- * 모루=대장 · 베틀=재봉 · 제작대=가죽 · 훈연기=요리 · 양조기=연금 · 석재 절단기=조각 · 대장장이 작업대=수리.
+ * 모루=대장 · 베틀=재봉 · 제작대=가죽 · 훈연기=요리 · 양조기=연금 · 석재 절단기=조각 · 화살 작업대=목공 · 대장장이 작업대=수리.
  * 재료는 인벤토리에서 품질이 높은 것부터 골라 <b>먼저 빼고</b> 서버에 제작을 요청한다. 실패하면 재료는 배달함으로 돌아온다.
  */
 public final class StationListener implements Listener {
     private static final Map<Material, String> STATIONS = Map.of(
             Material.ANVIL, "smithing", Material.LOOM, "tailoring", Material.CRAFTING_TABLE, "leatherwork",
             Material.SMOKER, "cooking", Material.BREWING_STAND, "alchemy", Material.STONECUTTER, "sculpting",
-            Material.SMITHING_TABLE, "repair");
+            Material.SMITHING_TABLE, "repair", Material.FLETCHING_TABLE, "woodworking");
 
     private final GameServices s;
     private final Async async;

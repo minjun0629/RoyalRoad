@@ -420,6 +420,7 @@ public final class NpcPopulation {
                 }
                 case "tavern" -> town && radius >= 32 ? around(cx - 21, cz + 0.5, i, 0.5, 2.2) : around(cx, cz + 16, i, 0.5, 3);   // 여관 문 앞 큰길
                 case "temple" -> town && radius >= 32 ? around(cx - 24, cz - 0.5, i, 0.5, 2.2) : around(cx, cz - 16, i, 0.5, 3);   // 성당 문 앞
+                case "hall" -> around(cx + 11, cz + 12, i, 0.5, 1.2);                               // 시장 회관(경매장) 앞, 광장 남쪽
                 case "yard" -> around(cx - 9.5, cz - 12.5, i, 0.5, 1.2);                         // 훈련장 문 앞 (광장 북서쪽, 문은 z = 가운데 - 15)
                 case "gate" -> {                                                                   // 성문 양옆에 갈라 선다
                     int side = i % 2 == 0 ? 1 : -1, n = i / 2;

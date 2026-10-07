@@ -4,7 +4,7 @@
 # archetypes: 직업 틀
 #   services: SHOP 상점 · REPAIR 수리 · INN 쉼(체력 · 허기) · HEAL 치유(독 · 시듦) · TRAIN 숙련 지도 · RUMOR 소문 · SONG 노래(이동 · 재생)
 #             AUCTION 경매장 · LORE 연대기 · QUEST 의뢰 (모두 실제로 동작)
-#   schedule: "시작-끝:장소" — 장소 키 work · home · market · tavern · square · temple · gate · yard(훈련장 문 앞)
+#   schedule: "시작-끝:장소" — 장소 키 work · home · market · tavern · square · temple · gate · yard(훈련장 문 앞) · hall(시장 회관 앞)
 #   gifts: 처음 온 사람에게 한 번 주는 것 (GIFT) "아이템:품질:개수" · 바닐라 물건은 "minecraft:arrow:64" — 직업 틀마다 한 사람에 한 번
 #   stock: 파는 물건 "아이템:품질" · buys: 사 주는 태그 · produces / consumes: 지역 경제(공급 · 수요)에 더하는 태그
 #   lines: [낯섦, 보통, 가까움] 한 줄 대사 · trains: TRAIN 이 가르치는 숙련 분야
@@ -110,7 +110,7 @@ archetypes:
                quests: [{target: "kill:any", amount: 20, money: 220, xp: {archery: 50}, affinity: 12, daily: true, title: "사냥터 정리", label: 몬스터 20마리}]}
   sculptor:   {job: 조각가, category: PRODUCTION, services: [SHOP, QUEST, TRAIN], trains: sculpting, likes: [stone, marble, art], dislikes: [potion],
                personalities: [옛 조각상을 보수하는 고집쟁이, 돌의 결을 사람 얼굴처럼 봄],
-               schedule: ["5-11:square", "11-19:work", "19-5:home"], stock: ["carving_knife:420", "marble_block:450"],
+               schedule: ["5-11:square", "11-19:work", "19-5:home"], stock: ["carving_knife:420", "marble_block:450", "sandstone_block:450", "silver_ingot:420"],
                buys: [stone, marble, art], consumes: [stone, marble], level: [15, 40],
                lines: ["돌 안에 뭐가 들었는지 보이나?", "오늘은 손이 잘 풀리는군.", "자네 작품은 내 작업대 옆에 두지."],
                quests: [{target: "item:marble_block", amount: 4, money: 320, xp: {sculpting: 60}, affinity: 12, title: "{npc}의 대리석", label: 대리석 4개},
@@ -154,7 +154,7 @@ archetypes:
                quests: [{target: "ruin", money: 400, xp: {exploration: 120}, affinity: 15, title: "{npc}가 찾는 옛터", label: "{ruin} 찾아가기"}]}
   auctioneer: {job: 경매인, category: COMMERCE, services: [AUCTION, RUMOR], likes: [gem, art], dislikes: [fish],
                personalities: [목소리가 크고 빠름, 값을 한 번 들으면 잊지 않음],
-               schedule: ["9-21:market", "21-9:home"], level: [20, 40],
+               schedule: ["9-21:hall", "21-9:home"], level: [20, 40],
                lines: ["다음 물건!", "오늘 값이 잘 붙었어.", "자네 물건은 앞자리에 올려 주지."]}
   mage_merchant: {job: 마법 상인, category: COMMERCE, services: [SHOP, RUMOR, QUEST], likes: [gem, frost, sky], dislikes: [meat],
                personalities: [소매에서 반짝이는 가루가 떨어짐, 말끝마다 주문 같음],

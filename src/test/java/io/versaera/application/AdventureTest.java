@@ -343,6 +343,13 @@ class AdventureTest {
             assertThrows(DomainException.class, () -> w.s.artworks.rename(a, art.id(), "&c색"));
             assertEquals("달빛 아래의 기사", w.s.artworks.rename(a, art.id(), "  달빛 아래의 기사 ").title());
             assertEquals("달빛 아래의 기사", w.s.artworks.all().stream().filter(x -> x.id().equals(art.id())).findFirst().orElseThrow().title());
+            // 달빛 조각품: 표시가 남고, 모양 · 허물기 환급에는 끼지 않는다
+            assertFalse(ArtworkService.moonlit(art));
+            var moonArt = w.s.artworks.markMoonlit(a, art.id());
+            assertTrue(ArtworkService.moonlit(moonArt));
+            assertEquals(Map.of("pedestal", "sandstone", "body", "marble", "accent", "silver"), ArtworkService.looks(moonArt));
+            assertEquals(1, w.s.artworks.mine(a).size());
+            assertTrue(w.s.artworks.mine(v).isEmpty());
             // 허물기: 만든 사람만, 재료 절반
             assertThrows(DomainException.class, () -> w.s.artworks.remove(v, art.id(), false));
             int before = w.s.items.pendingBulk(a).size();

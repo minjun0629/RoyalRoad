@@ -18,7 +18,7 @@ public record Archetype(String id, String job, String category, Set<String> serv
                         Set<String> consumes, List<String> lines, int minLevel, int maxLevel, boolean evil, String trains,
                         List<QuestTemplate> quests, List<String> gifts) {
     public static final Set<String> SERVICES = Set.of("SHOP", "REPAIR", "INN", "HEAL", "TRAIN", "RUMOR", "SONG", "AUCTION", "LORE", "QUEST", "STABLE", "CARRIAGE", "SHIP", "GIFT");
-    public static final Set<String> PLACES = Set.of("work", "home", "market", "tavern", "square", "temple", "gate", "yard");
+    public static final Set<String> PLACES = Set.of("work", "home", "market", "tavern", "square", "temple", "gate", "yard", "hall");
 
     /**
      * 의뢰 틀. target: "item:&lt;id&gt;" · "kill:&lt;엔티티|any&gt;" · "partner" · "ruin" · "craft:&lt;분야&gt;" · "train:&lt;dummy|target&gt;"(허수아비 치기 · 과녁 맞히기)

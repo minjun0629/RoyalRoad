@@ -97,6 +97,42 @@ public final class SculptingRuntime implements Listener {
         return t != null && codec.types().get(t).hasTag("tool_carving");
     }
 
+    // ------------------------------------------------------------------ 내 작품: 조각칼로 허공 우클릭
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onAir(PlayerInteractEvent e) {
+        if (e.getHand() != EquipmentSlot.HAND || e.getAction() != Action.RIGHT_CLICK_AIR || !holdingKnife(e.getPlayer())) return;
+        mine(e.getPlayer());
+    }
+
+    /** 내 작품 목록: 클릭 = 이름 바꾸기 (채팅) · 쉬프트 클릭 = 허물기 (재료 절반이 배달함으로) */
+    private void mine(Player p) {
+        String uuid = p.getUniqueId().toString();
+        List<Artwork> list = s.artworks.mine(uuid);
+        Menu m = new Menu(Math.max(1, Math.min(6, (list.size() + 8) / 9)), "&8내 작품 " + list.size());
+        int slot = 0;
+        for (Artwork a : list) {
+            if (slot >= 54) break;
+            ArtworkKind k = s.artworks.kind(a.kind());
+            List<String> lore = List.of(Ui.gradeColor(a.quality()) + ArtGrade.name(a.quality()) + " &7" + a.quality() / 10, "&7" + k.name() + " · 감상 " + a.views(),
+                    "&8" + a.world() + " " + a.x() + ", " + a.y() + ", " + a.z() + (ArtworkService.moonlit(a) ? " &b☾" : ""), "&8클릭: 이름 · 쉬프트: 허물기");
+            m.set(slot++, Menu.icon(icon(a.kind()), "&f「" + a.title() + "」", lore), ev -> {
+                p.closeInventory();
+                if (ev.isShiftClick()) {
+                    async.run("art-remove", () -> s.artworks.remove(uuid, a.id(), false), gone -> {
+                        art.removed(gone);
+                        deliver.accept(p);
+                        Ui.bar(p, "&7「" + gone.title() + "」을(를) 허물었다");
+                    }, p);
+                } else {
+                    naming.put(p.getUniqueId(), a.id());
+                    namingUntil.put(p.getUniqueId(), System.currentTimeMillis() + 30_000);
+                    Ui.bar(p, "&e채팅으로 새 이름 (30초)");
+                }
+            });
+        }
+        m.open(p);
+    }
+
     // ------------------------------------------------------------------ 시작: 웅크리고 땅 우클릭
     @EventHandler(priority = EventPriority.HIGH)
     public void onUse(PlayerInteractEvent e) {
@@ -313,8 +349,11 @@ public final class SculptingRuntime implements Listener {
         double roll = moon ? 0.5 + rng.nextDouble() * 0.5 : rng.nextDouble();   // 달빛은 손 떨림을 줄인다
         Location at = ss.base;
         String title = ss.kind.name();
-        async.run("art-create", () -> s.artworks.create(uuid, ss.kind.id(), ss.picks, at.getWorld().getName(), at.getBlockX(), at.getBlockY(), at.getBlockZ(), ss.yaw,
-                title, region, roll), a -> {
+        async.run("art-create", () -> {
+            Artwork made = s.artworks.create(uuid, ss.kind.id(), ss.picks, at.getWorld().getName(), at.getBlockX(), at.getBlockY(), at.getBlockZ(), ss.yaw,
+                    title, region, roll);
+            return moon ? s.artworks.markMoonlit(uuid, made.id()) : made;   // 달빛 조각품은 계속 은은하게 빛난다
+        }, a -> {
             clearPreview(ss);
             art.placed(a);
             reveal(p, ss, a, moon);

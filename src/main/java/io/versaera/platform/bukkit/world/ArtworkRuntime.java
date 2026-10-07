@@ -85,6 +85,11 @@ public final class ArtworkRuntime implements Listener {
         show(a);
     }
 
+    /** 허문 작품을 치운다 */
+    public void removed(Artwork a) {
+        drop(a);
+    }
+
     /** 이름이 바뀐 작품을 다시 그린다 */
     public void replaced(Artwork a) {
         drop(a);
@@ -127,9 +132,15 @@ public final class ArtworkRuntime implements Listener {
             ItemMeta meta = it.getItemMeta();
             meta.setCustomModelData(PackIds.modelData("artwork/" + a.kind() + "/" + slot + "/" + look));
             it.setItemMeta(meta);
+            boolean moon = ArtworkService.moonlit(a);
             ItemDisplay d = w.spawn(base, ItemDisplay.class, e -> {
                 e.setItemStack(it);
                 e.setPersistent(false);
+                if (moon) {   // 달빛 조각품: 은은한 푸른 빛
+                    e.setGlowing(true);
+                    e.setGlowColorOverride(Color.fromRGB(0xA8D8FF));
+                    e.setBrightness(new Display.Brightness(15, 15));
+                }
                 e.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(sc, sc, sc), new Quaternionf()));
                 e.setViewRange(1.5f);
             });
@@ -186,6 +197,15 @@ public final class ArtworkRuntime implements Listener {
             p.addPotionEffect(new PotionEffect(PotionEffectType.LUCK, t, v.buffLevel() - 1));
             if (v.buffLevel() >= 2) p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, t, 0));
             if (v.buffLevel() >= 3) p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20 * 30, 0));
+            // 주제마다 다른 감흥: 입상 = 힘 · 짐승상 = 단단함 · 분수 = 재생 · 기념비 = 마을의 영웅 · 흉상 = 행운(위)
+            int amp = Math.max(0, v.buffLevel() - 2);
+            switch (v.artwork().kind()) {
+                case "statue" -> p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, t, amp));
+                case "beast" -> p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, t, amp));
+                case "fountain" -> p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, Math.min(t, 20 * 120), 0));
+                case "monument" -> p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, t, amp));
+                default -> { }
+            }
             p.playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1f, 1.1f);
             Ui.bar(p, "&d감동 &7" + v.buffMinutes() + "분 · 예술 경험 +1");
         }, p);

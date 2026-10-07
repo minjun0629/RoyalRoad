@@ -101,6 +101,8 @@ public interface AdventureRepository {
 
     void renameArtwork(String id, String title);
 
+    void setArtworkMaterials(String id, String materials);
+
     /** @return 오늘 처음 감상했으면 true */
     boolean viewArtwork(String artworkId, String uuid, long day);
 

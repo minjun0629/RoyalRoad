@@ -104,6 +104,8 @@ public final class NpcRuntime {
             Villager v = live.get(id);
             List<Point> near = w == null ? List.of() : players.getOrDefault(w.getName(), List.of());
             Point cur = pos.getOrDefault(id, target);
+            // 집에 갈 시간: 문 앞까지 걸어가서 안으로 들어간다 (보이지 않음). 아침이면 문 앞에서 다시 나온다
+            if (!away && !wanderers.contains(id) && "home".equals(n.placeAt(h)) && cur.dist(target) < 1.5) away = true;
             if (away || (!NpcSchedule.active(cur, near) && !NpcSchedule.active(target, near))) {
                 if (v != null) { v.remove(); live.remove(id); }
                 if (target != null) pos.put(id, target);   // 보는 사람이 없으면 바로 그 자리에
