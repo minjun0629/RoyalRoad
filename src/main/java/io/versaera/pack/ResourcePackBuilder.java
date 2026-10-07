@@ -14,8 +14,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * VersaEra 전용 리소스팩 생성기 (RP-01 · UI-01). 외부 그림 파일 없이 코드로 만든다 → 저장소에 저작권 있는 에셋이 없다.
@@ -604,19 +602,9 @@ public final class ResourcePackBuilder {
 
     private Pack zip(Map<String, Integer> models) {
         try {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            try (ZipOutputStream z = new ZipOutputStream(bytes)) {
-                for (Map.Entry<String, byte[]> f : files.entrySet()) {
-                    ZipEntry e = new ZipEntry(f.getKey());
-                    e.setTime(315532800000L);   // 1980-01-01 고정 → 결정적 바이트
-                    z.putNextEntry(e);
-                    z.write(f.getValue());
-                    z.closeEntry();
-                }
-            }
-            byte[] zip = bytes.toByteArray();
+            byte[] zip = PackProtector.write(files);   // 게임은 읽고 압축 프로그램은 못 여는 zip (RP-02)
             return new Pack(zip, MessageDigest.getInstance("SHA-1").digest(zip), Map.copyOf(models));
-        } catch (IOException | NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
     }

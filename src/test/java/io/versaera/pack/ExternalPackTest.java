@@ -32,9 +32,14 @@ class ExternalPackTest {
         try {
             String base = "http://127.0.0.1:" + http.getAddress().getPort();
             var found = ExternalPack.resolve(List.of(base + "/missing.zip", base + "/page", base + "/pack.zip"), Logger.getLogger("test")).orElseThrow();
-            assertEquals(base + "/pack.zip", found.url(), "404 · zip 아닌 응답은 건너뛴다");
+            assertTrue(found.url().startsWith(base + "/pack.zip?v="), "404 · zip 아닌 응답은 건너뛰고, 보내는 주소엔 해시가 붙는다: " + found.url());
+            assertEquals(ExternalPack.hex(pack.sha1()).substring(0, 12), found.url().substring(found.url().indexOf("v=") + 2));
             assertArrayEquals(pack.sha1(), found.sha1(), "서버가 계산한 해시 = 팩 해시");
             assertTrue(ExternalPack.resolve(List.of(base + "/page"), Logger.getLogger("test")).isEmpty());
+            var urls = ExternalPack.withDefaults(List.of(base + "/pack.zip", " ", base + "/pack.zip"));
+            assertEquals(base + "/pack.zip", urls.get(0), "config 주소가 먼저");
+            assertTrue(urls.get(1).endsWith("/main/VersaEra-ResourcePack.zip"), "그다음 저장소 맨 위의 팩");
+            assertEquals(1 + ExternalPack.DEFAULT_URLS.size(), urls.size(), "겹친 주소 · 빈 주소는 빠진다");
         } finally {
             http.stop(0);
         }

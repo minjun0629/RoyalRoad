@@ -28,11 +28,27 @@ gradle build                         # Paper 저장소에서 API 를 받아 빌�
 gradle build -PapiJar=<api.jar>      # 저장소에 접속할 수 없을 때, 가지고 있는 API jar 로 빌드
 ```
 
-결과: `build/libs/VersaEra-0.3.0.jar` (미리 빌드한 jar 는 [`dist/VersaEra-0.3.0.jar`](dist/VersaEra-0.3.0.jar))
+결과: `build/libs/VersaEra-0.3.0.jar`
 
 ```bash
-gradle buildPack                     # 리소스팩을 pack/VersaEra-pack.zip (+ .sha1) 로 내보내기
+gradle release                       # jar 와 리소스팩을 저장소 맨 위(VersaEra-0.3.0.jar · VersaEra-ResourcePack.zip)에 만든다 → 그대로 커밋 · 푸시
+gradle buildPack                     # 리소스팩만 다시 만들기
 ```
+
+## 바로 적용하기 (RpgCraft 와 같은 방식)
+
+저장소 맨 위에 두 파일이 있습니다.
+
+| 파일 | 할 일 |
+|---|---|
+| [`VersaEra-0.3.0.jar`](VersaEra-0.3.0.jar) | 받아서 서버의 `plugins/` 에 넣고 켜면 끝 |
+| [`VersaEra-ResourcePack.zip`](VersaEra-ResourcePack.zip) | **받을 필요 없음** — 플러그인이 접속한 플레이어에게 이 파일의 GitHub 주소를 보내고, 플레이어의 게임이 GitHub 에서 직접 받습니다 |
+
+- 서버 포트를 열거나 주소 · 해시를 적을 필요가 없습니다. 플레이어가 어느 IP · 어느 나라에서 접속하든 GitHub 에서 받으므로 그대로 됩니다 (저장소는 공개).
+- 팩을 새로 올리면 서버를 다시 켤 때 새 SHA-1 을 계산하고, 주소에 해시를 붙여 보내므로 GitHub 캐시 때문에 옛 팩을 받는 일이 없습니다.
+- 팩은 **보호된 zip** 입니다: 게임은 정상으로 읽지만, 탐색기 · 7-Zip · 반디집 · unzip 같은 압축 프로그램으로 열면 이름이 깨지거나 모든 파일이 손상으로 나옵니다.
+  게임이 읽을 수 있는 파일이라 프로그램을 직접 짜서 읽는 것까지 막을 수는 없습니다 — "그냥 열어 보기"를 막는 장치입니다.
+- 거절한 사람을 못 들어오게 하려면 `config.yml` 의 `pack.required: true`.
 
 ## 실행
 
@@ -57,10 +73,10 @@ worlds:
 ```
 
    (플러그인은 `load: STARTUP` 이라 기본 세계에도 쓸 수 있습니다. 기존 세계에는 새로 생기는 청크에만 적용됩니다.)
-4. **리소스팩은 GitHub 에서 내려받게 되어 있습니다.** 저장소의 [`pack/VersaEra-pack.zip`](pack/VersaEra-pack.zip) 을 `config.yml` 의 `pack.urls` (raw 주소) 로 보내므로, 서버 포트를 따로 열 필요가 없습니다.
-   - 서버가 시작할 때 그 주소에서 팩을 직접 받아 SHA-1 을 계산해 보냅니다 → 해시를 손으로 적지 않아도 됩니다.
-   - 주소를 모두 받지 못하면 내장 HTTP 서버(`pack.port`, 기본 8173)로 대신 내려 줍니다.
-   - 콘텐츠(보스 등)를 바꿨다면 `gradle buildPack` 으로 `pack/` 을 다시 만들어 GitHub 에 올리세요 (서버 로그에 "외부 리소스팩이 … 다릅니다" 경고가 나옵니다).
+4. **리소스팩은 GitHub 에서 내려받게 되어 있습니다** (위 "바로 적용하기").
+   - 서버가 시작할 때 GitHub 의 [`VersaEra-ResourcePack.zip`](VersaEra-ResourcePack.zip) 을 직접 받아 SHA-1 을 계산해 보냅니다 → 해시를 손으로 적지 않아도 됩니다.
+   - GitHub 에 접속하지 못하면 내장 HTTP 서버(`pack.port`, 기본 8173)로 대신 내려 줍니다 (이때는 포트를 열어야 다른 IP 의 플레이어가 받습니다).
+   - 콘텐츠(보스 등)를 바꿨다면 `gradle release` 로 팩을 다시 만들어 GitHub 에 올리세요 (서버 로그에 "외부 리소스팩이 … 다릅니다" 경고가 나옵니다).
 5. 던전은 전용 빈 세계 `versa_dungeons` 에 매번 새로 지어집니다 (서버를 켤 때마다 정리됨 — 그 세계에 다른 것을 짓지 마세요).
 
 ## 설정

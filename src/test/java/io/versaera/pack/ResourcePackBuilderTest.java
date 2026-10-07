@@ -17,12 +17,46 @@ import java.util.zip.ZipInputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ResourcePackBuilderTest {
-    private static Map<String, byte[]> unzip(byte[] zip) throws Exception {
-        Map<String, byte[]> m = new HashMap<>();
-        try (ZipInputStream z = new ZipInputStream(new ByteArrayInputStream(zip))) {
-            for (ZipEntry e; (e = z.getNextEntry()) != null; ) m.put(e.getName(), z.readAllBytes());
+    /** 게임(클라이언트)과 같은 방법으로 읽는다: java.util.zip.ZipFile */
+    static Map<String, byte[]> unzip(byte[] zip) throws Exception {
+        java.nio.file.Path tmp = java.nio.file.Files.createTempFile("pack", ".zip");
+        try {
+            java.nio.file.Files.write(tmp, zip);
+            Map<String, byte[]> m = new HashMap<>();
+            try (java.util.zip.ZipFile z = new java.util.zip.ZipFile(tmp.toFile())) {
+                for (var it = z.entries(); it.hasMoreElements(); ) {
+                    ZipEntry e = it.nextElement();
+                    try (var in = z.getInputStream(e)) { m.put(e.getName(), in.readAllBytes()); }
+                }
+            }
+            return m;
+        } finally {
+            java.nio.file.Files.deleteIfExists(tmp);
         }
-        return m;
+    }
+
+    @Test
+    void packIsReadableByTheGameButNotByArchiveTools() throws Exception {
+        java.util.Map<String, byte[]> src = new java.util.TreeMap<>();
+        src.put("pack.mcmeta", "{\"pack\":{\"pack_format\":15,\"description\":\"x\"}}".getBytes());
+        src.put("assets/versaera/textures/item/sword.png", new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6});
+        byte[] zip = io.versaera.pack.PackProtector.write(src);
+        Map<String, byte[]> got = unzip(zip);
+        assertEquals(src.keySet(), got.keySet(), "게임은 모든 파일을 읽는다");
+        for (String k : src.keySet()) assertArrayEquals(src.get(k), got.get(k), k);
+        // 앞에서부터 읽는 도구(탐색기 · 스트림 해제)는 이름이 다르고 내용이 비거나 손상으로 본다
+        boolean broken = false;
+        try (ZipInputStream z = new ZipInputStream(new ByteArrayInputStream(zip))) {
+            for (ZipEntry e; (e = z.getNextEntry()) != null; ) {
+                if (!src.containsKey(e.getName())) broken = true;
+                byte[] b = z.readAllBytes();
+                if (!java.util.Arrays.equals(b, src.get(e.getName()))) broken = true;
+            }
+        } catch (java.io.IOException ex) {
+            broken = true;
+        }
+        assertTrue(broken, "압축 프로그램 방식으로는 제대로 풀리지 않는다");
+        assertArrayEquals(zip, io.versaera.pack.PackProtector.write(src), "결정적 (SHA-1 이 바뀌지 않는다)");
     }
 
 

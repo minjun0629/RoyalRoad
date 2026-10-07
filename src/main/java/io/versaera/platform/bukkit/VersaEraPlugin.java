@@ -244,7 +244,8 @@ public final class VersaEraPlugin extends JavaPlugin {
         PackSender sender = new PackSender(this);
         Bukkit.getPluginManager().registerEvents(sender, this);
         io.versaera.platform.bukkit.ui.Menu.background = getConfig().getBoolean("pack.menu-background", true);
-        List<String> urls = getConfig().getStringList("pack.urls");
+        sender.prompt(getConfig().getString("pack.prompt", "VersaEra 전용 리소스팩 (아이템 · 보스 · 메뉴 그림)"), getConfig().getBoolean("pack.required", false));
+        List<String> urls = getConfig().getBoolean("pack.github", true) ? ExternalPack.withDefaults(getConfig().getStringList("pack.urls")) : List.of();
         if (urls.isEmpty()) {
             hostPack(sender, built);
             return;
@@ -257,7 +258,7 @@ public final class VersaEraPlugin extends JavaPlugin {
                 getLogger().info("리소스팩 (외부) " + f.size() / 1024 + "KB · sha1 " + ExternalPack.hex(f.sha1()) + " · " + f.url());
                 if (!java.util.Arrays.equals(f.sha1(), built.sha1()))
                     getLogger().warning("외부 리소스팩이 이 플러그인이 만든 팩(sha1 " + built.sha1Hex() + ")과 다릅니다. "
-                            + "콘텐츠를 바꿨다면 gradle buildPack 으로 pack/VersaEra-pack.zip 을 다시 만들어 올리세요.");
+                            + "콘텐츠를 바꿨다면 gradle buildPack 으로 VersaEra-ResourcePack.zip 을 다시 만들어 저장소 맨 위에 올리세요.");
             } else {
                 getLogger().warning("pack.urls 의 주소를 모두 받지 못했습니다 — 내장 서버로 내려 줍니다");
                 Bukkit.getScheduler().runTask(this, () -> hostPack(sender, built));

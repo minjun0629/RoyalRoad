@@ -18,9 +18,24 @@ public final class PackSender implements Listener {
     private final Plugin plugin;
     private volatile String url;
     private volatile byte[] sha1;
+    private volatile String prompt = "";
+    private volatile boolean required;
 
     public PackSender(Plugin plugin) {
         this.plugin = plugin;
+    }
+
+    /** 받기 창 문구 · 필수 여부 (필수면 거절한 사람은 접속이 끊긴다 — 클라이언트 규칙) */
+    public void prompt(String prompt, boolean required) {
+        this.prompt = prompt == null ? "" : prompt;
+        this.required = required;
+    }
+
+    private void send(Player p) {
+        String u = url;
+        if (u == null) return;
+        if (prompt.isEmpty() && !required) p.setResourcePack(u, sha1);
+        else p.setResourcePack(u, sha1, Ui.c(prompt), required);
     }
 
     /** 새 팩 주소. 이미 접속한 사람에게도 바로 보낸다 */
@@ -28,7 +43,7 @@ public final class PackSender implements Listener {
         this.url = url;
         this.sha1 = sha1;
         Bukkit.getScheduler().runTask(plugin, () -> {
-            for (Player p : Bukkit.getOnlinePlayers()) p.setResourcePack(url, sha1);
+            for (Player p : Bukkit.getOnlinePlayers()) send(p);
         });
     }
 
@@ -40,8 +55,7 @@ public final class PackSender implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            String u = url;
-            if (p.isOnline() && u != null) p.setResourcePack(u, sha1);
+            if (p.isOnline()) send(p);
         }, 20L);
     }
 
