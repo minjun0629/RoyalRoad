@@ -118,9 +118,20 @@ public final class VersaEraPlugin extends JavaPlugin {
         startupError = t;
         getLogger().log(Level.SEVERE, "VersaEra 시작 실패 — 안전 모드로 켜 둡니다 (아래 오류를 개발자에게 보내 주세요)", t);
         String why = describe(t);
+        // 전체 오류를 파일로 — 콘솔을 뒤지지 않아도 이 파일 하나만 보내면 된다
+        try {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            t.printStackTrace(new java.io.PrintWriter(sw));
+            getDataFolder().mkdirs();
+            java.nio.file.Files.writeString(new File(getDataFolder(), "startup-error.txt").toPath(), "VersaEra " + getDescription().getVersion()
+                    + " · " + Bukkit.getVersion() + " · Java " + System.getProperty("java.version") + " · " + System.getProperty("os.name") + "\n"
+                    + java.time.LocalDateTime.now() + "\n\n" + why + "\n\n" + sw);
+        } catch (Exception ignored) {
+            // 파일을 못 써도 로그 · 채팅 안내는 남는다
+        }
         org.bukkit.command.CommandExecutor tell = (sender, cmd, label, args) -> {
             sender.sendMessage(Ui.error("VersaEra 가 시작하지 못했습니다: " + why));
-            sender.sendMessage(Ui.c("&7자세한 내용: logs/latest.log 의 'VersaEra 시작 실패' 아래"));
+            sender.sendMessage(Ui.c("&7자세한 내용: plugins/VersaEra/startup-error.txt (이 파일을 보내 주세요)"));
             return true;
         };
         for (Object c : getDescription().getCommands().keySet()) {
@@ -130,7 +141,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new org.bukkit.event.Listener() {
             @org.bukkit.event.EventHandler
             public void onJoin(org.bukkit.event.player.PlayerJoinEvent e) {
-                if (e.getPlayer().isOp()) e.getPlayer().sendMessage(Ui.error("[VersaEra] 시작 실패: " + why + " — logs/latest.log 확인"));
+                if (e.getPlayer().isOp()) e.getPlayer().sendMessage(Ui.error("[VersaEra] 시작 실패: " + why + " — plugins/VersaEra/startup-error.txt"));
             }
         }, this);
     }
@@ -188,6 +199,7 @@ public final class VersaEraPlugin extends JavaPlugin {
     private void start() throws Exception {
         {
             saveDefaultConfig();
+            new File(getDataFolder(), "startup-error.txt").delete();
             syncContent();
             db = Database.open("jdbc:sqlite:" + new File(getDataFolder(), "versaera.db").getAbsolutePath());
             int applied = new Migrator(db).migrate(Migrator.fromClasspath(getClassLoader()));
@@ -301,7 +313,11 @@ public final class VersaEraPlugin extends JavaPlugin {
                 new io.versaera.platform.bukkit.world.TrainingDummies(this, services, async),
                 new StationListener(services, async, codec, sessions), new MenuListener()))
             Bukkit.getPluginManager().registerEvents(l, this);
-        startPack();
+        try {
+            startPack();   // 리소스팩은 없어도 게임은 돈다 — 실패해도 나머지는 켠다
+        } catch (Throwable t) {
+            getLogger().log(Level.WARNING, "리소스팩 준비 실패 — 팩 없이 계속합니다: " + describe(t), t);
+        }
         // 직업이 바뀌면 전투 효과 · 스킬 목록을 다시 읽는다 (이벤트는 DB 스레드에서 옴)
         services.bus.subscribe(io.versaera.domain.event.GameEvents.JobChanged.class, ev -> {
             combat.warm(ev.uuid());
@@ -351,7 +367,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         io.versaera.pack.ResourcePackBuilder.Pack built;
         try {
             built = io.versaera.pack.ResourcePackBuilder.build(services.content);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | Error e) {
             getLogger().log(Level.WARNING, "리소스팩을 만들지 못했습니다 — 팩 없이 계속합니다", e);
             return;
         }
