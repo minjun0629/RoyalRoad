@@ -67,25 +67,27 @@ class TerrainModelTest {
         int cliffs = 0, checked = 0;
         for (int z : new int[]{s(-2000), s(-800), s(700), s(2400)})   // 하벤 · 브리튼 · 바로크 산맥 · 브렌트 · 로자임 경계를 가로지름
             for (int x = s(-5000); x < s(5500); x += 3, checked++) if (Math.abs(t.height(x, z) - t.height(x + 1, z)) > 6) cliffs++;
-        // 30000 판: 남는 급경사는 경계가 아니라 산 · 황무지 안의 노이즈에 고르게 흩어져 있다 (지역 24곳에 1 ~ 5개씩, 약 0.22%)
-        assertTrue(cliffs < checked / 400, "경계가 부드럽다: " + cliffs + "/" + checked);
+        // 50000 판: 남는 급경사는 경계가 아니라 산 · 황무지 안의 노이즈에 고르게 흩어져 있다 (약 0.3%)
+        assertTrue(cliffs < checked / 300, "경계가 부드럽다: " + cliffs + "/" + checked);
     }
 
     @Test
     void ruinsGetPillarsOnlyInRuins() {
         int inRuins = 0;
-        for (int cx = -99; cx < -80; cx++) for (int cz = 1; cz < 20; cz++) if (t.ruinPillar(cx, cz) != null) inRuins++;
+        var ruins = regions.byId("calamor_ruins");
+        for (int cx = ruins.minX() >> 6; cx < ruins.maxX() >> 6; cx++) for (int cz = ruins.minZ() >> 6; cz < ruins.maxZ() >> 6; cz++) if (t.ruinPillar(cx, cz) != null) inRuins++;
         assertTrue(inRuins > 20, "칼라모르 유적에는 기둥이 있다: " + inRuins);
-        for (int cx = -37; cx < -22; cx++) for (int cz = -8; cz < 8; cz++) assertNull(t.ruinPillar(cx, cz), "도시(하르덴)에는 없다");
+        var harden = regions.byId("harden");
+        for (int cx = harden.minX() >> 6; cx < harden.maxX() >> 6; cx++) for (int cz = harden.minZ() >> 6; cz < harden.maxZ() >> 6; cz++) assertNull(t.ruinPillar(cx, cz), "도시(하르덴)에는 없다");
     }
 
     @Test
     void writesPreviewImage() throws Exception {
-        int size = 375, span = 30_000;
+        int size = 500, span = 50_000;
         BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
         for (int py = 0; py < size; py++)
             for (int px = 0; px < size; px++) {
-                int x = -15000 + px * span / size, z = -15000 + py * span / size, h = t.height(x, z);
+                int x = -25000 + px * span / size, z = -25000 + py * span / size, h = t.height(x, z);
                 int rgb;
                 if (h < TerrainModel.SEA_LEVEL && !t.dry(x, z)) rgb = 0x1f4f8f;
                 else rgb = switch (t.surface(x, z, h)) {

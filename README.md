@@ -64,7 +64,7 @@ gradle buildPack                     # 리소스팩만 다시 만들기
 | `hidden.sealed` | 봉인된 히든 규칙 (`/va hidden generate` 또는 `/va seal`) |
 
 3. 기본 세계는 플러그인이 `bukkit.yml` 에 `worlds.<level-name>.generator: VersaEra` 를 자동으로 넣어 VersaEra 지형으로 만듭니다 (`config.yml` 의 `world.auto-generator`). 이미 야생 지형으로 만들어진 세계라면 서버를 끄고 `world`, `world_nether`, `world_the_end` 폴더를 지운 뒤(또는 `/va 초기화 전체 확인` 후) 다시 켜세요.
-   지역 좌표(`content/regions.yml`)는 30000 × 30000 월드 기준입니다 (가운데 22500 × 22500 이 베르사 대륙, 바깥은 신대륙 · 극지). 다른 차원(거인계 · 신계 등)은 플러그인이 시작할 때 세계 `versa_realms` 를 자동으로 만듭니다 (`config.yml` 의 `realms.enabled`). 지역에 맞는 땅을 만들려면 **새 세계**를 VersaEra 생성기로 만듭니다:
+   지역 좌표(`content/regions.yml`)는 50000 × 50000 월드 기준입니다 (가운데 37500 × 37500 이 베르사 대륙, 바깥은 신대륙 · 극지). 다른 차원(거인계 · 신계 등)은 플러그인이 시작할 때 세계 `versa_realms` 를 자동으로 만듭니다 (`config.yml` 의 `realms.enabled`). 지역에 맞는 땅을 만들려면 **새 세계**를 VersaEra 생성기로 만듭니다:
 
 ```yaml
 # bukkit.yml

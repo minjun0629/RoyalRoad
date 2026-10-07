@@ -1,15 +1,15 @@
-# NPC 일과 장소 (x, z) — 30000 × 30000 세계 좌표. 높이는 지형에서 찾는다. 각 NPC 의 schedule 에 나온 장소는 모두 여기 있어야 하고, NPC 의 지역 안이어야 한다.
+# NPC 일과 장소 (x, z) — 50000 × 50000 세계 좌표. 높이는 지형에서 찾는다. 각 NPC 의 schedule 에 나온 장소는 모두 여기 있어야 하고, NPC 의 지역 안이어야 한다.
 # 좌표는 regions.yml 의 원작 기반 배치를 따른다 (하르덴 = 하벤 옛 영토, 로자임 항 = 로자임 동쪽 만, 아이언 핸드(깊은 망치) = 토르 왕국 산지 …)
 places:
-  oren_smith:       {forge: [844, -5531], tavern: [975, -5400], home: [750, -5250]}
-  liese_weaver:     {loom: [-75, -7350], square: [0, -7312], home: [-131, -7406]}
-  bram_sculptor:    {garden: [112, -7238], workshop: [66, -7294], home: [150, -7388]}
-  kael_trader:      {exchange: [-1856, 38], home: [-1988, 150]}
-  mira_cook:        {tavern: [-1800, -56], home: [-1744, -131]}
-  sena_archivist:   {dig_site: [-5719, 656], camp: [-5625, 562]}
-  tobi_fisher:      {pier: [9000, 6844], market: [8438, 6562], home: [8250, 6375]}
-  yuna_alchemist:   {lab: [-1500, 7875], library: [-1425, 7781]}
-  dariq_caravan:    {caravanserai: [1312, 9938]}
-  hana_scout:       {palisade: [-5625, -3000], bunk: [-5812, -2944]}
-  garen_instructor: {drill_yard: [-2100, -225], barracks: [-2156, -300]}
-  verik_fence:      {den: [9600, 1500]}
+  oren_smith:       {forge: [1471, -9156], tavern: [1602, -9025], home: [1250, -8750]}
+  liese_weaver:     {loom: [-74, -12349], square: [0, -12187], home: [-130, -12405]}
+  bram_sculptor:    {garden: [187, -12063], workshop: [110, -12157], home: [151, -12387]}
+  kael_trader:      {exchange: [-3105, 39], home: [-3237, 151]}
+  mira_cook:        {tavern: [-3049, -55], home: [-2993, -130]}
+  sena_archivist:   {dig_site: [-9532, 1093], camp: [-9375, 937]}
+  tobi_fisher:      {pier: [15000, 11407], market: [14158, 10937], home: [13750, 10625]}
+  yuna_alchemist:   {lab: [-2499, 13126], library: [-2424, 13032]}
+  dariq_caravan:    {caravanserai: [2187, 16563]}
+  hana_scout:       {palisade: [-9374, -4999], bunk: [-9687, -4907]}
+  garen_instructor: {drill_yard: [-3500, -375], barracks: [-3593, -500]}
+  verik_fence:      {den: [16000, 2500]}
