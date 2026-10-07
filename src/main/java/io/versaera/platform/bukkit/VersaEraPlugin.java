@@ -98,15 +98,107 @@ public final class VersaEraPlugin extends JavaPlugin {
         }
     }
 
+    /** 시작에 실패했을 때의 원인 (안전 모드 — 플러그인을 끄지 않고 명령 · 접속 때 알려 준다) */
+    private volatile Throwable startupError;
+
     @Override
     public void onEnable() {
         try {
+            start();
+        } catch (Throwable t) {
+            safeMode(t);
+        }
+    }
+
+    /**
+     * 시작 실패: 플러그인을 끄면 모든 명령이 "internal error" 로만 보여 원인을 알 수 없다 → 켜 둔 채 모든 VersaEra 명령과 관리자 접속 때
+     * 원인 한 줄과 로그 위치를 알려 준다.
+     */
+    private void safeMode(Throwable t) {
+        startupError = t;
+        getLogger().log(Level.SEVERE, "VersaEra 시작 실패 — 안전 모드로 켜 둡니다 (아래 오류를 개발자에게 보내 주세요)", t);
+        String why = describe(t);
+        org.bukkit.command.CommandExecutor tell = (sender, cmd, label, args) -> {
+            sender.sendMessage(Ui.error("VersaEra 가 시작하지 못했습니다: " + why));
+            sender.sendMessage(Ui.c("&7자세한 내용: logs/latest.log 의 'VersaEra 시작 실패' 아래"));
+            return true;
+        };
+        for (Object c : getDescription().getCommands().keySet()) {
+            var pc = getCommand(String.valueOf(c));
+            if (pc != null) { pc.setExecutor(tell); pc.setTabCompleter((a, b, l, x) -> List.of()); }
+        }
+        Bukkit.getPluginManager().registerEvents(new org.bukkit.event.Listener() {
+            @org.bukkit.event.EventHandler
+            public void onJoin(org.bukkit.event.player.PlayerJoinEvent e) {
+                if (e.getPlayer().isOp()) e.getPlayer().sendMessage(Ui.error("[VersaEra] 시작 실패: " + why + " — logs/latest.log 확인"));
+            }
+        }, this);
+    }
+
+    /** 예외 한 줄 요약: 종류 · 메시지 · VersaEra 코드의 첫 위치 (원인까지 따라감) */
+    static String describe(Throwable t) {
+        Throwable root = t;
+        while (root.getCause() != null && root.getCause() != root) root = root.getCause();
+        String where = "";
+        for (StackTraceElement el : root.getStackTrace())
+            if (el.getClassName().startsWith("io.versaera")) { where = " @ " + el.getClassName().substring(el.getClassName().lastIndexOf('.') + 1) + ":" + el.getLineNumber(); break; }
+        String msg = t == root ? String.valueOf(root.getMessage()) : t.getMessage() + " ← " + root.getMessage();
+        return root.getClass().getSimpleName() + ": " + msg + where;
+    }
+
+    /**
+     * plugins/VersaEra/content/*.yml 을 플러그인에 든 버전에 맞춘다.
+     * 우리가 마지막으로 쓴 그대로(손대지 않음)면 새 버전으로 바꾸고, 관리자가 고친 파일은 content/backup-시각/ 에 옮겨 둔 뒤 바꾼다
+     * (옛 yml 이 새 코드와 맞지 않아 시작이 실패하는 것을 막는다). 마지막으로 쓴 해시는 content/.bundled 에 남긴다.
+     */
+    private void syncContent() throws Exception {
+        File dir = new File(getDataFolder(), "content"), marks = new File(dir, ".bundled");
+        marks.mkdirs();
+        File backup = new File(dir, "backup-" + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")));
+        for (String f : ContentBundle.FILES) {
+            byte[] bundled;
+            try (InputStream in = getResource("content/" + f)) {
+                if (in == null) continue;
+                bundled = in.readAllBytes();
+            }
+            File target = new File(dir, f), mark = new File(marks, f + ".sha1");
+            String want = hex(sha256(bundled));
+            if (target.exists()) {
+                String have = hex(sha256(java.nio.file.Files.readAllBytes(target.toPath())));
+                if (have.equals(want)) { java.nio.file.Files.writeString(mark.toPath(), want); continue; }
+                String last = mark.exists() ? java.nio.file.Files.readString(mark.toPath()).strip() : "";
+                if (!have.equals(last)) {   // 관리자가 고친 파일 (또는 표시가 없는 옛 버전) → 백업
+                    backup.mkdirs();
+                    java.nio.file.Files.copy(target.toPath(), new File(backup, f).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    getLogger().warning("content/" + f + " 를 새 버전으로 바꿨습니다 — 예전 파일은 " + backup.getName() + "/ 에 있습니다");
+                }
+            }
+            target.getParentFile().mkdirs();
+            java.nio.file.Files.write(target.toPath(), bundled);
+            java.nio.file.Files.writeString(mark.toPath(), want);
+        }
+    }
+
+    private static String hex(byte[] b) {
+        StringBuilder sb = new StringBuilder();
+        for (byte x : b) sb.append(String.format("%02x", x));
+        return sb.toString();
+    }
+
+    private void start() throws Exception {
+        {
             saveDefaultConfig();
-            for (String f : ContentBundle.FILES) if (!new File(getDataFolder(), "content/" + f).exists()) saveResource("content/" + f, false);
+            syncContent();
             db = Database.open("jdbc:sqlite:" + new File(getDataFolder(), "versaera.db").getAbsolutePath());
             int applied = new Migrator(db).migrate(Migrator.fromClasspath(getClassLoader()));
             getLogger().info("DB 마이그레이션 " + applied + "개 적용");
-            ContentBundle content = ContentBundle.load(f -> open(new File(getDataFolder(), "content/" + f)));
+            ContentBundle content;
+            try {
+                content = ContentBundle.load(f -> open(new File(getDataFolder(), "content/" + f)));
+            } catch (RuntimeException e) {   // 고친 yml 에 오류 → 플러그인에 든 콘텐츠로라도 켠다
+                getLogger().log(Level.SEVERE, "content/ 의 yml 에 오류가 있어 플러그인에 든 기본 콘텐츠로 켭니다: " + describe(e), e);
+                content = ContentBundle.fromClasspath(getClassLoader());
+            }
             ZoneId zone = ZoneId.of(getConfig().getString("timezone", "Asia/Seoul"));
             services = new GameServices(db, content, GameClock.SYSTEM, zone, getLogger());
             // 원작 규칙 (config.yml): 시간 4배 · 원작식 사망 (숙련 · 스탯 하락 · 아이템 드롭)
@@ -118,10 +210,6 @@ public final class VersaEraPlugin extends JavaPlugin {
             int lostRuns = exec.submit("recover-dungeons", services.dungeons::recover).join();
             int lostFights = exec.submit("recover-bosses", services.bosses::recover).join();
             if (lostRuns + lostFights > 0) getLogger().warning("지난 실행의 던전 " + lostRuns + "판 · 보스 전투 " + lostFights + "건을 실패로 정리했습니다 (보상 없음, 손실 없음)");
-        } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "VersaEra 시작 실패 — 플러그인을 끕니다", e);
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
         }
         Async async = new Async(this, exec);
         io.versaera.platform.bukkit.world.TimeRuntime clock = new io.versaera.platform.bukkit.world.TimeRuntime(this, services);
