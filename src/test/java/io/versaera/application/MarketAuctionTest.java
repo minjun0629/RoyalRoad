@@ -118,4 +118,18 @@ class MarketAuctionTest {
             assertEquals(2, w.s.items.pendingBulk(seller).size());
         }
     }
+
+    @Test
+    void cancelAllTakesDownEveryMarketAndReturnsGoods() throws Exception {
+        try (TestWorld w = new TestWorld()) {
+            String seller = TestWorld.player();
+            w.s.auctions.listBulk(seller, "harden", "wheat_sheaf", 500, 10, 50);
+            w.s.auctions.listBulk(seller, "rosaim", "salmon", 500, 5, 80);
+            assertEquals(2, w.s.auctions.mine(seller).size());
+            assertEquals(2, w.s.auctions.cancelAll(seller));
+            assertTrue(w.s.auctions.mine(seller).isEmpty());
+            assertEquals(2, w.s.items.pendingBulk(seller).size(), "모두 배달함으로");
+            assertEquals(0, w.s.auctions.cancelAll(seller));
+        }
+    }
 }

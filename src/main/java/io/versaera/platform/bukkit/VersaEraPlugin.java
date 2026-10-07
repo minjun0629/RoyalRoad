@@ -426,7 +426,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         getCommand("versa").setExecutor(pc);
         getCommand("trade").setExecutor(pc);
         GameCommands gc = new GameCommands(services, async, codec, sessions::deliver, p -> facts(p.getUniqueId().toString(), regions), dungeons);
-        for (String c : List.of("job", "quest", "guild", "auction", "dungeon")) getCommand(c).setExecutor(gc);
+        for (String c : List.of("job", "quest", "guild", "auction", "dungeon", "mailbox")) getCommand(c).setExecutor(gc);
         AdminCommand ac = new AdminCommand(services, async, codec, npcs, bosses, getDataFolder(), sealer, sessions::deliver);
         getCommand("versaadmin").setExecutor(ac);
         getCommand("versaadmin").setTabCompleter(ac);

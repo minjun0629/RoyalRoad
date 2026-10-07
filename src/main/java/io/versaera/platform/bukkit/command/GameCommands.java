@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * 플레이어 명령: /직업 · /의뢰 · /길드 · /경매 · /던전. 창은 아이콘 + 이름 + 숫자만.
+ * 플레이어 명령: /직업 · /의뢰 · /길드 · /경매 · /던전 · /배달함. 창은 아이콘 + 이름 + 숫자만.
  */
 public final class GameCommands implements CommandExecutor {
     private final GameServices s;
@@ -61,6 +61,7 @@ public final class GameCommands implements CommandExecutor {
             case "guild" -> guild(p, a);
             case "auction" -> auction(p, a);
             case "dungeon" -> dungeon(p, a);
+            case "mailbox" -> mailbox(p);
             default -> { }
         }
         return true;
@@ -225,12 +226,18 @@ public final class GameCommands implements CommandExecutor {
     }
 
     private void auction(Player p, String[] a) {
+        String id = p.getUniqueId().toString();
+        // 어디서나: 내 매물 (모든 시장) · 모두 내리기
+        if (a.length >= 1 && (a[0].equals("내매물") || a[0].equals("mine"))) { myListings(p); return; }
+        if (a.length >= 1 && (a[0].equals("모두내리기") || a[0].equals("cancelall"))) {
+            async.run("auction-cancel-all", () -> s.auctions.cancelAll(id), n -> { p.sendMessage(Ui.info("내림 " + n)); deliver.accept(p); }, p);
+            return;
+        }
         String market = marketAt(p);
         if (market == null) { p.sendMessage(Ui.error("시장이 있는 도시에서만 쓸 수 있습니다")); return; }
-        String id = p.getUniqueId().toString();
         if (a.length >= 2 && (a[0].equals("등록") || a[0].equals("sell"))) {
             long price;
-            try { price = Long.parseLong(a[1]); } catch (NumberFormatException e) { p.sendMessage(Ui.error("/경매 등록 <가격>")); return; }
+            try { price = Long.parseLong(a[1].replace(",", "")); } catch (NumberFormatException e) { p.sendMessage(Ui.error("/경매 등록 <가격>")); return; }
             ItemStack hand = p.getInventory().getItemInMainHand();
             String unique = codec.instanceId(hand);
             if (unique != null) {
@@ -248,26 +255,104 @@ public final class GameCommands implements CommandExecutor {
                     err -> deliver.accept(p), p);   // 실패하면 서비스가 배달함으로 돌려준다
             return;
         }
-        String filter = a.length >= 1 ? a[0] : null;
-        async.run("auction-browse", () -> new Object[]{s.auctions.browse(market, filter != null && codec.types().has(filter) ? filter : null, 45),
-                s.auctions.mine(id)}, r -> {
-            @SuppressWarnings("unchecked") List<MarketRepository.Listing> list = (List<MarketRepository.Listing>) r[0];
+        // 찾기: id 또는 이름 일부 (예: /경매 철) → 맞는 종류만
+        String query = a.length >= 1 ? String.join(" ", a).trim() : null;
+        Set<String> types = query == null ? null : new HashSet<>();
+        if (query != null)
+            for (var t : codec.types().all())
+                if (t.id().equalsIgnoreCase(query) || t.name().contains(query)) types.add(t.id());
+        if (types != null && types.isEmpty()) { p.sendMessage(Ui.error("그런 물건이 없습니다: " + query)); return; }
+        String only = types != null && types.size() == 1 ? types.iterator().next() : null;
+        async.run("auction-browse", () -> new Object[]{s.auctions.browse(market, only, 100), s.auctions.mine(id), s.economy.balance(id)}, r -> {
+            @SuppressWarnings("unchecked") List<MarketRepository.Listing> list = new ArrayList<>((List<MarketRepository.Listing>) r[0]);
             @SuppressWarnings("unchecked") List<MarketRepository.Listing> mine = (List<MarketRepository.Listing>) r[1];
-            Menu m = new Menu(6, "&8" + s.market.catalog().market(market).name() + " 경매");
+            if (types != null) list.removeIf(l -> !types.contains(l.typeId()));
+            browse(p, a, market, list, mine.size(), (Long) r[2], 0, false);
+        }, p);
+    }
+
+    /** 경매 목록 한 쪽 (45칸). 아래 줄: 이전 · 정렬 · 내 매물 · 배달함 · 다음 */
+    private void browse(Player p, String[] a, String market, List<MarketRepository.Listing> all, int mineCount, long balance, int page, boolean newest) {
+        String id = p.getUniqueId().toString();
+        List<MarketRepository.Listing> list = new ArrayList<>(all);
+        if (newest) list.sort(Comparator.comparingLong(MarketRepository.Listing::createdAt).reversed());
+        else list.sort(Comparator.comparingDouble((MarketRepository.Listing l) -> (double) l.price() / Math.max(1, l.amount())).thenComparingLong(MarketRepository.Listing::createdAt));
+        int pages = Math.max(1, (list.size() + 44) / 45), pg = Math.max(0, Math.min(page, pages - 1));
+        Menu m = new Menu(6, "&8" + s.market.catalog().market(market).name() + " 경매 " + (pg + 1) + "/" + pages);
+        long now = System.currentTimeMillis();
+        for (int i = 0; i < 45 && pg * 45 + i < list.size(); i++) {
+            var l = list.get(pg * 45 + i);
+            boolean own = l.seller().equals(id);
+            ItemStack icon = listingIcon(l, List.of("&e" + l.price() + " &7(개당 " + Math.max(1, l.price() / Math.max(1, l.amount())) + ")", "&7x" + l.amount(),
+                    "&8" + left(l.expiresAt() - now), own ? "&8내 물건 · 클릭: 내리기" : "&8클릭: 사기"));
+            m.set(i, icon, e -> {
+                if (own) async.run("auction-cancel", () -> { s.auctions.cancel(id, l.id()); return null; }, v -> { deliver.accept(p); auction(p, a); }, p);
+                else confirmBuy(p, a, l, balance);
+            });
+        }
+        if (pg > 0) m.set(45, Menu.icon(Material.ARROW, "&f이전", List.of()), e -> browse(p, a, market, all, mineCount, balance, pg - 1, newest));
+        m.set(47, Menu.icon(Material.HOPPER, newest ? "&f최신순" : "&f싼 순", List.of("&8클릭: 바꾸기")), e -> browse(p, a, market, all, mineCount, balance, 0, !newest));
+        m.set(49, Menu.ui("auction", Material.CHEST, "&f내 매물 " + mineCount + "/" + io.versaera.application.AuctionService.MAX_OPEN, List.of("&8클릭: 보기 · 내리기")), e -> myListings(p));
+        m.set(51, Menu.icon(Material.ENDER_CHEST, "&f배달함 받기", List.of()), e -> { deliver.accept(p); p.closeInventory(); });
+        if (pg < pages - 1) m.set(53, Menu.icon(Material.ARROW, "&f다음", List.of()), e -> browse(p, a, market, all, mineCount, balance, pg + 1, newest));
+        m.open(p);
+    }
+
+    private ItemStack listingIcon(MarketRepository.Listing l, List<String> lore) {
+        ItemStack icon = codec.bulk(l.typeId(), l.quality(), Math.max(1, Math.min(64, l.amount())));
+        var meta = icon.getItemMeta();
+        List<String> lines = new ArrayList<>();
+        for (String x : lore) lines.add(Ui.c(x));
+        meta.setLore(lines);
+        icon.setItemMeta(meta);
+        return icon;
+    }
+
+    private static String left(long ms) {
+        if (ms <= 0) return "곧 끝남";
+        long h = ms / 3_600_000L, mi = ms / 60_000L % 60;
+        return h > 0 ? h + "시간 " + mi + "분 남음" : mi + "분 남음";
+    }
+
+    /** 사기 전에 한 번 더: 값 · 남는 돈 */
+    private void confirmBuy(Player p, String[] a, MarketRepository.Listing l, long balance) {
+        String id = p.getUniqueId().toString();
+        Menu m = new Menu(3, "&8사시겠습니까?");
+        m.set(13, listingIcon(l, List.of("&e" + l.price(), "&7x" + l.amount(), "&7남는 돈 " + (balance - l.price()))), null);
+        m.set(11, Menu.icon(Material.LIME_WOOL, "&a사기", List.of("&e-" + l.price())),
+                e -> async.run("auction-buy", () -> s.auctions.buy(id, l.id()), v -> { p.sendMessage(Ui.info("-" + l.price())); deliver.accept(p); auction(p, a); }, p));
+        m.set(15, Menu.icon(Material.RED_WOOL, "&c그만두기", List.of()), e -> auction(p, a));
+        m.open(p);
+    }
+
+    /** 내 매물 (모든 시장): 시장 · 값 · 남은 시간, 클릭 = 내리기 (배달함으로) */
+    private void myListings(Player p) {
+        String id = p.getUniqueId().toString();
+        async.run("auction-mine", () -> s.auctions.mine(id), mine -> {
+            Menu m = new Menu(3, "&8내 매물 " + mine.size() + "/" + io.versaera.application.AuctionService.MAX_OPEN);
+            long now = System.currentTimeMillis();
             int slot = 0;
-            for (var l : list) {
-                if (slot > 44) break;
-                ItemStack icon = codec.bulk(l.typeId(), l.quality(), Math.min(64, l.amount()));
-                var meta = icon.getItemMeta();
-                meta.setLore(List.of(Ui.c("&e" + l.price()), Ui.c("&7x" + l.amount()), Ui.c(l.seller().equals(id) ? "&8내 물건 · 클릭: 내리기" : "&8클릭: 사기")));
-                icon.setItemMeta(meta);
-                m.set(slot++, icon, e -> {
-                    if (l.seller().equals(id)) async.run("auction-cancel", () -> { s.auctions.cancel(id, l.id()); return null; }, v -> { deliver.accept(p); auction(p, a); }, p);
-                    else async.run("auction-buy", () -> s.auctions.buy(id, l.id()), v -> { p.sendMessage(Ui.info("-" + l.price())); deliver.accept(p); auction(p, a); }, p);
-                });
+            for (var l : mine) {
+                if (slot > 17) break;
+                String mk = s.market.catalog().markets().containsKey(l.market()) ? s.market.catalog().market(l.market()).name() : l.market();
+                m.set(slot++, listingIcon(l, List.of("&e" + l.price(), "&7x" + l.amount(), "&7" + mk, "&8" + left(l.expiresAt() - now), "&8클릭: 내리기")),
+                        e -> async.run("auction-cancel", () -> { s.auctions.cancel(id, l.id()); return null; }, v -> { deliver.accept(p); myListings(p); }, p));
             }
-            m.set(49, Menu.ui("auction", Material.CHEST, "&f내 매물 " + mine.size() + "/" + io.versaera.application.AuctionService.MAX_OPEN, List.of("&8/경매 등록 <가격>")), null);
+            if (!mine.isEmpty())
+                m.set(22, Menu.icon(Material.BARRIER, "&c모두 내리기", List.of("&8물건은 배달함으로")),
+                        e -> async.run("auction-cancel-all", () -> s.auctions.cancelAll(id), n -> { p.sendMessage(Ui.info("내림 " + n)); deliver.accept(p); myListings(p); }, p));
+            m.set(26, Menu.icon(Material.ENDER_CHEST, "&f배달함 받기", List.of()), e -> { deliver.accept(p); p.closeInventory(); });
             m.open(p);
+        }, p);
+    }
+
+    /** /배달함 — 가득 차서 못 받은 물건 받기 */
+    private void mailbox(Player p) {
+        String id = p.getUniqueId().toString();
+        async.run("mailbox", () -> s.items.pendingDeliveries(id).size() + s.items.pendingBulk(id).size(), n -> {
+            if (n == 0) { p.sendMessage(Ui.info("배달함이 비어 있습니다")); return; }
+            if (p.getInventory().firstEmpty() < 0) p.sendMessage(Ui.error("가방이 가득 찼습니다 — " + n + "개 대기"));
+            deliver.accept(p);
         }, p);
     }
 

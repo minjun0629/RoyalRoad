@@ -158,6 +158,19 @@ public final class AuctionService {
         });
     }
 
+    /** 내 매물 모두 내리기 (모든 시장) — 내린 개수. 물건은 배달함으로 */
+    public int cancelAll(String uuid) {
+        return tx.inTx(() -> {
+            int n = 0;
+            for (Listing l : repo.bySeller(uuid, "OPEN"))
+                if (repo.close(l.id(), "OPEN", "CANCELLED", null, clock.nowMillis())) {
+                    giveBack(l, "AUCTION_CANCELLED");
+                    n++;
+                }
+            return n;
+        });
+    }
+
     /** 만료 처리 (주기적으로) — 돌려준 개수 */
     public int expire(int limit) {
         return tx.inTx(() -> {

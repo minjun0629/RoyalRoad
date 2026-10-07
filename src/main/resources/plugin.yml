@@ -27,6 +27,9 @@ commands:
   dungeon:
     description: 던전 입장
     aliases: [던전]
+  mailbox:
+    description: 배달함 (가득 차서 못 받은 물건 받기)
+    aliases: [배달함, 우편함]
   party:
     description: 파티 (초대 · 수락 · 나가기 · 말)
     aliases: [파티]
