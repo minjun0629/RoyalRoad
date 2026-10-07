@@ -708,12 +708,12 @@ features:
     status: IMPLEMENTED
 
   - id: DTH-01
-    feature: "사망 페널티"
+    feature: "사망 페널티 — 완화판 (death.mode: soft)"
     category: "전투"
     source: "로열 로드/사망 (24시간 접속 불가 · 레벨 하락 — 원작)"
     source_type: "원작 개념"
     classification: SOURCE-BASED
-    description: "원작 그대로는 서버 게임에 맞지 않아 완화: 아이템 드롭 없음 · 숙련은 지금 단계 진행도만 (3 + 위험도 × 2)% 감소(레벨 유지) · 입은 장비 마모 · 위험도 4 이상이면 최대 내구도 -1 · 부활 뒤 쇠약. 월드 이벤트 위험도 반영. 던전 안이면 그 판에서 쓰러짐"
+    description: "서버 설정으로 고르는 완화판 (기본은 원작식 DTH-02): 아이템 드롭 없음 · 숙련은 지금 단계 진행도만 (3 + 위험도 × 2)% 감소(레벨 유지) · 입은 장비 마모 · 위험도 4 이상이면 최대 내구도 -1 · 부활 뒤 쇠약. 월드 이벤트 위험도 반영. 던전 안이면 그 판에서 쓰러짐"
     player_experience: "죽음이 아프지만 플레이를 막지 않음"
     dependencies: [SKL-01, ITM-01]
     implementation: "domain.death.DeathPenalty · application.DeathService · platform.bukkit.combat.DeathListener"
@@ -724,6 +724,206 @@ features:
     security_risk: "드롭 없음 → 줍기 · 복제 분쟁 없음"
     persistence: "DB"
     tests: [JobQuestDeathTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: CHR-01
+    feature: "캐릭터 만들기 — 종족 · 성별 · 시작 도시"
+    category: "캐릭터"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "처음 접속하면 움직일 수 없고 종족(원작 시작 종족: 인간 · 엘프 · 드워프 · 오크 · 조인족) → 성별(남성 · 여성 · 중성) → 시작 도시(세라보그 · 아렌 · 네할레스 · 시슬레 · 힐쉐이드 · 모라타) 창이 뜬다. 한 번 고르면 못 바꾼다. 종족 보너스는 숙련 경험치 +5 ~ 10% · 몸 특성 하나 (수치 ORIGINAL). 원작의 49 종족 전체 목록은 출처에 없어 넣지 않음"
+    player_experience: "원작처럼 스타팅 도시를 골라 시작"
+    dependencies: [SKL-01, WLD-01]
+    implementation: "domain.origin.* · application.OriginService · platform.bukkit.listener.OriginListener"
+    data_model: "character_origin · content/origins.yml"
+    ui: "선택 창 3단계"
+    resource_pack: "없음"
+    performance_risk: "접속 때 한 번 조회"
+    security_risk: "출신은 서버 DB 값 · INSERT OR IGNORE 로 한 번만"
+    persistence: "DB"
+    tests: [CanonRulesTest, CanonDomainTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: BEG-01
+    feature: "초보 기간 (한 달 동안 성 밖 금지)"
+    category: "캐릭터"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "시작 도시에서 소환되고 게임 시간 30일(시간 4배면 현실 7.5일) 동안 그 도시 지역 밖으로 못 나간다. 그동안 사망 페널티 없음. 시작 물품 보리빵 10개(배달함). 세라보그의 기초 수련관에서 허수아비를 쳐 스탯을 쌓을 수 있다"
+    player_experience: "위드처럼 아르바이트 · 허수아비치기로 시작"
+    dependencies: [CHR-01, WLD-01]
+    implementation: "OriginService.insideCity · RegionTracker.confine · DeathService"
+    data_model: "character_origin.created_at"
+    ui: "액션바 · 남은 시간"
+    resource_pack: "없음"
+    performance_risk: "지역이 바뀔 때만 캐시로 판정"
+    security_risk: "관리자는 통과"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: TIME-01
+    feature: "게임 시간 4배"
+    category: "월드"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "게임 시각 = 현실 시각 × 4 (현실 하루 = 게임 4일, 낮밤 한 번 = 현실 6시간). 세계 낮밤 주기를 끄고 1초마다 맞춘다. NPC 일과 · 메타페이아 정오 · 초보 기간이 이 시간을 쓴다. config time.ratio (0 = 마인크래프트 기본)"
+    player_experience: "원작처럼 게임 속 시간이 빨리 흐름"
+    dependencies: []
+    implementation: "domain.time.GameTime · platform.bukkit.world.TimeRuntime"
+    data_model: "없음 (현실 시각에서 계산)"
+    ui: "없음"
+    resource_pack: "없음"
+    performance_risk: "1초마다 세계 시간 설정"
+    security_risk: "없음"
+    persistence: "없음"
+    tests: [CanonDomainTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: DTH-02
+    feature: "사망 페널티 — 원작식 (기본)"
+    category: "전투"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "현실 24시간 접속 불가(config) · 숙련이 레벨까지 떨어짐 · 서버 난수로 고른 칸의 아이템이 그 자리에 떨어짐 · 장비 마모 · 쇠약. 악명 · 살인자면 더 크게. 초보 기간 · 던전 안은 드롭 · 접속 제한 없음. 떨어진 고유 아이템은 DB 에서 '땅' 상태가 되고 처음 주운 사람만 서버 판정으로 임자가 됨, 5분 뒤 사라지면 아이템도 사라짐"
+    player_experience: "죽음이 원작처럼 무겁다"
+    dependencies: [SKL-01, ITM-01, REP-01, BEG-01]
+    implementation: "DeathPenalty.computeCanon · DeathService · ItemService.dropToGround/claimFromGround · DeathListener · OriginListener(접속 단계 차단)"
+    data_model: "login_lock · item_instance(DELIVERY ground:) · death_log"
+    ui: "감소량 · 드롭 수 · 킥 메시지"
+    resource_pack: "없음"
+    performance_risk: "사망 때만"
+    security_risk: "줍기는 서버 판정 · 먼저 온 요청만 성공 → 복제 불가. 호퍼 줍기 차단. 관리자 /va unlock"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: REP-01
+    feature: "명성 · 악명 · 살인자"
+    category: "사회"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "명성: 의뢰 · 최초 발견으로 오름 → 의뢰 돈 보상 +5%/단계, 명사 이상이면 일상 · 숙련 의뢰 조건 완화. 악명: 살인자가 아닌 사람을 죽이면 +100 → 100 이상이면 보통 NPC 가 의뢰 · 거래 거절, 보상 -25%, 악한 NPC(장물아비 베릭)와만 거래. 살인자: 붉은 이름 · 사망 페널티 2배 · 살인자를 죽인 사람은 페널티 없음. 몬스터 사냥 · 신전 기부로 씻김 (수치 ORIGINAL)"
+    player_experience: "행동이 평판으로 돌아온다"
+    dependencies: [QST-01, NPC-01]
+    implementation: "domain.reputation.Reputation · application.ReputationService · QuestService · NpcMenus · ReputationListener"
+    data_model: "progress counter: fame · notoriety · murderer_until"
+    ui: "/명성 · 붉은 이름(스코어보드 팀)"
+    resource_pack: "없음"
+    performance_risk: "몬스터 처치는 악명 있을 때만 DB"
+    security_risk: "판정은 서버 사망 이벤트로만"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: GOD-01
+    feature: "신 · 교단 · 신전 기부"
+    category: "사회"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "원작의 신 15(가이아 · 루 · 프레야 · 아트록 · 바탈리 · 발할라 · 미네 · 트로체트 · 헤스티아 · 마탈로스트 · 갈레리아스 · 호르간 · 스피렌 + 악신 벨제벨튀 · 엠비뉴). 신전 14곳(프레야=소므렌 · 루=루의 성역 · 바탈리=투쟁의 길은 원작, 나머지는 이 게임의 자리). 신전 안 /기부: 악명을 씻고(많을수록 비쌈) 0 이 되면 살인자 해제, 남은 돈으로 그 신의 축복(최대 30분)"
+    player_experience: "신전이 의미 있는 장소"
+    dependencies: [REP-01, ECO-01]
+    implementation: "domain.faith.* · ReputationService.donate · CanonCommands"
+    data_model: "content/gods.yml · 원장"
+    ui: "/신 · /기부"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "돈과 악명은 한 트랜잭션 · 같은 key 한 번"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: POT-01
+    feature: "물약 — 회복력 상승 · 겹침 불가 · 레벨 따라 약해짐"
+    category: "전투"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "물약은 즉시 회복이 아니라 재생 효과. 효과가 남아 있으면 더 못 마심. 물약 등급 t 는 숙련 t×10 까지 온전히, 그 위로 10 레벨마다 지속 절반 → 너무 높으면 효과 없음 (수치 ORIGINAL). 작은 강장제 · 회복 물약 · 상급 회복 물약(연금 제작)"
+    player_experience: "물약을 쌓아 두고 버티는 플레이가 안 됨"
+    dependencies: [CRF-01, SKL-01]
+    implementation: "domain.potion.PotionRule · PotionListener"
+    data_model: "items.yml potion_t1~3"
+    ui: "효과 시간 한 줄"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "효과 시간은 서버가 기억"
+    persistence: "없음"
+    tests: [CanonDomainTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: PTY-01
+    feature: "파티"
+    category: "사회"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "/파티 초대 · 수락 · 나가기 · 말. 최대 8명, 파티장이 나가면 다음 사람이 이어받음. 파티원끼리 피해 없음, 던전은 32블록 안의 파티원이 함께 들어감. 접속 중에만 유지 (ORIGINAL 수치)"
+    player_experience: "원작처럼 던전은 파티로"
+    dependencies: [DUN-01]
+    implementation: "domain.party.Parties · CanonCommands · ReputationListener · DungeonRuntime"
+    data_model: "없음 (메모리)"
+    ui: "/파티"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "없음"
+    persistence: "없음"
+    tests: [CanonDomainTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: TRN-01
+    feature: "수련관 허수아비 · 힘 스탯"
+    category: "성장"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "기초 · 초급 수련관 가운데 허수아비 셋. 칠 때마다(0.4초에 한 번) 행동 기록 → 행동 스탯 '힘' → 근접 피해 +0.5%/포인트 (최대 15%). 원작: 허수아비가 스탯을 주는 게 아니라 반복 행동이 스탯을 만든다. 초급 수련관의 '철인 100명' 시련은 아직 없음 (랜드마크만)"
+    player_experience: "위드처럼 허수아비 치기"
+    dependencies: [SKL-02, SKL-03]
+    implementation: "TrainingDummies · action_stats.yml strength · StatEffects.meleeDamagePct · CombatListener"
+    data_model: "progress counter hit.training"
+    ui: "허수아비 이름표"
+    resource_pack: "없음"
+    performance_risk: "10초마다 묶어서 기록"
+    security_risk: "연타 제한"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: PARTIAL
+
+  - id: LORE-01
+    feature: "연대기 · 신 목록"
+    category: "세계관"
+    source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "/연대기: 여명의 시대 → 네 종족 → 고전 → 전쟁 → 혼돈 → 낭만 → 아르펜 제국 (원작) → 잿빛 겨울 → 베르사 새벽기 (이 게임). /신: 신과 신전"
+    player_experience: "세계의 역사를 게임 안에서"
+    dependencies: []
+    implementation: "content/history.yml · CanonCommands"
+    data_model: "content"
+    ui: "/연대기 · /신"
+    resource_pack: "없음"
+    performance_risk: "없음"
+    security_risk: "없음"
+    persistence: "없음"
+    tests: [CanonDomainTest]
     server_test: BLOCKED
     status: IMPLEMENTED
 

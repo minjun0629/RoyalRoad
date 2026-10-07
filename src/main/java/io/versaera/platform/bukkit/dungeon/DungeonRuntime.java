@@ -153,10 +153,15 @@ public final class DungeonRuntime implements Listener, GameCommands.DungeonStart
              r = r.parent() == null ? null : s.regions.byId(r.parent()))
             if (r.id().equals(d.region())) inside = true;
         if (!inside) { leader.sendMessage(Ui.error(s.regions.byId(d.region()).name() + "에서 들어갈 수 있습니다")); return; }
-        // 일행: 6 블록 안의 사람 (최대 인원까지)
+        // 일행: 파티가 있으면 32 블록 안의 파티원, 없으면 6 블록 안의 사람 (최대 인원까지)
+        String lid = leader.getUniqueId().toString();
+        boolean inParty = s.parties.leader(lid).isPresent();
         List<Player> party = new ArrayList<>(List.of(leader));
-        for (Player o : leader.getWorld().getPlayers())
-            if (o != leader && party.size() < d.maxParty() && o.getLocation().distance(l) <= 6 && !playerRun.containsKey(o.getUniqueId())) party.add(o);
+        for (Player o : leader.getWorld().getPlayers()) {
+            if (o == leader || party.size() >= d.maxParty() || playerRun.containsKey(o.getUniqueId())) continue;
+            boolean member = inParty && s.parties.together(lid, o.getUniqueId().toString());
+            if (inParty ? member && o.getLocation().distance(l) <= 32 : o.getLocation().distance(l) <= 6) party.add(o);
+        }
         List<String> ids = party.stream().map(p -> p.getUniqueId().toString()).toList();
         long seed = new Random().nextLong();
         async.run("dungeon-start", () -> s.dungeons.start(dungeonId, ids, seed), h -> {

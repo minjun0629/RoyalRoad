@@ -91,7 +91,8 @@ public final class CombatListener implements Listener {
                         .dot(attacker.getLocation().toVector().subtract(victim.getLocation().toVector()).setY(0).normalize()) < -0.5;
                 double attack = t.stats().getOrDefault("attack", 0) * Math.max(0.2, attacker.getAttackCooldown());
                 double[] pk = perks.getOrDefault(owner, NO_PERKS);
-                damage = DamageCalculator.compute(new DamageCalculator.Attack(attack * (1 + pk[0]), w.quality(), lv, 0.05 + pk[2], 1.5, back),
+                double melee = d != null && !d.equals("archery") && pk.length > 3 ? pk[3] : 0;
+                damage = DamageCalculator.compute(new DamageCalculator.Attack(attack * (1 + pk[0] + melee), w.quality(), lv, 0.05 + pk[2], 1.5, back),
                         new DamageCalculator.Defense(0, false, false), rng).damage();
                 if (d != null) {
                     pendingXp.merge(owner + ":" + d, 1L, Long::sum);
@@ -182,7 +183,9 @@ public final class CombatListener implements Listener {
     public void warm(String uuid) {
         for (String d : List.of("swordsmanship", "spearmanship", "archery")) weaponMastery.put(uuid + ":" + d, Mastery.levelOf(s.growth.xp(uuid, d)));
         Map<String, Double> p = s.jobs.perks(uuid);
-        perks.put(uuid, new double[]{p.getOrDefault("attack_pct", 0.0), p.getOrDefault("defense_pct", 0.0), p.getOrDefault("crit", 0.0)});
+        // [3] = 힘 스탯 (수련관 허수아비 치기) → 근접 피해
+        perks.put(uuid, new double[]{p.getOrDefault("attack_pct", 0.0), p.getOrDefault("defense_pct", 0.0), p.getOrDefault("crit", 0.0),
+                io.versaera.domain.skill.StatEffects.of(s.growth.statPoints(uuid)).meleeDamagePct()});
     }
 
     /** 직업이 바뀌면 다시 읽는다 (DB 스레드) */

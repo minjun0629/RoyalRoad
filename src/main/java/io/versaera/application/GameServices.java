@@ -45,6 +45,11 @@ public final class GameServices {
     public final DungeonService dungeons;
     public final WorldEventService worldEvents;
     public final GateService gates;
+    public final OriginService origins;
+    public final ReputationService reputation;
+    /** 파티 (접속 중에만 · 메인 스레드 전용) */
+    public final io.versaera.domain.party.Parties parties = new io.versaera.domain.party.Parties();
+    private volatile ServerRules rules = ServerRules.CANON;
     public final GatheringService gathering;
     public final MapService maps;
     public final BossService bosses;
@@ -74,7 +79,7 @@ public final class GameServices {
         this.zone = zone;
         JobRepository jobRepo = new JdbcJobRepository(db);
         this.jobs = new JobService(tx, jobRepo, content.jobs(), bus, clock);
-        this.deaths = new DeathService(tx, progress, jobRepo, items, growth, clock);
+        this.deaths = new DeathService(tx, progress, jobRepo, items, growth, clock, this::rules);
         // 제작 보정: 생활 직업 효과(craft_quality.<분야>) + 정밀 스탯(흔들림 감소)
         crafting.modifiers((uuid, discipline) -> new double[]{
                 jobs.perks(uuid).getOrDefault("craft_quality." + discipline, 0.0),
@@ -88,6 +93,10 @@ public final class GameServices {
         this.worldEvents = new WorldEventService(tx, new JdbcWorldEventRepository(db), content.worldEvents(), regions, bus, clock, 0L);
         this.gathering = new GatheringService(this, content.resources());
         this.gates = new GateService(content.gates(), regions, growth::level);
+        this.origins = new OriginService(tx, new JdbcOriginRepository(db), content.origins(), regions, items, clock, this::rules);
+        this.reputation = new ReputationService(tx, progress, economy, regions, content.gods(), content.temples(), clock);
+        deaths.attach(origins, reputation);
+        growth.xpBonus(origins::xpMult);   // 종족 숙련 보너스
         this.maps = new MapService(tx, new JdbcMapRepository(db));
         this.skills = new SkillBook(this, content.skills(), content.combos());
         this.bosses = new BossService(tx, new JdbcBossRepository(db), content.bosses(), this, bus, clock);
@@ -102,6 +111,15 @@ public final class GameServices {
             growth.discipline(r.discipline());
             types.get(r.yield());
         }
+    }
+
+    /** 서버 규칙 (config.yml — 시간 비율 · 사망 방식) */
+    public ServerRules rules() {
+        return rules;
+    }
+
+    public void rules(ServerRules r) {
+        rules = java.util.Objects.requireNonNull(r);
     }
 
     /** 봉인을 연 히든 규칙을 붙인다 (없으면 히든 콘텐츠 없이 동작) */

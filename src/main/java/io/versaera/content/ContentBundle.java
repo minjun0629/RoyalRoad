@@ -29,12 +29,16 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                             MarketCatalog market, Map<String, Map<String, NpcSchedule.Point>> places,
                             List<io.versaera.domain.dungeon.DungeonDefinition> dungeons,
                             List<io.versaera.domain.worldevent.WorldEventDefinition> worldEvents,
-                            List<io.versaera.domain.world.Gate> gates) {
+                            List<io.versaera.domain.world.Gate> gates,
+                            io.versaera.domain.origin.Origins origins,
+                            List<io.versaera.domain.faith.God> gods,
+                            List<io.versaera.domain.faith.Temple> temples,
+                            List<io.versaera.domain.faith.Era> eras) {
     public static final List<String> FILES = List.of("items.yml", "disciplines.yml", "action_stats.yml", "recipes.yml", "resources.yml",
-            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml", "gates.yml");
+            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml", "gates.yml", "origins.yml", "gods.yml", "history.yml");
 
     public static ContentBundle load(Function<String, InputStream> opener) {
-        Map<String, Object> skills = read(opener, "skills.yml");
+        Map<String, Object> skills = read(opener, "skills.yml"), gods = read(opener, "gods.yml");
         return new ContentBundle(
                 ContentLoader.items(read(opener, "items.yml"), "items.yml"),
                 ContentLoader.disciplines(read(opener, "disciplines.yml"), "disciplines.yml"),
@@ -52,7 +56,11 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                 ContentLoader.places(read(opener, "places.yml"), "places.yml"),
                 ContentLoader.dungeons(read(opener, "dungeons.yml"), "dungeons.yml"),
                 ContentLoader.worldEvents(read(opener, "world_events.yml"), "world_events.yml"),
-                ContentLoader.gates(read(opener, "gates.yml"), "gates.yml"));
+                ContentLoader.gates(read(opener, "gates.yml"), "gates.yml"),
+                ContentLoader.origins(read(opener, "origins.yml"), "origins.yml"),
+                ContentLoader.gods(gods, "gods.yml"),
+                ContentLoader.temples(gods, "gods.yml"),
+                ContentLoader.eras(read(opener, "history.yml"), "history.yml"));
     }
 
     public static ContentBundle fromClasspath(ClassLoader cl) {

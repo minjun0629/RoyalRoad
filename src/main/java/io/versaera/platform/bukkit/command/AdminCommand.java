@@ -118,6 +118,14 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 async.run("admin-money", () -> v > 0 ? s.economy.deposit(id, v, "admin", req) : s.economy.withdraw(id, -v, "admin", req),
                         ok -> sender.sendMessage(Ui.info("잔액 반영")), sender);
             }
+            case "unlock" -> {   // /va unlock <이름> — 원작식 사망 접속 제한 풀기
+                String id = a.length > 1 ? uuidOf(a[1]) : null;
+                if (id == null) { sender.sendMessage(Ui.error("/va unlock <이름>")); return; }
+                async.run("admin-unlock", () -> {
+                    s.origins.unlock(id);
+                    return true;
+                }, ok -> sender.sendMessage(Ui.info("접속 제한을 풀었습니다")), sender);
+            }
             case "npc" -> {
                 if (!(sender instanceof Player p) || a.length < 3 || !a[1].equals("spawn")) { sender.sendMessage(Ui.error("/va npc spawn <id>")); return; }
                 npcs.spawn(s.relations.npc(a[2]), p.getLocation());
@@ -212,7 +220,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] a) {
         if (!sender.hasPermission("versaera.admin")) return List.of();
-        if (a.length == 1) return filter(List.of("inspect", "item", "audit", "give", "money", "npc", "boss", "seal", "hidden", "event", "perf"), a[0]);
+        if (a.length == 1) return filter(List.of("inspect", "item", "audit", "give", "money", "unlock", "npc", "boss", "seal", "hidden", "event", "perf"), a[0]);
         if (a.length == 3 && a[0].equals("give")) return filter(codec.types().all().stream().map(t -> t.id()).toList(), a[2]);
         if (a.length == 3 && a[0].equals("boss")) return filter(s.content.bosses().stream().map(b -> b.id()).toList(), a[2]);
         if (a.length == 3 && a[0].equals("npc")) return filter(s.relations.all().stream().map(n -> n.id()).toList(), a[2]);

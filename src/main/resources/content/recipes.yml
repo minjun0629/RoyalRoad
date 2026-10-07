@@ -36,6 +36,10 @@ recipes:
                              herb: {accepts: "tag:herb", count: 1, optional: true, bonus: 50}}}
   brew_tonic:       {name: 작은 강장제, discipline: alchemy, min_level: 1, action_level: 2, output: minor_tonic, tool: tool_alchemy, xp: 10,
                      slots: {herb: {accepts: "tag:herb", count: 2, weight: 2}, base: {accepts: "type:glass_sand", count: 1}}}
+  brew_draught:     {name: 회복 물약, discipline: alchemy, min_level: 10, action_level: 12, output: healing_draught, tool: tool_alchemy, xp: 30,
+                     slots: {herb: {accepts: "tag:herb", count: 4, weight: 2}, base: {accepts: "type:minor_tonic", count: 1}}}
+  brew_greater:     {name: 상급 회복 물약, discipline: alchemy, min_level: 20, action_level: 22, output: greater_draught, tool: tool_alchemy, xp: 60,
+                     slots: {herb: {accepts: "tag:herb", count: 4, weight: 2}, base: {accepts: "type:healing_draught", count: 1}, crystal: {accepts: "tag:frost", count: 1}}}
   # ---- 조각 (여러 재료 조합)
   carve_figurine:   {name: 작은 조각상, discipline: sculpting, min_level: 1, action_level: 2, output: figurine, tool: tool_carving, xp: 12,
                      slots: {base: {accepts: "tag:wood", count: 2, weight: 3}, detail: {accepts: "tag:mineral", count: 1},

@@ -4,6 +4,7 @@ import io.versaera.application.port.ProgressRepository;
 import io.versaera.application.port.QuestRepository;
 import io.versaera.application.port.TxRunner;
 import io.versaera.domain.common.DomainException;
+import io.versaera.domain.reputation.Reputation;
 import io.versaera.domain.common.GameClock;
 import io.versaera.domain.crafting.MaterialInput;
 import io.versaera.domain.event.EventBus;
@@ -98,7 +99,18 @@ public final class QuestService {
             if (r.completedAt() != null && day(r.completedAt()) == day(clock.nowMillis())) return "오늘은 이미 했습니다";
         }
         for (String a : q.after()) if (!completed(uuid, a)) return "먼저 해야 할 일이 있습니다";
-        if (q.requires() != null && !q.requires().test(f)) return "아직 맡을 수 없습니다";
+        // 악명 · 살인자 (REP-01): 보통 NPC 는 맡기지 않고, 악한 NPC 는 악명 높은 사람에게만 맡긴다
+        if (q.giver() != null && s.reputation != null) {
+            var st = s.reputation.standing(uuid);
+            if (Reputation.npcRefuses(s.relations.npc(q.giver()).evil(), st.notoriety(), st.murderer()))
+                return s.relations.npc(q.giver()).evil() ? "모르는 얼굴과는 일하지 않는다" : "악명 높은 사람에게는 일을 맡기지 않습니다";
+        }
+        if (q.requires() != null && !q.requires().test(f)) {
+            // 명성이 높으면(명사 이상) 일상 · 숙련 의뢰는 조건을 낮춰 받는다 (원작: 명성이 오르면 본래 제한보다 낮게 받을 수 있다)
+            boolean relaxed = s.reputation != null && (q.grade() == QuestDefinition.Grade.DAILY || q.grade() == QuestDefinition.Grade.SKILLED)
+                    && Reputation.relaxesRequirements(s.reputation.standing(uuid).fame());
+            if (!relaxed) return "아직 맡을 수 없습니다";
+        }
         return null;
     }
 
@@ -206,8 +218,11 @@ public final class QuestService {
             }
             int times = r.times() + 1;
             String key = "quest:" + questId + ":" + uuid + ":" + times;
-            pay(uuid, name, q.reward(), key, after);
-            if (picked != null) pay(uuid, name, picked.reward(), key + ":" + picked.id(), after);
+            // 의뢰 돈 보상: 명성 단계마다 +5%, 악명 100 이상 -25% (REP-01)
+            var st = s.reputation.standing(uuid);
+            double mult = Reputation.questRewardMult(st.fame(), st.notoriety());
+            pay(uuid, name, scaled(q.reward(), mult), key, after);
+            if (picked != null) pay(uuid, name, scaled(picked.reward(), mult), key + ":" + picked.id(), after);
             repo.save(uuid, new QuestRepository.Row(questId, "COMPLETED", p.encode(), picked == null ? null : picked.id(), times, r.acceptedAt(), clock.nowMillis()));
             s.audit.record("QUEST_COMPLETED", uuid, questId, picked == null ? "" : picked.id(), key);
             return null;
@@ -225,6 +240,11 @@ public final class QuestService {
     void grantAfterCommit(String uuid, QuestDefinition.Reward r) {
         for (var e : r.xp().entrySet()) s.growth.addXp(uuid, e.getKey(), e.getValue(), 1);
         for (var e : r.affinity().entrySet()) s.relations.adjust(uuid, e.getKey(), e.getValue());
+    }
+
+    private static QuestDefinition.Reward scaled(QuestDefinition.Reward r, double mult) {
+        if (mult == 1 || r.money() == 0) return r;
+        return new QuestDefinition.Reward(Math.max(1, Math.round(r.money() * mult)), r.items(), r.xp(), r.affinity(), r.reputation(), r.fame(), r.unlocks());
     }
 
     /** 돈 · 아이템 · 평판 · 명성 · 해금 (트랜잭션 안) — 경험치 · 호감은 커밋 뒤. 던전 · 보스 보상도 이 경로를 쓴다 */

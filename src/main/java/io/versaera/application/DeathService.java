@@ -5,31 +5,84 @@ import io.versaera.application.port.ProgressRepository;
 import io.versaera.application.port.TxRunner;
 import io.versaera.domain.common.GameClock;
 import io.versaera.domain.death.DeathPenalty;
+import io.versaera.domain.reputation.Reputation;
 
-/** 사망 처리 — 숙련 진행도 감소 · 장비 마모 · 기록 (DeathPenalty 참고) */
+import java.util.function.Supplier;
+
+/**
+ * 사망 처리 (DTH-01 · DTH-02). 서버 규칙(death.mode)에 따라:
+ * <ul>
+ *   <li>canon (원작): 숙련이 레벨까지 떨어지고, 무작위 아이템이 떨어지고(어느 칸인지는 플랫폼이 서버 난수로 고름), 현실 24시간 접속 불가.
+ *       악명 · 살인자면 더 크게. 초보 기간(시작 도시 밖에 못 나가는 동안)에는 페널티가 없다</li>
+ *   <li>soft: 지금 단계 진행도만 감소 · 드롭 · 접속 제한 없음</li>
+ * </ul>
+ */
 public final class DeathService {
+    public record Outcome(DeathPenalty.Result penalty, long lockUntil, boolean beginner, boolean murderer) {
+        public int weakSeconds() {
+            return penalty.weakSeconds();
+        }
+
+        public long totalXpLoss() {
+            return penalty.totalXpLoss();
+        }
+
+        public int wear() {
+            return penalty.wear();
+        }
+
+        public boolean heavyWear() {
+            return penalty.heavyWear();
+        }
+    }
+
     private final TxRunner tx;
     private final ProgressRepository progress;
     private final JobRepository jobs;
     private final ItemService items;
     private final GrowthService growth;
     private final GameClock clock;
+    private final Supplier<ServerRules> rules;
+    private OriginService origins;
+    private ReputationService reputation;
 
-    public DeathService(TxRunner tx, ProgressRepository progress, JobRepository jobs, ItemService items, GrowthService growth, GameClock clock) {
+    public DeathService(TxRunner tx, ProgressRepository progress, JobRepository jobs, ItemService items, GrowthService growth, GameClock clock,
+                        Supplier<ServerRules> rules) {
         this.tx = tx;
         this.progress = progress;
         this.jobs = jobs;
         this.items = items;
         this.growth = growth;
         this.clock = clock;
+        this.rules = rules;
+    }
+
+    void attach(OriginService origins, ReputationService reputation) {
+        this.origins = origins;
+        this.reputation = reputation;
     }
 
     /** @param equipped 사망 순간 입고 · 들고 있던 고유 아이템 id */
-    public DeathPenalty.Result die(String uuid, String region, int danger, java.util.List<String> equipped) {
-        DeathPenalty.Result r = DeathPenalty.compute(progress.allMastery(uuid), danger);
+    public Outcome die(String uuid, String region, int danger, java.util.List<String> equipped) {
+        if (origins != null && origins.beginner(uuid)) {
+            // 원작: 성문 밖에 못 나가는 초보 상태에서는 사망 페널티가 없다
+            tx.inTx(() -> {
+                jobs.deathLog(uuid, region, danger, 0, clock.nowMillis());
+                return null;
+            });
+            growth.record(uuid, "death", 1);
+            return new Outcome(DeathPenalty.NONE, 0, true, false);
+        }
+        ServerRules sr = rules.get();
+        ReputationService.Standing st = reputation == null ? new ReputationService.Standing(0, 0, 0, false) : reputation.standing(uuid);
+        DeathPenalty.Result r = sr.canonDeath()
+                ? DeathPenalty.computeCanon(progress.allMastery(uuid), danger, Reputation.deathMult(st.notoriety(), st.murderer()))
+                : DeathPenalty.compute(progress.allMastery(uuid), danger);
+        long lockUntil = sr.canonDeath() && sr.lockoutHours() > 0 ? clock.nowMillis() + (long) (sr.lockoutHours() * 3_600_000L) : 0;
         tx.inTx(() -> {
             for (var e : r.xpLoss().entrySet()) progress.setMasteryXp(uuid, e.getKey(), Math.max(0, progress.masteryXp(uuid, e.getKey()) - e.getValue()));
             jobs.deathLog(uuid, region, danger, r.totalXpLoss(), clock.nowMillis());
+            if (lockUntil > 0 && origins != null) origins.lock(uuid, lockUntil, "사망");
             return null;
         });
         for (String id : equipped) {
@@ -41,6 +94,6 @@ public final class DeathService {
             }
         }
         growth.record(uuid, "death", 1);
-        return r;
+        return new Outcome(r, lockUntil, false, st.murderer());
     }
 }

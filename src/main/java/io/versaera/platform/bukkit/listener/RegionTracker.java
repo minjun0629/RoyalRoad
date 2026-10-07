@@ -35,6 +35,13 @@ public final class RegionTracker implements Listener {
     /** 드러나야만 들어갈 수 있는 지역 (월드 이벤트 reveal) — 메인 스레드에서 판정하는 순수 계산 */
     private java.util.function.Predicate<String> blocked = id -> false;
 
+    /** 사람마다 막는 지역 (초보 기간의 성문) — 막으면 이유, 아니면 null. 메인 스레드 · 캐시만 본다 */
+    private java.util.function.BiFunction<Player, String, String> confine = (p, id) -> null;
+
+    public void confine(java.util.function.BiFunction<Player, String, String> f) {
+        confine = f;
+    }
+
     public void gate(java.util.function.Predicate<String> blocked) {
         this.blocked = blocked;
     }
@@ -57,6 +64,12 @@ public final class RegionTracker implements Listener {
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Ui.c("&7아직 길이 드러나지 않았다")));
             return;
         }
+        String held = p.hasPermission("versaera.admin") ? null : confine.apply(p, now);
+        if (held != null) {
+            e.setTo(e.getFrom());
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Ui.c("&7" + held)));
+            return;
+        }
         if (now == null) current.remove(p.getUniqueId());
         else current.put(p.getUniqueId(), now);
         if (r == null) return;
@@ -70,7 +83,10 @@ public final class RegionTracker implements Listener {
         }, d -> {
             if (!d.isNew()) return;
             p.sendTitle(Ui.c("&6" + r.name()), Ui.c("&7새로운 지역 · " + Ui.danger(r.danger())), 10, 50, 15);
-            if (d.worldFirst()) org.bukkit.Bukkit.broadcastMessage(Ui.info(name + " 님이 「" + r.name() + "」을(를) 처음 발견했습니다"));
+            if (d.worldFirst()) {
+                org.bukkit.Bukkit.broadcastMessage(Ui.info(name + " 님이 「" + r.name() + "」을(를) 처음 발견했습니다"));
+                async.fire("fame", () -> s.reputation.addFame(id, 20 + r.danger() * 10));   // 최초 발견은 명성 (REP-01)
+            }
         }, null);
     }
 

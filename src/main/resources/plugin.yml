@@ -27,6 +27,21 @@ commands:
   dungeon:
     description: 던전 입장
     aliases: [던전]
+  party:
+    description: 파티 (초대 · 수락 · 나가기 · 말)
+    aliases: [파티]
+  donate:
+    description: 신전에 기부 (악명 씻기 · 축복)
+    aliases: [기부]
+  gods:
+    description: 신 · 교단 · 신전
+    aliases: [신]
+  history:
+    description: 베르사 연대기
+    aliases: [연대기]
+  fame:
+    description: 명성 · 악명 · 출신
+    aliases: [명성]
   versaadmin:
     description: VersaEra 관리자
     aliases: [va]

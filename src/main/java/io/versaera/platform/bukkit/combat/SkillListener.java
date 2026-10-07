@@ -74,6 +74,13 @@ public final class SkillListener implements Listener {
         return null;
     }
 
+    /** 종족 특성 같은 추가 최대 체력 (메인 스레드 캐시) */
+    private java.util.function.ToDoubleFunction<UUID> extraHealth = u -> 0;
+
+    public void extraHealth(java.util.function.ToDoubleFunction<UUID> f) {
+        extraHealth = f;
+    }
+
     /** 무기 · 직업이 바뀌면 다시 읽는다 */
     public void reload(Player p) {
         String id = p.getUniqueId().toString(), weapon = weaponTag(p);
@@ -93,7 +100,7 @@ public final class SkillListener implements Listener {
             var fx = (io.versaera.domain.skill.StatEffects) r[3];
             // 인내 → 최대 체력 (SKL-03). 기본 20 에 비율만 더한다
             var hp = p.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH);
-            if (hp != null) hp.setBaseValue(20 * (1 + fx.maxHealthPct()));
+            if (hp != null) hp.setBaseValue(20 * (1 + fx.maxHealthPct()) + extraHealth.applyAsDouble(p.getUniqueId()));
             if (fx.seesHints()) insight.add(p.getUniqueId());
             else insight.remove(p.getUniqueId());
         }, null);

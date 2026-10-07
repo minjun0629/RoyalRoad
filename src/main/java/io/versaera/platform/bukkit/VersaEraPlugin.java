@@ -74,6 +74,9 @@ public final class VersaEraPlugin extends JavaPlugin {
             ContentBundle content = ContentBundle.load(f -> open(new File(getDataFolder(), "content/" + f)));
             ZoneId zone = ZoneId.of(getConfig().getString("timezone", "Asia/Seoul"));
             services = new GameServices(db, content, GameClock.SYSTEM, zone, getLogger());
+            // 원작 규칙 (config.yml): 시간 4배 · 원작식 사망 (24시간 접속 불가 · 레벨 하락 · 아이템 드롭)
+            services.rules(new io.versaera.application.ServerRules(getConfig().getString("death.mode", "canon"),
+                    getConfig().getDouble("death.lockout_hours", 24), new io.versaera.domain.time.GameTime(getConfig().getInt("time.ratio", 4))));
             exec = new DbExecutor(getLogger());
             int recovered = exec.submit("recover", services.trades::recover).join();
             if (recovered > 0) getLogger().warning("지난 실행에서 끝나지 않은 거래 " + recovered + "건을 취소하고 아이템을 주인에게 돌려보냈습니다");
@@ -86,10 +89,8 @@ public final class VersaEraPlugin extends JavaPlugin {
             return;
         }
         Async async = new Async(this, exec);
-        Bukkit.getScheduler().runTaskTimer(this, () -> {
-            World w = Bukkit.getWorlds().isEmpty() ? null : Bukkit.getWorlds().get(0);
-            if (w != null) gameHour = (int) ((w.getTime() / 1000 + 6) % 24);
-        }, 0L, 100L);
+        io.versaera.platform.bukkit.world.TimeRuntime clock = new io.versaera.platform.bukkit.world.TimeRuntime(this, services);
+        Bukkit.getScheduler().runTaskTimer(this, () -> gameHour = clock.hour(), 2L, 20L);
         ItemCodec codec = new ItemCodec(this, services.items.types());
         byte[] key = serverKey();
         Sealer sealer = new Sealer(key);
@@ -106,11 +107,15 @@ public final class VersaEraPlugin extends JavaPlugin {
         java.util.Set<String> noonOnly = java.util.Set.of("metapeia", "flame_sanctuary");
         regions.gate(id -> (gated.contains(id) && !services.worldEvents.revealed().contains("region:" + id))
                 || (noonOnly.contains(id) && (gameHour < 11 || gameHour > 13)));
+        io.versaera.platform.bukkit.listener.OriginListener originL = new io.versaera.platform.bukkit.listener.OriginListener(this, services, async, exec);
+        regions.confine(originL::confine);   // 초보 기간: 시작 도시 밖으로 못 나감
+        io.versaera.platform.bukkit.listener.ReputationListener repL = new io.versaera.platform.bukkit.listener.ReputationListener(this, services, async);
         NpcListener npcs = new NpcListener(this, services, async);
         gather = new GatherListener(this, services, async, codec, sessions);
         bosses = new BossRuntime(this, services, async);
         CombatListener combat = new CombatListener(this, services, async, codec);
         SkillListener skills = new SkillListener(this, services, async, codec, bosses);
+        skills.extraHealth(originL::extraHealth);
         dungeons = new DungeonRuntime(this, services, async, bosses);
         dungeons.hints(skills::seesHints);
         Bukkit.getScheduler().runTask(this, dungeons::prepareWorld);
@@ -123,9 +128,14 @@ public final class VersaEraPlugin extends JavaPlugin {
         npcRuntime = new NpcRuntime(this, services, npcs, () -> gameHour);
         NpcMenus menus = new NpcMenus(services, async, codec, sessions::deliver, p -> facts(p.getUniqueId().toString(), regions));
         npcs.onOpen(menus::open);
-        InventoryGuard guard = new InventoryGuard(this, services, async, codec);
+        DeathListener deathL = new DeathListener(this, services, async, codec);
+        deathL.caches(u -> originL.character(u).map(c -> c.beginner(System.currentTimeMillis())).orElse(false), repL::standing);
+        io.versaera.platform.bukkit.command.CanonCommands canonCmd = new io.versaera.platform.bukkit.command.CanonCommands(services, async, originL, repL);
+        for (String c : List.of("party", "donate", "gods", "history", "fame")) getCommand(c).setExecutor(canonCmd);
+                InventoryGuard guard = new InventoryGuard(this, services, async, codec);
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
-                new DeathListener(this, services, async, codec), dungeons, maps,
+                deathL, dungeons, maps, originL, repL, new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
+                new io.versaera.platform.bukkit.world.TrainingDummies(this, services, async),
                 new StationListener(services, async, codec, sessions), new MenuListener()))
             Bukkit.getPluginManager().registerEvents(l, this);
         startPack();

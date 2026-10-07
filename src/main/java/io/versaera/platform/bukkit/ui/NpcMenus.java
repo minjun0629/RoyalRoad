@@ -48,6 +48,12 @@ public final class NpcMenus {
         PlayerFacts f = facts.apply(p);
         async.run("npc-home", () -> {
             NpcDefinition n = s.relations.npc(npcId);
+            // 악명 · 살인자 (REP-01): 보통 NPC 는 상대하지 않고, 악한 NPC 는 악명 높은 사람만 상대한다
+            var st = s.reputation.standing(id);
+            if (io.versaera.domain.reputation.Reputation.npcRefuses(n.evil(), st.notoriety(), st.murderer()))
+                throw io.versaera.domain.common.DomainException.of("npc.refuses", n.evil()
+                        ? n.name() + ": 모르는 얼굴과는 거래하지 않는다"
+                        : n.name() + ": " + (st.murderer() ? "살인자와는 상대하지 않는다" : "악명 높은 사람과는 거래하지 않는다"));
             List<QuestService.Active> mine = s.quests.active(id).stream().filter(a -> npcId.equals(a.def().giver())).toList();
             Map<String, Long> fc = new LinkedHashMap<>();
             s.worldEvents.forecastBy(npcId).forEach((d, t) -> fc.put(d.name(), t));

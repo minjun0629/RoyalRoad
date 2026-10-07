@@ -41,7 +41,17 @@
 | GLD-01 | 길드 | SOURCE-BASED | **IMPLEMENTED** | GuildServiceTest |
 | DUN-01 | 던전 (매번 새 배치) | ORIGINAL | **IMPLEMENTED** | DungeonTest, DungeonServiceTest |
 | EVT-01 | 월드 이벤트 (시간표 · 예보) | ORIGINAL | **IMPLEMENTED** | WorldEventGatherTest |
-| DTH-01 | 사망 페널티 | SOURCE-BASED | **IMPLEMENTED** | JobQuestDeathTest |
+| DTH-01 | 사망 페널티 — 완화판 (death.mode: soft) | SOURCE-BASED | **IMPLEMENTED** | JobQuestDeathTest |
+| CHR-01 | 캐릭터 만들기 — 종족 · 성별 · 시작 도시 | CANON | **IMPLEMENTED** | CanonRulesTest, CanonDomainTest |
+| BEG-01 | 초보 기간 (한 달 동안 성 밖 금지) | CANON | **IMPLEMENTED** | CanonRulesTest |
+| TIME-01 | 게임 시간 4배 | CANON | **IMPLEMENTED** | CanonDomainTest |
+| DTH-02 | 사망 페널티 — 원작식 (기본) | CANON | **IMPLEMENTED** | CanonRulesTest |
+| REP-01 | 명성 · 악명 · 살인자 | CANON | **IMPLEMENTED** | CanonRulesTest |
+| GOD-01 | 신 · 교단 · 신전 기부 | CANON | **IMPLEMENTED** | CanonRulesTest |
+| POT-01 | 물약 — 회복력 상승 · 겹침 불가 · 레벨 따라 약해짐 | CANON | **IMPLEMENTED** | CanonDomainTest |
+| PTY-01 | 파티 | CANON | **IMPLEMENTED** | CanonDomainTest |
+| TRN-01 | 수련관 허수아비 · 힘 스탯 | CANON | **PARTIAL** (초급 수련관 시련 없음) | CanonRulesTest |
+| LORE-01 | 연대기 · 신 목록 | CANON | **IMPLEMENTED** | CanonDomainTest |
 | UI-01 | 전용 MMORPG UI | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest |
 | RP-01 | 리소스팩 (코드로 생성 · 배포) | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest, ExternalPackTest |
 | SRV-01 | 실제 Paper 서버 테스트 | ORIGINAL | **BLOCKED** | — |

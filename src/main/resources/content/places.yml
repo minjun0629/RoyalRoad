@@ -12,3 +12,4 @@ places:
   dariq_caravan:    {caravanserai: [1312, 9938]}
   hana_scout:       {palisade: [-5625, -3000], bunk: [-5812, -2944]}
   garen_instructor: {drill_yard: [-2100, -225], barracks: [-2156, -300]}
+  verik_fence:      {den: [9600, 1500]}

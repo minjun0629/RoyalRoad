@@ -66,6 +66,7 @@ class JobQuestDeathTest {
     void deathCostsProgressNotLevels() throws Exception {
         try (TestWorld w = new TestWorld()) {
             String p = TestWorld.player();
+            w.s.rules(new io.versaera.application.ServerRules("soft", 24, new io.versaera.domain.time.GameTime(4)));   // 완화판
             long base = Mastery.cumulative(6), xp = base + Mastery.need(6) / 2;
             w.s.tx.inTx(() -> {
                 w.s.progress.setMasteryXp(p, "mining", xp);

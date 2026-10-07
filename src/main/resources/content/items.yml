@@ -33,7 +33,10 @@ items:
   # ---- 음식 · 소모품
   grilled_fish:    {name: 생선 구이,   category: FOOD, material: COOKED_SALMON, weight: 1, tags: [food]}
   hearty_stew:     {name: 든든한 스튜, category: FOOD, material: RABBIT_STEW,   weight: 1, tags: [food]}
-  minor_tonic:     {name: 작은 강장제, category: CONSUMABLE, material: POTION,   weight: 1, tags: [potion]}
+  minor_tonic:     {name: 작은 강장제, category: CONSUMABLE, material: POTION,   weight: 1, tags: [potion, potion_t1]}
+  healing_draught: {name: 회복 물약,   category: CONSUMABLE, material: POTION,   weight: 1, tags: [potion, potion_t2]}
+  greater_draught: {name: 상급 회복 물약, category: CONSUMABLE, material: POTION, weight: 1, tags: [potion, potion_t3]}
+  barley_bread:    {name: 보리빵,      category: FOOD, material: BREAD,          weight: 1, tags: [food, grain], source: CANON}
   # ---- 도구 (고유)
   smithing_hammer: {name: 대장 망치,   category: TOOL, material: IRON_AXE,     durability: 300, weight: 3, tags: [tool_hammer]}
   carving_knife:   {name: 조각칼,      category: TOOL, material: SHEARS,       durability: 250, weight: 1, tags: [tool_carving]}

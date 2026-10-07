@@ -180,7 +180,7 @@ public final class ContentLoader {
     public static List<NpcDefinition> npcs(Map<String, Object> root, String file) {
         return each(root, "npcs", file, (id, m) -> new NpcDefinition(id, req(m, "name"), req(m, "job"), str(m, "personality", ""),
                 str(m, "faction", null), req(m, "region"), new LinkedHashSet<>(list(m, "likes")), new LinkedHashSet<>(list(m, "dislikes")),
-                list(m, "schedule"), str(m, "source", "ORIGINAL")));
+                list(m, "schedule"), str(m, "source", "ORIGINAL"), b(m, "evil", false)));
     }
 
     public static List<BossDefinition> bosses(Map<String, Object> root, String file) {
@@ -317,6 +317,38 @@ public final class ContentLoader {
                 io.versaera.domain.worldevent.WorldEventDefinition.Kind.valueOf(req(m, "kind")), (long) (d(m, "period_hours", 24) * 3_600_000),
                 (long) (d(m, "duration_minutes", 30) * 60_000), (long) (d(m, "jitter_hours", 0) * 3_600_000), (long) (d(m, "forecast_hours", 1) * 3_600_000),
                 str(m, "forecaster", null), stringMap(map(m.get("effects"))), str(m, "announce", ""), str(m, "source", "ORIGINAL")));
+    }
+
+    // ------------------------------------------------------------------ 캐릭터 만들기 · 신 · 연대기
+    public static io.versaera.domain.origin.Origins origins(Map<String, Object> root, String file) {
+        try {
+            List<io.versaera.domain.origin.Race> races = each(root, "races", file, (id, m) -> {
+                Map<String, Double> bonus = new LinkedHashMap<>();
+                for (Map.Entry<String, Object> e : map(m.get("xp_bonus")).entrySet()) bonus.put(e.getKey(), Double.parseDouble(String.valueOf(e.getValue())));
+                return new io.versaera.domain.origin.Race(id, req(m, "name"), str(m, "source", "ORIGINAL"), str(m, "note", ""), bonus, str(m, "perk", "none"));
+            });
+            List<io.versaera.domain.origin.StartCity> cities = each(root, "cities", file, (id, m) -> new io.versaera.domain.origin.StartCity(id, req(m, "name"),
+                    req(m, "region"), str(m, "kingdom", ""), str(m, "source", "ORIGINAL"), str(m, "note", "")));
+            return new io.versaera.domain.origin.Origins(races, cities, i(root, "beginner_game_days", 30), list(root, "starting_kit"));
+        } catch (RuntimeException e) {
+            if (e instanceof ContentException) throw e;
+            throw new ContentException(file, e);
+        }
+    }
+
+    public static List<io.versaera.domain.faith.God> gods(Map<String, Object> root, String file) {
+        return each(root, "gods", file, (id, m) -> new io.versaera.domain.faith.God(id, req(m, "name"), str(m, "domain", ""), b(m, "evil", false),
+                str(m, "blessing", null), str(m, "source", "CANON")));
+    }
+
+    public static List<io.versaera.domain.faith.Temple> temples(Map<String, Object> root, String file) {
+        return each(root, "temples", file, (id, m) -> new io.versaera.domain.faith.Temple(id, req(m, "god"), req(m, "region"), str(m, "source", "ORIGINAL"),
+                str(m, "note", "")));
+    }
+
+    public static List<io.versaera.domain.faith.Era> eras(Map<String, Object> root, String file) {
+        return each(root, "eras", file, (id, m) -> new io.versaera.domain.faith.Era(id, req(m, "name"), req(m, "when"), req(m, "summary"),
+                str(m, "source", "ORIGINAL")));
     }
 
     public static List<io.versaera.domain.world.Gate> gates(Map<String, Object> root, String file) {
