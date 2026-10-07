@@ -32,10 +32,10 @@ import java.util.function.Predicate;
 
 /**
  * 사망 (DTH-01 · DTH-02). 계산은 DeathService.
- * <p>원작식(canon): 서버 난수로 고른 칸의 아이템이 그 자리에 떨어지고, 숙련이 레벨까지 떨어지며, 현실 24시간 동안 접속할 수 없다 (곧바로 내보냄).
+ * <p>원작식(canon): 서버 난수로 고른 칸의 아이템이 그 자리에 떨어지고, 숙련이 레벨까지 · 행동 스탯이 떨어진다 (원작의 24시간 접속 불가는 없음).
  * 떨어진 고유 아이템은 DB 에서 '땅(ground)'이 되어 아무의 것도 아니고, 처음 주운 사람이 서버 판정으로 임자가 된다 — 복제 · 동시 줍기 불가.
  * 땅에서 사라지면(5분) 그 아이템도 사라진다. 초보 기간에는 아무 페널티도 없다.
- * <p>완화판(soft): 드롭 · 접속 제한 없음 — 진행도 감소 · 장비 마모 · 쇠약만.
+ * <p>완화판(soft): 드롭 없음 — 진행도 감소 · 장비 마모 · 쇠약만.
  */
 public final class DeathListener implements Listener {
     private final Plugin plugin;
@@ -112,15 +112,9 @@ public final class DeathListener implements Listener {
                 p.sendMessage(Ui.c("&7초보 기간이라 사망 페널티가 없습니다"));
                 return;
             }
-            p.sendMessage(Ui.c("&7숙련 &c-" + res.totalXpLoss() + " &7· 장비 마모 &c-" + res.wear() + (res.heavyWear() ? " &7· 최대 내구도 &c-1" : "")
+            p.sendMessage(Ui.c("&7숙련 &c-" + res.totalXpLoss() + (res.penalty().totalStatLoss() > 0 ? " &7· 스탯 기록 &c-" + res.penalty().totalStatLoss() : "")
+                    + " &7· 장비 마모 &c-" + res.wear() + (res.heavyWear() ? " &7· 최대 내구도 &c-1" : "")
                     + (e.getDrops().isEmpty() ? "" : " &7· 떨어뜨린 물건 &c" + e.getDrops().size() + "개")));
-            if (res.lockUntil() > 0) {
-                long h = (res.lockUntil() - System.currentTimeMillis() + 59_999) / 3_600_000L;
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    if (p.isOnline() && !p.hasPermission("versaera.admin"))
-                        p.kickPlayer(Ui.c("&c사망했습니다\n&7원작처럼 현실 " + Math.max(1, h) + "시간 동안 접속할 수 없습니다"));
-                }, 60L);
-            }
         }, p);
     }
 

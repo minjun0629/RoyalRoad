@@ -60,5 +60,10 @@ items:
   # ---- 예술품 (고유, 실제 아이템 — 인벤토리 보관 · 거래 · 판매 가능)
   figurine:        {name: 작은 조각상, category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 2, tags: [art, sculpture]}
   statuette:       {name: 대리석 조각상, category: ARTWORK, material: ARMOR_STAND, durability: 150, weight: 6, tags: [art, sculpture]}
+  # 비기의 조각상 (던전의 숨은 보상) — 손에 들고 /비기 배우기
+  relic_life_statue:      {name: 생명이 깃든 조각상,   category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 4, tags: [art, sculpture, relic], source: CANON}
+  relic_transform_statue: {name: 모습을 바꾸는 조각상, category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 4, tags: [art, sculpture, relic], source: CANON}
+  emperor_crown:          {name: 황제의 왕관, category: ARMOR, material: GOLDEN_HELMET, durability: 2000, weight: 2, tags: [helmet, crown], stats: {defense: 6}, source: CANON}
+  relic_revival_statue:   {name: 되살리는 조각상,     category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 4, tags: [art, sculpture, relic], source: CANON}
   relief_plaque:   {name: 부조 명판,   category: ARTWORK, material: ITEM_FRAME, durability: 120, weight: 4, tags: [art, relief]}
   wind_chime:      {name: 바람 풍경,   category: ARTWORK, material: BELL,       durability: 80,  weight: 1, tags: [art, sky]}

@@ -19,7 +19,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -32,11 +31,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 캐릭터 만들기 · 초보 기간 · 접속 제한 (CHR-01 · BEG-01 · DTH-02).
+ * 캐릭터 만들기 · 초보 기간 (CHR-01 · BEG-01).
  * <ul>
  *   <li>처음 들어오면 움직일 수 없고, 종족 → 성별 → 시작 도시 창이 뜬다. 고르면 그 도시 광장으로 소환되고 그곳이 부활 지점이 된다</li>
  *   <li>초보 기간(게임 30일)에는 시작 도시 밖으로 나갈 수 없다 (RegionTracker.confine)</li>
- *   <li>원작식 사망 뒤에는 정해진 시간까지 접속을 막는다 (서버 접속 단계에서 DB 확인)</li>
  *   <li>종족 특성: 오크 최대 체력 +4 · 조인족 낙하 피해 없음 · 엘프 밤눈</li>
  * </ul>
  */
@@ -77,19 +75,6 @@ public final class OriginListener implements Listener {
     private static String hours(long ms) {
         long h = Math.max(0, ms) / 3_600_000L, m = Math.max(0, ms) / 60_000L % 60;
         return h > 0 ? h + "시간 " + m + "분" : m + "분";
-    }
-
-    // ------------------------------------------------------------------ 접속 제한
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPreLogin(AsyncPlayerPreLoginEvent e) {
-        String id = e.getUniqueId().toString();
-        try {
-            var lock = exec.submit("login-lock", () -> s.origins.activeLock(id)).join();
-            lock.ifPresent(l -> e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    Ui.c("&c" + l.reason() + " — 사망 페널티로 접속할 수 없습니다\n&7남은 시간: 현실 " + hours(l.until() - System.currentTimeMillis()))));
-        } catch (RuntimeException ex) {
-            plugin.getLogger().warning("접속 제한 확인 실패 (들여보냄): " + ex.getMessage());
-        }
     }
 
     // ------------------------------------------------------------------ 들어옴 · 나감

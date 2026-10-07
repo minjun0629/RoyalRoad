@@ -36,6 +36,12 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     private final File dataFolder;
     private final Sealer sealer;
     private final Consumer<Player> deliver;
+    private java.util.function.BiConsumer<java.util.UUID, Boolean> minorHook;
+
+    /** 미성년 표시가 바뀌면 접속 중인 사람의 캐시도 바꾼다 */
+    public void onMinor(java.util.function.BiConsumer<java.util.UUID, Boolean> hook) {
+        minorHook = hook;
+    }
 
     public AdminCommand(GameServices s, Async async, ItemCodec codec, NpcListener npcs, BossRuntime bosses, File dataFolder, Sealer sealer,
                         Consumer<Player> deliver) {
@@ -118,13 +124,19 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 async.run("admin-money", () -> v > 0 ? s.economy.deposit(id, v, "admin", req) : s.economy.withdraw(id, -v, "admin", req),
                         ok -> sender.sendMessage(Ui.info("잔액 반영")), sender);
             }
-            case "unlock" -> {   // /va unlock <이름> — 원작식 사망 접속 제한 풀기
+            case "capsule" -> {   // /va capsule <이름> — 캡슐 등록 (config access.capsule_required)
                 String id = a.length > 1 ? uuidOf(a[1]) : null;
-                if (id == null) { sender.sendMessage(Ui.error("/va unlock <이름>")); return; }
-                async.run("admin-unlock", () -> {
-                    s.origins.unlock(id);
-                    return true;
-                }, ok -> sender.sendMessage(Ui.info("접속 제한을 풀었습니다")), sender);
+                if (id == null) { sender.sendMessage(Ui.error("/va capsule <이름>")); return; }
+                async.run("admin-capsule", () -> { s.access.registerCapsule(id); return true; }, ok -> sender.sendMessage(Ui.info("캡슐을 등록했습니다")), sender);
+            }
+            case "minor" -> {   // /va minor <이름> <on|off> — 미성년 보호 (사냥 · 전투 불가)
+                String id = a.length > 2 ? uuidOf(a[1]) : null;
+                if (id == null) { sender.sendMessage(Ui.error("/va minor <이름> <on|off>")); return; }
+                boolean on = a[2].equalsIgnoreCase("on");
+                async.run("admin-minor", () -> { s.access.setMinor(id, on); return true; }, ok -> {
+                    sender.sendMessage(Ui.info("미성년 보호 " + (on ? "켬" : "끔")));
+                    if (minorHook != null) minorHook.accept(java.util.UUID.fromString(id), on);
+                }, sender);
             }
             case "npc" -> {
                 if (!(sender instanceof Player p) || a.length < 3 || !a[1].equals("spawn")) { sender.sendMessage(Ui.error("/va npc spawn <id>")); return; }
@@ -220,7 +232,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] a) {
         if (!sender.hasPermission("versaera.admin")) return List.of();
-        if (a.length == 1) return filter(List.of("inspect", "item", "audit", "give", "money", "unlock", "npc", "boss", "seal", "hidden", "event", "perf"), a[0]);
+        if (a.length == 1) return filter(List.of("inspect", "item", "audit", "give", "money", "capsule", "minor", "npc", "boss", "seal", "hidden", "event", "perf"), a[0]);
         if (a.length == 3 && a[0].equals("give")) return filter(codec.types().all().stream().map(t -> t.id()).toList(), a[2]);
         if (a.length == 3 && a[0].equals("boss")) return filter(s.content.bosses().stream().map(b -> b.id()).toList(), a[2]);
         if (a.length == 3 && a[0].equals("npc")) return filter(s.relations.all().stream().map(n -> n.id()).toList(), a[2]);

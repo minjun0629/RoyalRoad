@@ -93,7 +93,11 @@ public final class RegionTracker implements Listener {
     /** 문 (WLD-03): 탐험 숙련은 DB 스레드에서 읽고, 이동은 메인 스레드에서 */
     private void cross(Player p, io.versaera.domain.world.Gate g) {
         String id = p.getUniqueId().toString();
-        async.run("gate", () -> s.gates.check(id, g), d -> {
+        async.run("gate", () -> {
+            if (s.access.minor(id) && g.minExploration() > 1)
+                throw io.versaera.domain.common.DomainException.of("gate.minor", "미성년 보호 대상은 다른 차원으로 건너갈 수 없습니다");
+            return s.gates.check(id, g);
+        }, d -> {
             if (!p.isOnline()) return;
             if (!d.allowed() && !p.hasPermission("versaera.admin")) {
                 p.sendMessage(Ui.c("&7" + d.reason()));

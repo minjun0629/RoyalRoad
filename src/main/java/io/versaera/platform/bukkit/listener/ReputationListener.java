@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <ul>
  *   <li>사람이 사람을 죽이면 서버의 사망 이벤트로 판정해 악명 +100 · 살인자. 살인자는 이름이 붉게 보이고(스코어보드 팀), 살인자를 죽인 사람은 아무 페널티가 없다</li>
  *   <li>악명 · 살인자는 몬스터를 잡을 때마다 조금씩 씻긴다 (신전 기부는 /기부)</li>
+ *   <li>몬스터는 살인자를 끝까지 쫓는다 (먼저 노리고, 놓치지 않음)</li>
  *   <li>같은 파티끼리는 서로 해칠 수 없다</li>
  * </ul>
  */
@@ -51,6 +52,29 @@ public final class ReputationListener implements Listener {
                 if (st != null && st.murderer() && st.murdererUntil() <= System.currentTimeMillis()) refresh(p);
             }
         }, 1200L, 1200L);
+        // 몬스터는 살인자를 끝까지 쫓는다 (원작): 2초마다 48 블록 안 몬스터가 살인자를 노리고, 추적 거리를 늘린다
+        Bukkit.getScheduler().runTaskTimer(plugin, this::hunt, 40L, 40L);
+    }
+
+    private void hunt() {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!standing(p.getUniqueId()).murderer() || p.isDead()) continue;
+            for (org.bukkit.entity.Entity e : p.getNearbyEntities(48, 24, 48)) {
+                if (!(e instanceof Monster m)) continue;
+                var range = m.getAttribute(org.bukkit.attribute.Attribute.GENERIC_FOLLOW_RANGE);
+                if (range != null && range.getBaseValue() < 64) range.setBaseValue(64);
+                if (m.getTarget() == null || !(m.getTarget() instanceof Player)) m.setTarget(p);
+            }
+        }
+    }
+
+    /** 살인자를 노리던 몬스터는 놓치지 않는다 (잊기 · 거리 초과로 표적을 버리지 않음) */
+    @EventHandler(ignoreCancelled = true)
+    public void onLoseTarget(org.bukkit.event.entity.EntityTargetEvent e) {
+        if (!(e.getEntity() instanceof Monster m) || !(m.getTarget() instanceof Player cur)) return;
+        if (e.getTarget() == null && standing(cur.getUniqueId()).murderer() && !cur.isDead() && cur.getWorld() == m.getWorld()
+                && cur.getLocation().distanceSquared(m.getLocation()) < 96 * 96)
+            e.setCancelled(true);
     }
 
     public ReputationService.Standing standing(UUID u) {
@@ -109,7 +133,19 @@ public final class ReputationListener implements Listener {
         Player victim = e.getEntity(), killer = victim.getKiller();
         if (killer == null || killer == victim) return;
         String k = killer.getUniqueId().toString(), v = victim.getUniqueId().toString();
-        async.run("pk", () -> s.reputation.playerKilled(k, v), kill -> {
+        org.bukkit.Location at = victim.getLocation();
+        io.versaera.domain.world.Region where = s.regions.at(at.getWorld().getName(), at.getBlockX(), at.getBlockY(), at.getBlockZ());
+        String region = where == null ? null : where.id();
+        async.run("pk", () -> {
+            // 공성 중인 두 길드가 그 성 안에서 싸운 것은 전쟁 — 악명 없음 (CST-01)
+            String kg = s.guilds.guildOf(k).map(g -> g.id()).orElse(null), vg = s.guilds.guildOf(v).map(g -> g.id()).orElse(null);
+            if (s.realm.atWar(kg, vg, region)) return new io.versaera.domain.reputation.Reputation.Kill(0, -1);
+            return s.reputation.playerKilled(k, v);
+        }, kill -> {
+            if (kill.murderMs() < 0) {
+                killer.sendMessage(Ui.info("공성전의 적을 쓰러뜨렸다"));
+                return;
+            }
             if (kill.notorietyGain() > 0) {
                 killer.sendMessage(Ui.error("사람을 죽였다 — 악명 +" + kill.notorietyGain() + " · 살인자 (붉은 이름). 몬스터 사냥 · 신전 기부로 씻을 수 있다"));
             } else killer.sendMessage(Ui.info("살인자를 처단했다 — 아무 페널티가 없다"));

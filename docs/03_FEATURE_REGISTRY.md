@@ -45,12 +45,19 @@
 | CHR-01 | 캐릭터 만들기 — 종족 · 성별 · 시작 도시 | CANON | **IMPLEMENTED** | CanonRulesTest, CanonDomainTest |
 | BEG-01 | 초보 기간 (한 달 동안 성 밖 금지) | CANON | **IMPLEMENTED** | CanonRulesTest |
 | TIME-01 | 게임 시간 4배 | CANON | **IMPLEMENTED** | CanonDomainTest |
-| DTH-02 | 사망 페널티 — 원작식 (기본) | CANON | **IMPLEMENTED** | CanonRulesTest |
+| DTH-02 | 사망 페널티 — 원작식 (기본, 접속 제한 없음) | CANON | **IMPLEMENTED** | CanonRulesTest |
 | REP-01 | 명성 · 악명 · 살인자 | CANON | **IMPLEMENTED** | CanonRulesTest |
 | GOD-01 | 신 · 교단 · 신전 기부 | CANON | **IMPLEMENTED** | CanonRulesTest |
 | POT-01 | 물약 — 회복력 상승 · 겹침 불가 · 레벨 따라 약해짐 | CANON | **IMPLEMENTED** | CanonDomainTest |
 | PTY-01 | 파티 | CANON | **IMPLEMENTED** | CanonDomainTest |
-| TRN-01 | 수련관 허수아비 · 힘 스탯 | CANON | **PARTIAL** (초급 수련관 시련 없음) | CanonRulesTest |
+| TRN-01 | 수련관 허수아비 · 힘 스탯 | CANON | **IMPLEMENTED** | CanonRulesTest |
+| TRN-02 | 초급 수련관 — 철인 100명 | CANON | **IMPLEMENTED** | CanonRulesTest |
+| ART-01 | 비기 · 최후의 비기 | CANON | **IMPLEMENTED** | CanonRulesTest |
+| ACC-01 | 캡슐 · 이용료 · 연령 제한 | CANON | **IMPLEMENTED** | CanonRulesTest |
+| LND-01 | 땅 | CANON | **IMPLEMENTED** | RealmServiceTest |
+| SHP-01 | 개인 상점 | CANON | **IMPLEMENTED** | RealmServiceTest |
+| CST-01 | 성 · 공성 · 세금 · 수입 | CANON | **IMPLEMENTED** | RealmServiceTest |
+| NAT-01 | 국가 · 황제 | CANON | **IMPLEMENTED** | RealmServiceTest |
 | LORE-01 | 연대기 · 신 목록 | CANON | **IMPLEMENTED** | CanonDomainTest |
 | UI-01 | 전용 MMORPG UI | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest |
 | RP-01 | 리소스팩 (코드로 생성 · 배포) | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest, ExternalPackTest |

@@ -42,6 +42,27 @@ commands:
   fame:
     description: 명성 · 악명 · 출신
     aliases: [명성]
+  arts:
+    description: 비기 (목록 · 배우기 · 쓰기)
+    aliases: [비기]
+  trial:
+    description: 초급 수련관 철인 100명 시련 (시작 · 포기)
+    aliases: [수련]
+  land:
+    description: 땅 (구입 · 팔기 · 허가 · 금지 · 목록)
+    aliases: [땅]
+  pshop:
+    description: 개인 상점 (개설 · 등록 · 닫기)
+    aliases: [상점]
+  castle:
+    description: 성 (목록 · 구입 · 세금 · 공성)
+    aliases: [성]
+  nation:
+    description: 국가 (건국 · 목록)
+    aliases: [국가]
+  emperor:
+    description: 황제
+    aliases: [황제]
   versaadmin:
     description: VersaEra 관리자
     aliases: [va]

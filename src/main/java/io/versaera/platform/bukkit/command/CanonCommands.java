@@ -17,13 +17,21 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 /**
- * /파티 · /기부 · /신 · /연대기 · /명성 (PTY-01 · GOD-01 · REP-01 · LORE-01)
+ * /파티 · /기부 · /신 · /연대기 · /명성 · /비기 · /수련 (PTY-01 · GOD-01 · REP-01 · LORE-01 · ART-01 · TRN-02)
  */
 public final class CanonCommands implements CommandExecutor {
     private final GameServices s;
     private final Async async;
     private final OriginListener origins;
     private final ReputationListener reputation;
+
+    private io.versaera.platform.bukkit.combat.SecretArtRuntime arts;
+    private io.versaera.platform.bukkit.world.IronMenTrial trial;
+
+    public void attach(io.versaera.platform.bukkit.combat.SecretArtRuntime arts, io.versaera.platform.bukkit.world.IronMenTrial trial) {
+        this.arts = arts;
+        this.trial = trial;
+    }
 
     public CanonCommands(GameServices s, Async async, OriginListener origins, ReputationListener reputation) {
         this.s = s;
@@ -92,6 +100,16 @@ public final class CanonCommands implements CommandExecutor {
                 }, p);
             }
             case "party" -> party(p, id, a);
+            case "arts" -> {
+                if (a.length == 0) arts.list(p);
+                else if (a.length >= 2 && (a[0].equals("배우기") || a[0].equals("learn"))) arts.learn(p, a[1]);
+                else if (a.length >= 2 && (a[0].equals("쓰기") || a[0].equals("use"))) arts.cast(p, a[1]);
+                else arts.cast(p, a[0]);
+            }
+            case "trial" -> {
+                if (a.length > 0 && (a[0].equals("포기") || a[0].equals("quit"))) trial.giveUp(p);
+                else trial.start(p);
+            }
             default -> {
                 return false;
             }

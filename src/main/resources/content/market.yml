@@ -42,6 +42,10 @@ prices:
   healing_draught: 160
   greater_draught: 520
   barley_bread: 2
+  relic_life_statue: 5000
+  relic_transform_statue: 5000
+  relic_revival_statue: 8000
+  emperor_crown: 500000
   smithing_hammer: 120
   carving_knife: 110
   sewing_kit: 90

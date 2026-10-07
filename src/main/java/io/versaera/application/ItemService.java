@@ -168,6 +168,29 @@ public final class ItemService {
         });
     }
 
+    /** 개인 상점에 올리기: 주인 것 → ESCROW(ref). 트랜잭션 안에서 부른다 */
+    void toEscrowInTx(String itemId, String owner, String ref) {
+        ItemInstance it = items.find(itemId).orElseThrow(() -> DomainException.of("item.unknown", "없는 아이템"));
+        DomainException.require(it.custody().ownedBy(owner), "item.not_owner", "소유자가 아닙니다");
+        it.custody(Custody.escrow(ref));
+        items.update(it);
+        items.history(itemId, "ESCROW", owner, ref, clock.nowMillis());
+    }
+
+    /** 상점에서 내리기 · 팔기: ESCROW(ref) → 받는 사람의 배달함. 트랜잭션 안에서 부른다 */
+    void fromEscrowInTx(String itemId, String ref, String recipient) {
+        ItemInstance it = items.find(itemId).orElseThrow(() -> DomainException.of("item.unknown", "없는 아이템"));
+        DomainException.require(it.custody().equals(Custody.escrow(ref)), "item.moved", "물건 상태가 바뀌었습니다");
+        it.custody(Custody.delivery(recipient));
+        items.update(it);
+        items.history(itemId, "RELEASED", recipient, ref, clock.nowMillis());
+    }
+
+    /** 묶음 배달 (트랜잭션 안) */
+    void deliverBulkInTx(String uuid, String typeId, int quality, int amount, String reason) {
+        deliverBulk(uuid, typeId, quality, amount, reason);
+    }
+
     public boolean onGround(String itemId) {
         return items.find(itemId).map(it -> it.custody().kind() == Custody.Kind.DELIVERY && it.custody().ref().startsWith(GROUND)).orElse(false);
     }

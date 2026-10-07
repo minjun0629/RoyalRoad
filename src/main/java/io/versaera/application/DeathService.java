@@ -12,13 +12,13 @@ import java.util.function.Supplier;
 /**
  * 사망 처리 (DTH-01 · DTH-02). 서버 규칙(death.mode)에 따라:
  * <ul>
- *   <li>canon (원작): 숙련이 레벨까지 떨어지고, 무작위 아이템이 떨어지고(어느 칸인지는 플랫폼이 서버 난수로 고름), 현실 24시간 접속 불가.
+ *   <li>canon (원작): 숙련이 레벨까지 떨어지고, 행동 스탯이 떨어지고, 무작위 아이템이 떨어진다 (어느 칸인지는 플랫폼이 서버 난수로 고름).
  *       악명 · 살인자면 더 크게. 초보 기간(시작 도시 밖에 못 나가는 동안)에는 페널티가 없다</li>
  *   <li>soft: 지금 단계 진행도만 감소 · 드롭 · 접속 제한 없음</li>
  * </ul>
  */
 public final class DeathService {
-    public record Outcome(DeathPenalty.Result penalty, long lockUntil, boolean beginner, boolean murderer) {
+    public record Outcome(DeathPenalty.Result penalty, boolean beginner, boolean murderer) {
         public int weakSeconds() {
             return penalty.weakSeconds();
         }
@@ -71,18 +71,17 @@ public final class DeathService {
                 return null;
             });
             growth.record(uuid, "death", 1);
-            return new Outcome(DeathPenalty.NONE, 0, true, false);
+            return new Outcome(DeathPenalty.NONE, true, false);
         }
         ServerRules sr = rules.get();
         ReputationService.Standing st = reputation == null ? new ReputationService.Standing(0, 0, 0, false) : reputation.standing(uuid);
         DeathPenalty.Result r = sr.canonDeath()
-                ? DeathPenalty.computeCanon(progress.allMastery(uuid), danger, Reputation.deathMult(st.notoriety(), st.murderer()))
+                ? DeathPenalty.computeCanon(progress.allMastery(uuid), statCounters(uuid), danger, Reputation.deathMult(st.notoriety(), st.murderer()))
                 : DeathPenalty.compute(progress.allMastery(uuid), danger);
-        long lockUntil = sr.canonDeath() && sr.lockoutHours() > 0 ? clock.nowMillis() + (long) (sr.lockoutHours() * 3_600_000L) : 0;
         tx.inTx(() -> {
             for (var e : r.xpLoss().entrySet()) progress.setMasteryXp(uuid, e.getKey(), Math.max(0, progress.masteryXp(uuid, e.getKey()) - e.getValue()));
             jobs.deathLog(uuid, region, danger, r.totalXpLoss(), clock.nowMillis());
-            if (lockUntil > 0 && origins != null) origins.lock(uuid, lockUntil, "사망");
+            for (var e : r.statLoss().entrySet()) progress.addCounter(uuid, e.getKey(), -Math.min(e.getValue(), progress.counter(uuid, e.getKey())));
             return null;
         });
         for (String id : equipped) {
@@ -94,6 +93,13 @@ public final class DeathService {
             }
         }
         growth.record(uuid, "death", 1);
-        return new Outcome(r, lockUntil, false, st.murderer());
+        return new Outcome(r, false, st.murderer());
+    }
+
+    /** 행동 스탯이 쓰는 기록들 (스탯마다 하나) */
+    private java.util.Map<String, Long> statCounters(String uuid) {
+        java.util.Map<String, Long> m = new java.util.LinkedHashMap<>();
+        for (var s : growth.stats()) m.put(s.counter(), progress.counter(uuid, s.counter()));
+        return m;
     }
 }

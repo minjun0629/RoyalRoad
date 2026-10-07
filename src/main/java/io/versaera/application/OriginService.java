@@ -90,20 +90,4 @@ public final class OriginService {
     public double xpMult(String uuid, String discipline) {
         return repo.find(uuid).map(o -> origins.race(o.race()).xpMult(discipline)).orElse(1.0);
     }
-
-    // ------------------------------------------------------------------ 접속 제한 (원작식 사망 페널티)
-    public Optional<OriginRepository.Lock> activeLock(String uuid) {
-        return repo.lock(uuid).filter(l -> l.until() > clock.nowMillis());
-    }
-
-    void lock(String uuid, long until, String reason) {
-        repo.setLock(uuid, until, reason);
-    }
-
-    public void unlock(String uuid) {
-        tx.inTx(() -> {
-            repo.clearLock(uuid);
-            return null;
-        });
-    }
 }

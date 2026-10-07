@@ -27,24 +27,4 @@ public final class JdbcOriginRepository implements OriginRepository {
             ps.setLong(5, o.createdAt());
         }) == 1;
     }
-
-    @Override
-    public Optional<Lock> lock(String uuid) {
-        return Optional.ofNullable(j.one("SELECT until, reason FROM login_lock WHERE uuid = ?", ps -> ps.setString(1, uuid),
-                rs -> new Lock(rs.getLong(1), rs.getString(2)), null));
-    }
-
-    @Override
-    public void setLock(String uuid, long until, String reason) {
-        j.update("INSERT INTO login_lock (uuid, until, reason) VALUES (?, ?, ?) ON CONFLICT (uuid) DO UPDATE SET until = excluded.until, reason = excluded.reason", ps -> {
-            ps.setString(1, uuid);
-            ps.setLong(2, until);
-            ps.setString(3, reason);
-        });
-    }
-
-    @Override
-    public void clearLock(String uuid) {
-        j.update("DELETE FROM login_lock WHERE uuid = ?", ps -> ps.setString(1, uuid));
-    }
 }

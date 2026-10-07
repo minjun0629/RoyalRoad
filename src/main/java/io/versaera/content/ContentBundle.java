@@ -33,9 +33,10 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                             io.versaera.domain.origin.Origins origins,
                             List<io.versaera.domain.faith.God> gods,
                             List<io.versaera.domain.faith.Temple> temples,
-                            List<io.versaera.domain.faith.Era> eras) {
+                            List<io.versaera.domain.faith.Era> eras,
+                            List<io.versaera.domain.art.SecretArt> arts) {
     public static final List<String> FILES = List.of("items.yml", "disciplines.yml", "action_stats.yml", "recipes.yml", "resources.yml",
-            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml", "gates.yml", "origins.yml", "gods.yml", "history.yml");
+            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml", "gates.yml", "origins.yml", "gods.yml", "history.yml", "secret_arts.yml");
 
     public static ContentBundle load(Function<String, InputStream> opener) {
         Map<String, Object> skills = read(opener, "skills.yml"), gods = read(opener, "gods.yml");
@@ -60,7 +61,8 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                 ContentLoader.origins(read(opener, "origins.yml"), "origins.yml"),
                 ContentLoader.gods(gods, "gods.yml"),
                 ContentLoader.temples(gods, "gods.yml"),
-                ContentLoader.eras(read(opener, "history.yml"), "history.yml"));
+                ContentLoader.eras(read(opener, "history.yml"), "history.yml"),
+                ContentLoader.arts(read(opener, "secret_arts.yml"), "secret_arts.yml"));
     }
 
     public static ContentBundle fromClasspath(ClassLoader cl) {

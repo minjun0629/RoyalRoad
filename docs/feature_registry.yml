@@ -788,20 +788,20 @@ features:
     status: IMPLEMENTED
 
   - id: DTH-02
-    feature: "사망 페널티 — 원작식 (기본)"
+    feature: "사망 페널티 — 원작식 (기본, 접속 제한 없음)"
     category: "전투"
     source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
     source_type: "원작 개념"
     classification: CANON
-    description: "현실 24시간 접속 불가(config) · 숙련이 레벨까지 떨어짐 · 서버 난수로 고른 칸의 아이템이 그 자리에 떨어짐 · 장비 마모 · 쇠약. 악명 · 살인자면 더 크게. 초보 기간 · 던전 안은 드롭 · 접속 제한 없음. 떨어진 고유 아이템은 DB 에서 '땅' 상태가 되고 처음 주운 사람만 서버 판정으로 임자가 됨, 5분 뒤 사라지면 아이템도 사라짐"
+    description: "숙련이 레벨까지 떨어짐 · 행동 스탯의 바탕 기록이 (2 + 위험도)% × 배율 줄어 스탯이 떨어짐 · 서버 난수로 고른 칸의 아이템이 그 자리에 떨어짐 · 장비 마모 · 쇠약. 악명 · 살인자면 더 크게. 초보 기간 · 던전 안은 드롭 없음. 원작의 24시간 접속 불가는 사용자 요청으로 뺐다. 떨어진 고유 아이템은 DB 에서 땅 상태, 처음 주운 사람만 서버 판정으로 임자, 5분 뒤 사라지면 아이템도 사라짐"
     player_experience: "죽음이 원작처럼 무겁다"
     dependencies: [SKL-01, ITM-01, REP-01, BEG-01]
     implementation: "DeathPenalty.computeCanon · DeathService · ItemService.dropToGround/claimFromGround · DeathListener · OriginListener(접속 단계 차단)"
-    data_model: "login_lock · item_instance(DELIVERY ground:) · death_log"
+    data_model: "item_instance(DELIVERY ground:) · death_log · progress counter (스탯 기록)"
     ui: "감소량 · 드롭 수 · 킥 메시지"
     resource_pack: "없음"
     performance_risk: "사망 때만"
-    security_risk: "줍기는 서버 판정 · 먼저 온 요청만 성공 → 복제 불가. 호퍼 줍기 차단. 관리자 /va unlock"
+    security_risk: "줍기는 서버 판정 · 먼저 온 요청만 성공 → 복제 불가. 호퍼 줍기 차단"
     persistence: "DB"
     tests: [CanonRulesTest]
     server_test: BLOCKED
@@ -813,7 +813,7 @@ features:
     source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
     source_type: "원작 개념"
     classification: CANON
-    description: "명성: 의뢰 · 최초 발견으로 오름 → 의뢰 돈 보상 +5%/단계, 명사 이상이면 일상 · 숙련 의뢰 조건 완화. 악명: 살인자가 아닌 사람을 죽이면 +100 → 100 이상이면 보통 NPC 가 의뢰 · 거래 거절, 보상 -25%, 악한 NPC(장물아비 베릭)와만 거래. 살인자: 붉은 이름 · 사망 페널티 2배 · 살인자를 죽인 사람은 페널티 없음. 몬스터 사냥 · 신전 기부로 씻김 (수치 ORIGINAL)"
+    description: "명성: 의뢰 · 최초 발견 · 시련으로 오름 → 의뢰 돈 보상 +5%/단계, 명사 이상이면 일상 · 숙련 의뢰 조건 완화. 악명: 살인자가 아닌 사람을 죽이면 +100 → 100 이상이면 보통 NPC 가 의뢰 · 거래 거절, 보상 -25%, 악한 NPC(장물아비 베릭)와만 거래. 살인자: 붉은 이름 · 사망 페널티 2배 · 살인자를 죽인 사람은 페널티 없음 · 몬스터가 끝까지 쫓음(48 블록 안 몬스터가 노리고 표적을 놓지 않음). 공성 중 적 길드끼리는 악명 없음. 몬스터 사냥 · 신전 기부로 씻김 (수치 ORIGINAL)"
     player_experience: "행동이 평판으로 돌아온다"
     dependencies: [QST-01, NPC-01]
     implementation: "domain.reputation.Reputation · application.ReputationService · QuestService · NpcMenus · ReputationListener"
@@ -893,7 +893,7 @@ features:
     source: "나무위키 「로열 로드」 §3 · §6 (사용자 제공 본문)"
     source_type: "원작 개념"
     classification: CANON
-    description: "기초 · 초급 수련관 가운데 허수아비 셋. 칠 때마다(0.4초에 한 번) 행동 기록 → 행동 스탯 '힘' → 근접 피해 +0.5%/포인트 (최대 15%). 원작: 허수아비가 스탯을 주는 게 아니라 반복 행동이 스탯을 만든다. 초급 수련관의 '철인 100명' 시련은 아직 없음 (랜드마크만)"
+    description: "기초 · 초급 수련관 가운데 허수아비 셋. 칠 때마다(0.4초에 한 번) 행동 기록 → 행동 스탯 힘 → 근접 피해 +0.5%/포인트 (최대 15%). 원작: 허수아비가 스탯을 주는 게 아니라 반복 행동이 스탯을 만든다"
     player_experience: "위드처럼 허수아비 치기"
     dependencies: [SKL-02, SKL-03]
     implementation: "TrainingDummies · action_stats.yml strength · StatEffects.meleeDamagePct · CombatListener"
@@ -905,7 +905,7 @@ features:
     persistence: "DB"
     tests: [CanonRulesTest]
     server_test: BLOCKED
-    status: PARTIAL
+    status: IMPLEMENTED
 
   - id: LORE-01
     feature: "연대기 · 신 목록"
@@ -924,6 +924,146 @@ features:
     security_risk: "없음"
     persistence: "없음"
     tests: [CanonDomainTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: ACC-01
+    feature: "캡슐 · 이용료 · 연령 제한"
+    category: "운영"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "원작의 현실 쪽 규칙을 게임 규칙으로. 캡슐: config access.capsule_required 면 관리자가 /va capsule 로 등록한 사람만 접속. 이용료: access.subscription_fee 골드를 기간(30일)마다 자동 결제, 첫 기간 무료, 못 내면 접속 불가 (기본 0 = 끔). 연령 제한: /va minor 로 표시한 사람은 공격 · 피격 · 던전 · 다른 차원 · 시련 불가. 진짜 돈 결제 · 성인 콘텐츠는 없음"
+    player_experience: "원작처럼 접속 조건이 있는 세계 (서버가 고름)"
+    dependencies: [ECO-01]
+    implementation: "application.AccessService · AccessListener · DungeonService · RegionTracker"
+    data_model: "progress counter: access.capsule · access.paid_until · access.minor"
+    ui: "접속 거부 메시지 · 남은 기간"
+    resource_pack: "없음"
+    performance_risk: "접속 때 한 번"
+    security_risk: "결제는 원장 key 로 한 기간 한 번"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: TRN-02
+    feature: "초급 수련관 — 철인 100명"
+    category: "성장"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "초급 수련관에서 /수련: 철인(철 갑옷 변명자)이 한 번에 셋까지 차례로 나오고 도전자가 쓰러뜨린 것만 센다. 100명이면 통과 — 처음 한 번 명성 +300 · 인내 · 힘 기록 +300. 죽음 · 이탈(24 블록) · 30분 초과면 실패. 한 수련관에 한 사람"
+    player_experience: "위드가 통과한 초급 수련관 시련"
+    dependencies: [TRN-01, REP-01]
+    implementation: "application.TrialService · platform.bukkit.world.IronMenTrial"
+    data_model: "progress counter trial.ironmen"
+    ui: "/수련 · 액션바 진행"
+    resource_pack: "없음"
+    performance_risk: "철인 셋만"
+    security_risk: "보상은 DB 기록으로 한 번"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: ART-01
+    feature: "비기 · 최후의 비기"
+    category: "성장"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "조각사: 조각 생명술(조각품을 바쳐 철 골렘 동료) · 조각 변신술(5분 강화 · 이름 숨김) · 조각 부활술(파티에 부활의 가호) · 정령창조 조각술(정령 셋, 스스로 깨우침) · 최후의 비기 시간 조각술(숙련 29 가속 / 30 정지 / 31 여행). 요리사: 최후의 비기 천상의 맛(잔치 + 하루 한 번 영구 인내). 배우기: 직업 + 숙련 레벨 + 비기의 조각상(던전 숨은 보상)을 바치거나 스스로 깨우침 조건. 화가의 대륙 창조는 화가 직업이 없어 없음"
+    player_experience: "마스터 직전의 최상급 스킬"
+    dependencies: [CLS-01, SKL-01, DUN-01]
+    implementation: "domain.art.SecretArt · application.SecretArtService · platform.bukkit.combat.SecretArtRuntime"
+    data_model: "content/secret_arts.yml · discovery(kind art)"
+    ui: "/비기"
+    resource_pack: "없음"
+    performance_risk: "소환수는 저장하지 않음 · 시간 정지 8초"
+    security_risk: "조각상은 DB 에서 파괴 후 배움"
+    persistence: "DB"
+    tests: [CanonRulesTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: LND-01
+    feature: "땅"
+    category: "영지"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "청크(16×16) 단위로 산다 (도시 5,000 + 위험 · 들판 500 + 위험, 금역 · 던전 입구 · 명소 · 문 · 바다 · NPC 일터는 불가, 1인 16칸). 산 땅은 주인과 허가받은 사람만 블록 · 상자 · 문 · 양동이를 쓰고 폭발도 막힘. 팔면 절반 환불. 성 안 땅을 사면 성 세금이 성 주인 길드로"
+    player_experience: "내 땅에 마음대로 짓기"
+    dependencies: [ECO-01, WLD-01]
+    implementation: "domain.realm.RealmRules · application.RealmService · platform.bukkit.world.RealmRuntime · RealmCommands"
+    data_model: "land_plot · plot_member (V5)"
+    ui: "/땅"
+    resource_pack: "없음"
+    performance_risk: "보호는 메모리 캐시 (DB 를 기다리지 않음)"
+    security_risk: "관리자는 통과"
+    persistence: "DB"
+    tests: [RealmServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: SHP-01
+    feature: "개인 상점"
+    category: "영지"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "내 땅의 블록을 상점으로 (/상점 개설). 물건은 서버가 쥔다: 고유 아이템은 ESCROW, 묶음은 수량 기록. 상점 블록 우클릭 = 창 (1개 · 16개 구매, 주인은 내리기). 돈은 원장 이체, 산 물건은 배달함, 성 안이면 세금이 성 주인 길드로. 1인 5곳 · 27칸"
+    player_experience: "길가에 내 가게"
+    dependencies: [LND-01, ITM-01, ECO-01]
+    implementation: "RealmService · RealmRuntime.openShop · RealmCommands"
+    data_model: "player_shop · shop_stock (V5)"
+    ui: "상점 창"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "물건이 인벤토리 · 상점에 동시에 있을 수 없음 (ESCROW) · 같은 구매 key 한 번"
+    persistence: "DB"
+    tests: [RealmServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: CST-01
+    feature: "성 · 공성 · 세금 · 수입"
+    category: "영지"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "도시 · 성 · 전초기지 하나가 성 하나. 길드장이 길드 금고로 산다 (수도 100,000 · 성 50,000 · 도시 30,000 · 전초기지 15,000). 하루마다 성 값의 1% 수입, 세율 0 ~ 20% (성 안 상점 거래 · 땅 구입). 공성: 5,000 골드로 선포 → 30분 동안 공격 길드원만 성 한가운데 8 블록 안에 있으면 1초씩, 300초면 성이 넘어감 (수비가 있으면 멈춤). 공성 중 두 길드는 그 성 안에서 악명 없이 싸움"
+    player_experience: "길드가 성을 차지하고 빼앗는다"
+    dependencies: [GLD-01, ECO-01, REP-01]
+    implementation: "RealmService · RealmRuntime.siegeTick · RealmCommands"
+    data_model: "castle (V5) · 공성 진행은 메모리"
+    ui: "/성 · 액션바 점령 진행"
+    resource_pack: "없음"
+    performance_risk: "1초마다 성 근처 사람 수만"
+    security_risk: "판정 · 소유 이전은 서버"
+    persistence: "DB"
+    tests: [RealmServiceTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: NAT-01
+    feature: "국가 · 황제"
+    category: "영지"
+    source: "나무위키 「로열 로드」 §2 · §6 (사용자 제공 본문)"
+    source_type: "원작 개념"
+    classification: CANON
+    description: "성을 가진 길드의 길드장이 /국가 건국. 한 나라가 수도 6곳(세라보그 · 아렌 · 네할레스 · 시슬레 · 힐쉐이드 · 모라타)을 모두 가지면 베르사 최초의 황제 — 서버에서 처음 한 번만. 상금(config emperor.reward_gold, 기본 1,000,000 골드)은 길드 금고로, 길드장에게 황제의 왕관. 원작의 현실 상금(매출 10% · 주식 5%) 대신 게임 골드"
+    player_experience: "대륙 통일이라는 원작의 목표"
+    dependencies: [CST-01]
+    implementation: "RealmService.foundNation/checkEmperor · RealmCommands"
+    data_model: "nation · emperor (V5)"
+    ui: "/국가 · /황제 · 전 서버 알림"
+    resource_pack: "없음"
+    performance_risk: "낮음"
+    security_risk: "황제 기록은 한 줄 (id = 1)"
+    persistence: "DB"
+    tests: [RealmServiceTest]
     server_test: BLOCKED
     status: IMPLEMENTED
 
