@@ -61,7 +61,9 @@ public final class PackSender implements Listener {
 
     @EventHandler
     public void onStatus(PlayerResourcePackStatusEvent e) {
-        if (e.getStatus() == PlayerResourcePackStatusEvent.Status.DECLINED || e.getStatus() == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD)
-            e.getPlayer().sendMessage(Ui.error("리소스팩이 없으면 보스 모델 · 메뉴 배경이 기본 그림으로 보입니다"));
+        if (e.getStatus() == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
+            e.getPlayer().sendMessage(Ui.error("리소스팩을 받지 못했습니다"));
+            plugin.getLogger().warning(e.getPlayer().getName() + " 리소스팩 받기 실패: " + url);
+        }
     }
 }

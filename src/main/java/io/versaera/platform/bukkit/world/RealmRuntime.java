@@ -111,7 +111,7 @@ public final class RealmRuntime implements Listener {
     public void onBreak(BlockBreakEvent e) {
         if (shops.containsKey(block(e.getBlock().getWorld().getName(), e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ()))) {
             e.setCancelled(true);
-            Ui.bar(e.getPlayer(), "&7상점 블록은 /상점 닫기 로 정리하세요");
+            Ui.bar(e.getPlayer(), "&7상점 블록");
             return;
         }
         if (denied(e.getPlayer(), e.getBlock())) {

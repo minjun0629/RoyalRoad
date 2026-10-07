@@ -49,6 +49,47 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         this.deliver = deliver;
     }
 
+    /**
+     * 초기화. /va 초기화 <이름> 확인 = 그 사람의 진행 · 아이템을 지움 (접속 중이면 인벤토리를 비우고 내보냄)
+     * /va 초기화 전체 확인 = 다음 시작 때 DB 와 세계를 지우고 처음부터 (세계는 읽히기 전에만 지울 수 있다)
+     */
+    private void reset(CommandSender sender, String[] a) {
+        if (a.length < 3 || !a[2].equals("확인")) {
+            sender.sendMessage(Ui.error("/va 초기화 <이름> 확인 · /va 초기화 전체 확인 — 되돌릴 수 없습니다"));
+            return;
+        }
+        if (a[1].equals("전체") || a[1].equalsIgnoreCase("all")) {
+            try {
+                dataFolder.mkdirs();
+                java.nio.file.Files.writeString(new File(dataFolder, "reset-all").toPath(), sender.getName() + " " + java.time.LocalDateTime.now());
+            } catch (java.io.IOException e) {
+                sender.sendMessage(Ui.error("초기화 예약 실패: " + e.getMessage()));
+                return;
+            }
+            sender.sendMessage(Ui.info("전체 초기화를 예약했습니다 — 서버를 껐다 켜면 DB · 세계가 지워지고 처음부터 시작합니다 (취소: plugins/VersaEra/reset-all 삭제)"));
+            return;
+        }
+        String id = uuidOf(a[1]);
+        if (id == null) { sender.sendMessage(Ui.error("그런 플레이어가 없습니다: " + a[1])); return; }
+        String who = sender instanceof Player p ? p.getUniqueId().toString() : "console";
+        Player online = Bukkit.getPlayer(UUID.fromString(id));
+        Runnable wipe = () -> async.run("reset", () -> s.reset.player(id, who), n -> {
+            // 저장된 인벤토리 · 위치 (서버 파일)도 지운다 — 다시 들어오면 빈손으로 종족 고르기부터
+            for (org.bukkit.World w : Bukkit.getWorlds()) new File(w.getWorldFolder(), "playerdata/" + id + ".dat").delete();
+            sender.sendMessage(Ui.info(a[1] + " 초기화 (" + n + "건)"));
+        }, sender);
+        if (online != null) {
+            online.getInventory().clear();
+            online.getEnderChest().clear();
+            online.setLevel(0);
+            online.setExp(0);
+            online.kickPlayer(Ui.c("&c초기화되었습니다"));
+            Bukkit.getScheduler().runTaskLater(org.bukkit.plugin.java.JavaPlugin.getProvidingPlugin(AdminCommand.class), wipe, 2L);
+        } else {
+            wipe.run();
+        }
+    }
+
     private static String uuidOf(String name) {
         Player online = Bukkit.getPlayerExact(name);
         if (online != null) return online.getUniqueId().toString();
@@ -73,6 +114,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
 
     private void run(CommandSender sender, String sub, String[] a, String req) {
         switch (sub) {
+            case "초기화", "reset" -> reset(sender, a);
             case "inspect" -> {
                 String id = a.length > 1 ? uuidOf(a[1]) : null;
                 if (id == null) { sender.sendMessage(Ui.error("/va inspect <이름>")); return; }
@@ -150,7 +192,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(Ui.info("지역 " + s.regions.all().size() + " · 레시피 " + s.crafting.all().size() + " · 히든 " + (s.hidden() == null ? 0 : s.hidden().ruleCount())
                         + " · 메모리 " + (rt.totalMemory() - rt.freeMemory()) / 1048576 + "MB"));
             }
-            default -> sender.sendMessage(Ui.info("inspect · item · audit · give · money · npc spawn · boss spawn|stop · seal · hidden generate · event · perf"));
+            default -> sender.sendMessage(Ui.info("inspect · item · audit · give · money · npc spawn · boss spawn|stop · seal · hidden generate · event · perf · 초기화"));
         }
     }
 
@@ -232,7 +274,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] a) {
         if (!sender.hasPermission("versaera.admin")) return List.of();
-        if (a.length == 1) return filter(List.of("inspect", "item", "audit", "give", "money", "npc", "boss", "seal", "hidden", "event", "perf"), a[0]);
+        if (a.length == 1) return filter(List.of("inspect", "item", "audit", "give", "money", "npc", "boss", "seal", "hidden", "event", "perf", "초기화"), a[0]);
         if (a.length == 3 && a[0].equals("give")) return filter(codec.types().all().stream().map(t -> t.id()).toList(), a[2]);
         if (a.length == 3 && a[0].equals("boss")) return filter(s.content.bosses().stream().map(b -> b.id()).toList(), a[2]);
         if (a.length == 3 && a[0].equals("npc")) return filter(s.relations.all().stream().map(n -> n.id()).toList(), a[2]);

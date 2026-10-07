@@ -50,7 +50,7 @@ public final class AdventureListener implements Listener {
         if (p == null) return;
         p.sendTitle(Ui.c("&6업적"), Ui.c("&f" + e.name()), 5, 50, 15);
         p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.8f, 1f);
-        if (e.title() != null) p.sendMessage(Ui.info("새 칭호: " + s.achievements.title(e.title()).color() + s.achievements.title(e.title()).name() + " &7— /칭호"));
+        if (e.title() != null) p.sendMessage(Ui.info("새 칭호: " + s.achievements.title(e.title()).color() + s.achievements.title(e.title()).name()));
         if (e.worldFirst()) Bukkit.broadcastMessage(Ui.info(p.getName() + " 님이 서버에서 처음으로 업적 「" + e.name() + "」 달성"));
     }
 

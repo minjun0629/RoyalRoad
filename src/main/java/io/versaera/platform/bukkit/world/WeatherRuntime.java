@@ -40,7 +40,7 @@ public final class WeatherRuntime implements Listener {
             String before = shown.put(p.getUniqueId(), k.id());
             if (!k.id().equals(before)) {
                 p.setPlayerWeather(k.downfall() ? WeatherType.DOWNFALL : WeatherType.CLEAR);
-                if (before != null) Ui.bar(p, "&b" + k.name() + " &7— " + k.desc());
+                if (before != null) Ui.bar(p, "&b" + k.name());
             }
             if (k.particle() != null) {
                 try {

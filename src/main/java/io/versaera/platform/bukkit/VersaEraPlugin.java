@@ -69,7 +69,83 @@ public final class VersaEraPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        resetIfRequested();
+        useOurGenerator();
         installDatapack();
+    }
+
+    /**
+     * /va 초기화 전체 확인 으로 예약된 전체 초기화: 세계가 읽히기 전(onLoad · load: STARTUP)에 DB 와 세계 폴더를 지운다.
+     * 설정 · 콘텐츠 · 봉인 키는 남긴다.
+     */
+    private void resetIfRequested() {
+        java.io.File flag = new java.io.File(getDataFolder(), "reset-all");
+        if (!flag.exists()) return;
+        try {
+            java.util.Properties props = new java.util.Properties();
+            java.io.File sp = new java.io.File("server.properties");
+            if (sp.exists()) try (var in = new java.io.FileInputStream(sp)) { props.load(in); }
+            String level = props.getProperty("level-name", "world");
+            List<java.io.File> gone = new java.util.ArrayList<>();
+            for (String f : List.of("versaera.db", "versaera.db-wal", "versaera.db-shm", "startup-error.txt")) gone.add(new java.io.File(getDataFolder(), f));
+            for (String w : List.of(level, level + "_nether", level + "_the_end", REALMS, "versa_dungeons")) gone.add(new java.io.File(w));
+            for (java.io.File f : gone) deleteTree(f.toPath());
+            java.nio.file.Files.delete(flag.toPath());
+            getLogger().warning("전체 초기화 완료 — DB 와 세계 (" + level + " 외) 를 지웠습니다. 처음부터 시작합니다");
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "전체 초기화 실패 — reset-all 을 남겨 두고 다음 시작 때 다시 시도합니다", e);
+        }
+    }
+
+    private static void deleteTree(java.nio.file.Path p) throws java.io.IOException {
+        if (!java.nio.file.Files.exists(p)) return;
+        try (var walk = java.nio.file.Files.walk(p)) {
+            for (java.nio.file.Path x : walk.sorted(java.util.Comparator.reverseOrder()).toList()) java.nio.file.Files.delete(x);
+        }
+    }
+
+    /**
+     * 기본 세계(server.properties 의 level-name)가 VersaEra 지형으로 만들어지게 bukkit.yml 의 worlds.<이름>.generator 를 채운다.
+     * 플러그인은 load: STARTUP 이라 세계보다 먼저 읽힌다 → 서버가 이미 읽어 둔 bukkit.yml 설정(CraftServer.configuration)에도 바로 넣어
+     * 같은 시작에서 적용되게 한다. 관리자가 다른 생성기를 적어 두었으면 건드리지 않는다. config: world.auto-generator: false 로 끈다.
+     */
+    private void useOurGenerator() {
+        try {
+            java.io.File cfg = new java.io.File(getDataFolder(), "config.yml");
+            if (cfg.exists() && !org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(cfg).getBoolean("world.auto-generator", true)) return;
+            java.util.Properties props = new java.util.Properties();
+            java.io.File sp = new java.io.File("server.properties");
+            if (sp.exists()) try (var in = new java.io.FileInputStream(sp)) { props.load(in); }
+            String level = props.getProperty("level-name", "world");
+            String key = "worlds." + level + ".generator";
+            // 1) 서버가 읽어 둔 설정 (이번 시작)
+            org.bukkit.configuration.file.YamlConfiguration live = null;
+            try {
+                java.lang.reflect.Field f = getServer().getClass().getDeclaredField("configuration");
+                f.setAccessible(true);
+                if (f.get(getServer()) instanceof org.bukkit.configuration.file.YamlConfiguration y) live = y;
+            } catch (ReflectiveOperationException | RuntimeException ignored) {
+                // 서버 구현이 다르면 파일만 고친다 (다음 시작부터)
+            }
+            java.io.File by = new java.io.File("bukkit.yml");
+            org.bukkit.configuration.file.YamlConfiguration file = by.exists() ? org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(by)
+                    : new org.bukkit.configuration.file.YamlConfiguration();
+            String current = live != null ? live.getString(key) : file.getString(key);
+            if (current != null && !current.isBlank()) {
+                if (!current.startsWith(getName())) getLogger().warning("bukkit.yml 의 " + key + " = " + current + " — 다른 생성기라 그대로 둡니다 (VersaEra 지형을 쓰려면 지우세요)");
+                return;
+            }
+            if (live != null) live.set(key, getName());
+            file.set(key, getName());
+            file.save(by);
+            java.io.File region = new java.io.File(level, "region");
+            boolean old = region.isDirectory() && region.list() != null && region.list().length > 0;
+            getLogger().warning("bukkit.yml 에 " + key + ": " + getName() + " 를 넣었습니다" + (live != null ? " (이번 시작부터 적용)" : " (다음 시작부터 적용)"));
+            if (old) getLogger().warning("이미 만들어진 세계 '" + level + "' 는 이미 생긴 땅이 그대로 남습니다 — 서버를 끄고 "
+                    + level + ", " + level + "_nether, " + level + "_the_end 폴더를 지운 뒤 다시 켜면 처음부터 VersaEra 지형으로 만들어집니다");
+        } catch (Exception e) {
+            getLogger().log(Level.WARNING, "기본 세계 생성기를 지정하지 못했습니다 — bukkit.yml 에 worlds.<세계 이름>.generator: VersaEra 를 직접 적어 주세요", e);
+        }
     }
 
     /**

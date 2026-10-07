@@ -325,7 +325,7 @@ public final class PetRuntime implements Listener {
                 target.remove();
                 at.getWorld().spawnParticle(Particle.HEART, at.add(0, 1, 0), 8, 0.4, 0.4, 0.4);
                 p.playSound(at, Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.6f);
-                p.sendTitle(Ui.c("&a" + sp.get().name()), Ui.c("&7길들였다 — /펫"), 5, 40, 10);
+                p.sendTitle(Ui.c("&a" + sp.get().name()), Ui.c("&7길들였다"), 5, 40, 10);
             } else {
                 at.getWorld().spawnParticle(Particle.SMOKE_NORMAL, at.add(0, 1, 0), 10, 0.3, 0.3, 0.3, 0.01);
                 p.sendMessage(Ui.c("&7" + sp.get().name() + " 이(가) 먹이만 먹고 물러났다 &8(" + Math.round(r.chance() * 100) + "%)"));

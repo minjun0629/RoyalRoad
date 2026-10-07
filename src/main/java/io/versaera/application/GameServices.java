@@ -62,6 +62,7 @@ public final class GameServices {
     public final TravelService travel;
     public final RaidService raids;
     public final ArtworkService artworks;
+    public final ResetService reset;
     /** 파티 (접속 중에만 · 메인 스레드 전용) */
     public final io.versaera.domain.party.Parties parties = new io.versaera.domain.party.Parties();
     private volatile ServerRules rules = ServerRules.CANON;
@@ -139,6 +140,7 @@ public final class GameServices {
         this.travel = new TravelService(tx, adventure, this, ex.mounts(), ex.travel(), clock);
         this.raids = new RaidService(tx, adventure, this, ex.raids(), bus, clock, zone);
         this.artworks = new ArtworkService(tx, adventure, this, ex.artworks(), clock, zone);
+        this.reset = new ResetService(tx, new io.versaera.persistence.JdbcResetRepository(db), this);
         // 퀘스트 진행: 발견 · 제작은 도메인 이벤트로 (같은 DB 스레드에서 동기 처리)
         bus.subscribe(io.versaera.domain.event.GameEvents.PlayerDiscovered.class,
                 e -> quests.record(e.uuid(), io.versaera.domain.quest.QuestDefinition.Type.DISCOVER, e.kind() + ":" + e.ref(), 1, 0));
