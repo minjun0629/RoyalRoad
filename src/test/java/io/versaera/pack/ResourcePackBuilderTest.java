@@ -54,9 +54,9 @@ class ResourcePackBuilderTest {
         assertNotNull(ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/ui/menu6.png"))));
         for (String key : ResourcePackBuilder.UI_ICONS) {
             var img = ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/ui/" + key + ".png")));
-            assertEquals(16, img.getWidth(), key);
+            assertEquals(32, img.getWidth(), key);
             int opaque = 0;
-            for (int y = 0; y < 16; y++) for (int x = 0; x < 16; x++) if ((img.getRGB(x, y) >>> 24) != 0) opaque++;
+            for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++) if ((img.getRGB(x, y) >>> 24) != 0) opaque++;
             assertTrue(opaque >= 20, "아이콘이 비어 있지 않다: " + key);
             int id = PackIds.modelData("ui/" + key);
             assertTrue(ids.add(id), "UI 아이콘 번호가 보스 모델과 겹치지 않는다: " + key);
@@ -77,10 +77,10 @@ class ResourcePackBuilderTest {
             String model = new String(files.get("assets/versaera/models/item/" + t.id() + ".json"), StandardCharsets.UTF_8);
             assertTrue(model.contains("versaera:item/" + t.id()), t.id());
             var img = ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/item/" + t.id() + ".png")));
-            assertEquals(16, img.getWidth(), t.id());
+            assertEquals(32, img.getWidth(), t.id());
             int opaque = 0;
-            for (int y = 0; y < 16; y++) for (int x = 0; x < 16; x++) if ((img.getRGB(x, y) >>> 24) != 0) opaque++;
-            assertTrue(opaque >= 15, "아이콘이 비어 있지 않다: " + t.id());
+            for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++) if ((img.getRGB(x, y) >>> 24) != 0) opaque++;
+            assertTrue(opaque >= 60, "아이콘이 비어 있지 않다: " + t.id());
             byte[] vanilla = files.get("assets/minecraft/models/item/" + t.material().toLowerCase(java.util.Locale.ROOT) + ".json");
             assertNotNull(vanilla, "바닐라 모델 덮어쓰기: " + t.material());
             String v = new String(vanilla, StandardCharsets.UTF_8);
@@ -96,15 +96,15 @@ class ResourcePackBuilderTest {
             assertEquals(v.chars().filter(ch -> ch == '{').count(), v.chars().filter(ch -> ch == '}').count(), "괄호 짝: " + t.material());
         }
         assertTrue(new String(files.get("assets/minecraft/models/item/bow.json"), StandardCharsets.UTF_8).contains("bow_pulling_2"), "활 당기기 모습은 그대로");
-        for (var fb : c.fieldBosses()) {
-            String model = new String(files.get("assets/versaera/models/fboss/" + fb.id() + ".json"), StandardCharsets.UTF_8);
+        for (var fb : c.fieldBosses()) for (var part : ModelKit.rig(fb.look())) {
+            String model = new String(files.get("assets/versaera/models/fboss/" + fb.id() + "/" + part.name() + ".json"), StandardCharsets.UTF_8);
             for (String num : model.replaceAll("\"uv\":\\[[^]]*]", "").replaceAll("[^0-9.,\\-\\[\\]]", " ").split("[\\[\\], ]+"))
                 if (!num.isBlank() && num.matches("-?[0-9.]+")) {
                     double val = Double.parseDouble(num);
                     assertTrue(val >= -16 && val <= 32, "모델 좌표는 -16 ~ 32: " + fb.id() + " " + val);
                 }
             assertNotNull(ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/fboss/" + fb.id() + ".png"))));
-            assertTrue(pack.models().containsKey("fboss/" + fb.id()));
+            assertTrue(pack.models().containsKey("fboss/" + fb.id() + "/" + part.name()));
         }
         assertNotNull(files.get("assets/versaera/models/mob/iron_mask.json"));
         // 입은 갑옷: 모습마다 무늬 텍스처 2장 + 아틀라스 + 데이터팩 무늬
@@ -114,7 +114,7 @@ class ResourcePackBuilderTest {
         Map<String, byte[]> dp = ArmorLooks.datapack(c);
         for (String l : looks) {
             var img = ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/trims/models/armor/" + l + ".png")));
-            assertEquals(64, img.getWidth());
+            assertEquals(128, img.getWidth(), "갑옷 그림은 2배 해상도");
             assertNotNull(files.get("assets/versaera/textures/trims/models/armor/" + l + "_leggings.png"));
             assertTrue(atlas.contains("versaera:trims/models/armor/" + l + "\""), l);
             String pat = new String(dp.get("data/versaera/trim_pattern/" + l + ".json"), StandardCharsets.UTF_8);

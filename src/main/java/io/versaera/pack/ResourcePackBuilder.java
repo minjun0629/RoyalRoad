@@ -36,6 +36,13 @@ public final class ResourcePackBuilder {
     public static final int PACK_FORMAT = 15;
     /** 메뉴 배경 글자 · 왼쪽으로 당기는 공백 글자 */
     public static final char MENU_BG_6 = '', MENU_BG_3 = '', SHIFT_LEFT_8 = '', SHIFT_LEFT_169 = '';
+    /** 1 · 2 · 4 · 5 줄 상자 창 배경 */
+    public static final char MENU_BG_1 = '\uE004', MENU_BG_2 = '\uE005', MENU_BG_4 = '\uE006', MENU_BG_5 = '\uE007';
+
+    /** 상자 창 줄 수에 맞는 배경 글자 (1 ~ 6) */
+    public static char menuGlyph(int rows) {
+        return switch (Math.max(1, Math.min(6, rows))) { case 1 -> MENU_BG_1; case 2 -> MENU_BG_2; case 3 -> MENU_BG_3; case 4 -> MENU_BG_4; case 5 -> MENU_BG_5; default -> MENU_BG_6; };
+    }
 
     public record Pack(byte[] zip, byte[] sha1, Map<String, Integer> models) {
         public String sha1Hex() {
@@ -70,15 +77,15 @@ public final class ResourcePackBuilder {
         }
         // 필드 보스 · 몬스터 머리 (종이)
         for (var fb : content.fieldBosses()) {
-            String model = "fboss/" + fb.id();
-            put(models, model);
+            for (var part : ModelKit.rig(fb.look())) put(models, "fboss/" + fb.id() + "/" + part.name());
             b.fieldBossModel(fb);
         }
         put(models, "mob/iron_mask");
-        b.text("assets/versaera/models/mob/iron_mask.json", ModelKit.json(ModelKit.ironMask(), "mob/iron_mask",
-                "{\"head\":{\"translation\":[0,-6.5,0],\"scale\":[1.1,1.1,1.1]},\"fixed\":{\"scale\":[1,1,1]}}"));
-        b.png("assets/versaera/textures/mob/iron_mask.png", ModelKit.texture("iron_mask", new Color(150, 154, 162), new Color(110, 80, 50),
-                new Color(30, 26, 30), new Color(90, 92, 100), "metal"));
+        var mask = ModelKit.build("iron_mask", ModelKit.rig("MASK"), new ModelKit.Style(new Color(158, 164, 176), new Color(120, 124, 136),
+                new Color(255, 120, 60), new Color(40, 36, 44), new Color(200, 206, 216), "metal", "metal"), "mob/iron_mask",
+                "{\"head\":{\"translation\":[0,-6.5,0],\"scale\":[1.1,1.1,1.1]},\"fixed\":{\"scale\":[1,1,1]}}");
+        b.text("assets/versaera/models/mob/iron_mask.json", mask.models().get("mask"));
+        b.png("assets/versaera/textures/mob/iron_mask.png", mask.texture());
         // 아이템: 바닐라 재질마다 덮어쓰기 목록
         Map<String, Map<String, Integer>> byMaterial = new TreeMap<>();
         byMaterial.put("PAPER", models);
@@ -176,31 +183,50 @@ public final class ResourcePackBuilder {
     }
 
     // ------------------------------------------------------------------ 필드 보스 모델
-    private void fieldBossModel(io.versaera.domain.fieldboss.FieldBoss fb) {
+    /** 필드 보스의 색 · 결 (언데드 = 뼈 · 악마 = 붉은 비늘 · 용 = 비늘 …) */
+    public static ModelKit.Style fieldBossStyle(io.versaera.domain.fieldboss.FieldBoss fb) {
+        ModelKit.Style b = baseStyle(fb);
+        // 같은 모양 · 종족이라도 보스마다 색이 조금씩 다르게: 몸색 색상을 비틀고, 강조색은 보스마다 고른다
+        float h = ((fb.id().hashCode() * 31) & 0xffff) / 65535f;
+        Color[] glows = {new Color(255, 170, 40), new Color(110, 255, 200), new Color(190, 110, 255), new Color(255, 70, 70), new Color(120, 200, 255), new Color(255, 236, 110)};
+        Color glow = fb.look().equals("SALAMANDER") ? b.accent() : glows[Math.floorMod(fb.id().hashCode(), glows.length)];
+        float shift = (h - 0.5f) * (fb.look().equals("DEMON") || fb.look().equals("DRAGON") ? 0.34f : 0.12f);
+        return new ModelKit.Style(shiftHue(b.main(), shift), shiftHue(b.second(), shift * 0.8f), glow, b.dark(), b.metal(), b.grain(), b.secondGrain());
+    }
+
+    private static Color shiftHue(Color c, float d) {
+        float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+        return Color.getHSBColor((hsb[0] + d + 1) % 1, hsb[1], hsb[2]);
+    }
+
+    private static ModelKit.Style baseStyle(io.versaera.domain.fieldboss.FieldBoss fb) {
         var kinds = fb.kinds();
         boolean undead = kinds.contains(io.versaera.domain.item.ItemOptions.Kind.UNDEAD), demon = kinds.contains(io.versaera.domain.item.ItemOptions.Kind.DEMON);
         float h = (fb.id().hashCode() & 0xffff) / 65535f;
-        Color main, second, accent, dark;
-        String grain;
-        if (undead) {
-            main = new Color(212, 206, 188); second = new Color(70, 66, 82); accent = new Color(90, 230, 180); dark = new Color(40, 36, 48); grain = "bone";
-        } else if (demon) {
-            main = new Color(150, 32, 30); second = new Color(46, 30, 34); accent = new Color(255, 150, 40); dark = new Color(28, 20, 24); grain = "scale";
-        } else {
-            main = Color.getHSBColor(h, 0.5f, 0.6f); second = Color.getHSBColor((h + 0.08f) % 1f, 0.45f, 0.45f);
-            accent = new Color(255, 214, 90); dark = Color.getHSBColor(h, 0.4f, 0.25f); grain = fb.look().equals("GOLEM") ? "metal" : "scale";
-        }
-        if (fb.look().equals("KNIGHT") || fb.look().equals("VAMPIRE")) {
-            second = undead ? new Color(60, 58, 70) : new Color(170, 175, 186);
-            if (fb.look().equals("VAMPIRE")) accent = new Color(150, 10, 30);
-            grain = "metal";
-        }
-        if (fb.look().equals("CASTER")) grain = "cloth";
-        if (fb.look().equals("SALAMANDER")) { main = new Color(190, 70, 30); accent = new Color(255, 200, 60); }
+        Color steel = new Color(176, 184, 198);
+        return switch (fb.look()) {
+            case "KNIGHT" -> undead ? new ModelKit.Style(new Color(206, 198, 178), new Color(58, 56, 70), new Color(90, 230, 190), new Color(34, 30, 40), steel, "bone", "metal")
+                    : new ModelKit.Style(new Color(150, 120, 90), new Color(150, 156, 172), new Color(200, 60, 50), new Color(50, 40, 40), steel, "hide", "metal");
+            case "VAMPIRE" -> new ModelKit.Style(new Color(214, 206, 214), new Color(120, 14, 32), new Color(255, 60, 60), new Color(30, 22, 34), steel, "cloth", "cloth");
+            case "CASTER" -> new ModelKit.Style(new Color(222, 214, 192), new Color(54, 40, 82), new Color(110, 255, 200), new Color(40, 30, 44), steel, "bone", "cloth");
+            case "DEMON" -> new ModelKit.Style(new Color(150, 34, 32), new Color(56, 30, 40), new Color(255, 160, 40), new Color(28, 18, 22), steel, "scale", "membrane");
+            case "DRAGON" -> undead ? new ModelKit.Style(new Color(214, 206, 186), new Color(70, 66, 84), new Color(100, 240, 180), new Color(40, 36, 46), steel, "bone", "membrane")
+                    : new ModelKit.Style(Color.getHSBColor(h, 0.55f, 0.55f), Color.getHSBColor((h + 0.05f) % 1, 0.45f, 0.4f), new Color(255, 210, 80),
+                    Color.getHSBColor(h, 0.4f, 0.22f), steel, "scale", "membrane");
+            case "GOLEM" -> new ModelKit.Style(new Color(124, 118, 108), new Color(96, 92, 88), new Color(120, 220, 255), new Color(56, 52, 50), steel, "stone", "stone");
+            case "HYDRA" -> new ModelKit.Style(new Color(60, 110, 76), new Color(84, 130, 90), new Color(240, 220, 60), new Color(30, 50, 36), steel, "scale", "scale");
+            case "SALAMANDER" -> new ModelKit.Style(new Color(186, 66, 30), new Color(150, 50, 26), new Color(255, 196, 60), new Color(60, 24, 18), steel, "scale", "scale");
+            case "FLYER" -> new ModelKit.Style(demon ? new Color(220, 216, 220) : new Color(110, 120, 150), new Color(90, 80, 110), new Color(255, 80, 60),
+                    new Color(50, 44, 60), steel, "hide", "membrane");
+            default -> new ModelKit.Style(Color.getHSBColor(h, 0.4f, 0.5f), Color.getHSBColor(h, 0.3f, 0.4f), new Color(255, 210, 80), new Color(40, 36, 40), steel, "hide", "hide");
+        };
+    }
+
+    private void fieldBossModel(io.versaera.domain.fieldboss.FieldBoss fb) {
         String tex = "fboss/" + fb.id();
-        text("assets/versaera/models/fboss/" + fb.id() + ".json", ModelKit.json(ModelKit.template(fb.look()), tex,
-                "{\"fixed\":{\"scale\":[1,1,1]},\"head\":{\"scale\":[1,1,1]}}"));
-        png("assets/versaera/textures/fboss/" + fb.id() + ".png", ModelKit.texture(fb.id(), main, second, accent, dark, grain));
+        var built = ModelKit.build(fb.id(), ModelKit.rig(fb.look()), fieldBossStyle(fb), tex, "{\"fixed\":{\"scale\":[1,1,1]},\"head\":{\"scale\":[1,1,1]}}");
+        for (var e : built.models().entrySet()) text("assets/versaera/models/fboss/" + fb.id() + "/" + e.getKey() + ".json", e.getValue());
+        png("assets/versaera/textures/" + tex + ".png", built.texture());
     }
 
     // ------------------------------------------------------------------ 보스 모델
@@ -214,76 +240,22 @@ public final class ResourcePackBuilder {
         return Body.COLOSSUS;
     }
 
-    private record Cube(double x1, double y1, double z1, double x2, double y2, double z2) {}
-
-    private static List<Cube> cubes(Body body) {
-        return switch (body) {
-            case COLOSSUS -> List.of(new Cube(4, 6, 5, 12, 14, 11), new Cube(5.5, 14, 6, 10.5, 18, 10),      // 몸통 · 머리
-                    new Cube(1, 7, 6.5, 4, 14, 9.5), new Cube(12, 7, 6.5, 15, 14, 9.5),                          // 팔
-                    new Cube(4.5, 0, 6, 7.5, 6, 10), new Cube(8.5, 0, 6, 11.5, 6, 10));                         // 다리
-            case WINGED -> List.of(new Cube(5, 5, 4, 11, 10, 13), new Cube(6, 8, 0, 10, 12, 4),
-                    new Cube(-6, 8, 6, 5, 9, 11), new Cube(11, 8, 6, 22, 9, 11),                                  // 날개
-                    new Cube(6, 0, 6, 8, 5, 8), new Cube(8, 0, 9, 10, 5, 11), new Cube(7, 6, 13, 9, 7, 19));    // 다리 · 꼬리
-            case CRYSTAL -> List.of(new Cube(4, 0, 4, 12, 12, 12), new Cube(6, 12, 6, 10, 20, 10),
-                    new Cube(1, 6, 7, 4, 16, 9), new Cube(12, 4, 7, 15, 14, 9), new Cube(7, 6, 1, 9, 15, 4), new Cube(7, 3, 12, 9, 13, 15));
-            case WORM -> List.of(new Cube(5, 0, 0, 11, 6, 4), new Cube(5.5, 2, 4, 10.5, 9, 8), new Cube(6, 5, 8, 10, 13, 12),
-                    new Cube(6.5, 9, 12, 9.5, 18, 15), new Cube(5, 16, 13, 11, 20, 17));                         // 마디 + 입
-            case SHELL -> List.of(new Cube(2, 2, 3, 14, 7, 13), new Cube(3, 7, 4, 13, 9, 12),
-                    new Cube(-3, 3, 0, 2, 6, 4), new Cube(14, 3, 0, 19, 6, 4), new Cube(3, 0, 4, 5, 2, 12), new Cube(11, 0, 4, 13, 2, 12));
-        };
-    }
-
     private void bossModel(BossDefinition boss) {
         String name = boss.model().replace('/', '_');
         Body body = bodyOf(boss.id());
-        StringBuilder els = new StringBuilder();
-        for (Cube c : cubes(body)) {
-            if (els.length() > 0) els.append(',');
-            els.append("{\"from\":[").append(n(c.x1)).append(',').append(n(c.y1)).append(',').append(n(c.z1)).append("],\"to\":[")
-                    .append(n(c.x2)).append(',').append(n(c.y2)).append(',').append(n(c.z2)).append("],\"faces\":{");
-            String[] faces = {"north", "south", "east", "west", "up", "down"};
-            for (int i = 0; i < faces.length; i++) {
-                if (i > 0) els.append(',');
-                els.append('"').append(faces[i]).append("\":{\"uv\":[0,0,16,16],\"texture\":\"#body\"}");
-            }
-            els.append("}}");
-        }
-        text("assets/versaera/models/" + boss.model() + ".json", "{\"textures\":{\"body\":\"versaera:boss/" + name + "\",\"particle\":\"versaera:boss/"
-                + name + "\"},\"elements\":[" + els + "],\"display\":{\"fixed\":{\"scale\":[2,2,2]},\"head\":{\"scale\":[2,2,2]}}}");
-        png("assets/versaera/textures/boss/" + name + ".png", texture(boss.id(), body));
-    }
-
-    private static String n(double v) {
-        return v == Math.rint(v) ? String.valueOf((long) v) : String.valueOf(v);
-    }
-
-    /** 절차 텍스처: 보스 id 로 정한 색 + 돌결 · 결정면 · 비늘 무늬 (결정적) */
-    private static BufferedImage texture(String id, Body body) {
-        BufferedImage img = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
-        SplittableRandom r = new SplittableRandom(id.hashCode());
-        Color base = switch (body) {
-            case COLOSSUS -> new Color(118, 112, 104);
-            case WINGED -> new Color(92, 120, 168);
-            case CRYSTAL -> new Color(150, 205, 235);
-            case WORM -> new Color(196, 160, 102);
-            case SHELL -> new Color(62, 92, 110);
+        String look = switch (body) { case COLOSSUS -> "COLOSSUS"; case WINGED -> "DRAGON"; case CRYSTAL -> "CRYSTAL"; case WORM -> "WORM"; case SHELL -> "CRAB"; };
+        Color steel = new Color(176, 184, 198);
+        ModelKit.Style st = switch (body) {
+            case COLOSSUS -> new ModelKit.Style(new Color(132, 124, 112), new Color(100, 96, 90), new Color(255, 196, 64), new Color(60, 56, 52), steel, "stone", "stone");
+            case WINGED -> new ModelKit.Style(new Color(92, 120, 168), new Color(70, 84, 130), new Color(255, 214, 90), new Color(34, 40, 60), steel, "scale", "membrane");
+            case CRYSTAL -> new ModelKit.Style(new Color(150, 205, 235), new Color(180, 230, 255), new Color(240, 250, 255), new Color(60, 90, 120), steel, "crystal", "crystal");
+            case WORM -> new ModelKit.Style(new Color(196, 160, 102), new Color(120, 40, 50), new Color(255, 200, 120), new Color(90, 66, 40), steel, "hide", "hide");
+            case SHELL -> new ModelKit.Style(new Color(62, 92, 110), new Color(90, 130, 150), new Color(255, 200, 70), new Color(30, 44, 54), steel, "scale", "scale");
         };
-        for (int y = 0; y < 32; y++)
-            for (int x = 0; x < 32; x++) {
-                int noise = r.nextInt(-14, 15);
-                int pattern = switch (body) {
-                    case COLOSSUS -> (y % 8 == 0 || (x + (y / 8) * 4) % 16 == 0) ? -40 : 0;        // 돌 벽돌 줄눈
-                    case WINGED -> ((x + y) % 6 == 0) ? 25 : 0;                                      // 깃 결
-                    case CRYSTAL -> (Math.abs(x - y) % 9 == 0 || (x + y) % 11 == 0) ? 45 : 0;        // 결정면
-                    case WORM -> (y % 6 < 1) ? -35 : (x % 5 == 0 ? 10 : 0);                          // 마디
-                    case SHELL -> ((x / 4 + y / 4) % 2 == 0) ? 15 : -10;                             // 비늘
-                };
-                int v = noise + pattern;
-                img.setRGB(x, y, new Color(clamp(base.getRed() + v), clamp(base.getGreen() + v), clamp(base.getBlue() + v)).getRGB());
-            }
-        // 약점(등) 표시: 빛나는 줄 — 등 뒤를 노리라는 시각 단서
-        for (int y = 12; y < 20; y++) for (int x = 26; x < 30; x++) img.setRGB(x, y, new Color(255, 196, 64).getRGB());
-        return img;
+        // 등 약점 표시: 강조색이 등(남쪽) 문양으로 들어가도록 몸 상자에 RUNE 대신 빛 — 모양 템플릿을 그대로 쓰고 색으로 알린다
+        var built = ModelKit.build(boss.id(), ModelKit.merged(look), st, "boss/" + name, "{\"fixed\":{\"scale\":[2,2,2]},\"head\":{\"scale\":[2,2,2]}}");
+        text("assets/versaera/models/" + boss.model() + ".json", built.models().get("all"));
+        png("assets/versaera/textures/boss/" + name + ".png", built.texture());
     }
 
     private static int clamp(int v) {
@@ -302,72 +274,191 @@ public final class ResourcePackBuilder {
         png("assets/versaera/textures/ui/" + key + ".png", icon16(key));
     }
 
-    /** 16×16 픽셀 아이콘 (짧은 모양 하나 + 테두리) — 결정적 */
+    /** 32×32 메뉴 아이콘 — 아이템 아이콘과 같은 자동 음영 붓({@link Canvas}) */
     static BufferedImage icon16(String key) {
-        BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = img.createGraphics();
-        Color gold = new Color(201, 162, 39), dark = new Color(40, 34, 30), light = new Color(236, 226, 200), red = new Color(170, 52, 44),
-                green = new Color(70, 150, 70), blue = new Color(70, 110, 180), steel = new Color(180, 186, 196);
+        Canvas c = new Canvas(32, 32, "ui/" + key);
+        Color gold = new Color(222, 176, 52), paper = new Color(232, 222, 196), red = new Color(184, 50, 44), green = new Color(78, 160, 74),
+                blue = new Color(70, 112, 196), steel = new Color(180, 188, 200), wood = new Color(132, 88, 48), purple = new Color(128, 70, 170),
+                skin = new Color(230, 190, 150), dark = new Color(40, 34, 40);
         switch (key) {
-            case "quest", "quest_active" -> {   // 두루마리
-                g.setColor(light); g.fillRect(3, 3, 10, 10);
-                g.setColor(dark); for (int y = 5; y <= 11; y += 2) g.drawLine(5, y, 11, y);
-                g.setColor(key.equals("quest") ? gold : green); g.fillRect(2, 2, 12, 2); g.fillRect(2, 12, 12, 2);
+            case "quest", "quest_active" -> {
+                c.layer().rect(7, 6, 18, 20).commit(Canvas.ramp(paper), 0.1);
+                for (int y = 10; y <= 21; y += 3) c.layer().rect(10, y, 12, 1).commit(Canvas.ramp(new Color(120, 100, 80)), 0);
+                Color rod = key.equals("quest") ? gold : green;
+                c.layer().ellipse(16, 5, 11, 2.5).ellipse(16, 27, 11, 2.5).commit(Canvas.ramp(wood), 0.1);
+                c.layer().ellipse(4.5, 5, 2, 2.5).ellipse(27.5, 5, 2, 2.5).ellipse(4.5, 27, 2, 2.5).ellipse(27.5, 27, 2, 2.5).commit(Canvas.ramp(rod), 0);
+                if (key.equals("quest_active")) c.sparkle(26, 14, new Color(150, 255, 150));
             }
-            case "shop" -> { g.setColor(new Color(130, 90, 50)); g.fillOval(3, 5, 10, 9); g.setColor(gold); g.fillRect(6, 2, 4, 4); }
-            case "gift" -> { g.setColor(red); g.fillRect(3, 6, 10, 8); g.setColor(gold); g.fillRect(7, 6, 2, 8); g.fillRect(3, 9, 10, 2); g.fillOval(4, 3, 4, 4); g.fillOval(8, 3, 4, 4); }
-            case "news" -> { g.setColor(light); g.fillOval(2, 2, 12, 12); g.setColor(dark); g.drawLine(8, 8, 8, 4); g.drawLine(8, 8, 11, 8); g.setColor(gold); g.drawOval(2, 2, 11, 11); }
-            case "combat" -> { g.setColor(steel); for (int i = 0; i < 9; i++) g.fillRect(4 + i, 11 - i, 2, 2); g.setColor(gold); g.fillRect(3, 10, 4, 2); g.fillRect(4, 12, 2, 2); }
-            case "life" -> { g.setColor(new Color(130, 90, 50)); for (int i = 0; i < 8; i++) g.fillRect(4 + i, 13 - i, 2, 2); g.setColor(steel); g.fillRect(9, 2, 6, 4); }
-            case "guild" -> { g.setColor(new Color(130, 90, 50)); g.fillRect(3, 1, 2, 14); g.setColor(blue); g.fillPolygon(new int[]{5, 14, 14, 5}, new int[]{2, 2, 9, 9}, 4); g.setColor(gold); g.fillRect(8, 4, 3, 3); }
-            case "money" -> { g.setColor(gold); g.fillOval(2, 2, 12, 12); g.setColor(new Color(150, 110, 20)); g.drawOval(4, 4, 7, 7); }
-            case "auction" -> { g.setColor(new Color(130, 90, 50)); for (int i = 0; i < 8; i++) g.fillRect(3 + i, 12 - i, 2, 2); g.fillRect(8, 2, 6, 4); g.setColor(dark); g.fillRect(2, 13, 7, 2); }
-            case "sell" -> { g.setColor(steel); g.fillPolygon(new int[]{2, 14, 8}, new int[]{3, 3, 10}, 3); g.setColor(gold); g.fillRect(6, 11, 4, 3); }
-            case "stat" -> { g.setColor(gold); g.fillPolygon(new int[]{8, 10, 15, 11, 12, 8, 4, 5, 1, 6}, new int[]{1, 6, 6, 9, 14, 11, 14, 9, 6, 6}, 10); }
-            case "map_known" -> { g.setColor(light); g.fillRect(2, 3, 12, 10); g.setColor(green); g.fillOval(4, 5, 5, 4); g.setColor(red); g.fillRect(10, 5, 2, 5); }
-            case "map_unknown" -> { g.setColor(new Color(90, 90, 100)); g.fillRect(2, 3, 12, 10); g.setColor(light); g.fillRect(6, 5, 4, 1); g.fillRect(10, 6, 1, 2); g.fillRect(8, 8, 2, 1); g.fillRect(8, 9, 1, 1); g.fillRect(8, 11, 1, 1); }   // 글꼴 없이 그린 "?" (JVM 마다 같은 그림)
-            case "member" -> { g.setColor(light); g.fillOval(5, 2, 6, 6); g.setColor(blue); g.fillRoundRect(3, 8, 10, 7, 4, 4); }
-            case "reputation" -> { g.setColor(blue); g.fillPolygon(new int[]{3, 13, 13, 8, 3}, new int[]{2, 2, 10, 14, 10}, 5); g.setColor(gold); g.fillRect(7, 5, 2, 5); }
-            case "arts" -> { g.setColor(new Color(110, 60, 150)); g.fillRect(3, 2, 10, 12); g.setColor(gold); g.fillRect(3, 2, 1, 12); g.fillPolygon(new int[]{8, 9, 11, 9, 10, 8, 6, 7, 5, 7}, new int[]{4, 6, 7, 8, 11, 9, 11, 8, 7, 6}, 10); }
-            case "fieldboss" -> { g.setColor(light); g.fillOval(3, 2, 10, 9); g.fillRect(5, 10, 6, 4); g.setColor(dark); g.fillRect(5, 6, 2, 2); g.fillRect(9, 6, 2, 2); g.fillRect(7, 9, 2, 1); g.setColor(red); g.fillRect(1, 1, 2, 2); g.fillRect(13, 1, 2, 2); }
-            case "appraise" -> { g.setColor(new Color(130, 90, 50)); for (int i = 0; i < 5; i++) g.fillRect(2 + i, 13 - i, 2, 2); g.setColor(steel); g.drawOval(6, 2, 8, 8); g.setColor(new Color(170, 220, 255)); g.fillOval(7, 3, 7, 7); }
-            case "bandage" -> { g.setColor(light); g.fillRect(2, 5, 12, 6); g.setColor(red); g.fillRect(7, 3, 2, 10); g.fillRect(4, 7, 8, 2); }
-            case "land" -> { g.setColor(green); g.fillRect(1, 11, 14, 4); g.setColor(new Color(130, 90, 50)); g.fillRect(5, 2, 1, 10); g.setColor(red); g.fillPolygon(new int[]{6, 13, 6}, new int[]{2, 4, 7}, 3); }
-            case "castle" -> { g.setColor(steel); g.fillRect(3, 6, 10, 9); for (int x = 3; x < 13; x += 3) g.fillRect(x, 3, 2, 3); g.setColor(dark); g.fillRect(7, 10, 2, 5); }
-            case "nation" -> { g.setColor(gold); g.fillRect(2, 8, 12, 5); for (int x = 2; x < 14; x += 4) g.fillPolygon(new int[]{x, x + 2, x + 4}, new int[]{8, 3, 8}, 3); g.setColor(red); g.fillRect(7, 9, 2, 2); }
-            case "party" -> { g.setColor(light); g.fillOval(2, 3, 5, 5); g.fillOval(9, 3, 5, 5); g.setColor(green); g.fillRoundRect(1, 8, 7, 7, 3, 3); g.setColor(blue); g.fillRoundRect(8, 8, 7, 7, 3, 3); }
-            case "trial" -> { g.setColor(new Color(170, 130, 80)); g.fillRect(7, 2, 2, 13); g.fillRect(3, 5, 10, 2); g.setColor(new Color(220, 200, 150)); g.fillOval(5, 1, 6, 5); g.setColor(red); g.fillOval(6, 8, 4, 4); }
-            case "gods" -> { g.setColor(gold); g.fillOval(4, 4, 8, 8); for (int i = 0; i < 8; i++) { double a = i * Math.PI / 4; g.fillRect(7 + (int) Math.round(Math.cos(a) * 6), 7 + (int) Math.round(Math.sin(a) * 6), 2, 2); } }
-            case "history" -> { g.setColor(new Color(120, 60, 40)); g.fillRect(3, 2, 10, 12); g.setColor(light); g.fillRect(5, 3, 7, 10); g.setColor(dark); for (int y = 5; y < 12; y += 2) g.drawLine(6, y, 10, y); }
-            case "character" -> { g.setColor(new Color(230, 190, 150)); g.fillOval(5, 1, 6, 6); g.setColor(blue); g.fillRect(4, 7, 8, 5); g.setColor(dark); g.fillRect(5, 12, 2, 3); g.fillRect(9, 12, 2, 3); }
-            case "job" -> { g.setColor(new Color(130, 90, 50)); g.fillRect(2, 6, 12, 8); g.setColor(new Color(170, 120, 70)); g.fillRect(2, 4, 12, 3); g.setColor(steel); g.fillRect(4, 1, 2, 5); g.fillRect(10, 2, 3, 3); }
-            case "close" -> { g.setColor(red); for (int i = 0; i < 10; i++) { g.fillRect(3 + i, 3 + i, 2, 2); g.fillRect(12 - i, 3 + i, 2, 2); } }
-            default -> { g.setColor(gold); g.fillRect(4, 4, 8, 8); }
-        }
-        g.dispose();
-        // 어두운 바탕에서 보이게 1픽셀 외곽선
-        BufferedImage out = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-        for (int y = 0; y < 16; y++)
-            for (int x = 0; x < 16; x++) {
-                int a = img.getRGB(x, y);
-                if ((a >>> 24) != 0) { out.setRGB(x, y, a); continue; }
-                boolean near = false;
-                for (int[] d : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-                    int nx = x + d[0], ny = y + d[1];
-                    if (nx >= 0 && ny >= 0 && nx < 16 && ny < 16 && (img.getRGB(nx, ny) >>> 24) != 0) near = true;
+            case "shop" -> {
+                c.layer().ellipse(16, 19, 11, 10).commit(Canvas.ramp(new Color(150, 104, 58)), 0.2);
+                c.layer().rect(11, 5, 10, 5).commit(Canvas.ramp(new Color(120, 80, 44)), 0.2);
+                c.layer().line(10, 9, 22, 9, 1.5).commit(Canvas.ramp(gold), 0);
+                c.layer().ellipse(16, 20, 4, 4).commit(Canvas.ramp(gold), 0);
+            }
+            case "gift" -> {
+                c.layer().rect(5, 13, 22, 15).commit(Canvas.ramp(red), 0.05);
+                c.layer().rect(4, 10, 24, 5).commit(Canvas.ramp(Canvas.mix(red, Color.WHITE, 0.1)), 0.05);
+                c.layer().rect(14, 10, 4, 18).commit(Canvas.ramp(gold), 0);
+                c.layer().ellipse(11, 7, 5, 3.5).ellipse(21, 7, 5, 3.5).commit(Canvas.ramp(gold), 0);
+            }
+            case "news" -> {
+                c.layer().ellipse(16, 16, 13, 13).commit(Canvas.ramp(gold), 0);
+                c.layer().ellipse(16, 16, 10.5, 10.5).commit(Canvas.ramp(paper), 0.05);
+                c.layer().line(16, 16, 16, 8, 2).line(16, 16, 22, 16, 2).commit(Canvas.ramp(dark), 0);
+            }
+            case "combat" -> {
+                c.layer().line(5, 27, 24, 8, 3.4).commit(Canvas.ramp(steel), 0);
+                c.layer().line(27, 27, 8, 8, 3.4).commit(Canvas.ramp(steel), 0);
+                c.layer().line(3, 22, 10, 29, 2.6).line(29, 22, 22, 29, 2.6).commit(Canvas.ramp(gold), 0);
+            }
+            case "life" -> {
+                c.layer().line(6, 27, 20, 13, 3).commit(Canvas.ramp(wood), 0.25);
+                c.layer().poly(new double[]{15, 24, 30, 21}, new double[]{9, 2, 11, 17}).commit(Canvas.ramp(steel), 0.05);
+                c.layer().ellipse(9, 9, 5, 4).commit(Canvas.ramp(green), 0.1);
+            }
+            case "guild" -> {
+                c.layer().rect(6, 3, 3, 27).commit(Canvas.ramp(wood), 0.2);
+                c.layer().poly(new double[]{9, 28, 25, 28, 9}, new double[]{4, 4, 11, 18, 18}).commit(Canvas.ramp(blue), 0.05);
+                c.layer().ellipse(17, 11, 3.5, 3.5).commit(Canvas.ramp(gold), 0);
+            }
+            case "money" -> {
+                c.layer().ellipse(12, 20, 9, 9).commit(Canvas.ramp(gold), 0);
+                c.layer().ellipse(21, 13, 9, 9).commit(Canvas.ramp(Canvas.mix(gold, Color.WHITE, 0.1)), 0);
+                c.layer().ellipse(21, 13, 5, 5).commit(Canvas.ramp(Canvas.mix(gold, Color.BLACK, 0.15)), 0);
+                c.sparkle(25, 7, Color.WHITE);
+            }
+            case "auction" -> {
+                c.layer().line(6, 27, 18, 15, 3).commit(Canvas.ramp(wood), 0.25);
+                c.layer().poly(new double[]{14, 22, 28, 20}, new double[]{9, 3, 11, 17}).commit(Canvas.ramp(new Color(150, 104, 58)), 0.15);
+                c.layer().rect(3, 26, 14, 4).commit(Canvas.ramp(dark), 0.1);
+            }
+            case "sell" -> {
+                c.layer().poly(new double[]{4, 28, 16}, new double[]{6, 6, 20}).commit(Canvas.ramp(steel), 0.05);
+                c.layer().ellipse(16, 25, 6, 4).commit(Canvas.ramp(gold), 0);
+            }
+            case "stat" -> {
+                double[] xs = new double[10], ys = new double[10];
+                for (int i = 0; i < 10; i++) { double a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 == 0 ? 14 : 6; xs[i] = 16 + Math.cos(a) * r; ys[i] = 17 + Math.sin(a) * r; }
+                c.layer().poly(xs, ys).commit(Canvas.ramp(gold), 0);
+            }
+            case "map_known", "map_unknown" -> {
+                boolean known = key.equals("map_known");
+                c.layer().poly(new double[]{3, 11, 21, 29, 29, 21, 11, 3}, new double[]{6, 4, 6, 4, 26, 28, 26, 28}).commit(Canvas.ramp(known ? paper : new Color(100, 100, 112)), 0.15);
+                if (known) {
+                    c.layer().ellipse(11, 14, 5, 4).commit(Canvas.ramp(green), 0.2);
+                    c.layer().ellipse(21, 20, 4, 3).commit(Canvas.ramp(blue), 0.1);
+                    c.layer().line(20, 9, 24, 13, 1.6).line(24, 9, 20, 13, 1.6).commit(Canvas.ramp(red), 0);
+                } else {
+                    Canvas.Layer q = c.layer();
+                    q.rect(13, 9, 6, 2).rect(18, 10, 2, 5).rect(15, 14, 4, 2).rect(15, 16, 2, 3).rect(15, 21, 2, 2);
+                    q.commit(Canvas.ramp(paper), 0);
                 }
-                if (near) out.setRGB(x, y, 0xFF1A1714);
             }
-        return out;
+            case "member" -> {
+                c.layer().ellipse(16, 10, 6, 6).commit(Canvas.ramp(skin), 0);
+                c.layer().ellipse(16, 26, 11, 8).cutRect(0, 29, 32, 3).commit(Canvas.ramp(blue), 0.05);
+            }
+            case "reputation" -> {
+                c.layer().poly(new double[]{5, 27, 27, 16, 5}, new double[]{4, 4, 17, 29, 17}).commit(Canvas.ramp(blue), 0.05);
+                c.layer().poly(new double[]{16, 19, 16, 13}, new double[]{8, 15, 23, 15}).commit(Canvas.ramp(gold), 0);
+            }
+            case "arts" -> {
+                c.layer().rect(6, 4, 21, 25).commit(Canvas.ramp(purple), 0.1);
+                c.layer().rect(6, 4, 3, 25).commit(Canvas.ramp(gold), 0);
+                double[] xs = new double[10], ys = new double[10];
+                for (int i = 0; i < 10; i++) { double a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 == 0 ? 7 : 3; xs[i] = 17.5 + Math.cos(a) * r; ys[i] = 16 + Math.sin(a) * r; }
+                c.layer().poly(xs, ys).commit(Canvas.ramp(gold), 0);
+                c.sparkle(25, 6, new Color(255, 230, 255));
+            }
+            case "fieldboss" -> {
+                c.layer().ellipse(16, 13, 11, 10).rect(9, 18, 14, 9).commit(Canvas.ramp(new Color(226, 218, 196)), 0.1);
+                Color[] hole = Canvas.ramp(new Color(30, 20, 26));
+                c.layer().ellipse(11.5, 14, 3, 3.2).ellipse(20.5, 14, 3, 3.2).commit(hole, 0);
+                c.set(11, 14, new Color(255, 70, 50)); c.set(20, 14, new Color(255, 70, 50));
+                c.layer().poly(new double[]{16, 14, 18}, new double[]{18, 21, 21}).commit(hole, 0);
+                for (int x = 11; x < 22; x += 3) c.layer().rect(x, 24, 2, 3).commit(Canvas.ramp(new Color(240, 234, 216)), 0);
+                c.layer().poly(new double[]{6, 3, 9}, new double[]{6, 0, 4}).poly(new double[]{26, 29, 23}, new double[]{6, 0, 4}).commit(Canvas.ramp(new Color(70, 40, 40)), 0);
+            }
+            case "appraise" -> {
+                c.layer().line(4, 28, 13, 19, 3.4).commit(Canvas.ramp(wood), 0.2);
+                c.layer().ellipse(19, 13, 10, 10).commit(Canvas.ramp(gold), 0);
+                c.layer().ellipse(19, 13, 7.5, 7.5).commit(Canvas.ramp(new Color(160, 214, 250)), 0);
+                c.set(16, 9, Color.WHITE); c.set(17, 9, Color.WHITE); c.set(16, 10, Color.WHITE);
+            }
+            case "bandage" -> {
+                c.layer().ellipse(16, 16, 13, 9).commit(Canvas.ramp(new Color(236, 230, 214)), 0.1);
+                c.layer().rect(14, 8, 4, 16).rect(8, 14, 16, 4).commit(Canvas.ramp(red), 0);
+            }
+            case "land" -> {
+                c.layer().ellipse(16, 27, 15, 6).commit(Canvas.ramp(green), 0.25);
+                c.layer().rect(10, 4, 2, 22).commit(Canvas.ramp(wood), 0.1);
+                c.layer().poly(new double[]{12, 27, 12}, new double[]{4, 9, 15}).commit(Canvas.ramp(red), 0.05);
+            }
+            case "castle" -> {
+                c.layer().rect(5, 12, 22, 17).rect(3, 7, 7, 22).rect(22, 7, 7, 22).commit(Canvas.ramp(steel), 0.3);
+                for (int x = 3; x < 29; x += 4) c.layer().rect(x, 4, 2, 3).commit(Canvas.ramp(steel), 0.2);
+                c.layer().ellipse(16, 22, 3.5, 4).rect(13, 22, 7, 7).commit(Canvas.ramp(dark), 0);
+                c.layer().rect(15, 2, 1, 8).commit(Canvas.ramp(wood), 0);
+                c.layer().poly(new double[]{16, 23, 16}, new double[]{2, 4, 6}).commit(Canvas.ramp(red), 0);
+            }
+            case "nation" -> {
+                c.layer().rect(4, 16, 24, 10).poly(new double[]{4, 8, 12}, new double[]{16, 5, 16}).poly(new double[]{12, 16, 20}, new double[]{16, 3, 16})
+                        .poly(new double[]{20, 24, 28}, new double[]{16, 5, 16}).commit(Canvas.ramp(gold), 0);
+                c.layer().ellipse(10, 21, 2, 2).commit(Canvas.ramp(red), 0);
+                c.layer().ellipse(16, 21, 2.2, 2.2).commit(Canvas.ramp(blue), 0);
+                c.layer().ellipse(22, 21, 2, 2).commit(Canvas.ramp(green), 0);
+            }
+            case "party" -> {
+                c.layer().ellipse(10, 9, 5, 5).ellipse(22, 9, 5, 5).commit(Canvas.ramp(skin), 0);
+                c.layer().ellipse(10, 25, 8, 9).cutRect(0, 29, 32, 3).commit(Canvas.ramp(green), 0.05);
+                c.layer().ellipse(22, 25, 8, 9).cutRect(0, 29, 32, 3).commit(Canvas.ramp(blue), 0.05);
+            }
+            case "trial" -> {
+                c.layer().rect(15, 4, 3, 26).rect(6, 11, 21, 3).commit(Canvas.ramp(new Color(176, 136, 84)), 0.2);
+                c.layer().ellipse(16.5, 7, 5, 4.5).commit(Canvas.ramp(new Color(220, 200, 150)), 0.2);
+                c.layer().ellipse(16.5, 20, 5, 5).commit(Canvas.ramp(red), 0);
+                c.layer().ellipse(16.5, 20, 2.4, 2.4).commit(Canvas.ramp(paper), 0);
+            }
+            case "gods" -> {
+                for (int i = 0; i < 12; i++) { double a = i * Math.PI / 6; c.layer().line(16, 16, 16 + Math.cos(a) * 14, 16 + Math.sin(a) * 14, 2).commit(Canvas.ramp(gold), 0); }
+                c.layer().ellipse(16, 16, 8, 8).commit(Canvas.ramp(new Color(255, 214, 90)), 0);
+            }
+            case "history" -> {
+                c.layer().rect(4, 5, 24, 22).commit(Canvas.ramp(new Color(126, 62, 40)), 0.15);
+                c.layer().rect(6, 7, 9, 18).rect(17, 7, 9, 18).commit(Canvas.ramp(paper), 0.05);
+                for (int y = 10; y < 23; y += 3) { c.layer().rect(8, y, 6, 1).commit(Canvas.ramp(new Color(120, 100, 80)), 0); c.layer().rect(18, y, 6, 1).commit(Canvas.ramp(new Color(120, 100, 80)), 0); }
+            }
+            case "character" -> {
+                c.layer().ellipse(16, 9, 6, 6.5).commit(Canvas.ramp(skin), 0);
+                c.layer().rect(10, 3, 12, 4).commit(Canvas.ramp(new Color(90, 60, 40)), 0.2);
+                c.layer().rect(9, 15, 14, 10).commit(Canvas.ramp(blue), 0.05);
+                c.layer().rect(10, 25, 5, 5).rect(17, 25, 5, 5).commit(Canvas.ramp(dark), 0.1);
+                c.layer().rect(9, 22, 14, 2).commit(Canvas.ramp(new Color(110, 70, 40)), 0);
+            }
+            case "job" -> {
+                c.layer().rect(3, 14, 26, 14).commit(Canvas.ramp(wood), 0.25);
+                c.layer().rect(3, 11, 26, 4).commit(Canvas.ramp(Canvas.mix(wood, Color.WHITE, 0.15)), 0.2);
+                c.layer().line(8, 10, 14, 2, 2.2).commit(Canvas.ramp(steel), 0);
+                c.layer().poly(new double[]{18, 26, 28, 20}, new double[]{4, 2, 8, 10}).commit(Canvas.ramp(steel), 0.05);
+            }
+            case "close" -> {
+                c.layer().line(7, 7, 25, 25, 4.5).line(25, 7, 7, 25, 4.5).commit(Canvas.ramp(red), 0);
+            }
+            default -> c.layer().rect(8, 8, 16, 16).commit(Canvas.ramp(gold), 0);
+        }
+        return c.image(true);
     }
 
     // ------------------------------------------------------------------ UI
     private void uiFont() {
-        png("assets/versaera/textures/ui/menu6.png", panel(176, 222, 6));
-        png("assets/versaera/textures/ui/menu3.png", panel(176, 168, 3));
-        text("assets/minecraft/font/default.json", "{\"providers\":["
-                + "{\"type\":\"bitmap\",\"file\":\"versaera:ui/menu6.png\",\"ascent\":13,\"height\":222,\"chars\":[\"" + esc(MENU_BG_6) + "\"]},"
-                + "{\"type\":\"bitmap\",\"file\":\"versaera:ui/menu3.png\",\"ascent\":13,\"height\":168,\"chars\":[\"" + esc(MENU_BG_3) + "\"]},"
+        StringBuilder bitmaps = new StringBuilder();
+        for (int rows = 1; rows <= 6; rows++) {   // 상자 창 높이 = 114 + 줄 × 18 (바닐라 배치)
+            int h = 114 + rows * 18;
+            png("assets/versaera/textures/ui/menu" + rows + ".png", panel(176, h, rows));
+            bitmaps.append("{\"type\":\"bitmap\",\"file\":\"versaera:ui/menu").append(rows).append(".png\",\"ascent\":13,\"height\":").append(h)
+                    .append(",\"chars\":[\"").append(esc(menuGlyph(rows))).append("\"]},");
+        }
+        text("assets/minecraft/font/default.json", "{\"providers\":[" + bitmaps
                 + "{\"type\":\"space\",\"advances\":{\"" + esc(SHIFT_LEFT_8) + "\":-8,\"" + esc(SHIFT_LEFT_169) + "\":-169}}"
                 + "]}");
     }
@@ -376,19 +467,61 @@ public final class ResourcePackBuilder {
         return String.format("\\u%04x", (int) c);
     }
 
-    /** 메뉴 배경: 어두운 판 + 얇은 금색 테두리 + 칸 자리 (설명 문장 없음) */
+    /**
+     * 메뉴 배경: 짙은 가죽 바탕 + 금빛 테두리(모서리 장식) + 제목 띠 + 칸 자리(우묵하게) — 상자 창 칸과 플레이어 인벤토리 칸 위치에 맞춘다.
+     * 설명 문장은 그리지 않는다.
+     */
     private static BufferedImage panel(int w, int h, int rows) {
         BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        SplittableRandom r = new SplittableRandom(rows * 7919L);
+        Color leather = new Color(34, 28, 32), gold = new Color(206, 162, 54), goldDark = new Color(120, 86, 30), goldLight = new Color(250, 222, 140);
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++) {
+                // 가장자리로 갈수록 어두워지는 바탕 + 가죽 결
+                double ex = Math.min(x, w - 1 - x) / 20.0, ey = Math.min(y, h - 1 - y) / 20.0, vig = Math.min(1, Math.min(ex, ey));
+                int v = (int) (r.nextInt(-5, 6) + vig * 10 - 8);
+                img.setRGB(x, y, new Color(c(leather.getRed() + v), c(leather.getGreen() + v), c(leather.getBlue() + v), 240).getRGB());
+            }
         Graphics2D g = img.createGraphics();
-        g.setColor(new Color(24, 22, 28, 235));
-        g.fillRoundRect(0, 0, w, h, 8, 8);
-        g.setColor(new Color(201, 162, 39));
-        g.drawRoundRect(0, 0, w - 1, h - 1, 8, 8);
-        g.setColor(new Color(255, 255, 255, 18));
-        for (int r = 0; r < rows; r++)
-            for (int c = 0; c < 9; c++) g.fillRect(7 + c * 18, 17 + r * 18, 16, 16);
+        // 테두리: 바깥 어두운 금 · 금 · 안쪽 밝은 금 한 줄
+        g.setColor(goldDark); g.drawRect(0, 0, w - 1, h - 1);
+        g.setColor(gold); g.drawRect(1, 1, w - 3, h - 3); g.drawRect(2, 2, w - 5, h - 5);
+        g.setColor(goldLight); g.drawLine(2, 2, w - 3, 2); g.drawLine(2, 2, 2, h - 3);
+        g.setColor(goldDark); g.drawRect(3, 3, w - 7, h - 7);
+        // 모서리 장식 (마름모 + 점)
+        for (int[] p : new int[][]{{0, 0}, {w - 11, 0}, {0, h - 11}, {w - 11, h - 11}}) {
+            g.setColor(gold); g.fillPolygon(new int[]{p[0] + 5, p[0] + 10, p[0] + 5, p[0]}, new int[]{p[1], p[1] + 5, p[1] + 10, p[1] + 5}, 4);
+            g.setColor(goldLight); g.fillRect(p[0] + 4, p[1] + 3, 2, 2);
+            g.setColor(new Color(150, 30, 40)); g.fillRect(p[0] + 4, p[1] + 5, 2, 2);
+        }
+        // 제목 띠 아래 금줄 (제목 글자는 y≈6)
+        g.setColor(goldDark); g.drawLine(8, 15, w - 9, 15);
+        g.setColor(gold); g.drawLine(8, 16, w - 9, 16);
+        int inv = 18 + rows * 18 + 13;
+        g.setColor(goldDark); g.drawLine(8, inv - 5, w - 9, inv - 5);
+        g.setColor(gold); g.drawLine(8, inv - 4, w - 9, inv - 4);
+        // 칸: 상자 칸 rows 줄 + 인벤토리 3줄 + 단축 1줄
+        for (int row = 0; row < rows; row++) for (int col = 0; col < 9; col++) slot(img, 7 + col * 18, 17 + row * 18);
+        for (int row = 0; row < 3; row++) for (int col = 0; col < 9; col++) slot(img, 7 + col * 18, inv + row * 18 - 1);
+        for (int col = 0; col < 9; col++) slot(img, 7 + col * 18, inv + 58 - 1);
         g.dispose();
         return img;
+    }
+
+    /** 우묵한 칸 18×18: 위 · 왼쪽은 그늘, 아래 · 오른쪽은 빛 */
+    private static void slot(BufferedImage img, int x, int y) {
+        Color in = new Color(18, 14, 18, 245), shadow = new Color(8, 6, 8), light = new Color(92, 78, 70);
+        for (int j = 0; j < 18; j++)
+            for (int i = 0; i < 18; i++) {
+                int px = x + i, py = y + j;
+                if (px < 0 || py < 0 || px >= img.getWidth() || py >= img.getHeight()) continue;
+                Color col = (i == 0 || j == 0) ? shadow : (i == 17 || j == 17) ? light : in;
+                img.setRGB(px, py, col.getRGB());
+            }
+    }
+
+    private static int c(int v) {
+        return Math.max(0, Math.min(255, v));
     }
 
     private static BufferedImage icon() {

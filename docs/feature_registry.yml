@@ -1133,7 +1133,7 @@ features:
     source: "요구 §48-50"
     source_type: "설계 요구"
     classification: ORIGINAL
-    description: "모든 창은 아이콘 + 이름 + 숫자만. 리소스팩을 쓰면 창 제목에 배경 글자(U+E000~, 뒤로 당기는 공백 글자)로 전용 배경, 버튼은 팩의 전용 아이콘 30종(의뢰 · 상점 · 선물 · 소식 · 전투 · 생활 · 길드 · 돈 · 경매 · 팔기 · 스탯 · 지도 · 길드원 · 평판 · 비기 · 필드 보스 · 감정 · 붕대 · 땅 · 성 · 국가 · 파티 · 시련 · 신 · 연대기 · 캐릭터 · 직업 · 닫기). /메뉴 = 모든 기능 단추판. 필드 보스 체력 막대(보스 바). 팩이 없으면 바닐라 아이템으로 대신"
+    description: "모든 창은 아이콘 + 이름 + 숫자만. 리소스팩을 쓰면 창 제목에 배경 글자(U+E000~, 뒤로 당기는 공백 글자)로 전용 배경, 버튼은 팩의 전용 32×32 아이콘 30종(의뢰 · 상점 · 선물 · 소식 · 전투 · 생활 · 길드 · 돈 · 경매 · 팔기 · 스탯 · 지도 · 길드원 · 평판 · 비기 · 필드 보스 · 감정 · 붕대 · 땅 · 성 · 국가 · 파티 · 시련 · 신 · 연대기 · 캐릭터 · 직업 · 닫기). /메뉴 = 모든 기능 단추판. 필드 보스 체력 막대(보스 바). 팩이 없으면 바닐라 아이템으로 대신"
     player_experience: "고급 판타지 UI"
     dependencies: [RP-01]
     implementation: "platform.bukkit.ui.Menu(ui · 배경) · NpcMenus · GameCommands · PlayerCommand · ResourcePackBuilder(menu6 · menu3 · space · ui 아이콘)"
@@ -1153,7 +1153,7 @@ features:
     source: "요구 §51-52"
     source_type: "설계 요구"
     classification: ORIGINAL
-    description: "ResourcePackBuilder 가 서버를 켤 때 팩을 만든다: 거대 보스 5종 큐브 모델(거상 · 날개 짐승 · 결정 · 마디 벌레 · 갑각 템플릿) + 절차 텍스처(등 약점 표시) · 모든 아이템 종류의 16×16 아이콘(PixelArt — 검 · 단검 · 도끼 · 창 · 활 · 지팡이 · 갑옷 부위 · 원석 · 주괴 · 보석 · 목재 · 천 · 가죽 · 약초 · 생선 · 물약 · 조각상 …, 능력 속성색 · 원작 물건 금빛 표시)을 바닐라 재질 모델의 CustomModelData 로(방패 · 삼지창은 바닐라 렌더러라 제외) · 입은 갑옷은 갑옷 장식(trim) 무늬로 아이템 · 세트마다 다른 겉모습(판금 · 사슬 · 비늘 · 털가죽 · 로브, 플러그인이 데이터팩을 세계 datapacks 에 설치 — 처음 한 번 재시작) · 필드 보스 16종 3D 모델(기사 · 뱀파이어 · 리치 · 악마 · 용 · 짐승 · 골렘 · 히드라 · 불도마뱀 · 비행체 템플릿, 바닐라 몸은 숨기고 ItemDisplay 를 태워 크게 보임) · 철인의 쇠 가면, 메뉴 배경 · 공백 글꼴. 같은 콘텐츠 = 같은 SHA-1. gradle buildPack 으로 pack/VersaEra-pack.zip 을 만들어 GitHub 에 올리고, 서버는 pack.urls(raw 주소)에서 받아 SHA-1 을 계산해 보냄. 외부 주소가 모두 실패하면 내장 HTTP 서버로 배포. 손으로 그린 고급 모델은 아님 (교체 가능)"
+    description: "ResourcePackBuilder 가 서버를 켤 때 팩을 만든다: 거대 보스 5종 큐브 모델(거상 · 날개 짐승 · 결정 · 마디 벌레 · 갑각 템플릿) + 절차 텍스처(등 약점 표시) · 모든 아이템 종류의 32×32 아이콘(PixelArt + Canvas: 색상을 비튼 5단계 색 사다리 · 왼쪽 위 빛 자동 음영 · 색 외곽선 — 검 · 단검 · 도끼 · 창 · 활 · 지팡이 · 갑옷 부위 · 원석 · 주괴 · 보석 · 목재 · 천 · 가죽 · 약초 · 생선 · 물약 · 조각상 …, 능력 속성색 · 원작 물건 금빛 표시)을 바닐라 재질 모델의 CustomModelData 로(방패 · 삼지창은 바닐라 렌더러라 제외) · 입은 갑옷은 갑옷 장식(trim) 무늬로 아이템 · 세트마다 다른 겉모습(128×64, 판금 · 사슬 · 비늘 · 털가죽 · 로브 + 투구 T자 가리개 · 가슴 문장 · 깃 · 허리띠 · 어깨받이 · 무릎받이 · 장화 목, 플러그인이 데이터팩을 세계 datapacks 에 설치 — 처음 한 번 재시작) · 필드 보스 16종 관절 모델(ModelKit: 기사 · 뱀파이어 · 리치 · 악마 · 용 · 짐승 · 골렘 · 히드라 · 불도마뱀 · 비행체 뼈대, 부위마다 상자 면을 한 장에 펼친 텍스처 · 결 · 얼굴 · 문장, 보스마다 색 변주) — 바닐라 몸은 숨기고 부위별 ItemDisplay 를 태워 관절을 보간으로 돌린다(걷기 · 날갯짓 · 꼬리 · 무기 휘두르기 · 물기) · 거대 보스 5종도 같은 방식 텍스처 · 철인의 쇠 가면, 메뉴 배경(1 ~ 6줄 모두, 금빛 테두리 · 모서리 장식 · 우묵한 칸 · 인벤토리 칸까지) · 공백 글꼴. 같은 콘텐츠 = 같은 SHA-1. gradle buildPack 으로 pack/VersaEra-pack.zip 을 만들어 GitHub 에 올리고, 서버는 pack.urls(raw 주소)에서 받아 SHA-1 을 계산해 보냄. 외부 주소가 모두 실패하면 내장 HTTP 서버로 배포. 손으로 그린 고급 모델은 아님 (교체 가능)"
     player_experience: "고유한 외형"
     dependencies: []
     implementation: "io.versaera.pack.ResourcePackBuilder · PackMain · domain.pack.PackIds · platform.bukkit.pack.ExternalPack · PackSender · PackServer"

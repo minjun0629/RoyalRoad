@@ -29,13 +29,13 @@ public class Menu implements InventoryHolder {
     public static volatile boolean background = false;
 
     public Menu(int rows, String title) {
-        inv = Bukkit.createInventory(this, rows * 9, Ui.c(background ? bg(rows) + title : title));
+        // 배경이 어두워 바닐라의 짙은 회색 제목은 안 보인다 → 금빛으로
+        inv = Bukkit.createInventory(this, rows * 9, Ui.c(background ? bg(rows) + title.replaceFirst("^&8", "&e") : title));
     }
 
     /** 왼쪽으로 8 당김 + 배경 + 다시 169 당겨 제목 자리로 */
     private static String bg(int rows) {
-        char glyph = rows >= 6 ? io.versaera.pack.ResourcePackBuilder.MENU_BG_6 : rows >= 3 ? io.versaera.pack.ResourcePackBuilder.MENU_BG_3 : 0;
-        if (glyph == 0) return "";
+        char glyph = io.versaera.pack.ResourcePackBuilder.menuGlyph(rows);
         return "&f" + io.versaera.pack.ResourcePackBuilder.SHIFT_LEFT_8 + glyph + io.versaera.pack.ResourcePackBuilder.SHIFT_LEFT_169;
     }
 
