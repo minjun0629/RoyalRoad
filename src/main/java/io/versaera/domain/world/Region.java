@@ -30,4 +30,12 @@ public record Region(String id, String name, String source, int danger, String w
     public boolean contains(String w, int x, int y, int z) {
         return world.equals(w) && x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
     }
+
+    /** 태그 하나를 더한 사본 (항구 같은 계산된 성격) */
+    public Region withTag(String tag) {
+        if (tags.contains(tag)) return this;
+        java.util.Set<String> t = new java.util.LinkedHashSet<>(tags);
+        t.add(tag);
+        return new Region(id, name, source, danger, world, minX, minY, minZ, maxX, maxY, maxZ, priority, parent, t, purpose, changed, resources, factions);
+    }
 }

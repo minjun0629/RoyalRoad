@@ -6,6 +6,7 @@ import io.versaera.domain.item.ItemInstance;
 import io.versaera.domain.item.ItemType;
 import io.versaera.domain.skill.Mastery;
 import io.versaera.platform.bukkit.Async;
+import io.versaera.platform.bukkit.Ui;
 import io.versaera.platform.bukkit.binding.ItemCodec;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -66,6 +67,13 @@ public final class CombatListener implements Listener {
     private final Map<UUID, long[]> focus = new ConcurrentHashMap<>();
     private java.util.function.Consumer<Player> healthChanged = p -> { };
     private int ticks;
+
+    private java.util.function.Function<UUID, String> regionOf = u -> null;
+
+    /** 지역 (날씨 · 파티 분배) — RegionTracker 가 채운다 */
+    public void regionOf(java.util.function.Function<UUID, String> f) {
+        this.regionOf = f;
+    }
 
     public CombatListener(Plugin plugin, GameServices s, Async async, ItemCodec codec) {
         this.plugin = plugin;
@@ -293,6 +301,13 @@ public final class CombatListener implements Listener {
             if (defender.isBlocking()) damage *= 0.4;
             pendingHits.merge(owner, 1L, Long::sum);
         }
+        // 날씨 (WTH-01): 근접 · 활 피해 배율 (공격한 플레이어가 있는 지역)
+        Player wp = e.getDamager() instanceof Player pl ? pl : e.getDamager() instanceof org.bukkit.entity.Projectile pr && pr.getShooter() instanceof Player sh ? sh : null;
+        if (wp != null) {
+            String region = regionOf.apply(wp.getUniqueId());
+            if (region != null) damage *= s.weather.combat(region, e.getDamager() instanceof Player
+                    ? io.versaera.application.WeatherService.Attack.MELEE : io.versaera.application.WeatherService.Attack.RANGED);
+        }
         e.setDamage(Math.max(0.5, damage));
     }
 
@@ -308,9 +323,43 @@ public final class CombatListener implements Listener {
         if (k == null || e.getEntity() instanceof Player) return;
         String id = k.getUniqueId().toString();
         String type = e.getEntityType().name().toLowerCase(java.util.Locale.ROOT);
+        // 파티 (PTY-02): 40 블록 안의 파티원 — 처치 경험을 나누고, 의뢰 처치도 함께 센다
+        List<String> near = new ArrayList<>();
+        for (String m : s.parties.members(id)) {
+            Player o = Bukkit.getPlayer(UUID.fromString(m));
+            if (o != null && o.getWorld().equals(k.getWorld()) && o.getLocation().distance(e.getEntity().getLocation()) <= 40) near.add(m);
+        }
+        if (!near.contains(id)) near.add(0, id);
+        var maxHp = e.getEntity().getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH);
+        long base = Math.max(4, Math.round(maxHp == null ? 10 : maxHp.getValue()));
+        long share = io.versaera.domain.party.Parties.share(base, near.size());
+        // 전리품 (PTY-02): 차례 · 무작위면 떨어진 물건에 주인을 정한다 (30초 동안 그 사람만 줍는다 — 바닐라 Item 주인)
+        String looter = near.size() > 1 ? s.parties.looter(id, near, rng.nextDouble()) : null;
+        if (looter != null) {
+            UUID lu = UUID.fromString(looter);
+            org.bukkit.Location at = e.getEntity().getLocation();
+            List<ItemStack> drops = new ArrayList<>(e.getDrops());
+            e.getDrops().clear();
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                for (ItemStack it : drops) at.getWorld().dropItemNaturally(at, it).setOwner(lu);
+            });
+            Player lp = Bukkit.getPlayer(lu);
+            if (lp != null && !drops.isEmpty()) Ui.bar(lp, "&e전리품 &7(" + s.parties.loot(id).label.split(" ")[0] + ")");
+        }
         async.fire("kill", () -> {
             s.growth.record(id, "kill.monster", 1);
-            s.quests.record(id, io.versaera.domain.quest.QuestDefinition.Type.KILL, type, 1, 0);
+            for (String m : near) {
+                s.quests.record(m, io.versaera.domain.quest.QuestDefinition.Type.KILL, type, 1, 0);
+                if (near.size() > 1) {   // 함께 싸운 몫: 각자 가장 높은 전투 숙련으로
+                    String best = "swordsmanship";
+                    int lv = -1;
+                    for (String d : io.versaera.application.RaidService.COMBAT) {
+                        int l = s.growth.level(m, d);
+                        if (l > lv) { lv = l; best = d; }
+                    }
+                    s.growth.addXp(m, best, share, 1);
+                }
+            }
             return null;
         });
     }

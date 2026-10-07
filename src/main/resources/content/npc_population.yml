@@ -210,6 +210,29 @@ archetypes:
                buys: [food, fish, grain], consumes: [food, grain], level: [10, 30],
                lines: ["방 하나 남았소.", "오늘 손님이 많군.", "자네 방은 늘 깨끗하게 해 두지."],
                quests: [{target: "partner", money: 140, affinity: 8, title: "{npc}의 빌린 돈", label: "{partner}에게 빚 받아 오기"}]}
+  # ---- 이동 · 동물 (V7)
+  stablemaster: {job: 마구간지기, category: LIFE, services: [STABLE, TRAIN, QUEST], trains: riding, likes: [grain, herb], dislikes: [gem],
+               personalities: [말 이빨만 보고 나이를 맞힘, 사람보다 말과 이야기하는 게 편함],
+               schedule: ["5-20:work", "20-23:tavern", "23-5:home"], buys: [grain], consumes: [grain], level: [15, 35],
+               lines: ["말 보러 왔소?", "오늘은 말들이 기운이 좋아.", "자네라면 제일 좋은 놈을 내주지."],
+               quests: [{target: "item:wheat_sheaf", amount: 16, money: 160, xp: {riding: 40}, affinity: 10, daily: true, title: "마구간의 여물", label: 밀 다발 16개},
+                        {target: "kill:wolf", amount: 5, money: 220, xp: {riding: 60}, affinity: 12, daily: true, title: "말을 노리는 늑대", label: 늑대 5마리}]}
+  coachman:   {job: 마부, category: LIFE, services: [CARRIAGE, RUMOR, QUEST], likes: [food, grain], dislikes: [cursed],
+               personalities: [길마다 소문을 주워 옴, 시간은 칼같이 지킴],
+               schedule: ["6-21:gate", "21-24:tavern", "0-6:home"], consumes: [food], level: [10, 25],
+               lines: ["어디로 모실까?", "오늘 길은 순탄하오.", "단골은 앞자리에 태워 드리지."],
+               quests: [{target: "partner", money: 120, affinity: 8, title: "{npc}의 짐 꾸러미", label: "{partner}에게 짐 전하기"}]}
+  ship_captain: {job: 선장, category: LIFE, services: [SHIP, RUMOR, TRAIN, QUEST], trains: sailing, likes: [fish, food], dislikes: [herb],
+               personalities: [바다 냄새가 나지 않으면 잠을 못 잠, 폭풍 이야기는 세 배로 부풀림],
+               schedule: ["5-20:work", "20-24:tavern", "0-5:home"], buys: [fish], consumes: [food, fish], level: [20, 45],
+               lines: ["배에 오를 텐가?", "바람이 좋군. 오늘은 빨리 닿겠어.", "자네 같은 선원이 있으면 든든하지."],
+               quests: [{target: "item:sea_salt", amount: 20, money: 200, xp: {sailing: 50}, affinity: 10, daily: true, title: "소금 실을 배", label: 바다 소금 20개},
+                        {target: "kill:drowned", amount: 8, money: 300, xp: {sailing: 80}, affinity: 12, daily: true, title: "부두의 익사자", label: 익사자 8마리}]}
+  tamer:      {job: 조련사, category: SPECIALIST, services: [TRAIN, RUMOR, QUEST], trains: taming, likes: [meat, fish], dislikes: [potion],
+               personalities: [짐승 울음소리를 흉내 냄, 손등에 물린 자국이 가득],
+               schedule: ["6-19:work", "19-23:tavern", "23-6:home"], buys: [meat], consumes: [meat], level: [15, 40],
+               lines: ["짐승은 먹이보다 마음을 먼저 본다네.", "오늘은 늑대들이 조용하군.", "자네 곁의 녀석, 잘 길렀어."],
+               quests: [{target: "item:raw_meat", amount: 12, money: 180, xp: {taming: 50}, affinity: 10, daily: true, title: "굶은 새끼들", label: 날고기 12개}]}
   # ---- 전문
   scholar:    {job: 학자, category: SPECIALIST, services: [LORE, RUMOR, QUEST, TRAIN], trains: exploration, likes: [art, gem], dislikes: [meat],
                personalities: [조용하지만 유적 이야기에는 눈을 빛냄, 책을 베개로 씀],
@@ -259,14 +282,15 @@ archetypes:
 
 # 지역 성격(태그) → 사는 주민 (같은 지역에 여러 태그가 있으면 모두 더한다, 지역당 최대 max_per_region)
 cultures:
-  city:        {blacksmith: 1, grocer: 1, general: 1, guard: 2, innkeeper: 1, priest: 1, baker: 1, tailor: 1, herbalist: 1, carpenter: 1, cook: 1}
+  city:        {blacksmith: 1, grocer: 1, general: 1, guard: 2, innkeeper: 1, priest: 1, baker: 1, tailor: 1, herbalist: 1, carpenter: 1, cook: 1, stablemaster: 1, coachman: 1}
+  port:        {ship_captain: 1}
   market:      {auctioneer: 1, jeweler: 1, weaponsmith: 1, armorer: 1, antique: 1}
   scholar:     {scholar: 2, alchemist: 1, mage_merchant: 1, cartographer: 1}
   artisan:     {sculptor: 2, mason: 1, jeweler: 1}
-  fortress:    {knight: 1, soldier: 2, instructor: 1, armorer: 1}
-  outpost:     {guard: 1, hunter: 1, tanner: 1, carpenter: 1}
-  frontier:    {hunter: 1, tanner: 1, woodcutter: 1}
-  farmland:    {farmer: 3, shepherd: 1, baker: 1}
+  fortress:    {knight: 1, soldier: 2, instructor: 1, armorer: 1, coachman: 1}
+  outpost:     {guard: 1, hunter: 1, tanner: 1, carpenter: 1, coachman: 1}
+  frontier:    {hunter: 1, tanner: 1, woodcutter: 1, tamer: 1}
+  farmland:    {farmer: 3, shepherd: 1, baker: 1, tamer: 1}
   plains:      {farmer: 1, shepherd: 1}
   mountain:    {miner: 2}
   underground: {miner: 2}
@@ -280,7 +304,7 @@ cultures:
   dungeon_site: {adventurer: 1, treasure_hunter: 1}
   ruins:       {scholar: 1, treasure_hunter: 1}
   badlands:    {smuggler: 1, info_broker: 1}
-max_per_region: 16
+max_per_region: 20
 
 # 떠돌이: 가까운 도시들을 차례로 돈다 (도시 수 · 속도 블록/분). 도시마다 실제 30분 머물고, 시각만으로 자리가 정해진다 (저장 없음)
 wanderers:

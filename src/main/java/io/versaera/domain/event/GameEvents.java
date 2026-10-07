@@ -44,4 +44,14 @@ public final class GameEvents {
     public record DungeonCleared(String runId, String dungeonId, java.util.List<String> members) implements DomainEvent {}
 
     public record BossDefeated(String bossId, java.util.List<String> participants) implements DomainEvent {}
+
+    public record AchievementEarned(String uuid, String achievementId, String name, boolean worldFirst, String title) implements DomainEvent {}
+
+    public record TitleChanged(String uuid, String titleId) implements DomainEvent {}
+
+    public record PetLevelUp(String uuid, String petId, int level) implements DomainEvent {}
+
+    public record RaidCleared(String raidId, String runId, java.util.List<String> members, long durationMs, boolean record) implements DomainEvent {}
+
+    public record GuildQuestDone(String guildId, String questId, String name, long money) implements DomainEvent {}
 }

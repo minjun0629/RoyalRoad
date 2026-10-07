@@ -34,7 +34,16 @@ public final class MainMenu implements CommandExecutor {
             new Button(30, "castle", Material.STONE_BRICKS, "&7성", "castle 목록"),
             new Button(31, "nation", Material.GOLDEN_HELMET, "&6국가", "nation"),
             new Button(32, "reputation", Material.SHIELD, "&6황제", "emperor"),
-            new Button(33, "job", Material.CRAFTING_TABLE, "&f직업", "job"));
+            new Button(33, "job", Material.CRAFTING_TABLE, "&f직업", "job"),
+            new Button(28, "sculpt", Material.CHISELED_STONE_BRICKS, "&f대형 조각", "sculpt"),
+            new Button(34, "vault", Material.CHEST, "&b길드 창고", "gstorage"),
+            new Button(37, "achievement", Material.GOLD_BLOCK, "&6업적", "achievements"),
+            new Button(38, "record", Material.BOOK, "&f모험가 기록", "record"),
+            new Button(39, "title", Material.NAME_TAG, "&d칭호", "title"),
+            new Button(40, "pet", Material.BONE, "&a펫", "pet"),
+            new Button(41, "mount", Material.SADDLE, "&6탈것", "mount"),
+            new Button(42, "raid", Material.DRAGON_HEAD, "&5레이드", "raid"),
+            new Button(43, "weather", Material.SUNFLOWER, "&b날씨", "weather"));
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] a) {

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'io.versaera'
-version = '0.3.0'
+version = '0.4.0'
 
 java {
     toolchain { languageVersion = JavaLanguageVersion.of(21) }
@@ -54,11 +54,19 @@ jar {
     archiveFileName = "VersaEra-${project.version}.jar"
 }
 
-// 리소스팩을 pack/ 폴더에 내보낸다 → GitHub 에 올리면 config.yml pack.urls 의 주소로 배포된다
+// 리소스팩을 저장소 맨 위에 VersaEra-ResourcePack.zip 으로 내보낸다 → GitHub 에 올리면 플러그인이 그 주소로 배포한다
 tasks.register('buildPack', JavaExec) {
     dependsOn classes
     classpath = sourceSets.main.runtimeClasspath + configurations.compileClasspath
     mainClass = 'io.versaera.pack.PackMain'
-    args = [file('pack').absolutePath]
+    args = [projectDir.absolutePath]
     systemProperty 'java.awt.headless', 'true'
+}
+
+// 배포: 플러그인 jar 를 저장소 맨 위에 두고(옛 버전 jar 는 지움) 리소스팩도 다시 만든다 — RpgCraft 처럼 받아서 그대로 넣으면 된다
+tasks.register('release', Copy) {
+    dependsOn jar, buildPack
+    doFirst { fileTree(projectDir) { include 'VersaEra-*.jar' }.each { it.delete() } }
+    from jar.archiveFile
+    into projectDir
 }

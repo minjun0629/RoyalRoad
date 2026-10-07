@@ -51,6 +51,18 @@ public final class GrowthService {
         xpBonus = f;
     }
 
+    /** 카운터가 delta 만큼 늘면 알림 (길드 의뢰처럼 합계를 세는 곳) */
+    @FunctionalInterface
+    public interface DeltaListener {
+        void added(String uuid, String key, long delta);
+    }
+
+    private final List<DeltaListener> deltaListeners = new ArrayList<>();
+
+    public void onCounterDelta(DeltaListener l) {
+        deltaListeners.add(l);
+    }
+
     public void onCounter(CounterListener l) {
         counterListeners.add(l);
     }
@@ -71,6 +83,16 @@ public final class GrowthService {
 
     public int level(String uuid, String discipline) {
         return Mastery.levelOf(progress.masteryXp(uuid, discipline));
+    }
+
+    /** 분야 → 레벨 (1 이상인 것만) */
+    public Map<String, Integer> levels(String uuid) {
+        Map<String, Integer> out = new LinkedHashMap<>();
+        progress.allMastery(uuid).forEach((d, xp) -> {
+            int lv = io.versaera.domain.skill.Mastery.levelOf(xp);
+            if (lv >= 1 && disciplines.containsKey(d)) out.put(d, lv);
+        });
+        return out;
     }
 
     public long xp(String uuid, String discipline) {
@@ -112,6 +134,7 @@ public final class GrowthService {
             if (pa > pb || unlocked) bus.publish(new GameEvents.StatGained(uuid, s.id(), pa, unlocked));
         }
         for (CounterListener l : counterListeners) l.changed(uuid, key, beforeAfter[1]);
+        for (DeltaListener l : deltaListeners) l.added(uuid, key, delta);
         return beforeAfter[1];
     }
 

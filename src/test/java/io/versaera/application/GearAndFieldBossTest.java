@@ -88,10 +88,11 @@ class GearAndFieldBossTest {
             assertEquals(Set.of(a, b), d.rewarded(), "기여 10% 미만은 보상 없음");
             assertTrue(d.drops().contains("반 호크의 투구"), "확률 드롭은 가장 많이 때린 사람에게");
             assertTrue(d.worldFirst());
-            assertEquals(4000, w.s.economy.balance(a));
-            assertEquals(4000, w.s.economy.balance(b));
-            assertEquals(0, w.s.economy.balance(c));
-            assertEquals(30, w.s.reputation.standing(a).fame());
+            var firstBoss = w.s.achievements.achievement("giant_hunter");   // 첫 필드 보스 업적도 함께 (ACH-01)
+            assertEquals(4000 + firstBoss.money(), w.s.economy.balance(a));
+            assertEquals(4000 + firstBoss.money(), w.s.economy.balance(b));
+            assertEquals(0, w.s.economy.balance(c), "보상 없는 사람은 보스 업적도 없다");
+            assertEquals(30 + firstBoss.fame(), w.s.reputation.standing(a).fame());
             assertTrue(w.s.items.pendingDeliveries(a).stream().anyMatch(it -> it.typeId().equals("van_hawk_helm")));
             assertThrows(DomainException.class, () -> w.s.fieldBosses.defeated("van_hawk", gen, Map.of(a, 1.0), Map.of(), ALWAYS),
                     "같은 출현은 한 번만 보상");

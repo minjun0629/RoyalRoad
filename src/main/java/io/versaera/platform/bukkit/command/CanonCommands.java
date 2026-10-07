@@ -143,6 +143,19 @@ public final class CanonCommands implements CommandExecutor {
                         if (o != null) o.sendMessage(Ui.info(p.getName() + " 님이 파티를 떠났다"));
                     }
                 }
+                case "분배", "loot" -> {
+                    var mode = switch (a.length > 1 ? a[1] : "") {
+                        case "자유", "free" -> io.versaera.domain.party.Parties.Loot.FREE;
+                        case "차례", "round" -> io.versaera.domain.party.Parties.Loot.ROUND_ROBIN;
+                        case "무작위", "random" -> io.versaera.domain.party.Parties.Loot.RANDOM;
+                        default -> throw io.versaera.domain.common.DomainException.of("party.loot", "/파티 분배 <자유|차례|무작위> (지금: " + s.parties.loot(id).label + ")");
+                    };
+                    s.parties.loot(id, mode);
+                    for (String m : s.parties.members(id)) {
+                        Player o = Bukkit.getPlayer(java.util.UUID.fromString(m));
+                        if (o != null) o.sendMessage(Ui.info("전리품 나누기: " + mode.label));
+                    }
+                }
                 case "말", "chat" -> {
                     String msg = String.join(" ", java.util.Arrays.copyOfRange(a, 1, a.length));
                     for (String m : s.parties.members(id)) {
@@ -152,7 +165,7 @@ public final class CanonCommands implements CommandExecutor {
                 }
                 default -> {
                     var ms = s.parties.members(id);
-                    if (ms.size() <= 1) p.sendMessage(Ui.c("&7파티가 없습니다 — /파티 초대 <이름> · 수락 · 나가기 · 말 <내용>"));
+                    if (ms.size() <= 1) p.sendMessage(Ui.c("&7파티가 없습니다 — /파티 초대 <이름> · 수락 · 나가기 · 분배 · 말 <내용>"));
                     else {
                         StringBuilder b = new StringBuilder("&b파티 (" + ms.size() + "/" + io.versaera.domain.party.Parties.MAX + "): ");
                         String leader = s.parties.leader(id).orElse(id);

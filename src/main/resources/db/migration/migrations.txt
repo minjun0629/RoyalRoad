@@ -4,3 +4,4 @@ V3__map_and_boss.sql
 V4__origin.sql
 V5__realm.sql
 V6__npc_world.sql
+V7__adventure.sql

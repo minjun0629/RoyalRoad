@@ -22,6 +22,7 @@ import java.util.function.IntSupplier;
  *   <li>공간 색인: 세계 → 128 블록 칸 → 그 칸에 일과 장소가 있는 NPC. 플레이어마다 주변 3×3 칸만 꺼낸다 (전체 순회 없음)</li>
  *   <li>떠돌이(수십 명)는 시각으로 자리를 계산하고, 160 블록 안에 누가 있을 때만 세운다</li>
  *   <li>희귀 NPC 는 정해진 날 · 시각에만, 쇠퇴한 지역의 귀한 물건 상인은 떠나 있다 (NpcWorldService.absent — DB 스레드가 갈아 끼움)</li>
+ *   <li>폭풍 · 눈보라 · 모래폭풍에는 주점이나 집에 들어가 있다 (WeatherService.indoor)</li>
  *   <li>근처(64 블록)에 아무도 없으면 엔티티를 치우고, 누가 다가오면 그 시각의 자리에 다시 세운다</li>
  * </ul>
  * 엔티티는 저장하지 않는다(persistent=false) → 재시작해도 겹치지 않는다. 관리자가 직접 세운 NPC(/va npc spawn)는 건드리지 않는다.
@@ -125,7 +126,13 @@ public final class NpcRuntime {
 
     private Point target(NpcDefinition n, int h) {
         Map<String, Point> places = s.content.places().get(n.id());
-        return places == null ? null : NpcSchedule.target(n, places, h);
+        if (places == null) return null;
+        // 날씨 (WTH-01): 폭풍 · 눈보라 · 모래폭풍이면 일하던 사람도 주점이나 집으로 (경비 · 성문지기는 그 자리)
+        if (s.weather.indoor(n.region()) && !"gate".equals(n.placeAt(h))) {
+            Point in = places.getOrDefault("tavern", places.get("home"));
+            if (in != null) return in;
+        }
+        return NpcSchedule.target(n, places, h);
     }
 
     private static Location ground(World w, Point p, Point facing) {

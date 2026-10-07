@@ -62,6 +62,9 @@ public final class VersaEraPlugin extends JavaPlugin {
     private DungeonRuntime dungeons;
     private WorldEventRuntime events;
     private NpcRuntime npcRuntime;
+    private io.versaera.platform.bukkit.world.PetRuntime petRuntime;
+    private io.versaera.platform.bukkit.world.TravelRuntime travelRuntime;
+    private io.versaera.platform.bukkit.world.ArtworkRuntime artworkRuntime;
     private PackServer pack;
 
     @Override
@@ -127,6 +130,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         byte[] key = serverKey();
         Sealer sealer = new Sealer(key);
         services.worldEvents.reseed(java.nio.ByteBuffer.wrap(sha256(key)).getLong());   // 서버마다 다른 이벤트 시간표
+        services.weather.reseed(java.nio.ByteBuffer.wrap(sha256(key)).getLong() ^ 0x57EA7E5L);   // 서버마다 다른 날씨 시간표
         SessionListener sessions = new SessionListener(this, services, async, codec);
         RegionTracker regions = new RegionTracker(services, async);
         loadHidden(sealer, regions);
@@ -181,6 +185,28 @@ public final class VersaEraPlugin extends JavaPlugin {
         io.versaera.platform.bukkit.command.RealmCommands realmCmd = new io.versaera.platform.bukkit.command.RealmCommands(services, async, codec, realmR);
         for (String c : List.of("land", "pshop", "castle", "nation", "emperor")) getCommand(c).setExecutor(realmCmd);
         for (String c : List.of("party", "donate", "gods", "history", "fame", "arts", "trial")) getCommand(c).setExecutor(canonCmd);
+        // 모험 확장 (V7): 업적 · 칭호 · 기록 · 펫 · 탈것 · 마차/배 · 날씨 · 레이드 · 길드 창고/의뢰 · 대형 조각
+        java.util.function.Function<UUID, java.util.Set<String>> tagsOf = u -> {
+            String rid = regions.regionOf(u);
+            var r = rid == null ? null : services.regions.byId(rid);
+            return r == null ? java.util.Set.of() : r.tags();
+        };
+        combat.regionOf(regions::regionOf);
+        petRuntime = new io.versaera.platform.bukkit.world.PetRuntime(this, services, async, codec, regions::regionOf, tagsOf);
+        gather.petSkill(petRuntime::hasSkill);
+        travelRuntime = new io.versaera.platform.bukkit.world.TravelRuntime(this, services, async);
+        io.versaera.platform.bukkit.world.WeatherRuntime weatherR = new io.versaera.platform.bukkit.world.WeatherRuntime(this, services, regions::regionOf);
+        io.versaera.platform.bukkit.world.RaidRuntime raidR = new io.versaera.platform.bukkit.world.RaidRuntime(this, services, async, bosses, regions::regionOf);
+        artworkRuntime = new io.versaera.platform.bukkit.world.ArtworkRuntime(this, services, async, codec, regions::regionOf, sessions::deliver);
+        io.versaera.platform.bukkit.command.AdventureCommands advCmd = new io.versaera.platform.bukkit.command.AdventureCommands(services, async, codec,
+                sessions::deliver, petRuntime, travelRuntime, raidR, weatherR, artworkRuntime);
+        for (String c : List.of("achievements", "title", "record", "pet", "mount", "raid", "weather", "gstorage", "gquest", "sculpt")) {
+            getCommand(c).setExecutor(advCmd);
+            getCommand(c).setTabCompleter(advCmd);
+        }
+        menus.adventure(advCmd, regions::regionOf);
+        io.versaera.platform.bukkit.listener.AdventureListener advL = new io.versaera.platform.bukkit.listener.AdventureListener(this, services, async);
+        for (var l : List.<org.bukkit.event.Listener>of(petRuntime, travelRuntime, weatherR, artworkRuntime, advL)) Bukkit.getPluginManager().registerEvents(l, this);
                 InventoryGuard guard = new InventoryGuard(this, services, async, codec);
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
                 deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.HeadGear(codec), new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
@@ -244,7 +270,8 @@ public final class VersaEraPlugin extends JavaPlugin {
         PackSender sender = new PackSender(this);
         Bukkit.getPluginManager().registerEvents(sender, this);
         io.versaera.platform.bukkit.ui.Menu.background = getConfig().getBoolean("pack.menu-background", true);
-        List<String> urls = getConfig().getStringList("pack.urls");
+        sender.prompt(getConfig().getString("pack.prompt", "VersaEra 전용 리소스팩 (아이템 · 보스 · 메뉴 그림)"), getConfig().getBoolean("pack.required", false));
+        List<String> urls = getConfig().getBoolean("pack.github", true) ? ExternalPack.withDefaults(getConfig().getStringList("pack.urls")) : List.of();
         if (urls.isEmpty()) {
             hostPack(sender, built);
             return;
@@ -257,7 +284,7 @@ public final class VersaEraPlugin extends JavaPlugin {
                 getLogger().info("리소스팩 (외부) " + f.size() / 1024 + "KB · sha1 " + ExternalPack.hex(f.sha1()) + " · " + f.url());
                 if (!java.util.Arrays.equals(f.sha1(), built.sha1()))
                     getLogger().warning("외부 리소스팩이 이 플러그인이 만든 팩(sha1 " + built.sha1Hex() + ")과 다릅니다. "
-                            + "콘텐츠를 바꿨다면 gradle buildPack 으로 pack/VersaEra-pack.zip 을 다시 만들어 올리세요.");
+                            + "콘텐츠를 바꿨다면 gradle buildPack 으로 VersaEra-ResourcePack.zip 을 다시 만들어 저장소 맨 위에 올리세요.");
             } else {
                 getLogger().warning("pack.urls 의 주소를 모두 받지 못했습니다 — 내장 서버로 내려 줍니다");
                 Bukkit.getScheduler().runTask(this, () -> hostPack(sender, built));
@@ -355,6 +382,9 @@ public final class VersaEraPlugin extends JavaPlugin {
         if (dungeons != null) dungeons.stopAll();
         if (events != null) events.stop();
         if (npcRuntime != null) npcRuntime.removeAll();
+        if (petRuntime != null) petRuntime.dismissAll();
+        if (travelRuntime != null) travelRuntime.shutdown();
+        if (artworkRuntime != null) artworkRuntime.shutdown();
         if (pack != null) pack.stop();
         if (gather != null) gather.restoreAll();
         if (exec != null) {

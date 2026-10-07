@@ -54,6 +54,14 @@ public final class GameServices {
     public final LifeSkillService life;
     public final FieldBossService fieldBosses;
     public final NpcWorldService npcWorld;
+    public final io.versaera.application.port.AdventureRepository adventure;
+    public final WeatherService weather;
+    public final AchievementService achievements;
+    public final GuildVaultService guildVault;
+    public final PetService pets;
+    public final TravelService travel;
+    public final RaidService raids;
+    public final ArtworkService artworks;
     /** 파티 (접속 중에만 · 메인 스레드 전용) */
     public final io.versaera.domain.party.Parties parties = new io.versaera.domain.party.Parties();
     private volatile ServerRules rules = ServerRules.CANON;
@@ -80,6 +88,8 @@ public final class GameServices {
         this.growth = new GrowthService(tx, progress, content.disciplines(), content.stats(), bus);
         this.crafting = new CraftingService(tx, content.recipes(), items, growth, progress, audit, bus);
         this.regions = new RegionIndex(content.regions());
+        var ex = content.expansion();
+        this.weather = new WeatherService(ex.weatherKinds(), ex.climates(), ex.weatherWindowMs(), ex.weatherCell(), regions, clock);
         this.exploration = new ExplorationService(tx, progress, regions, growth, bus, clock);
         this.relations = new RelationService(tx, progress, content.npcs(), growth, bus, clock, zone);
         this.profiles = new ProfileService(tx, new JdbcProfileRepository(db), clock);
@@ -120,6 +130,15 @@ public final class GameServices {
                 content.archetypes(), clock, zone, bus);
         market.npcDiscount(npcWorld::shopDiscount);
         this.dungeons = new DungeonService(tx, new JdbcDungeonRepository(db), progress, content.dungeons(), this, bus, clock);
+        // 모험 확장 (V7)
+        this.adventure = new io.versaera.persistence.JdbcAdventureRepository(db);
+        this.achievements = new AchievementService(tx, progress, adventure, this, ex.achievements(), ex.titles(), bus, clock);
+        growth.onCounter(achievements::counterChanged);
+        this.guildVault = new GuildVaultService(tx, adventure, this, ex.guildQuests(), ex.guildWithdraw(), ex.guildMaxKinds(), bus, clock, zone);
+        this.pets = new PetService(tx, adventure, this, ex.species(), bus, clock);
+        this.travel = new TravelService(tx, adventure, this, ex.mounts(), ex.travel(), clock);
+        this.raids = new RaidService(tx, adventure, this, ex.raids(), bus, clock, zone);
+        this.artworks = new ArtworkService(tx, adventure, this, ex.artworks(), clock, zone);
         // 퀘스트 진행: 발견 · 제작은 도메인 이벤트로 (같은 DB 스레드에서 동기 처리)
         bus.subscribe(io.versaera.domain.event.GameEvents.PlayerDiscovered.class,
                 e -> quests.record(e.uuid(), io.versaera.domain.quest.QuestDefinition.Type.DISCOVER, e.kind() + ":" + e.ref(), 1, 0));

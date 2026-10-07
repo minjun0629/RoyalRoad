@@ -1,0 +1,18 @@
+# 이동: 탈것 · 마차 · 배 (TRV-01 · TRV-02) — 모두 ORIGINAL.
+# 탈것은 마구간지기(NPC)에게 산다. 승마 숙련(1~31)이 오를수록 빨라진다 (요구치 넘는 레벨마다 +1%, 최대 +15%).
+mounts:
+  pony:          {name: 조랑말,     entity: DONKEY,  speed: 0.20, jump: 0.50, health: 20, price: 800,   riding: 0,  color: BROWN}
+  plains_horse:  {name: 평원 말,    entity: HORSE,   speed: 0.24, jump: 0.70, health: 24, price: 3000,  riding: 5,  color: CHESTNUT}
+  war_horse:     {name: 군마,       entity: HORSE,   speed: 0.27, jump: 0.80, health: 34, price: 12000, riding: 15, color: BLACK}
+  desert_runner: {name: 사막 주자,   entity: CAMEL,   speed: 0.22, jump: 0.40, health: 32, price: 6000,  riding: 10, color: NONE}
+  mountain_mule: {name: 산길 노새,   entity: MULE,    speed: 0.23, jump: 0.90, health: 28, price: 5000,  riding: 10, color: NONE}
+  white_steed:   {name: 흰 준마,    entity: HORSE,   speed: 0.31, jump: 1.00, health: 30, price: 40000, riding: 28, color: WHITE}
+  bone_steed:    {name: 해골 군마,   entity: SKELETON_HORSE, speed: 0.29, jump: 0.90, health: 30, price: 30000, riding: 24, color: NONE}
+
+# 마차 · 배 노선은 지역에서 자동으로 만든다. 마부(마차) · 선장(배) NPC 에게 표를 산다.
+#   links: 도시마다 이을 가까운 곳 수 · max_distance: 이보다 먼 곳은 잇지 않음
+#   fare: base + 거리 × per_block · 걸리는 시간 = 거리 ÷ blocks_per_second (실제 시간). 여행 중에는 움직이지 못하고, 끊겨도 도착 시각이 지나면 도착지에서 깨어난다
+#   port_range: 바다 지역에서 이만큼 안의 도시는 항구
+carriage: {links: 3, max_distance: 4000, base: 20, per_block: 0.04, blocks_per_second: 30}
+ship:     {links: 4, max_distance: 16000, base: 120, per_block: 0.03, blocks_per_second: 60}
+port_range: 900

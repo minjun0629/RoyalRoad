@@ -26,3 +26,7 @@ disciplines:
   polishing:     {name: 방어구 닦기, category: SUPPORT,  hand: true, source: CANON}
   ironing:       {name: 다림질,   category: SUPPORT,     hand: true, source: CANON}
   butchery:      {name: 도축,     category: GATHERING,   hand: true, source: CANON}
+  # 모험 (V7): 길들이기 · 승마 · 항해
+  taming:        {name: 길들이기, category: SOCIAL,      source: ORIGINAL}
+  riding:        {name: 승마,     category: EXPLORATION, source: ORIGINAL}
+  sailing:       {name: 항해,     category: EXPLORATION, source: ORIGINAL}

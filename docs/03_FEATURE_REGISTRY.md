@@ -34,6 +34,19 @@
 | NPC-03 | NPC 인구 생성 (직업 틀 · 문화 · 가족 · 관계 · 의뢰) | ORIGINAL | **IMPLEMENTED** | NpcPopulationTest, ContentIntegrityTest |
 | NPC-04 | NPC 관계 단계 · 기억 · 전파 · NPC 의 일 | ORIGINAL | **IMPLEMENTED** | NpcWorldTest, WanderingTest |
 | NPC-05 | 지역 번영 · NPC 경제 · 대규모 NPC 런타임 | ORIGINAL | **IMPLEMENTED** | NpcWorldTest |
+| ACH-01 | 업적 (45개, 분야별 · 숨은 업적) | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| ACH-02 | 칭호 | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| ACH-03 | 모험가 기록 | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| PTY-02 | 파티 경험치 · 전리품 분배 · 공격대 | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| GLD-02 | 길드 창고 | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| GLD-03 | 길드 주간 의뢰 | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| PET-01 | 펫 · 길들이기 | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| TRV-01 | 탈것 | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| TRV-02 | 마차 · 배 노선 | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| WTH-01 | 날씨 | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| RAID-01 | 레이드 | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| ART-02 | 대형 조각 작품 (여러 재료) | ORIGINAL | **IMPLEMENTED** | AdventureTest |
+| RP-02 | 리소스팩 GitHub 배포 · 보호 | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest, ExternalPackTest |
 | QST-01 | 의뢰 (일상 · 숙련 · 험로 · 전설 · 숨은 의뢰) | ORIGINAL | **IMPLEMENTED** | JobQuestDeathTest, SkillBookTest, ContentIntegrityTest |
 | HID-01 | 히든 콘텐츠 엔진 (봉인 · 행동 조합 · 최초 발견 · 소문) | ORIGINAL | **IMPLEMENTED** | HiddenServiceTest |
 | HID-02 | 서버마다 다른 히든 조건 생성 | ORIGINAL | **IMPLEMENTED** | HiddenGeneratorTest, HiddenServiceTest |

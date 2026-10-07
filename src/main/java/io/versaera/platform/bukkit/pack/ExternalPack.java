@@ -29,7 +29,9 @@ public final class ExternalPack {
         for (String u : urls) {
             if (u == null || u.isBlank()) continue;
             try {
-                HttpResponse<byte[]> r = http.send(HttpRequest.newBuilder(URI.create(u.strip())).timeout(Duration.ofSeconds(60)).GET().build(),
+                // GitHub raw 는 CDN 이 몇 분 동안 옛 파일을 줄 수 있다 → 시각을 붙여 늘 새 파일을 받는다
+                String fresh = u.strip() + (u.contains("?") ? "&" : "?") + "t=" + System.currentTimeMillis();
+                HttpResponse<byte[]> r = http.send(HttpRequest.newBuilder(URI.create(fresh)).timeout(Duration.ofSeconds(60)).GET().build(),
                         HttpResponse.BodyHandlers.ofByteArray());
                 byte[] body = r.body();
                 if (r.statusCode() != 200 || body.length == 0) {
@@ -44,12 +46,28 @@ public final class ExternalPack {
                     log.warning("zip 파일이 아닙니다 (GitHub 페이지 주소가 아니라 raw 주소를 쓰세요): " + u);
                     continue;
                 }
-                return Optional.of(new Found(u.strip(), MessageDigest.getInstance("SHA-1").digest(body), body.length));
+                byte[] sha1 = MessageDigest.getInstance("SHA-1").digest(body);
+                // 플레이어에게는 해시를 붙인 주소를 준다: 팩을 새로 올리면 주소도 바뀌어 CDN 의 옛 파일을 받지 않는다 (어느 IP 에서든 GitHub 에서 직접 받음)
+                String sent = u.strip() + (u.contains("?") ? "&" : "?") + "v=" + hex(sha1).substring(0, 12);
+                return Optional.of(new Found(sent, sha1, body.length));
             } catch (Exception e) {
                 log.info("리소스팩 주소에 접속하지 못했습니다: " + u + " (" + e.getMessage() + ")");
             }
         }
         return Optional.empty();
+    }
+
+    /** 플러그인에 박아 둔 기본 주소: 저장소 맨 위의 팩 (config 를 고치지 않은 옛 서버도 이 주소로 받는다) */
+    public static final List<String> DEFAULT_URLS = List.of(
+            "https://raw.githubusercontent.com/minjun0629/RoyalRoad/main/VersaEra-ResourcePack.zip",
+            "https://raw.githubusercontent.com/minjun0629/RoyalRoad/refs/heads/claude/inspiring-hopper-9qdtgd/VersaEra-ResourcePack.zip");
+
+    /** config 의 주소 뒤에 기본 주소를 붙인다 (겹치면 하나만) */
+    public static List<String> withDefaults(List<String> configured) {
+        java.util.LinkedHashSet<String> out = new java.util.LinkedHashSet<>();
+        for (String u : configured) if (u != null && !u.isBlank()) out.add(u.strip());
+        out.addAll(DEFAULT_URLS);
+        return List.copyOf(out);
     }
 
     public static String hex(byte[] b) {

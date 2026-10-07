@@ -1,0 +1,21 @@
+# 날씨 (WTH-01 · WTH-02) — 모두 ORIGINAL. 서버 시드로 정한 시간표라 미리 알 수 있다 (window_minutes 마다 바뀜).
+# 이웃 지역은 같은 cell(블록) 칸이면 같은 날씨. gather: 채집 분야 → 수확 배율. melee · ranged · spell: 피해 배율.
+# indoor: NPC 가 집 · 주점에 들어간다. downfall: 비 · 눈이 보인다. particle: 주변 입자
+window_minutes: 40
+cell: 3000
+kinds:
+  clear:     {name: 맑음,     gather: {},                                             melee: 1.0,  ranged: 1.0,  spell: 1.0,  desc: "보통의 날"}
+  cloudy:    {name: 흐림,     gather: {fishing: 1.1},                                 melee: 1.0,  ranged: 1.0,  spell: 1.05, desc: "물고기가 수면 가까이 올라온다"}
+  rain:      {name: 비,       gather: {fishing: 1.3, herbalism: 1.2, logging: 0.9},   melee: 1.0,  ranged: 0.9,  spell: 1.0,  downfall: true, desc: "낚시 · 약초가 잘 되고 활시위가 젖는다"}
+  storm:     {name: 폭풍,     gather: {fishing: 0.7, logging: 0.7, mining: 1.1},       melee: 1.0,  ranged: 0.75, spell: 1.15, indoor: true, downfall: true, desc: "사람들은 집으로, 마법은 거세진다"}
+  fog:       {name: 안개,     gather: {herbalism: 1.3},                               melee: 1.05, ranged: 0.8,  spell: 1.0,  particle: CLOUD, desc: "멀리 보이지 않는다 — 가까이 붙어 싸워라"}
+  snow:      {name: 눈,       gather: {herbalism: 0.7, mining: 1.1},                  melee: 0.95, ranged: 0.95, spell: 1.05, downfall: true, desc: "손이 곱는다"}
+  blizzard:  {name: 눈보라,   gather: {herbalism: 0.5, logging: 0.6, fishing: 0.6},   melee: 0.9,  ranged: 0.7,  spell: 1.1,  indoor: true, downfall: true, particle: SNOWFLAKE, desc: "모두가 문을 닫아건다"}
+  heat:      {name: 폭염,     gather: {mining: 0.85, herbalism: 0.8},                 melee: 0.9,  ranged: 1.0,  spell: 1.1,  desc: "숨이 막힌다"}
+  sandstorm: {name: 모래폭풍, gather: {mining: 1.2, herbalism: 0.6},                  melee: 0.95, ranged: 0.7,  spell: 0.95, indoor: true, particle: ASH, desc: "모래 아래의 광맥이 드러난다"}
+climates:
+  - {id: desert,    tags: [desert, badlands, canyon, salt], weights: {clear: 5, heat: 4, sandstorm: 2, cloudy: 1}}
+  - {id: frozen,    tags: [frozen],                         weights: {snow: 5, blizzard: 2, clear: 3, fog: 1}}
+  - {id: mountain,  tags: [mountain, highland, volcano],    weights: {clear: 4, cloudy: 3, fog: 2, snow: 2, storm: 1}}
+  - {id: maritime,  tags: [sea, coast, lake, river, swamp, mist], weights: {clear: 3, cloudy: 3, rain: 3, fog: 2, storm: 2}}
+  - {id: temperate, tags: [],                               weights: {clear: 6, cloudy: 3, rain: 3, storm: 1, fog: 1}}
