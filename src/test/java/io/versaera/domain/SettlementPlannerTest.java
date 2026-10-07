@@ -20,7 +20,16 @@ class SettlementPlannerTest {
     private final RegionIndex regions = new RegionIndex(c.regions());
     private final TerrainModel terrain = new TerrainModel(regions, "world", 42);
 
+    /** 지형 생성기와 같게: 손으로 둔 NPC 자리만 비운다 */
     private List<int[]> npcPlaces() {
+        List<int[]> out = new ArrayList<>();
+        ContentBundle.handPlaces(f -> getClass().getClassLoader().getResourceAsStream("content/" + f))
+                .values().forEach(m -> m.values().forEach(p -> out.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
+        return out;
+    }
+
+    /** 생성 주민까지 모든 NPC 자리 */
+    private List<int[]> allNpcPlaces() {
         List<int[]> out = new ArrayList<>();
         c.places().values().forEach(m -> m.values().forEach(p -> out.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
         return out;
@@ -64,6 +73,22 @@ class SettlementPlannerTest {
             for (var o : blockers) if (o.region.equals(x.region)) assertFalse(x.overlaps(o, 0), "건물이 길 · 광장 · 랜드마크를 막음: " + x.region);
             for (var y : b) if (y != x) assertFalse(x.overlaps(y, 0), "건물끼리 겹침");
             for (int[] n : npcPlaces()) assertFalse(x.covers(n[0], n[1]), "NPC 자리에 건물: " + x.region);
+        }
+        // 생성 주민 수천 명의 자리(길 · 광장)도 건물 · 장식 안이 아니다
+        List<int[]> all = allNpcPlaces();
+        for (var x : p.structures()) {
+            if (x.kind != Kind.BUILDING && x.kind != Kind.DECOR) continue;
+            for (int[] n : all) assertFalse(x.covers(n[0], n[1]), "주민이 건물 · 장식 안에 선다: " + x.region + " " + x.kind + " " + (x.maxX - x.minX + 1) + "x" + (x.maxZ - x.minZ + 1) + " 안 " + (n[0] - x.minX) + "," + (n[1] - x.minZ) + " 중심에서 " + (n[0] - SettlementPlanner.townGrid(regions.byId(x.region))[0]) + "," + (n[1] - SettlementPlanner.townGrid(regions.byId(x.region))[1]));
+        }
+    }
+
+    @Test
+    void townsGetTheirCivicBuildings() {
+        SettlementPlanner p = plan(42);
+        for (Region r : regions.all()) {
+            if (!SettlementPlanner.isTown(r) || !r.world().equals("world")) continue;
+            long big = p.structures().stream().filter(s -> s.kind == Kind.BUILDING && s.region.equals(r.id()) && (s.maxX - s.minX) >= 10).count();
+            assertTrue(big >= 4, r.id() + " 큰 건물(성당 · 여관 · 대장간 · 훈련장 · 회관) " + big);
         }
     }
 

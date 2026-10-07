@@ -37,6 +37,13 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     private final Sealer sealer;
     private final Consumer<Player> deliver;
 
+    private Consumer<Player> townReport = p -> { };
+
+    /** /va 마을 진단 (플러그인이 생성기를 알고 있어 거기서 넘겨준다) */
+    public void townReport(Consumer<Player> f) {
+        this.townReport = f;
+    }
+
     public AdminCommand(GameServices s, Async async, ItemCodec codec, NpcListener npcs, BossRuntime bosses, File dataFolder, Sealer sealer,
                         Consumer<Player> deliver) {
         this.s = s;
@@ -115,6 +122,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     private void run(CommandSender sender, String sub, String[] a, String req) {
         switch (sub) {
             case "초기화", "reset" -> reset(sender, a);
+            case "마을", "town" -> { if (sender instanceof Player p) townReport.accept(p); }
             case "inspect" -> {
                 String id = a.length > 1 ? uuidOf(a[1]) : null;
                 if (id == null) { sender.sendMessage(Ui.error("/va inspect <이름>")); return; }
@@ -192,7 +200,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(Ui.info("지역 " + s.regions.all().size() + " · 레시피 " + s.crafting.all().size() + " · 히든 " + (s.hidden() == null ? 0 : s.hidden().ruleCount())
                         + " · 메모리 " + (rt.totalMemory() - rt.freeMemory()) / 1048576 + "MB"));
             }
-            default -> sender.sendMessage(Ui.info("inspect · item · audit · give · money · npc spawn · boss spawn|stop · seal · hidden generate · event · perf · 초기화"));
+            default -> sender.sendMessage(Ui.info("inspect · item · audit · give · money · npc spawn · boss spawn|stop · seal · hidden generate · event · perf · 초기화 · 마을"));
         }
     }
 

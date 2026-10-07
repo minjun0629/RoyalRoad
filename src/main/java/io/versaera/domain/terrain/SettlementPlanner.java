@@ -186,6 +186,9 @@ public final class SettlementPlanner {
         tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 15 - tavern.w, cz + 3, tavern, p));
         Blueprint smithy = Medieval.smithyMarked(p, rng);
         tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx + 16, cz + 3, smithy, p));
+        // 광장 북서쪽 칸: 훈련장 (문이 광장 쪽)
+        Blueprint yard = Medieval.trainingYard(p, rng);
+        tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 4 - yard.w, cz - 15 - yard.d + 1, yard, p));
         // 광장 남쪽: 길드 회관 (시계탑 · 파란 깃발) · 시장 회관 (경매장, 노란 깃발)
         Blueprint guild = Medieval.guildHall(p, rng);
         tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 3 - guild.w, cz + 14, guild, p));

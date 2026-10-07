@@ -58,6 +58,8 @@ public final class VersaEraPlugin extends JavaPlugin {
     private io.versaera.platform.bukkit.world.FieldMobRuntime fieldMobs;
     private io.versaera.platform.bukkit.world.SculptingRuntime sculpting;
     private StationListener stations;
+    /** 세계 이름 → 이 플러그인이 만든 지형 생성기 (진단 /va 마을) */
+    private final java.util.Map<String, VersaChunkGenerator> generators = new java.util.concurrent.ConcurrentHashMap<>();
     private BossRuntime bosses;
     private io.versaera.platform.bukkit.world.FieldBossRuntime fieldBosses;
     /** 게임 시각(0 ~ 23). 메인 스레드가 5초마다 갱신하고, DB 스레드의 히든 판정은 이 값만 읽는다 */
@@ -433,6 +435,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         GameCommands gc = new GameCommands(services, async, codec, sessions::deliver, p -> facts(p.getUniqueId().toString(), regions), dungeons);
         for (String c : List.of("job", "quest", "guild", "auction", "dungeon", "mailbox")) getCommand(c).setExecutor(gc);
         AdminCommand ac = new AdminCommand(services, async, codec, npcs, bosses, getDataFolder(), sealer, sessions::deliver);
+        ac.townReport(this::townReport);
         getCommand("versaadmin").setExecutor(ac);
         getCommand("versaadmin").setTabCompleter(ac);
         for (Player p : Bukkit.getOnlinePlayers()) {   // /reload 대비
@@ -504,21 +507,56 @@ public final class VersaEraPlugin extends JavaPlugin {
         }
     }
 
+    /** /va 마을: 서 있는 도시의 배치 · 실제 블록 · 생성기 상태 */
+    private void townReport(Player p) {
+        org.bukkit.World w = p.getWorld();
+        VersaChunkGenerator g = generators.get(w.getName());
+        boolean ours = w.getGenerator() instanceof VersaChunkGenerator;
+        p.sendMessage(Ui.c("&6── 마을 진단 &7(" + w.getName() + ")"));
+        p.sendMessage(Ui.c("&7생성기: " + (ours ? "&aVersaEra" : "&c" + (w.getGenerator() == null ? "바닐라" : w.getGenerator().getClass().getSimpleName())
+                + " &7— 이 세계는 VersaEra 지형으로 만들어지지 않았습니다 (/va 초기화 전체 확인 후 재시작)")));
+        var here = services.regions.at(w.getName(), p.getLocation().getBlockX(), 64, p.getLocation().getBlockZ());
+        io.versaera.domain.world.Region town = null;
+        for (var r = here; r != null; r = r.parent() == null ? null : services.regions.byId(r.parent()))
+            if (io.versaera.domain.terrain.SettlementPlanner.isTown(r)) { town = r; break; }
+        if (town == null) { p.sendMessage(Ui.c("&7도시 지역 밖입니다 (" + (here == null ? "-" : here.name()) + ")")); return; }
+        int[] grid = io.versaera.domain.terrain.SettlementPlanner.townGrid(town);
+        p.sendMessage(Ui.c("&f" + town.name() + " &7가운데 " + grid[0] + ", " + grid[1] + " · 반지름 " + grid[2]));
+        if (g == null) return;
+        String id = town.id();
+        var plan = g.planOf(w.getName(), w.getSeed()).structures().stream().filter(st -> st.region.equals(id)).toList();
+        java.util.Map<io.versaera.domain.terrain.SettlementPlanner.Kind, Long> n = new java.util.EnumMap<>(io.versaera.domain.terrain.SettlementPlanner.Kind.class);
+        for (var st : plan) n.merge(st.kind, 1L, Long::sum);
+        p.sendMessage(Ui.c("&7계획: " + n));
+        // 가장 가까운 건물 하나가 실제로 서 있는지
+        var near = plan.stream().filter(st -> st.kind == io.versaera.domain.terrain.SettlementPlanner.Kind.BUILDING)
+                .min(java.util.Comparator.comparingDouble(st -> Math.hypot((st.minX + st.maxX) / 2.0 - p.getLocation().getX(), (st.minZ + st.maxZ) / 2.0 - p.getLocation().getZ())));
+        near.ifPresent(st -> {
+            int x = (st.minX + st.maxX) / 2, z = (st.minZ + st.maxZ) / 2, solid = 0;
+            int top = w.getHighestBlockYAt(x, z);
+            for (int y = top - 12; y <= top; y++) if (!w.getBlockAt(x, y, z).getType().isAir()) solid++;
+            p.sendMessage(Ui.c("&7가까운 건물 " + x + ", " + z + " · 꼭대기 " + w.getBlockAt(x, top, z).getType().name().toLowerCase() + " (" + top + ")"));
+        });
+        p.sendMessage(Ui.c("&7꾸미기 실패: " + g.failures()));
+    }
+
     /** bukkit.yml 의 worlds.<이름>.generator: VersaEra 로 쓰는 지형 생성기 (onEnable 전에 불릴 수 있어 콘텐츠를 따로 읽는다) */
     @Override
     public org.bukkit.generator.ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
         File dir = new File(getDataFolder(), "content");
-        ContentBundle c = new File(dir, "regions.yml").exists()
-                ? ContentBundle.load(f -> {
-                    InputStream in = open(new File(dir, f));
-                    return in != null ? in : getClassLoader().getResourceAsStream("content/" + f);
-                })
-                : ContentBundle.fromClasspath(getClassLoader());
+        java.util.function.Function<String, InputStream> opener = new File(dir, "regions.yml").exists() ? f -> {
+            InputStream in = open(new File(dir, f));
+            return in != null ? in : getClassLoader().getResourceAsStream("content/" + f);
+        } : f -> getClassLoader().getResourceAsStream("content/" + f);
+        ContentBundle c = ContentBundle.load(opener);
         List<int[]> npcSpots = new java.util.ArrayList<>();
-        c.places().values().forEach(m -> m.values().forEach(p -> npcSpots.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
+        // 손으로 둔 NPC 자리만 비워 둔다 (생성 주민 수천 명의 자리까지 비우면 건물이 거의 서지 못한다)
+        ContentBundle.handPlaces(opener).values().forEach(m -> m.values().forEach(p -> npcSpots.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
         java.util.Set<String> starts = new java.util.HashSet<>();
         for (var city : c.origins().cities()) starts.add(city.region());
-        return new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots, starts);
+        VersaChunkGenerator g = new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots, starts);
+        generators.put(worldName, g);
+        return g;
     }
 
     private static InputStream open(File f) {

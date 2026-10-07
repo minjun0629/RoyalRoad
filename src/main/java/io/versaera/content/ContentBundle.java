@@ -108,6 +108,11 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
         return load(f -> cl.getResourceAsStream("content/" + f));
     }
 
+    /** 손으로 둔 NPC 일과 장소만 (places.yml) — 지형 생성기가 건물을 비워 둘 자리. 생성 주민은 길 · 광장에 서므로 넣지 않는다 */
+    public static Map<String, Map<String, NpcSchedule.Point>> handPlaces(Function<String, InputStream> opener) {
+        return ContentLoader.places(read(opener, "places.yml"), "places.yml");
+    }
+
     static Map<String, Object> read(Function<String, InputStream> opener, String file) {
         try (InputStream in = opener.apply(file)) {
             if (in == null) throw new ContentLoader.ContentException("콘텐츠 파일 없음: " + file);
