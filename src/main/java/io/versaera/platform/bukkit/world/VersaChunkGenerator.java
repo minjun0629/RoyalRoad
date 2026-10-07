@@ -153,6 +153,36 @@ public final class VersaChunkGenerator extends ChunkGenerator {
         return List.of(new BlockPopulator() {
             @Override
             public void populate(WorldInfo info, Random random, int chunkX, int chunkZ, LimitedRegion region) {
+                try {
+                    decorate(info, chunkX, chunkZ, region);
+                } catch (Throwable e) {
+                    failure(chunkX, chunkZ, e);
+                }
+            }
+        });
+    }
+
+    private final java.util.concurrent.atomic.AtomicInteger failures = new java.util.concurrent.atomic.AtomicInteger();
+    private volatile String lastFailure;
+
+    /** 꾸미기 실패를 숨기지 않는다: 처음 몇 번은 콘솔에 전부, 그 뒤로는 수만 센다 (/va 마을 에서 볼 수 있다) */
+    private void failure(int chunkX, int chunkZ, Throwable e) {
+        int n = failures.incrementAndGet();
+        lastFailure = "청크 " + chunkX + "," + chunkZ + ": " + e;
+        if (n <= 5) org.bukkit.Bukkit.getLogger().log(java.util.logging.Level.SEVERE, "[VersaEra] 청크 꾸미기 실패 (" + chunkX + ", " + chunkZ + ")", e);
+    }
+
+    /** 진단 (/va 마을): 실패 수 · 마지막 실패 */
+    public String failures() {
+        return failures.get() + (lastFailure == null ? "" : " · 마지막: " + lastFailure);
+    }
+
+    /** 진단 (/va 마을): 이 세계의 배치 */
+    public SettlementPlanner planOf(String world, long seed) {
+        return plans.computeIfAbsent(world, n -> SettlementPlanner.plan(regions, n, seed, keepClear, startCities));
+    }
+
+    private void decorate(WorldInfo info, int chunkX, int chunkZ, LimitedRegion region) {
                 TerrainModel t = model(info);
                 int x0 = chunkX * 16, z0 = chunkZ * 16;
                 // 지표 메우기: 바닐라 동굴 · 협곡이 땅거죽을 뚫은 구멍을 막는다 (동굴은 땅속에 그대로 남는다)
@@ -184,7 +214,5 @@ public final class VersaChunkGenerator extends ChunkGenerator {
                     for (int x = Math.max(x0, st.minX); x <= Math.min(x0 + 15, st.maxX); x++)
                         for (int z = Math.max(z0, st.minZ); z <= Math.min(z0 + 15, st.maxZ); z++)
                             if (st.covers(x, z)) st.column(x, z, t::height, sink);
-            }
-        });
     }
 }

@@ -46,6 +46,7 @@ public final class NpcPopulation {
         regions.sort(Comparator.comparing(Region::id));
         Map<String, Region> byId = new HashMap<>();
         for (Region r : regions) byId.put(r.id(), r);
+        List<int[]> towns = townsOf(regions);
         List<NpcDefinition> npcs = new ArrayList<>();
         Map<String, Map<String, Point>> places = new LinkedHashMap<>();
         List<NpcProfile> profiles = new ArrayList<>();
@@ -61,7 +62,7 @@ public final class NpcPopulation {
                 if (r.tags().contains(c.getKey())) c.getValue().forEach((a, n) -> want.merge(a, n, (x, y) -> Math.min(8, x + y)));
             if (want.isEmpty()) continue;
             SplittableRandom rng = new SplittableRandom(r.id().hashCode() * 0x9E3779B97F4A7C15L + 17);
-            Spots spots = new Spots(r);
+            Spots spots = new Spots(r, towns);
             List<Born> born = new ArrayList<>();
             Set<String> names = new HashSet<>();
             int total = 0;
@@ -299,7 +300,7 @@ public final class NpcPopulation {
             if (a == null || r == null) throw new IllegalArgumentException("희귀 NPC 설정 오류: " + rs.id());
             if (!used.add(rs.id())) throw new IllegalArgumentException("희귀 NPC id 중복: " + rs.id());
             npcs.add(new NpcDefinition(rs.id(), rs.name(), a.job(), "알 수 없음", null, r.id(), a.likes(), a.dislikes(), List.of("0-24:work"), "ORIGINAL", false));
-            places.put(rs.id(), Map.of("work", new Spots(r).shared("rare", Math.floorMod(rs.id().hashCode(), 7))));
+            places.put(rs.id(), Map.of("work", new Spots(r, townsOf(byId.values())).shared("rare", Math.floorMod(rs.id().hashCode(), 7))));
             int offset = Math.floorMod(rs.id().hashCode(), rs.everyDays());
             profiles.add(new NpcProfile(rs.id(), a.id(), rs.level(), null, null, List.of(), List.of(), List.of(), 0,
                     new NpcProfile.Rare(rs.hourFrom(), rs.hourTo(), rs.everyDays(), offset), List.of(), rs.trains() != null ? rs.trains() : a.trains(), rs.line()));
@@ -308,6 +309,17 @@ public final class NpcPopulation {
 
     // ------------------------------------------------------------------ 자리
     /** 지역 안의 자리: 도시는 길 · 광장 가장자리, 아니면 가운데 둘레 고리 */
+    /** 도시 성벽 안 {x, z, 반지름, 세계} — 다른 지역 주민이 그 안 건물 자리에 서지 않게 */
+    static List<int[]> townsOf(Collection<Region> regions) {
+        List<int[]> towns = new ArrayList<>();
+        for (Region r : regions)
+            if (SettlementPlanner.isTown(r)) {
+                int[] g = SettlementPlanner.townGrid(r);
+                towns.add(new int[]{g[0], g[1], g[2], r.world().hashCode()});
+            }
+        return towns;
+    }
+
     static final class Spots {
         private final Region r;
         private final boolean town;
@@ -315,8 +327,11 @@ public final class NpcPopulation {
         private final List<Point> inner = new ArrayList<>(), outer = new ArrayList<>();
         private int homeNext;
 
-        Spots(Region r) {
+        private final List<int[]> towns;
+
+        Spots(Region r, List<int[]> towns) {
             this.r = r;
+            this.towns = towns;
             this.town = SettlementPlanner.isTown(r);
             int[] g = SettlementPlanner.townGrid(r);
             cx = g[0];
@@ -324,12 +339,16 @@ public final class NpcPopulation {
             radius = town ? g[2] : Math.max(16, Math.min(34, Math.min(r.maxX() - r.minX(), r.maxZ() - r.minZ()) / 2 - 4));
             List<Point> all = new ArrayList<>();
             if (town) {
+                // 길 위에 서되 한 줄로 늘어서지 않게: 길 폭 안에서 좌우로 · 길을 따라 앞뒤로 흔든다
                 int k = radius / 32;
-                for (int i = -k; i <= k; i++)
-                    for (int j = -radius + 6; j <= radius - 6; j += 6) {
-                        add(all, cx + i * 32 + 0.5, cz + j + 0.5);       // 세로 길
-                        add(all, cx + j + 0.5, cz + i * 32 + 0.5);       // 가로 길
+                for (int i = -k; i <= k; i++) {
+                    int half = i == 0 ? 1 : 0;   // 큰길(폭 5)은 가운데 셋 칸, 좁은 길(폭 3)은 가운데 줄 — 가장자리는 집 문 앞이라 비운다
+                    for (int j = -radius + 6; j <= radius - 6; j += 5) {
+                        int side = Math.floorMod(j * 7 + i * 13, 2 * half + 1) - half, along = Math.floorMod(j * 11 + i * 5, 3) - 1;
+                        add(all, cx + i * 32 + side + 0.5, cz + j + along + 0.5);   // 세로 길
+                        add(all, cx + j + along + 0.5, cz + i * 32 - side + 0.5);   // 가로 길
                     }
+                }
             } else {
                 for (int i = 0; i < 48; i++) {
                     double a = Math.PI * 2 * i / 48, rr = radius * (0.55 + 0.45 * ((i * 7) % 5) / 4.0);
@@ -344,7 +363,23 @@ public final class NpcPopulation {
             if (inner.isEmpty()) inner.add(new Point(cx + 0.5, cz + 14.5));
         }
 
+        /** 도시가 아닌 지역의 자리가 남의 도시 성벽 안에 떨어지면 성벽 밖 들판으로 밀어낸다 */
+        private Point outsideTowns(double x, double z) {
+            if (town) return new Point(x, z);
+            for (int[] t : towns) {
+                if (t[3] != r.world().hashCode()) continue;
+                double dx = x - t[0], dz = z - t[1], lim = t[2] + 12;
+                if (Math.max(Math.abs(dx), Math.abs(dz)) > lim) continue;
+                if (Math.abs(dx) >= Math.abs(dz)) x = t[0] + Math.copySign(lim + 2, dx == 0 ? 1 : dx);
+                else z = t[1] + Math.copySign(lim + 2, dz);
+            }
+            return new Point(x, z);
+        }
+
         private void add(List<Point> all, double x, double z) {
+            Point o = outsideTowns(x, z);
+            x = o.x();
+            z = o.z();
             if (x < r.minX() + 1 || x > r.maxX() - 1 || z < r.minZ() + 1 || z > r.maxZ() - 1) return;
             double dx = x - cx, dz = z - cz;
             if (Math.abs(dx) <= 12 && Math.abs(dz) <= 12) return;               // 광장 · 우물
@@ -362,23 +397,40 @@ public final class NpcPopulation {
             return outer.get(Math.floorMod(outer.size() - 1 - (homeNext++ * 3), outer.size()));
         }
 
-        /** 여럿이 같이 쓰는 자리 (광장 · 시장 · 주점 · 신전 · 성문) — 사람마다 조금씩 비켜 선다 */
+        /** 둘레에 흩어 서기: 해바라기 씨 배열 (사람 i 마다 다른 각 · 거리) — 줄 서지 않고 무리 지어 선다 */
+        private static Point around(double x, double z, int i, double rMin, double rMax) {
+            double a = i * 2.39996, f = ((i * 37) % 11) / 10.0;
+            double rr = rMin + (rMax - rMin) * f;
+            return new Point(Math.floor(x + Math.cos(a) * rr) + 0.5, Math.floor(z + Math.sin(a) * rr) + 0.5);
+        }
+
+        /** 여럿이 같이 쓰는 자리 (광장 · 시장 · 주점 · 신전 · 성문) — 그 건물 앞에 무리 지어 선다 */
         Point shared(String key, int i) {
-            int off = (i % 5) * 2;
             Point p = switch (key) {
-                case "square" -> new Point(cx + 13.5 + off, cz + 0.5);
-                case "market" -> new Point(cx - 13.5 - off, cz + 0.5);
-                case "tavern" -> town && radius >= 32 ? new Point(cx + 32.5, cz + 5.5 + off) : new Point(cx + 0.5, cz + 16.5 + off);
-                case "temple" -> town && radius >= 32 ? new Point(cx - 31.5, cz - 4.5 - off) : new Point(cx + 0.5, cz - 16.5 - off);
-                case "gate" -> new Point(cx + 0.5, (i % 2 == 0 ? cz + radius - 3.5 - off : cz - radius + 3.5 + off));
-                default -> new Point(cx + 0.5 + 15 + off, cz + 15.5);
+                case "square" -> {                                                                 // 분수 둘레 (분수 ±5 밖, 귀퉁이 노점 · 등불 피해)
+                    int k = Math.floorMod(i * 7, 36), side = k / 9, along = k % 9 - 4;
+                    yield new Point(cx + (side == 0 ? along : side == 1 ? 7 : side == 2 ? -along : -7) + 0.5,
+                            cz + (side == 0 ? -7 : side == 1 ? along : side == 2 ? 7 : -along) + 0.5);
+                }
+                case "market" -> {                                                                 // 광장 네 귀퉁이 노점 앞
+                    int c = i % 4;
+                    yield around(cx + (c % 2 == 0 ? -8 : 8), cz + (c < 2 ? -4 : 4), i / 4, 0.5, 1.5);
+                }
+                case "tavern" -> town && radius >= 32 ? around(cx - 21, cz + 0.5, i, 0.5, 2.2) : around(cx, cz + 16, i, 0.5, 3);   // 여관 문 앞 큰길
+                case "temple" -> town && radius >= 32 ? around(cx - 24, cz - 0.5, i, 0.5, 2.2) : around(cx, cz - 16, i, 0.5, 3);   // 성당 문 앞
+                case "gate" -> {                                                                   // 성문 양옆에 갈라 선다
+                    int side = i % 2 == 0 ? 1 : -1, n = i / 2;
+                    double z = side > 0 ? cz + radius - 2.5 - (n / 2) * 2 : cz - radius + 2.5 + (n / 2) * 2;
+                    yield new Point(cx + (n % 2 == 0 ? -1.5 : 2.5), z);
+                }
+                default -> around(cx - 14, cz + 0.5, i, 0.5, 2);
             };
             if (!town) {   // 도시가 아니면 고리 위로
                 double a = (key.hashCode() & 0xff) / 255.0 * Math.PI * 2 + i * 0.3;
                 p = new Point(cx + 0.5 + Math.cos(a) * radius * 0.7, cz + 0.5 + Math.sin(a) * radius * 0.7);
             }
             double x = Math.max(r.minX() + 1, Math.min(r.maxX() - 1, p.x())), z = Math.max(r.minZ() + 1, Math.min(r.maxZ() - 1, p.z()));
-            return new Point(x, z);
+            return outsideTowns(x, z);
         }
     }
 }

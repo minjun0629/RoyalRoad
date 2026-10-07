@@ -497,6 +497,49 @@ public final class Medieval {
         return b;
     }
 
+    /**
+     * 훈련장: 울타리 친 흙마당 · 짚 허수아비 셋(호박 머리 · 울타리 팔) · 활 과녁 줄 · 무기 손질대 · 깃대.
+     * 문은 남쪽(z = d-1, 광장 쪽) — 돌리지 않고 그대로 세운다
+     */
+    public static Blueprint trainingYard(Palette p, SplittableRandom rng) {
+        int W = 11, D = 13;
+        Blueprint b = new Blueprint(W, 10, D);
+        String fence = p.frameWood() + "_fence";
+        for (int x = 0; x < W; x++)
+            for (int z = 0; z < D; z++) {
+                boolean edge = x == 0 || x == W - 1 || z == 0 || z == D - 1;
+                b.set(x, 0, z, edge ? p.foundation() : rng.nextInt(4) == 0 ? "gravel" : "coarse_dirt");
+                if (edge) b.set(x, 1, z, fence + (x == 0 || x == W - 1 ? "[north=" + (z > 0) + ",south=" + (z < D - 1) + "]" : "[east=" + (x > 0) + ",west=" + (x < W - 1) + "]"));
+            }
+        int gate = W / 2;   // 남쪽 문
+        b.set(gate, 1, D - 1, p.frameWood() + "_fence_gate[facing=south,open=true,in_wall=false]");
+        for (int dx : new int[]{-1, 1}) {
+            b.set(gate + dx, 1, D - 1, fence + "[" + (dx < 0 ? "west=true" : "east=true") + "]");
+            b.set(gate + dx, 2, D - 1, "lantern[hanging=false]");
+        }
+        // 허수아비 셋 (북쪽 줄, 남쪽을 본다)
+        for (int x : new int[]{2, 5, 8}) {
+            b.set(x, 1, 3, fence);
+            b.set(x, 2, 3, "hay_block[axis=y]");
+            b.set(x, 3, 3, "carved_pumpkin[facing=south]");
+            b.set(x - 1, 2, 3, fence + "[east=true]");
+            b.set(x + 1, 2, 3, fence + "[west=true]");
+        }
+        // 활 과녁 (동쪽 벽 안쪽) + 뒤에 짚단
+        for (int z = 6; z <= 9; z += 3) {
+            b.set(W - 2, 1, z, "hay_block[axis=y]");
+            b.set(W - 2, 2, z, "target");
+        }
+        // 무기 손질대 (서쪽): 숫돌 · 통 · 모루
+        b.set(1, 1, 6, "grindstone[face=floor,facing=east]");
+        b.set(1, 1, 7, "barrel[facing=up]");
+        b.set(1, 1, 8, "anvil[facing=north]");
+        b.set(1, 1, 9, "barrel[facing=up]");
+        flagpole(b, 0, 0, 0, 8, "red");
+        flagpole(b, W - 1, 0, 0, 8, "red");
+        return b;
+    }
+
     // ------------------------------------------------------------------ 시장 노점 · 분수 · 가로등
     /** 노점: 울타리 기둥 네 개 + 줄무늬 천 지붕 + 상품 */
     public static Blueprint stall(Palette p, SplittableRandom rng) {
