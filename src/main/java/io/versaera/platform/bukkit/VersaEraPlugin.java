@@ -382,6 +382,9 @@ public final class VersaEraPlugin extends JavaPlugin {
         }
         menus.adventure(advCmd, regions::regionOf);
         io.versaera.platform.bukkit.listener.AdventureListener advL = new io.versaera.platform.bukkit.listener.AdventureListener(this, services, async);
+        if (getConfig().getBoolean("hunger.enabled", true))
+            Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.world.HungerRuntime(this, services,
+                    getConfig().getDouble("hunger.hours_per_meal", 8), getConfig().getDouble("hunger.activity_scale", 0.5)), this);
         for (var l : List.<org.bukkit.event.Listener>of(petRuntime, travelRuntime, weatherR, artworkRuntime, advL)) Bukkit.getPluginManager().registerEvents(l, this);
                 InventoryGuard guard = new InventoryGuard(this, services, async, codec);
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,

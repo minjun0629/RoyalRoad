@@ -76,11 +76,12 @@ class SettlementPlannerTest {
         var house = a.stream().filter(s -> s.kind == Kind.BUILDING).findFirst().orElseThrow();
         Map<Integer, String> col = new TreeMap<>();
         house.column(house.minX, house.minZ, (x, z) -> 70, (x, y, z, m) -> col.put(y, m));
-        assertTrue(col.values().stream().anyMatch(m -> !m.equals("AIR")), "모서리 기둥");
+        assertTrue(col.values().stream().anyMatch(m -> !m.equalsIgnoreCase("air")), "가장자리");
         Map<Integer, String> mid = new TreeMap<>();
         house.column((house.minX + house.maxX) / 2, (house.minZ + house.maxZ) / 2, (x, z) -> 70, (x, y, z, m) -> mid.put(y, m));
-        assertEquals("AIR", mid.get(71), "안은 비어 있다 (장식 건물)");
-        assertNotEquals("AIR", mid.get(Collections.max(mid.keySet())), "지붕");
+        assertEquals("air", mid.get(71), "안은 비어 있다 (장식 건물)");
+        int roof = mid.entrySet().stream().filter(e -> !e.getValue().equals("air")).mapToInt(Map.Entry::getKey).max().orElseThrow();
+        assertTrue(roof >= 75, "지붕 " + roof);
     }
 
     @Test
@@ -90,7 +91,7 @@ class SettlementPlannerTest {
         BufferedImage img = new BufferedImage(w, d, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < d; y++) for (int x = 0; x < w; x++) img.setRGB(x, y, 0x6aa84f);
         for (var s : plan(42).in(h.minX(), h.minZ(), h.maxX(), h.maxZ())) {
-            int rgb = switch (s.kind) { case ROAD -> 0x9a948c; case PLAZA -> 0xd8c58a; case BUILDING -> 0xa0522d; case WALL -> 0x444444; case LANDMARK -> 0xc9a227; };
+            int rgb = switch (s.kind) { case ROAD -> 0x9a948c; case PLAZA -> 0xd8c58a; case BUILDING -> 0xa0522d; case DECOR -> 0xe0b040; case WALL -> 0x444444; case LANDMARK -> 0xc9a227; };
             for (int x = Math.max(h.minX(), s.minX); x <= Math.min(h.maxX(), s.maxX); x++)
                 for (int z = Math.max(h.minZ(), s.minZ); z <= Math.min(h.maxZ(), s.maxZ); z++)
                     if (s.covers(x, z)) img.setRGB(x - h.minX(), z - h.minZ(), rgb);
