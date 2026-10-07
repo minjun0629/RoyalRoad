@@ -25,6 +25,18 @@ hunger:
   hours_per_meal: 8
   activity_scale: 0.5
 
+# 세계 복구: 산 땅 밖에서 부수거나(폭발 · 불 포함) 놓은 블록이 delay_seconds 뒤 원래대로 돌아온다.
+#  자원 블록은 채집 규칙대로 따로 되살아나고, 크리에이티브 모드는 복구하지 않는다 (관리자 건축)
+#  drops: false 면 복구되는 블록은 아이템을 떨어뜨리지 않는다 (무한 채집 방지)
+restore:
+  enabled: true
+  delay_seconds: 180
+  drops: false
+
+# 들판 몬스터: 지역 위험도에 맞춰 사람 둘레(도시 성벽 밖)에 나온다. 위험도 0 = 토끼 · 여우, 1 = + 늑대, 2 이상 = 늑대 무리 · 거미 · 고블린 …
+field-mobs:
+  enabled: true
+
 # 기본 세계를 VersaEra 지형으로 (bukkit.yml 의 worlds.<level-name>.generator 를 플러그인이 자동으로 채운다. 끄려면 false)
 world:
   auto-generator: true

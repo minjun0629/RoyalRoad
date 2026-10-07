@@ -40,7 +40,7 @@ class MedievalTest {
         SplittableRandom rng = new SplittableRandom(1);
         for (Region r : regions.all()) {
             Medieval.Palette p = Medieval.Palette.of(r, regions);
-            for (Blueprint b : List.of(Medieval.house(p, 7, 6, 2, rng), Medieval.tavern(p, rng), Medieval.smithy(p, rng), Medieval.chapel(p, rng))) {
+            for (Blueprint b : List.of(Medieval.house(p, 7, 6, 2, rng), Medieval.tavernMarked(p, rng), Medieval.smithyMarked(p, rng), Medieval.chapel(p, rng), Medieval.guildHall(p, rng), Medieval.marketHall(p, rng))) {
                 Set<String> s = blocks(b);
                 for (String id : s) {
                     assertFalse(id.contains(":") || !id.equals(id.toLowerCase(Locale.ROOT)), id);

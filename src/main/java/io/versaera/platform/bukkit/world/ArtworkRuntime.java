@@ -79,6 +79,19 @@ public final class ArtworkRuntime implements Listener {
         hide(a.id());
     }
 
+    /** 새로 세운 작품을 바로 보인다 */
+    public void placed(Artwork a) {
+        add(a);
+        show(a);
+    }
+
+    /** 이름이 바뀐 작품을 다시 그린다 */
+    public void replaced(Artwork a) {
+        drop(a);
+        add(a);
+        show(a);
+    }
+
     // ------------------------------------------------------------------ 보이기
     private void tick() {
         Set<String> wanted = new HashSet<>();

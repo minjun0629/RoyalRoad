@@ -54,6 +54,10 @@ public final class VersaEraPlugin extends JavaPlugin {
     private DbExecutor exec;
     private GameServices services;
     private GatherListener gather;
+    private io.versaera.platform.bukkit.world.BlockRestoreRuntime restore;
+    private io.versaera.platform.bukkit.world.FieldMobRuntime fieldMobs;
+    private io.versaera.platform.bukkit.world.SculptingRuntime sculpting;
+    private StationListener stations;
     private BossRuntime bosses;
     private io.versaera.platform.bukkit.world.FieldBossRuntime fieldBosses;
     /** 게임 시각(0 ~ 23). 메인 스레드가 5초마다 갱신하고, DB 스레드의 히든 판정은 이 값만 읽는다 */
@@ -374,6 +378,8 @@ public final class VersaEraPlugin extends JavaPlugin {
         io.versaera.platform.bukkit.world.WeatherRuntime weatherR = new io.versaera.platform.bukkit.world.WeatherRuntime(this, services, regions::regionOf);
         io.versaera.platform.bukkit.world.RaidRuntime raidR = new io.versaera.platform.bukkit.world.RaidRuntime(this, services, async, bosses, regions::regionOf);
         artworkRuntime = new io.versaera.platform.bukkit.world.ArtworkRuntime(this, services, async, codec, regions::regionOf, sessions::deliver);
+        sculpting = new io.versaera.platform.bukkit.world.SculptingRuntime(this, services, async, codec, artworkRuntime, regions::regionOf, sessions::deliver);
+        Bukkit.getPluginManager().registerEvents(sculpting, this);
         io.versaera.platform.bukkit.command.AdventureCommands advCmd = new io.versaera.platform.bukkit.command.AdventureCommands(services, async, codec,
                 sessions::deliver, petRuntime, travelRuntime, raidR, weatherR, artworkRuntime);
         for (String c : List.of("achievements", "title", "record", "pet", "mount", "raid", "weather", "gstorage", "gquest", "sculpt")) {
@@ -386,11 +392,22 @@ public final class VersaEraPlugin extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.world.HungerRuntime(this, services,
                     getConfig().getDouble("hunger.hours_per_meal", 8), getConfig().getDouble("hunger.activity_scale", 0.5)), this);
         for (var l : List.<org.bukkit.event.Listener>of(petRuntime, travelRuntime, weatherR, artworkRuntime, advL)) Bukkit.getPluginManager().registerEvents(l, this);
+        if (getConfig().getBoolean("restore.enabled", true)) {
+            final GatherListener g = gather;
+            restore = new io.versaera.platform.bukkit.world.BlockRestoreRuntime(this, getConfig().getLong("restore.delay_seconds", 180),
+                    getConfig().getBoolean("restore.drops", false), b -> realmR.ownerAt(b).isPresent(), g::node);
+            Bukkit.getPluginManager().registerEvents(restore, this);
+        }
+        Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.ServerIcon(getLogger()), this);
+        if (getConfig().getBoolean("field-mobs.enabled", true)) {
+            fieldMobs = new io.versaera.platform.bukkit.world.FieldMobRuntime(this, services);
+            Bukkit.getPluginManager().registerEvents(fieldMobs, this);
+        }
                 InventoryGuard guard = new InventoryGuard(this, services, async, codec);
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
                 deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.HeadGear(codec), new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
                 new io.versaera.platform.bukkit.world.TrainingDummies(this, services, async),
-                new StationListener(services, async, codec, sessions), new MenuListener()))
+                (stations = new StationListener(this, services, async, codec, sessions)), new MenuListener()))
             Bukkit.getPluginManager().registerEvents(l, this);
         try {
             startPack();   // 리소스팩은 없어도 게임은 돈다 — 실패해도 나머지는 켠다
@@ -414,7 +431,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         getCommand("versa").setExecutor(pc);
         getCommand("trade").setExecutor(pc);
         GameCommands gc = new GameCommands(services, async, codec, sessions::deliver, p -> facts(p.getUniqueId().toString(), regions), dungeons);
-        for (String c : List.of("job", "quest", "guild", "auction", "dungeon")) getCommand(c).setExecutor(gc);
+        for (String c : List.of("job", "quest", "guild", "auction", "dungeon", "mailbox")) getCommand(c).setExecutor(gc);
         AdminCommand ac = new AdminCommand(services, async, codec, npcs, bosses, getDataFolder(), sealer, sessions::deliver);
         getCommand("versaadmin").setExecutor(ac);
         getCommand("versaadmin").setTabCompleter(ac);
@@ -499,7 +516,9 @@ public final class VersaEraPlugin extends JavaPlugin {
                 : ContentBundle.fromClasspath(getClassLoader());
         List<int[]> npcSpots = new java.util.ArrayList<>();
         c.places().values().forEach(m -> m.values().forEach(p -> npcSpots.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
-        return new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots);
+        java.util.Set<String> starts = new java.util.HashSet<>();
+        for (var city : c.origins().cities()) starts.add(city.region());
+        return new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots, starts);
     }
 
     private static InputStream open(File f) {
@@ -567,9 +586,13 @@ public final class VersaEraPlugin extends JavaPlugin {
         if (npcRuntime != null) npcRuntime.removeAll();
         if (petRuntime != null) petRuntime.dismissAll();
         if (travelRuntime != null) travelRuntime.shutdown();
+        if (sculpting != null) sculpting.shutdown();
+        if (stations != null) stations.shutdown();
         if (artworkRuntime != null) artworkRuntime.shutdown();
         if (pack != null) pack.stop();
         if (gather != null) gather.restoreAll();
+        if (restore != null) restore.restoreAll();
+        if (fieldMobs != null) fieldMobs.removeAll();
         if (exec != null) {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 String id = p.getUniqueId().toString();

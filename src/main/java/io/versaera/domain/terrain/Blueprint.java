@@ -57,6 +57,13 @@ public final class Blueprint {
                 for (int x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) set(x, y, z, block);
     }
 
+    /** 위로 extra 칸 더 높은 사본 (지붕 위 탑 · 깃대를 올릴 때) */
+    public Blueprint taller(int extra) {
+        Blueprint t = new Blueprint(w, h + extra, d);
+        for (int y = 0; y < h; y++) for (int z = 0; z < d; z++) for (int x = 0; x < w; x++) t.set(x, y, z, get(x, y, z));
+        return t;
+    }
+
     /** 비어 있는 칸에만 */
     public void soft(int x, int y, int z, String block) {
         if (get(x, y, z) == null) set(x, y, z, block);

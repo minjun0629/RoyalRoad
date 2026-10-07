@@ -21,10 +21,88 @@ public final class TerrainModel {
     private final String world;
     private final long seed;
 
+    private static final Set<String> FIXED_SHAPES = Set.of("lake", "crater", "volcano", "hole", "salt", "swamp", "canyon", "valley", "river");
+
+    /** 휘지 않게 지킬 자리 {x, z, 반지름}: 도시(길 격자 + 40) · 랜드마크 · 던전 입구 · 문 */
+    private final int[][] anchors;
+    private final boolean warped;
+
     public TerrainModel(RegionIndex regions, String world, long seed) {
         this.regions = regions;
         this.world = world;
         this.seed = seed;
+        java.util.List<int[]> a = new java.util.ArrayList<>();
+        for (Region r : regions.all()) {
+            if (!r.world().equals(world)) continue;
+            int cx = (r.minX() + r.maxX()) / 2, cz = (r.minZ() + r.maxZ()) / 2;
+            if (SettlementPlanner.isTown(r)) a.add(new int[]{cx, cz, SettlementPlanner.townGrid(r)[2] + 40});
+            else if (r.tags().contains("landmark") || r.tags().contains("dungeon_site") || r.tags().contains("portal")
+                    || SettlementPlanner.landmarkRegions().contains(r.id())) a.add(new int[]{cx, cz, 60});
+            // 제 모양으로 땅을 파는 지형(호수 · 분화구 · 화산 · 구멍 · 소금 평원 · 늪 · 협곡 · 골짜기 · 강)도 제자리에
+            if (!java.util.Collections.disjoint(r.tags(), FIXED_SHAPES) && (long) (r.maxX() - r.minX()) * (r.maxZ() - r.minZ()) < 40_000_000L)
+                a.add(new int[]{cx, cz, Math.max(r.maxX() - r.minX(), r.maxZ() - r.minZ()) / 2});
+        }
+        this.anchors = a.toArray(new int[0][]);
+        this.warped = world.equals("world");
+    }
+
+    // ------------------------------------------------------------------ 휜 경계 (해안 · 지형 경계를 상자 대신 구불구불하게)
+    /** 노이즈 값(대략 ±0.5)에 곱한다 → 대륙 규모의 굽이 최대 ±2000 블록 + 반도 · 만 크기의 굽이 + 잔물결 */
+    static final double WARP = 4200;
+
+    /** 이 자리의 휨 세기 0 ~ 1: 도시 · 명소 둘레는 0 (제자리), 900 블록에 걸쳐 1 로 */
+    private double warpWeight(int x, int z) {
+        if (!warped) return 0;   // 다른 차원(versa_realms)은 정해 둔 배치 그대로
+        double w = 1;
+        for (int[] a : anchors) {
+            int d = Math.max(Math.abs(x - a[0]), Math.abs(z - a[1])) - a[2];
+            if (d < 900) w = Math.min(w, Math.max(0, d / 900.0));
+            if (w == 0) return 0;
+        }
+        return smooth(w);
+    }
+
+    /** 지형 모양을 정할 때 볼 지역: (x, z) 를 노이즈로 밀어 낸 자리의 지역 → 해안선 · 경계가 상자가 아니라 자연스럽게 휜다 */
+    public Region shapeRegionAt(int x, int z) {
+        double w = warpWeight(x, z);
+        if (w <= 0) return regionAt(x, z);
+        double dx = WARP * (noise(x + 7919, z, 1 / 12000.0) * 0.55 + noise(x, z + 3571, 1 / 3000.0) * 0.3 + noise(x - 911, z + 77, 1 / 700.0) * 0.15);
+        double dz = WARP * (noise(x, z - 6151, 1 / 12000.0) * 0.55 + noise(x - 2909, z, 1 / 3000.0) * 0.3 + noise(x + 433, z - 59, 1 / 700.0) * 0.15);
+        return regionAt((int) Math.round(x + dx * w), (int) Math.round(z + dz * w));
+    }
+
+    private static final Shape ISLAND = new Shape(68, 9, 0.006, Surface.GRASS);
+
+    /** 바다 위의 섬: 바다 지역에서 노이즈가 높은 곳 (도시 · 명소 · 문 둘레엔 없음) */
+    private boolean island(int x, int z) {
+        return noise(x - 15013, z + 9001, 1 / 1900.0) > 0.36 && warpWeight(x, z) > 0.5;
+    }
+
+    /** 도시 지역은 성벽 둘레만 도시 땅: 그 밖은 둘러싼 지역의 땅 (도시 상자가 네모난 흙바닥으로 보이지 않게) */
+    private static final Set<String> ROUND = Set.of("lake", "crater", "volcano", "hole", "salt", "swamp");
+
+    private Region outsideTown(Region r, int x, int z) {
+        // 둥근 지형(호수 · 분화구 · 화산 · 구멍 · 소금 평원 · 늪)은 상자 안의 타원만: 모서리는 둘러싼 지역의 땅
+        while (r != null && !java.util.Collections.disjoint(r.tags(), ROUND) && r.parent() != null && radial(r, x, z) > 1) {
+            Region p = regions.byId(r.parent());
+            if (p == null || p.maxY() < 64) break;
+            r = p;
+        }
+        while (r != null && SettlementPlanner.isTown(r) && r.parent() != null) {
+            int[] g = SettlementPlanner.townGrid(r);
+            if (Math.max(Math.abs(x - g[0]), Math.abs(z - g[1])) <= g[2] + 48) break;
+            Region p = regions.byId(r.parent());
+            if (p == null || p.maxY() < 64) break;
+            r = p;
+        }
+        return r;
+    }
+
+    /** 이 자리의 지형 성격 (휜 지역 + 섬) */
+    private Shape shapeAt(int x, int z) {
+        Region r = outsideTown(shapeRegionAt(x, z), x, z);
+        if (r != null && r.tags().contains("sea") && island(x, z)) return ISLAND;
+        return shape(r);
     }
 
     private static Shape shape(Region r) {
@@ -109,7 +187,7 @@ public final class TerrainModel {
         int[][] samples = {{0, 0}, {BLEND, 0}, {-BLEND, 0}, {0, BLEND}, {0, -BLEND}};
         double[] weight = {2, 1, 1, 1, 1};
         for (int i = 0; i < samples.length; i++) {
-            Shape s = shape(regionAt(gx + samples[i][0], gz + samples[i][1]));
+            Shape s = shapeAt(gx + samples[i][0], gz + samples[i][1]);
             base += s.base() * weight[i];
             amp += s.amp() * weight[i];
             rough += s.rough() * weight[i];
@@ -211,8 +289,8 @@ public final class TerrainModel {
     }
 
     public Surface surface(int x, int z, int height) {
-        Region r = regionAt(x, z);
-        Surface s = shape(r).surface();
+        Region r = outsideTown(shapeRegionAt(x, z), x, z);
+        Surface s = r != null && r.tags().contains("sea") && island(x, z) ? (height <= SEA_LEVEL + 2 ? Surface.SAND : Surface.GRASS) : shape(r).surface();
         if (height < SEA_LEVEL - 1 && s != Surface.GRAVEL) return Surface.SAND;
         if (height > 150 && s != Surface.SNOW) return Surface.STONE;
         if (s == Surface.SAND && r != null && r.tags().contains("desert") && noise(x, z, 0.02) > 0.45) return Surface.RED_SAND;

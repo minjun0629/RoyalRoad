@@ -158,17 +158,28 @@ public final class FieldBossRuntime implements Listener {
         return Math.toRadians(p < 0.35 ? 150 * (p / 0.35) : 150 - 130 * ((p - 0.35) / 0.65));
     }
 
-    /** /필드보스 — 이름 · 둥지 · 상태 */
-    public List<String> status() {
+    /** /필드보스 — 마주친 적 있는 보스만: 이름 · 지역 · 지금 상태 (모르는 보스는 이름도 보이지 않는다) */
+    public List<String> status(Set<String> known) {
         List<String> out = new ArrayList<>();
         long now = System.currentTimeMillis();
         for (FieldBoss b : s.fieldBosses.all()) {
+            if (!known.contains(b.id())) continue;
             Region r = s.regions.byId(b.region());
             long[] sc = schedule.get(b.id());
-            String state = live.containsKey(b.id()) ? "&c나타나 있음" : sc == null || sc[0] <= now ? "&a둥지에 가면 나타남" : "&7" + ((sc[0] - now) / 60_000 + 1) + "분 뒤";
+            String state = live.containsKey(b.id()) ? "&c출몰" : sc != null && sc[0] > now ? "&7" + ((sc[0] - now) / 60_000 + 1) + "분" : "&8고요";
             out.add("&f" + b.name() + " &8· " + (r == null ? b.region() : r.name()) + " &8· " + state);
         }
         return out;
+    }
+
+    private final Set<String> met = ConcurrentHashMap.newKeySet();   // "uuid:boss" — 이번 접속에서 이미 기록함
+
+    /** 32 블록 안에 들어온 사람은 그 보스를 만난 것으로 기록 (탐험 발견 'field_boss') */
+    private void meet(Player p, Live l) {
+        String key = p.getUniqueId() + ":" + l.def.id();
+        if (!met.add(key)) return;
+        String id = p.getUniqueId().toString(), name = p.getName(), boss = l.def.id();
+        async.fire("meet-fboss", () -> s.exploration.discover(id, name, "field_boss", boss));
     }
 
     private void second() {
@@ -180,7 +191,11 @@ public final class FieldBossRuntime implements Listener {
                 continue;
             }
             boolean near = false;
-            for (Player p : l.body.getWorld().getPlayers()) if (p.getLocation().distanceSquared(l.body.getLocation()) < 96 * 96) { near = true; break; }
+            for (Player p : l.body.getWorld().getPlayers()) {
+                double d2 = p.getLocation().distanceSquared(l.body.getLocation());
+                if (d2 < 32 * 32) meet(p, l);
+                if (d2 < 96 * 96) near = true;
+            }
             if (near) l.sinceSeen = now;
             if (l.bar != null) {
                 var hp = l.body.getAttribute(Attribute.GENERIC_MAX_HEALTH);

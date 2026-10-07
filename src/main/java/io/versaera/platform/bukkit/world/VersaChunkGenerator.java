@@ -28,18 +28,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class VersaChunkGenerator extends ChunkGenerator {
     private final RegionIndex regions;
     private final List<int[]> keepClear;
+    private final java.util.Set<String> startCities;
     private final Map<String, TerrainModel> models = new ConcurrentHashMap<>();
     private final Map<String, SettlementPlanner> plans = new ConcurrentHashMap<>();
     private final Map<String, BlockData> blocks = new ConcurrentHashMap<>();
 
-    /** @param keepClear NPC 일과 장소 {x, z} — 건물을 짓지 않을 자리 */
-    public VersaChunkGenerator(RegionIndex regions, List<int[]> keepClear) {
+    /** @param keepClear NPC 일과 장소 {x, z} — 건물을 짓지 않을 자리 · startCities 시작 도시 지역 (광장 깃대) */
+    public VersaChunkGenerator(RegionIndex regions, List<int[]> keepClear, java.util.Set<String> startCities) {
         this.regions = regions;
         this.keepClear = List.copyOf(keepClear);
+        this.startCities = java.util.Set.copyOf(startCities);
     }
 
     private SettlementPlanner plan(WorldInfo w) {
-        return plans.computeIfAbsent(w.getName(), n -> SettlementPlanner.plan(regions, n, w.getSeed(), keepClear));
+        return plans.computeIfAbsent(w.getName(), n -> SettlementPlanner.plan(regions, n, w.getSeed(), keepClear, startCities));
     }
 
     /** "STONE_BRICKS" · "oak_stairs[facing=north,half=bottom]" → 블록 상태 (한 번 읽고 기억) */
@@ -153,6 +155,19 @@ public final class VersaChunkGenerator extends ChunkGenerator {
             public void populate(WorldInfo info, Random random, int chunkX, int chunkZ, LimitedRegion region) {
                 TerrainModel t = model(info);
                 int x0 = chunkX * 16, z0 = chunkZ * 16;
+                // 지표 메우기: 바닐라 동굴 · 협곡이 땅거죽을 뚫은 구멍을 막는다 (동굴은 땅속에 그대로 남는다)
+                for (int dx = 0; dx < 16; dx++)
+                    for (int dz = 0; dz < 16; dz++) {
+                        int x = x0 + dx, z = z0 + dz, h = t.height(x, z);
+                        if (!t.dry(x, z) && h < TerrainModel.SEA_LEVEL) continue;
+                        TerrainModel.Surface sf = t.surface(x, z, h);
+                        for (int y = h - 7; y <= h; y++) {
+                            if (!region.isInRegion(x, y, z)) continue;
+                            Material m = region.getType(x, y, z);
+                            if (m.isAir() || m == Material.LAVA || m == Material.WATER)
+                                region.setType(x, y, z, y == h ? top(sf) : y >= h - 3 ? under(sf) : Material.STONE);
+                        }
+                    }
                 // 유적 기둥
                 int[] p = t.ruinPillar(Math.floorDiv(x0, 64), Math.floorDiv(z0, 64));
                 if (p != null && Math.floorDiv(p[0], 16) == chunkX && Math.floorDiv(p[1], 16) == chunkZ) {

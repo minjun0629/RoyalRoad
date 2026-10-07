@@ -84,8 +84,18 @@ public final class LifeCommands implements CommandExecutor, Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] a) {
         if (cmd.getName().equals("fieldboss")) {
-            sender.sendMessage(Ui.c("&6── 필드 보스 ──"));
-            for (String line : bosses.status()) sender.sendMessage(Ui.c(line));
+            if (!(sender instanceof Player pl)) return true;
+            String uid = pl.getUniqueId().toString();
+            async.run("fboss-known", () -> {
+                Set<String> known = new HashSet<>();
+                for (var b : s.fieldBosses.all()) if (s.progress.discovered(uid, "field_boss", b.id())) known.add(b.id());
+                return known;
+            }, known -> {
+                List<String> lines = bosses.status(known);
+                pl.sendMessage(Ui.c("&6── 필드 보스 ──"));
+                if (lines.isEmpty()) pl.sendMessage(Ui.c("&7마주친 필드 보스가 없다"));
+                for (String line : lines) pl.sendMessage(Ui.c(line));
+            }, pl);
             return true;
         }
         if (!(sender instanceof Player p)) {

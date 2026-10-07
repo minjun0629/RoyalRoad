@@ -6,6 +6,10 @@
 - **RpgCraft 와 완전히 분리**되어 있습니다. 코드 · 패키지 · DB · 아이템 id · 명령어 · 리소스팩을 하나도 공유하지 않습니다.
 - 원작의 히든 직업 · 스킬 · 조건은 쓰지 않습니다. 이 게임의 히든 콘텐츠는 서버마다 봉인된 새 조건으로만 열립니다.
 
+![베르사 대륙 지도](docs/img/versa-map.jpg)
+
+지도는 실제 지형 생성기와 같은 계산으로 그린다: `src/test/java/io/versaera/tools/WorldMapRenderer.java` (글꼴: 나눔명조, OFL).
+
 | 문서 | 내용 |
 |---|---|
 | [docs/01_RESEARCH.md](docs/01_RESEARCH.md) | 원작 조사 · 교차 검증 · 분류(CANON / SOURCE-BASED / ORIGINAL / RESEARCH_REQUIRED) |
@@ -28,10 +32,10 @@ gradle build                         # Paper 저장소에서 API 를 받아 빌�
 gradle build -PapiJar=<api.jar>      # 저장소에 접속할 수 없을 때, 가지고 있는 API jar 로 빌드
 ```
 
-결과: `build/libs/VersaEra-0.4.4.jar`
+결과: `build/libs/VersaEra-0.4.7.jar`
 
 ```bash
-gradle release                       # jar 와 리소스팩을 저장소 맨 위(VersaEra-0.4.4.jar · VersaEra-ResourcePack.zip)에 만든다 → 그대로 커밋 · 푸시
+gradle release                       # jar 와 리소스팩을 저장소 맨 위(VersaEra-0.4.7.jar · VersaEra-ResourcePack.zip)에 만든다 → 그대로 커밋 · 푸시
 gradle buildPack                     # 리소스팩만 다시 만들기
 ```
 
@@ -41,7 +45,7 @@ gradle buildPack                     # 리소스팩만 다시 만들기
 
 | 파일 | 할 일 |
 |---|---|
-| [`VersaEra-0.4.4.jar`](VersaEra-0.4.4.jar) | 받아서 서버의 `plugins/` 에 넣고 켜면 끝 |
+| [`VersaEra-0.4.7.jar`](VersaEra-0.4.7.jar) | 받아서 서버의 `plugins/` 에 넣고 켜면 끝 |
 | [`VersaEra-ResourcePack.zip`](VersaEra-ResourcePack.zip) | **받을 필요 없음** — 플러그인이 접속한 플레이어에게 이 파일의 GitHub 주소를 보내고, 플레이어의 게임이 GitHub 에서 직접 받습니다 |
 
 - 서버 포트를 열거나 주소 · 해시를 적을 필요가 없습니다. 플레이어가 어느 IP · 어느 나라에서 접속하든 GitHub 에서 받으므로 그대로 됩니다 (저장소는 공개).
@@ -64,7 +68,7 @@ gradle buildPack                     # 리소스팩만 다시 만들기
 | `hidden.sealed` | 봉인된 히든 규칙 (`/va hidden generate` 또는 `/va seal`) |
 
 3. 기본 세계는 플러그인이 `bukkit.yml` 에 `worlds.<level-name>.generator: VersaEra` 를 자동으로 넣어 VersaEra 지형으로 만듭니다 (`config.yml` 의 `world.auto-generator`). 이미 야생 지형으로 만들어진 세계라면 서버를 끄고 `world`, `world_nether`, `world_the_end` 폴더를 지운 뒤(또는 `/va 초기화 전체 확인` 후) 다시 켜세요.
-   지역 좌표(`content/regions.yml`)는 30000 × 30000 월드 기준입니다 (가운데 22500 × 22500 이 베르사 대륙, 바깥은 신대륙 · 극지). 다른 차원(거인계 · 신계 등)은 플러그인이 시작할 때 세계 `versa_realms` 를 자동으로 만듭니다 (`config.yml` 의 `realms.enabled`). 지역에 맞는 땅을 만들려면 **새 세계**를 VersaEra 생성기로 만듭니다:
+   지역 좌표(`content/regions.yml`)는 50000 × 50000 월드 기준입니다 (가운데 37500 × 37500 이 베르사 대륙, 바깥은 신대륙 · 극지). 다른 차원(거인계 · 신계 등)은 플러그인이 시작할 때 세계 `versa_realms` 를 자동으로 만듭니다 (`config.yml` 의 `realms.enabled`). 지역에 맞는 땅을 만들려면 **새 세계**를 VersaEra 생성기로 만듭니다:
 
 ```yaml
 # bukkit.yml

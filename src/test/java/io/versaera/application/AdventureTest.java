@@ -338,6 +338,11 @@ class AdventureTest {
             assertEquals(fame + 1, w.s.reputation.standing(a).fame(), "감상받으면 명성 +1");
             w.now.addAndGet(86_400_000L);
             assertTrue(w.s.artworks.view(v, art.id(), null).fresh(), "다음 날 다시");
+            // 이름 짓기: 만든 사람만, 저장 · 목록에도 반영
+            assertThrows(DomainException.class, () -> w.s.artworks.rename(v, art.id(), "남의 작품"));
+            assertThrows(DomainException.class, () -> w.s.artworks.rename(a, art.id(), "&c색"));
+            assertEquals("달빛 아래의 기사", w.s.artworks.rename(a, art.id(), "  달빛 아래의 기사 ").title());
+            assertEquals("달빛 아래의 기사", w.s.artworks.all().stream().filter(x -> x.id().equals(art.id())).findFirst().orElseThrow().title());
             // 허물기: 만든 사람만, 재료 절반
             assertThrows(DomainException.class, () -> w.s.artworks.remove(v, art.id(), false));
             int before = w.s.items.pendingBulk(a).size();

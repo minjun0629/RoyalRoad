@@ -58,7 +58,7 @@ public final class NpcPopulation {
             if (r.maxY() < 64 || !Collections.disjoint(r.tags(), SKIP)) continue;
             LinkedHashMap<String, Integer> want = new LinkedHashMap<>();
             for (var c : rules.cultures().entrySet())
-                if (r.tags().contains(c.getKey())) c.getValue().forEach((a, n) -> want.merge(a, n, (x, y) -> Math.min(3, x + y)));
+                if (r.tags().contains(c.getKey())) c.getValue().forEach((a, n) -> want.merge(a, n, (x, y) -> Math.min(8, x + y)));
             if (want.isEmpty()) continue;
             SplittableRandom rng = new SplittableRandom(r.id().hashCode() * 0x9E3779B97F4A7C15L + 17);
             Spots spots = new Spots(r);
