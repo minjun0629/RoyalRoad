@@ -159,6 +159,21 @@ public final class ArtworkService {
         return a;
     }
 
+    /** 이름 짓기 · 바꾸기 (만든 사람만). 다 깎은 뒤 채팅으로 짓는다 */
+    public Artwork rename(String uuid, String artworkId, String title) {
+        Artwork a = repo.artwork(artworkId).orElseThrow(() -> DomainException.of("art.gone", "사라진 작품입니다"));
+        DomainException.require(a.owner().equals(uuid), "art.not_owner", "내 작품이 아닙니다");
+        String t = title == null ? "" : title.strip();
+        DomainException.require(t.length() >= 1 && t.length() <= 24 && !t.contains("&") && !t.contains("§"), "art.bad_title", "작품 이름은 1~24자 (색 코드 없이)");
+        tx.inTx(() -> {
+            repo.renameArtwork(a.id(), t);
+            return null;
+        });
+        Artwork b = new Artwork(a.id(), a.owner(), a.kind(), t, a.world(), a.x(), a.y(), a.z(), a.yaw(), a.quality(), a.materials(), a.views(), a.createdAt());
+        cache.replaceAll(x -> x.id().equals(b.id()) ? b : x);
+        return b;
+    }
+
     /** 감상 (만든 사람은 자기 작품을 감상해도 효과 없음) */
     public View view(String uuid, String artworkId, String region) {
         Artwork a = repo.artwork(artworkId).orElseThrow(() -> DomainException.of("art.gone", "사라진 작품입니다"));

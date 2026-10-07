@@ -12,6 +12,7 @@ import io.versaera.platform.bukkit.Async;
 import io.versaera.platform.bukkit.Ui;
 import io.versaera.platform.bukkit.binding.ItemCodec;
 import io.versaera.platform.bukkit.ui.Menu;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,7 +26,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 
 /**
- * 제작대: 월드의 블록을 우클릭해 그 분야의 제작 창을 연다 (명령어 없이).
+ * 제작대: 월드의 블록을 우클릭해 그 분야의 제작 창을 연다 (명령어 없이). 고르면 제작대 곁에서 시간을 들여 손으로 만든다 —
+ * 모루는 망치질 불똥, 화덕은 지글지글 연기, 베틀은 북 소리, 양조기는 끓는 거품. 떠나면 멈추고 재료는 돌려받는다.
+ * 명품 이상이 나오면 큰 제목, 걸작은 서버 전체에 알려진다.
  * 모루=대장 · 베틀=재봉 · 제작대=가죽 · 훈연기=요리 · 양조기=연금 · 석재 절단기=조각 · 대장장이 작업대=수리.
  * 재료는 인벤토리에서 품질이 높은 것부터 골라 <b>먼저 빼고</b> 서버에 제작을 요청한다. 실패하면 재료는 배달함으로 돌아온다.
  */
@@ -40,8 +43,20 @@ public final class StationListener implements Listener {
     private final ItemCodec codec;
     private final SessionListener sessions;
     private final Set<UUID> busy = new HashSet<>();
+    private final Map<UUID, Work> works = new HashMap<>();
+    private final Random rng = new Random();
 
-    public StationListener(GameServices s, Async async, ItemCodec codec, SessionListener sessions) {
+    /** 만드는 중: 제작대 자리 · 진행 */
+    private static final class Work {
+        Recipe recipe;
+        String discipline;
+        Location station, anchor;
+        List<MaterialInput> used;
+        int ticks, total;
+    }
+
+    public StationListener(org.bukkit.plugin.Plugin plugin, GameServices s, Async async, ItemCodec codec, SessionListener sessions) {
+        org.bukkit.Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 10L, 5L);
         this.s = s;
         this.async = async;
         this.codec = codec;
@@ -55,10 +70,10 @@ public final class StationListener implements Listener {
         if (d == null || e.getPlayer().isSneaking()) return;
         e.setCancelled(true);
         if (d.equals("repair")) repair(e.getPlayer());
-        else open(e.getPlayer(), d);
+        else open(e.getPlayer(), d, e.getClickedBlock().getLocation().add(0.5, 1.0, 0.5));
     }
 
-    private void open(Player p, String discipline) {
+    private void open(Player p, String discipline, Location station) {
         String id = p.getUniqueId().toString();
         async.run("station", () -> {
             int lv = s.growth.level(id, discipline);
@@ -78,7 +93,7 @@ public final class StationListener implements Listener {
                 Material icon = Material.matchMaterial(out.material());
                 m.set(slot++, Menu.icon(icon == null ? Material.PAPER : icon, "&f" + r.name(), lines), ev -> {
                     p.closeInventory();
-                    craft(p, r);
+                    craft(p, r, station, lv);
                 });
             }
             m.open(p);
@@ -128,7 +143,7 @@ public final class StationListener implements Listener {
         return null;
     }
 
-    private void craft(Player p, Recipe r) {
+    private void craft(Player p, Recipe r, Location station, int lv) {
         if (!busy.add(p.getUniqueId())) return;   // 연타 방지: 한 사람당 제작 하나씩
         List<MaterialInput> pool = new ArrayList<>();
         for (Map.Entry<String, int[]> e : stock(p).entrySet()) {
@@ -171,6 +186,91 @@ public final class StationListener implements Listener {
             }
             used.add(new MaterialInput(a.input().typeId(), a.input().tags(), a.input().quality(), a.slot().count()));
         }
+        // 손으로 만드는 시간: 제작대 곁에 머문다 (tick 이 끝나면 complete)
+        Work w = new Work();
+        w.recipe = r;
+        w.discipline = r.discipline();
+        w.station = station;
+        w.anchor = p.getLocation();
+        w.used = used;
+        w.total = (int) Math.round(io.versaera.domain.craft.WorkTime.craft(r.minLevel(), lv) * 20);
+        works.put(p.getUniqueId(), w);
+    }
+
+    // ------------------------------------------------------------------ 만드는 동안
+    private void tick() {
+        for (Iterator<Map.Entry<UUID, Work>> it = works.entrySet().iterator(); it.hasNext(); ) {
+            var en = it.next();
+            Work w = en.getValue();
+            Player p = org.bukkit.Bukkit.getPlayer(en.getKey());
+            if (p == null || !p.isOnline() || p.isDead()) {   // 나감: 재료는 배달함으로
+                it.remove();
+                busy.remove(en.getKey());
+                String owner = en.getKey().toString();
+                for (MaterialInput u : w.used) async.fire("craft-refund", () -> { s.items.deliverBulk(owner, u.typeId(), u.quality(), u.count(), "craft_refund"); return null; });
+                continue;
+            }
+            if (!p.getWorld().equals(w.station.getWorld()) || p.getLocation().distanceSquared(w.station) > 16 || p.getLocation().distanceSquared(w.anchor) > 4) {
+                it.remove();
+                busy.remove(en.getKey());
+                for (MaterialInput u : w.used) p.getInventory().addItem(codec.bulk(u.typeId(), u.quality(), u.count()));
+                Ui.bar(p, "&c손을 멈췄다 — 재료는 돌려받았다");
+                continue;
+            }
+            w.ticks += 5;
+            effects(w);
+            double f = Math.min(1, w.ticks / (double) w.total);
+            int n = (int) Math.round(f * 20);
+            Ui.bar(p, "&e" + w.recipe.name() + " &e" + "|".repeat(n) + "&8" + "|".repeat(20 - n));
+            if (w.ticks >= w.total) {
+                it.remove();
+                complete(p, w.recipe, w.used, w.station);
+            }
+        }
+    }
+
+    /** 분야마다 다른 손길: 소리 · 불똥 · 연기 · 거품 */
+    private void effects(Work w) {
+        org.bukkit.World world = w.station.getWorld();
+        Location at = w.station;
+        boolean beat = w.ticks % 10 == 0;
+        switch (w.discipline) {
+            case "smithing" -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.BLOCK_ANVIL_USE, 0.6f, 1.1f + rng.nextFloat() * 0.5f);
+                world.spawnParticle(org.bukkit.Particle.LAVA, at, beat ? 2 : 0, 0.15, 0.05, 0.15, 0);
+                world.spawnParticle(org.bukkit.Particle.CRIT, at, 6, 0.2, 0.1, 0.2, 0.25);
+            }
+            case "cooking" -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.BLOCK_CAMPFIRE_CRACKLE, 1f, 1f);
+                world.spawnParticle(org.bukkit.Particle.SMOKE_NORMAL, at, 4, 0.2, 0.05, 0.2, 0.01);
+                world.spawnParticle(org.bukkit.Particle.FLAME, at, 1, 0.15, 0.02, 0.15, 0);
+            }
+            case "tailoring" -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.UI_LOOM_SELECT_PATTERN, 0.8f, 0.9f + rng.nextFloat() * 0.3f);
+                world.spawnParticle(org.bukkit.Particle.CLOUD, at, 1, 0.2, 0.05, 0.2, 0);
+            }
+            case "leatherwork" -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.8f, 0.9f + rng.nextFloat() * 0.3f);
+                world.spawnParticle(org.bukkit.Particle.CRIT, at, 3, 0.2, 0.05, 0.2, 0.05);
+            }
+            case "alchemy" -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.BLOCK_BREWING_STAND_BREW, 0.6f, 1f);
+                world.spawnParticle(org.bukkit.Particle.SPELL_WITCH, at, 4, 0.2, 0.1, 0.2, 0);
+                world.spawnParticle(org.bukkit.Particle.BUBBLE_POP, at, 2, 0.15, 0.05, 0.15, 0);
+            }
+            case "sculpting" -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.BLOCK_STONE_HIT, 0.8f, 0.8f + rng.nextFloat() * 0.4f);
+                world.spawnParticle(org.bukkit.Particle.BLOCK_CRACK, at, 6, 0.2, 0.1, 0.2, Material.STONE.createBlockData());
+            }
+            default -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.BLOCK_WOOD_HIT, 0.8f, 1f);
+                world.spawnParticle(org.bukkit.Particle.CRIT, at, 3, 0.2, 0.05, 0.2, 0.05);
+            }
+        }
+    }
+
+    /** 다 만듦: 서버에 제작 요청 → 품질에 따라 드러낸다 */
+    private void complete(Player p, Recipe r, List<MaterialInput> used, Location station) {
         String id = p.getUniqueId().toString(), name = p.getName(), tool = toolId(p, r.tool());
         async.run("craft", () -> {
             int tq = -1;
@@ -187,13 +287,42 @@ public final class StationListener implements Listener {
             return s.crafting.craft(id, name, r.id(), used, tq, null, new SplittableRandom(), null);
         }, res -> {
             busy.remove(p.getUniqueId());
-            p.sendMessage(Ui.info(r.name() + " · " + io.versaera.domain.item.Quality.gradeName(res.quality()) + " " + res.quality() / 10
-                    + (res.xp() > 0 ? "  &7+" + res.xp() : "")));
+            reveal(p, r, res.quality(), station);
+            if (res.xp() > 0) Ui.bar(p, "&7" + s.growth.discipline(r.discipline()).name() + " +" + res.xp());
             sessions.deliver(p);
         }, err -> {
             busy.remove(p.getUniqueId());
             sessions.deliver(p);   // 실패 → 재료가 배달함으로 돌아왔으니 바로 돌려줌
         }, p);
+    }
+
+    /** 품질 등급에 따라: 보통은 짧게, 명품은 큰 제목, 걸작은 서버 전체에 */
+    private void reveal(Player p, Recipe r, int quality, Location at) {
+        int g = io.versaera.domain.item.Quality.grade(quality);
+        String grade = io.versaera.domain.item.Quality.gradeName(quality);
+        org.bukkit.World w = at.getWorld();
+        if (g >= 5) {
+            p.sendTitle(Ui.c("&6&l걸작!"), Ui.c("&f" + r.name()), 5, 80, 20);
+            w.playSound(at, org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.2f, 0.8f);
+            w.spawnParticle(org.bukkit.Particle.END_ROD, at, 120, 0.6, 0.8, 0.6, 0.08);
+            org.bukkit.Bukkit.broadcastMessage(Ui.c("&6[걸작] &f" + p.getName() + " &7— " + r.name()));
+        } else if (g == 4) {
+            p.sendTitle(Ui.c("&d&l명품!"), Ui.c("&f" + r.name()), 5, 60, 15);
+            w.playSound(at, org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1.2f);
+            w.spawnParticle(org.bukkit.Particle.FIREWORKS_SPARK, at, 40, 0.4, 0.5, 0.4, 0.06);
+        } else {
+            w.playSound(at, g >= 2 ? org.bukkit.Sound.ENTITY_PLAYER_LEVELUP : org.bukkit.Sound.ENTITY_ITEM_PICKUP, 0.8f, 1.2f);
+            p.sendMessage(Ui.c(Ui.gradeColor(quality) + grade + " &f" + r.name() + " &7(" + quality / 10 + ")"));
+        }
+    }
+
+    /** 서버 종료: 만들던 재료를 돌려준다 */
+    public void shutdown() {
+        for (var en : works.entrySet()) {
+            Player p = org.bukkit.Bukkit.getPlayer(en.getKey());
+            if (p != null) for (MaterialInput u : en.getValue().used) p.getInventory().addItem(codec.bulk(u.typeId(), u.quality(), u.count()));
+        }
+        works.clear();
     }
 
     private void repair(Player p) {

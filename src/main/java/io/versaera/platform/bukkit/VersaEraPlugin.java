@@ -56,6 +56,8 @@ public final class VersaEraPlugin extends JavaPlugin {
     private GatherListener gather;
     private io.versaera.platform.bukkit.world.BlockRestoreRuntime restore;
     private io.versaera.platform.bukkit.world.FieldMobRuntime fieldMobs;
+    private io.versaera.platform.bukkit.world.SculptingRuntime sculpting;
+    private StationListener stations;
     private BossRuntime bosses;
     private io.versaera.platform.bukkit.world.FieldBossRuntime fieldBosses;
     /** 게임 시각(0 ~ 23). 메인 스레드가 5초마다 갱신하고, DB 스레드의 히든 판정은 이 값만 읽는다 */
@@ -376,6 +378,8 @@ public final class VersaEraPlugin extends JavaPlugin {
         io.versaera.platform.bukkit.world.WeatherRuntime weatherR = new io.versaera.platform.bukkit.world.WeatherRuntime(this, services, regions::regionOf);
         io.versaera.platform.bukkit.world.RaidRuntime raidR = new io.versaera.platform.bukkit.world.RaidRuntime(this, services, async, bosses, regions::regionOf);
         artworkRuntime = new io.versaera.platform.bukkit.world.ArtworkRuntime(this, services, async, codec, regions::regionOf, sessions::deliver);
+        sculpting = new io.versaera.platform.bukkit.world.SculptingRuntime(this, services, async, codec, artworkRuntime, regions::regionOf, sessions::deliver);
+        Bukkit.getPluginManager().registerEvents(sculpting, this);
         io.versaera.platform.bukkit.command.AdventureCommands advCmd = new io.versaera.platform.bukkit.command.AdventureCommands(services, async, codec,
                 sessions::deliver, petRuntime, travelRuntime, raidR, weatherR, artworkRuntime);
         for (String c : List.of("achievements", "title", "record", "pet", "mount", "raid", "weather", "gstorage", "gquest", "sculpt")) {
@@ -403,7 +407,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
                 deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.HeadGear(codec), new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
                 new io.versaera.platform.bukkit.world.TrainingDummies(this, services, async),
-                new StationListener(services, async, codec, sessions), new MenuListener()))
+                (stations = new StationListener(this, services, async, codec, sessions)), new MenuListener()))
             Bukkit.getPluginManager().registerEvents(l, this);
         try {
             startPack();   // 리소스팩은 없어도 게임은 돈다 — 실패해도 나머지는 켠다
@@ -582,6 +586,8 @@ public final class VersaEraPlugin extends JavaPlugin {
         if (npcRuntime != null) npcRuntime.removeAll();
         if (petRuntime != null) petRuntime.dismissAll();
         if (travelRuntime != null) travelRuntime.shutdown();
+        if (sculpting != null) sculpting.shutdown();
+        if (stations != null) stations.shutdown();
         if (artworkRuntime != null) artworkRuntime.shutdown();
         if (pack != null) pack.stop();
         if (gather != null) gather.restoreAll();

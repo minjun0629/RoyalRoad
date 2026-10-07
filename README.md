@@ -32,10 +32,10 @@ gradle build                         # Paper 저장소에서 API 를 받아 빌�
 gradle build -PapiJar=<api.jar>      # 저장소에 접속할 수 없을 때, 가지고 있는 API jar 로 빌드
 ```
 
-결과: `build/libs/VersaEra-0.4.6.jar`
+결과: `build/libs/VersaEra-0.4.7.jar`
 
 ```bash
-gradle release                       # jar 와 리소스팩을 저장소 맨 위(VersaEra-0.4.6.jar · VersaEra-ResourcePack.zip)에 만든다 → 그대로 커밋 · 푸시
+gradle release                       # jar 와 리소스팩을 저장소 맨 위(VersaEra-0.4.7.jar · VersaEra-ResourcePack.zip)에 만든다 → 그대로 커밋 · 푸시
 gradle buildPack                     # 리소스팩만 다시 만들기
 ```
 
@@ -45,7 +45,7 @@ gradle buildPack                     # 리소스팩만 다시 만들기
 
 | 파일 | 할 일 |
 |---|---|
-| [`VersaEra-0.4.6.jar`](VersaEra-0.4.6.jar) | 받아서 서버의 `plugins/` 에 넣고 켜면 끝 |
+| [`VersaEra-0.4.7.jar`](VersaEra-0.4.7.jar) | 받아서 서버의 `plugins/` 에 넣고 켜면 끝 |
 | [`VersaEra-ResourcePack.zip`](VersaEra-ResourcePack.zip) | **받을 필요 없음** — 플러그인이 접속한 플레이어에게 이 파일의 GitHub 주소를 보내고, 플레이어의 게임이 GitHub 에서 직접 받습니다 |
 
 - 서버 포트를 열거나 주소 · 해시를 적을 필요가 없습니다. 플레이어가 어느 IP · 어느 나라에서 접속하든 GitHub 에서 받으므로 그대로 됩니다 (저장소는 공개).

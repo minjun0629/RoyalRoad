@@ -99,6 +99,8 @@ public interface AdventureRepository {
 
     void deleteArtwork(String id);
 
+    void renameArtwork(String id, String title);
+
     /** @return 오늘 처음 감상했으면 true */
     boolean viewArtwork(String artworkId, String uuid, long day);
 
