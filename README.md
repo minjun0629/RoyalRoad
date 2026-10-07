@@ -6,6 +6,10 @@
 - **RpgCraft 와 완전히 분리**되어 있습니다. 코드 · 패키지 · DB · 아이템 id · 명령어 · 리소스팩을 하나도 공유하지 않습니다.
 - 원작의 히든 직업 · 스킬 · 조건은 쓰지 않습니다. 이 게임의 히든 콘텐츠는 서버마다 봉인된 새 조건으로만 열립니다.
 
+![베르사 대륙 지도](docs/img/versa-map.jpg)
+
+지도는 실제 지형 생성기와 같은 계산으로 그린다: `src/test/java/io/versaera/tools/WorldMapRenderer.java` (글꼴: 나눔명조, OFL).
+
 | 문서 | 내용 |
 |---|---|
 | [docs/01_RESEARCH.md](docs/01_RESEARCH.md) | 원작 조사 · 교차 검증 · 분류(CANON / SOURCE-BASED / ORIGINAL / RESEARCH_REQUIRED) |
