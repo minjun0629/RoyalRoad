@@ -126,6 +126,16 @@ public final class SettlementPlanner {
         return new int[]{(r.minX() + r.maxX()) / 2, (r.minZ() + r.maxZ()) / 2, radius / 32 * 32};
     }
 
+    /**
+     * 시작 · 부활 지점 {x, z, 바라볼 방향(도)}. 도시는 광장 안 남쪽 — 분수(반지름 5)와 노점 줄 사이의 큰길 위, 분수를 바라본다.
+     * 도시가 아니면 지역 가운데에서 랜드마크를 피해 남쪽으로 비켜선다.
+     */
+    public static int[] spawnPoint(Region r) {
+        int cx = (r.minX() + r.maxX()) / 2, cz = (r.minZ() + r.maxZ()) / 2;
+        if (isTown(r)) return new int[]{cx, cz + 8, 180};
+        return new int[]{cx, cz + 16, 180};
+    }
+
     // ------------------------------------------------------------------ 도시
     /**
      * 중세 도시: 분수 · 노점 · 가로등이 있는 광장, 돌을 섞어 깐 길, 길을 따라 늘어선 목조 골조 집(문은 길 쪽),

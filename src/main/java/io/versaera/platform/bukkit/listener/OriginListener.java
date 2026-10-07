@@ -59,12 +59,24 @@ public final class OriginListener implements Listener {
     }
 
     /** 초보는 시작 도시 밖으로 못 나간다 — RegionTracker 가 지역이 바뀔 때 부른다 */
-    public String confine(Player p, String regionId) {
+    public String confine(Player p, String regionId, Location to) {
         if (creating.contains(p.getUniqueId())) return "먼저 캐릭터를 만들어야 한다";
         OriginService.Character c = chars.get(p.getUniqueId());
-        if (c == null || !c.beginner(System.currentTimeMillis()) || s.origins.insideCity(c, regionId)) return null;
+        if (c == null || !c.beginner(System.currentTimeMillis()) || inside(c, regionId, to)) return null;
         long left = c.beginnerUntil() - System.currentTimeMillis();
-        return "초보 기간 — 아직 " + c.city().name() + " 밖으로 나갈 수 없다 (현실 " + hours(left) + " 남음)";
+        return "초보 기간 — 아직 " + c.city().name() + " 둘레의 사냥터 밖으로 나갈 수 없다 (현실 " + hours(left) + " 남음)";
+    }
+
+    /** 초보 사냥터 폭: 성벽 밖으로 이만큼 (토끼 · 여우가 나오는 들판) */
+    public static final int HUNTING_RING = 96;
+
+    /** 초보가 다닐 수 있는 곳: 시작 도시 지역 안, 또는 그 도시 성벽에서 HUNTING_RING 블록 안의 들판 */
+    private boolean inside(OriginService.Character c, String regionId, Location at) {
+        if (s.origins.insideCity(c, regionId)) return true;
+        Region city = s.regions.byId(c.city().region());
+        if (city == null || at == null || !io.versaera.domain.terrain.SettlementPlanner.isTown(city) || !city.world().equals(at.getWorld().getName())) return false;
+        int[] g = io.versaera.domain.terrain.SettlementPlanner.townGrid(city);
+        return Math.max(Math.abs(at.getBlockX() - g[0]), Math.abs(at.getBlockZ() - g[1])) <= g[2] + 4 + HUNTING_RING;
     }
 
     public double extraHealth(UUID u) {
@@ -93,7 +105,7 @@ public final class OriginListener implements Listener {
             applyPerks(p, c.get());
             if (c.get().beginner(System.currentTimeMillis())) {
                 Region here = s.regions.at(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ());
-                if (!s.origins.insideCity(c.get(), here == null ? null : here.id())) spawnIn(p, c.get().city());
+                if (!inside(c.get(), here == null ? null : here.id(), p.getLocation())) spawnIn(p, c.get().city());
             }
         }, p);
     }
@@ -242,14 +254,30 @@ public final class OriginListener implements Listener {
         }, p);
     }
 
-    /** 도시 광장 옆 (우물에서 세 칸) 지면 위, 그곳을 부활 지점으로 */
+    /** 도시 광장 (분수 남쪽 큰길 위, 분수를 바라본다). 그 자리가 막혀 있으면 가까운 빈 땅을 찾는다. 그곳을 부활 지점으로 */
     private void spawnIn(Player p, StartCity city) {
         Region r = s.regions.byId(city.region());
         World w = r == null ? null : Bukkit.getWorld(r.world());
         if (w == null) return;
-        int x = (r.minX() + r.maxX()) / 2 + 3, z = (r.minZ() + r.maxZ()) / 2 + 3;
-        Location l = new Location(w, x + 0.5, w.getHighestBlockYAt(x, z) + 1, z + 0.5);
+        int[] sp = io.versaera.domain.terrain.SettlementPlanner.spawnPoint(r);
+        Location l = safe(w, sp[0], sp[1]);
+        l.setYaw(sp[2]);
         p.teleport(l);
         p.setBedSpawnLocation(l, true);
+    }
+
+    /** (x, z) 에서 나선으로 넓혀 가며: 발밑이 단단하고 (물 · 용암 아님) 발 · 머리 칸이 비어 있는 첫 자리 */
+    static Location safe(World w, int x0, int z0) {
+        for (int rad = 0; rad <= 12; rad++)
+            for (int dx = -rad; dx <= rad; dx++)
+                for (int dz = -rad; dz <= rad; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != rad) continue;
+                    int x = x0 + dx, z = z0 + dz, y = w.getHighestBlockYAt(x, z);
+                    Material ground = w.getBlockAt(x, y, z).getType();
+                    if (!ground.isSolid() || ground == Material.LAVA || ground == Material.WATER) continue;
+                    if (!w.getBlockAt(x, y + 1, z).getType().isAir() || !w.getBlockAt(x, y + 2, z).getType().isAir()) continue;
+                    return new Location(w, x + 0.5, y + 1, z + 0.5);
+                }
+        return new Location(w, x0 + 0.5, w.getHighestBlockYAt(x0, z0) + 1, z0 + 0.5);
     }
 }

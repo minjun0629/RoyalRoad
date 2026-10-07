@@ -36,10 +36,20 @@ public final class RegionTracker implements Listener {
     private java.util.function.Predicate<String> blocked = id -> false;
 
     /** 사람마다 막는 지역 (초보 기간의 성문) — 막으면 이유, 아니면 null. 메인 스레드 · 캐시만 본다 */
-    private java.util.function.BiFunction<Player, String, String> confine = (p, id) -> null;
+    /** 못 나가게 막을 이유 (없으면 null) — 지역 id 와 가려는 자리 */
+    public interface Confine {
+        String check(Player p, String regionId, Location to);
+    }
 
-    public void confine(java.util.function.BiFunction<Player, String, String> f) {
+    private Confine confine = (p, id, to) -> null;
+
+    public void confine(Confine f) {
         confine = f;
+    }
+
+    /** 관리자는 크리에이티브 · 관전 모드일 때만 막힘을 무시한다 (서바이벌로 시험할 때는 똑같이 막힌다) */
+    private static boolean bypass(Player p) {
+        return p.hasPermission("versaera.admin") && (p.getGameMode() == org.bukkit.GameMode.CREATIVE || p.getGameMode() == org.bukkit.GameMode.SPECTATOR);
     }
 
     public void gate(java.util.function.Predicate<String> blocked) {
@@ -58,16 +68,17 @@ public final class RegionTracker implements Listener {
         Player p = e.getPlayer();
         Region r = s.regions.at(to.getWorld().getName(), to.getBlockX(), to.getBlockY(), to.getBlockZ());
         String now = r == null ? null : r.id(), before = current.get(p.getUniqueId());
-        if (java.util.Objects.equals(now, before)) return;
-        if (now != null && !p.hasPermission("versaera.admin") && blocked.test(now)) {
-            e.setTo(e.getFrom());
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Ui.c("&7아직 길이 드러나지 않았다")));
-            return;
-        }
-        String held = p.hasPermission("versaera.admin") ? null : confine.apply(p, now);
+        // 초보 기간: 지역이 바뀌지 않아도 (도시 지역 안의 성벽 밖 들판) 매 블록 확인한다
+        String held = bypass(p) ? null : confine.check(p, now, to);
         if (held != null) {
             e.setTo(e.getFrom());
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Ui.c("&7" + held)));
+            return;
+        }
+        if (java.util.Objects.equals(now, before)) return;
+        if (now != null && !bypass(p) && blocked.test(now)) {
+            e.setTo(e.getFrom());
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Ui.c("&7아직 길이 드러나지 않았다")));
             return;
         }
         if (now == null) current.remove(p.getUniqueId());

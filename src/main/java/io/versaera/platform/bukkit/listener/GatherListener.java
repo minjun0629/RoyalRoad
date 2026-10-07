@@ -129,6 +129,11 @@ public final class GatherListener implements Listener {
         }
     }
 
+    /** 자원 블록인가 (캐면 이 리스너가 되살린다) */
+    public boolean node(Material m) {
+        return byBlock.containsKey(m);
+    }
+
     /** 서버 종료: 캐낸 자리를 모두 되살린다 */
     public void restoreAll() {
         for (Regrow r : regrow.values()) r.at().getBlock().setBlockData(r.data(), false);

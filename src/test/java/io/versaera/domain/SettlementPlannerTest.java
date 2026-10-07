@@ -85,6 +85,20 @@ class SettlementPlannerTest {
     }
 
     @Test
+    void startCitySpawnIsOpenGroundNotInsideAFountainOrBuilding() {
+        SettlementPlanner main = plan(42), realms = SettlementPlanner.plan(regions, "versa_realms", 42, npcPlaces());
+        for (var city : c.origins().cities()) {
+            Region r = regions.byId(city.region());
+            int[] sp = SettlementPlanner.spawnPoint(r);
+            for (SettlementPlanner p : List.of(main, realms))
+                for (var st : p.in(sp[0] - 2, sp[1] - 2, sp[0] + 2, sp[1] + 2))
+                    if (st.kind != Kind.ROAD && st.kind != Kind.PLAZA)
+                        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++)
+                            assertFalse(st.covers(sp[0] + dx, sp[1] + dz), city.id() + " 시작 지점이 " + st.kind + " 안");
+        }
+    }
+
+    @Test
     void writesHardenPlanImage() throws Exception {
         Region h = regions.byId("harden");
         int w = h.maxX() - h.minX() + 1, d = h.maxZ() - h.minZ() + 1;

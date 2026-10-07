@@ -54,6 +54,8 @@ public final class VersaEraPlugin extends JavaPlugin {
     private DbExecutor exec;
     private GameServices services;
     private GatherListener gather;
+    private io.versaera.platform.bukkit.world.BlockRestoreRuntime restore;
+    private io.versaera.platform.bukkit.world.FieldMobRuntime fieldMobs;
     private BossRuntime bosses;
     private io.versaera.platform.bukkit.world.FieldBossRuntime fieldBosses;
     /** 게임 시각(0 ~ 23). 메인 스레드가 5초마다 갱신하고, DB 스레드의 히든 판정은 이 값만 읽는다 */
@@ -386,6 +388,16 @@ public final class VersaEraPlugin extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.world.HungerRuntime(this, services,
                     getConfig().getDouble("hunger.hours_per_meal", 8), getConfig().getDouble("hunger.activity_scale", 0.5)), this);
         for (var l : List.<org.bukkit.event.Listener>of(petRuntime, travelRuntime, weatherR, artworkRuntime, advL)) Bukkit.getPluginManager().registerEvents(l, this);
+        if (getConfig().getBoolean("restore.enabled", true)) {
+            final GatherListener g = gather;
+            restore = new io.versaera.platform.bukkit.world.BlockRestoreRuntime(this, getConfig().getLong("restore.delay_seconds", 180),
+                    getConfig().getBoolean("restore.drops", false), b -> realmR.ownerAt(b).isPresent(), g::node);
+            Bukkit.getPluginManager().registerEvents(restore, this);
+        }
+        if (getConfig().getBoolean("field-mobs.enabled", true)) {
+            fieldMobs = new io.versaera.platform.bukkit.world.FieldMobRuntime(this, services);
+            Bukkit.getPluginManager().registerEvents(fieldMobs, this);
+        }
                 InventoryGuard guard = new InventoryGuard(this, services, async, codec);
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
                 deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.HeadGear(codec), new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
@@ -570,6 +582,8 @@ public final class VersaEraPlugin extends JavaPlugin {
         if (artworkRuntime != null) artworkRuntime.shutdown();
         if (pack != null) pack.stop();
         if (gather != null) gather.restoreAll();
+        if (restore != null) restore.restoreAll();
+        if (fieldMobs != null) fieldMobs.removeAll();
         if (exec != null) {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 String id = p.getUniqueId().toString();

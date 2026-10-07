@@ -195,7 +195,7 @@ public final class Medieval {
                 // 굴뚝
                 int cx = x1 + 1, cz = z2 - 1;
                 for (int yy = 1; yy <= y + 2; yy++) b.set(cx, yy, cz, yy <= 3 ? "bricks" : "bricks");
-                b.set(cx, y + 3, cz, "campfire[lit=true,signal_fire=false,facing=north]");
+                b.set(cx, y + 3, cz, "brick_wall");   // 굴뚝 머리 (연기 없음)
                 b.set(cx, 1, cz - 1, "furnace[facing=north,lit=false]");
                 break;
             }
@@ -290,7 +290,7 @@ public final class Medieval {
         b.set(8, 1, 6, "barrel[facing=up]");
         b.set(5, 4, 3, "lantern[hanging=true]");
         for (int y = 1; y <= 11; y++) b.set(1, y, 7, y >= 9 ? "bricks" : "cobblestone");
-        b.set(1, 12 - 1, 7, "campfire[lit=true,signal_fire=true,facing=north]");
+        b.set(1, 12 - 1, 7, "brick_wall");
         return b;
     }
 
