@@ -246,11 +246,74 @@ public final class SecretArtRuntime implements Listener {
                         }, null);
                     }
                 }
+                case "BUFF" -> buff(p, id, a);
+                case "STRIKE" -> strike(p, a, r[0], r[2]);
                 default -> { }
             }
             p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 30, 0.6, 0.8, 0.6, 0.02);
             p.sendMessage(Ui.info(a.name()));
         }, p);
+    }
+
+    /** 범용 버프 비기: potions "효과:세기:초" 를 나 · 파티(16 블록) · 근처 모두(16 블록)에게 */
+    private void buff(Player p, String id, SecretArt a) {
+        List<Player> who = new ArrayList<>();
+        String target = a.params().getOrDefault("target", "self");
+        if (target.equals("near")) {
+            for (Player o : p.getWorld().getPlayers()) if (o.getLocation().distanceSquared(p.getLocation()) <= 16 * 16) who.add(o);
+        } else if (target.equals("party")) {
+            for (String m : s.parties.members(id)) {
+                Player o = Bukkit.getPlayer(UUID.fromString(m));
+                if (o != null && o.getWorld() == p.getWorld() && o.getLocation().distanceSquared(p.getLocation()) <= 16 * 16) who.add(o);
+            }
+        }
+        if (!who.contains(p)) who.add(p);
+        for (String spec : a.params().get("potions").split(",")) {
+            String[] x = spec.trim().split(":");
+            PotionEffectType type = PotionEffectType.getByName(x[0]);
+            if (type == null) continue;
+            for (Player o : who) o.addPotionEffect(new PotionEffect(type, Integer.parseInt(x[2]) * 20, Integer.parseInt(x[1])));
+        }
+        for (Player o : who) if (o != p) o.sendMessage(Ui.info(p.getName() + " — " + a.name()));
+        p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1f, 1.2f);
+    }
+
+    /**
+     * 범용 공격 비기: shape cone(앞쪽 부채꼴) · line(앞으로 곧게) · circle(둘레), range, damage(+ level_bonus × 숙련, + art_bonus × 예술),
+     * hits(몇 번) · interval(틱), slow(맞은 적 느리게 초)
+     */
+    private void strike(Player p, SecretArt a, int level, int artistry) {
+        String shape = a.params().get("shape");
+        double range = a.param("range", 6), dmg = a.param("damage", 10) + a.param("level_bonus", 0) * level + a.param("art_bonus", 0) * artistry;
+        int hits = (int) a.param("hits", 1), every = (int) a.param("interval", 6), slow = (int) a.param("slow", 0);
+        for (int i = 0; i < hits; i++)
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (!p.isOnline()) return;
+                org.bukkit.util.Vector dir = p.getLocation().getDirection().setY(0).normalize();
+                for (Entity e : p.getNearbyEntities(range, 4, range)) {
+                    if (!(e instanceof LivingEntity le) || e instanceof Player || e instanceof ArmorStand) continue;
+                    org.bukkit.util.Vector to = e.getLocation().toVector().subtract(p.getLocation().toVector()).setY(0);
+                    double d = to.length();
+                    if (d > range || d < 1e-3) continue;
+                    boolean in = switch (shape) {
+                        case "cone" -> to.clone().normalize().dot(dir) >= 0.5;
+                        case "line" -> to.dot(dir) > 0 && to.clone().subtract(dir.clone().multiply(to.dot(dir))).length() <= 1.4;
+                        default -> true;
+                    };
+                    if (!in) continue;
+                    CombatListener.rawDamage(le, dmg, p);
+                    if (slow > 0) le.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, slow * 20, 1));
+                }
+                Location c = p.getLocation().add(0, 1, 0);
+                switch (shape) {
+                    case "line" -> { for (double d = 1; d <= range; d += 0.7) p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, c.clone().add(dir.clone().multiply(d)), 1); }
+                    case "cone" -> { for (int k = -4; k <= 4; k++) { double ang = Math.atan2(dir.getZ(), dir.getX()) + k * 0.13;
+                        p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, c.clone().add(Math.cos(ang) * range * 0.6, 0, Math.sin(ang) * range * 0.6), 1); } }
+                    default -> p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, c, 14, range / 2, 0.4, range / 2, 0);
+                }
+                if (slow > 0) p.getWorld().spawnParticle(Particle.SNOWFLAKE, c, 30, range / 2, 0.5, range / 2, 0.02);
+                p.getWorld().playSound(c, org.bukkit.Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.9f);
+            }, (long) i * every);
     }
 
     private void time(Player p, int tier) {

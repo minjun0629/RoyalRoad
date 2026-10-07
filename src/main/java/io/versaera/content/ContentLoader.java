@@ -425,7 +425,14 @@ public final class ContentLoader {
     public static List<io.versaera.domain.art.SecretArt> arts(Map<String, Object> root, String file) {
         return each(root, "arts", file, (id, m) -> new io.versaera.domain.art.SecretArt(id, req(m, "name"), req(m, "job"), req(m, "discipline"),
                 i(m, "min_level", 25), str(m, "relic", null), m.containsKey("discover") ? condition(m.get("discover")) : null, req(m, "effect"),
-                l(m, "cooldown_minutes", 30) * 60_000L, b(m, "final", false), str(m, "description", ""), str(m, "source", "CANON")));
+                l(m, "cooldown_minutes", 30) * 60_000L, b(m, "final", false), str(m, "description", ""), str(m, "source", "CANON"), artParams(m)));
+    }
+
+    private static Map<String, String> artParams(Map<String, Object> m) {
+        Map<String, String> out = new LinkedHashMap<>();
+        if (m.get("params") != null) for (var e : map(m.get("params")).entrySet())
+            out.put(e.getKey(), e.getValue() instanceof List<?> l ? String.join(",", l.stream().map(String::valueOf).toList()) : String.valueOf(e.getValue()));
+        return out;
     }
 
     public static List<io.versaera.domain.world.Gate> gates(Map<String, Object> root, String file) {

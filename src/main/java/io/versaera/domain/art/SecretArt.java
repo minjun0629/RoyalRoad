@@ -13,15 +13,35 @@ import io.versaera.domain.hidden.Condition;
  * @param finalArt 최후의 비기: 같은 직업의 다른 비기를 모두 배워야 한다
  */
 public record SecretArt(String id, String name, String job, String discipline, int minLevel, String relic, Condition discover,
-                        String effect, long cooldownMs, boolean finalArt, String description, String source) {
+                        String effect, long cooldownMs, boolean finalArt, String description, String source, java.util.Map<String, String> params) {
+    /** BUFF · STRIKE 는 params 로 모양을 정하는 범용 효과 (나머지는 비기마다 따로 짠 효과) */
     public static final java.util.Set<String> EFFECTS = java.util.Set.of("COMPANION", "TRANSFORM", "REVIVE", "SPIRITS", "TIME", "FEAST",
-            "BLADE", "DISASTER", "RADIANT", "SPLIT", "OATH", "TWIN");
+            "BLADE", "DISASTER", "RADIANT", "SPLIT", "OATH", "TWIN", "BUFF", "STRIKE");
+    public static final java.util.Set<String> SHAPES = java.util.Set.of("cone", "line", "circle");
+    public static final java.util.Set<String> TARGETS = java.util.Set.of("self", "party", "near");
 
     public SecretArt {
         DomainException.require(id != null && id.matches("[a-z0-9_]+"), "art.bad_id", "비기 id 형식: " + id);
         DomainException.require(EFFECTS.contains(effect), "art.bad_effect", "없는 비기 효과: " + effect);
         DomainException.require(minLevel >= 1 && minLevel <= 31, "art.bad_level", "비기 숙련 레벨은 1 ~ 31: " + id);
         DomainException.require(relic != null || discover != null || finalArt, "art.no_way", "배울 방법이 없는 비기: " + id);
+        params = java.util.Map.copyOf(params == null ? java.util.Map.of() : params);
+        if (effect.equals("BUFF")) {
+            DomainException.require(params.containsKey("potions"), "art.bad_params", "BUFF 비기에 potions 가 없음: " + id);
+            for (String p : params.get("potions").split(","))
+                DomainException.require(p.trim().split(":").length == 3, "art.bad_params", "potions 는 \"효과:세기:초\" 목록: " + id);
+            DomainException.require(TARGETS.contains(params.getOrDefault("target", "self")), "art.bad_params", "target 은 self · party · near: " + id);
+        }
+        if (effect.equals("STRIKE")) {
+            DomainException.require(SHAPES.contains(params.getOrDefault("shape", "")), "art.bad_params", "STRIKE 의 shape 는 cone · line · circle: " + id);
+            DomainException.require(Double.parseDouble(params.getOrDefault("range", "0")) > 0 && Double.parseDouble(params.getOrDefault("damage", "0")) > 0,
+                    "art.bad_params", "STRIKE 에 range · damage: " + id);
+        }
+    }
+
+    public double param(String key, double def) {
+        String v = params.get(key);
+        return v == null ? def : Double.parseDouble(v);
     }
 
     /** 시간 조각술의 단계: 29 초급(시간 가속) · 30 중급(시간 정지) · 31 고급(시간 여행) — 원작의 초급 · 중급 · 고급 */
