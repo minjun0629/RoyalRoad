@@ -1,6 +1,7 @@
 package io.versaera.domain.terrain;
 
 import io.versaera.domain.world.Region;
+import io.versaera.domain.terrain.Medieval.Palette;
 import io.versaera.domain.world.RegionIndex;
 
 import java.util.*;
@@ -21,7 +22,7 @@ public final class SettlementPlanner {
         void set(int x, int y, int z, String material);
     }
 
-    public enum Kind { PLAZA, ROAD, BUILDING, WALL, LANDMARK }
+    public enum Kind { PLAZA, ROAD, BUILDING, DECOR, WALL, LANDMARK }
 
     /** 구조물 하나: 영역(포함) + 열 그리기 */
     public abstract static class Structure {
@@ -99,9 +100,10 @@ public final class SettlementPlanner {
             boolean town = isTown(r);
             SplittableRandom rng = new SplittableRandom(seed ^ r.id().hashCode() * 0x9E3779B97F4A7C15L);
             Style st = Style.of(r, regions);
+            Palette pal = Palette.of(r, regions);
             int cx = (r.minX() + r.maxX()) / 2, cz = (r.minZ() + r.maxZ()) / 2;
             Structure lm = landmark(r, st, cx, cz, town);
-            if (town) town(out, r, st, cx, cz, rng, keepClear, lm);
+            if (town) town(out, r, pal, cx, cz, rng, keepClear, lm);
             if (lm != null) out.add(lm);   // 마지막에 그려서 길 · 광장 위에 선다
             if (t.contains("wall")) out.add(new LongWall(r, st));   // 페드라 성벽 · 알 수 없는 장벽 · 추방의 장벽
         }
@@ -125,157 +127,283 @@ public final class SettlementPlanner {
     }
 
     // ------------------------------------------------------------------ 도시
-    private static void town(List<Structure> out, Region r, Style st, int cx, int cz, SplittableRandom rng, List<int[]> keepClear, Structure landmark) {
-        int radius = townGrid(r)[2];
+    /**
+     * 중세 도시: 분수 · 노점 · 가로등이 있는 광장, 돌을 섞어 깐 길, 길을 따라 늘어선 목조 골조 집(문은 길 쪽),
+     * 광장 둘레에 성당 · 여관 · 대장간, 바깥에 탑과 성문이 있는 성벽 (설계도 = Medieval)
+     */
+    private static void town(List<Structure> out, Region r, Palette p, int cx, int cz, SplittableRandom rng, List<int[]> keepClear, Structure landmark) {
+        int radius = townGrid(r)[2], n = radius / 32;
         List<Structure> roads = new ArrayList<>();
-        Structure plaza = new Plaza(r.id(), cx, cz, 10, st);
-        // 길: 32 블록 간격 격자 (가운데 두 길은 넓게)
-        for (int k = -radius / 32; k <= radius / 32; k++) {
-            int w = k == 0 ? 2 : 1;
-            roads.add(new Road(r.id(), cx + k * 32 - w, cz - radius, cx + k * 32 + w, cz + radius, st));
-            roads.add(new Road(r.id(), cx - radius, cz + k * 32 - w, cx + radius, cz + k * 32 + w, st));
+        Structure plaza = new Plaza(r.id(), cx, cz, 10, p);
+        // 길: 32 블록 간격 격자 (가운데 두 길은 넓게). 성벽 문까지 이어진다
+        for (int k = -n; k <= n; k++) {
+            int w = k == 0 ? 2 : 1, reach = Math.abs(k) == n ? radius + 1 : radius + 8;   // 바깥 두 길은 성벽 안 순환로
+            roads.add(new Road(r.id(), cx + k * 32 - w, cz - reach, cx + k * 32 + w, cz + reach, p));
+            roads.add(new Road(r.id(), cx - reach, cz + k * 32 - w, cx + reach, cz + k * 32 + w, p));
         }
         out.addAll(roads);
-        out.add(plaza);   // 길 다음에 그려서 우물이 남는다
-        // 건물: 길로 나뉜 칸마다 네 귀퉁이에 하나씩 (크기 · 높이는 시드)
-        List<Structure> buildings = new ArrayList<>();
-        for (int gx = -radius / 32; gx < radius / 32; gx++)
-            for (int gz = -radius / 32; gz < radius / 32; gz++) {
-                int x0 = cx + gx * 32 + 3, z0 = cz + gz * 32 + 3;   // 칸 안쪽 (길 폭 빼고)
-                for (int q = 0; q < 4; q++) {
-                    if (rng.nextInt(10) < 2) continue;   // 빈터도 남긴다
-                    int w = 5 + rng.nextInt(5), d = 5 + rng.nextInt(5), h = 4 + rng.nextInt(4);
-                    int bx = q % 2 == 0 ? x0 + 1 : x0 + 26 - w, bz = q < 2 ? z0 + 1 : z0 + 26 - d;
-                    // 문은 가까운 길 쪽
-                    char door = q % 2 == 0 ? (q < 2 ? 'W' : 'W') : 'E';
-                    Building b = new Building(r.id(), bx, bz, bx + w - 1, bz + d - 1, h, door, st);
-                    if (!inside(r, b, 2)) continue;
-                    boolean clash = false;
-                    if (b.overlaps(plaza, 2) || (landmark != null && b.overlaps(landmark, 2))) clash = true;
-                    for (Structure o : roads) if (b.overlaps(o, 0)) clash = true;
-                    for (Structure o : buildings) if (b.overlaps(o, 1)) clash = true;
-                    for (int[] k : keepClear) if (k[0] >= b.minX - 4 && k[0] <= b.maxX + 4 && k[1] >= b.minZ - 4 && k[1] <= b.maxZ + 4) clash = true;
-                    if (!clash) buildings.add(b);
+        out.add(plaza);
+        List<Structure> placed = new ArrayList<>();   // 건물 · 장식 (서로 겹치지 않게)
+        java.util.function.Predicate<Structure> free = b -> {
+            if (!inside(r, b, 2)) return false;
+            if (b.kind == Kind.BUILDING && (b.overlaps(plaza, 2))) return false;
+            if (landmark != null && b.overlaps(landmark, 2)) return false;
+            boolean onPlaza = b.minX >= plaza.minX && b.maxX <= plaza.maxX && b.minZ >= plaza.minZ && b.maxZ <= plaza.maxZ;
+            if (!onPlaza) for (Structure o : roads) if (b.overlaps(o, 0)) return false;
+            for (Structure o : placed) if (b.overlaps(o, 0)) return false;
+            int gap = 1;   // NPC 자리는 길 위라 건물이 덮지만 않으면 된다
+            for (int[] k : keepClear) if (k[0] >= b.minX - gap && k[0] <= b.maxX + gap && k[1] >= b.minZ - gap && k[1] <= b.maxZ + gap) return false;
+            return true;
+        };
+        // 광장: 가운데 분수, 네 귀퉁이에 노점 (가운데를 본다), 분수 둘레 가로등
+        tryPlace(placed, free, new Built(Kind.DECOR, r.id(), cx - 5, cz - 5, Medieval.fountain(), cx, cz, p));
+        for (int sx : new int[]{-1, 1})
+            for (int sz : new int[]{-1, 1}) {
+                Blueprint st = Medieval.stall(p, rng).rotated(sz < 0 ? 2 : 0);
+                int x = sx < 0 ? cx - 10 : cx + 6, z = sz < 0 ? cz - 10 : cz + 7;
+                tryPlace(placed, free, new Built(Kind.DECOR, r.id(), x, z, st, cx, cz, p));
+                tryPlace(placed, free, new Built(Kind.DECOR, r.id(), cx + sx * 6, cz + sz * 6, Medieval.lamp(p), cx, cz, p));
+            }
+        // 광장 둘레의 큰 건물: 북서 칸 = 성당 (문이 남쪽 큰길), 남서 칸 = 여관, 남동 칸 = 대장간 (문이 북쪽 큰길)
+        Blueprint chapel = Medieval.chapel(p, rng).rotated(2);
+        tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 28, cz - 3 - chapel.d, chapel, p));
+        Blueprint tavern = Medieval.tavern(p, rng);
+        tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 15 - tavern.w, cz + 3, tavern, p));
+        Blueprint smithy = Medieval.smithy(p, rng);
+        tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx + 16, cz + 3, smithy, p));
+        // 집: 칸마다 북쪽 줄(문 = 북쪽 길) · 남쪽 줄(문 = 남쪽 길)로 늘어선다. 가운데는 뒷마당
+        for (int gx = -n; gx < n; gx++)
+            for (int gz = -n; gz < n; gz++) {
+                int ix1 = cx + gx * 32 + 3, ix2 = cx + gx * 32 + 29, iz1 = cz + gz * 32 + 3, iz2 = cz + gz * 32 + 29;
+                for (int row = 0; row < 2; row++) {
+                    int x = ix1 + rng.nextInt(2);
+                    while (true) {
+                        int fw = 5 + rng.nextInt(5), fd = 5 + rng.nextInt(4), floors = 1 + rng.nextInt(10) / 4;   // 1층 40% · 2층 40% · 3층 20%
+                        Blueprint h = Medieval.house(p, fw, fd, Math.min(3, floors), rng);
+                        if (row == 1) h = h.rotated(2);
+                        if (x + h.w - 1 > ix2) break;
+                        int z = row == 0 ? iz1 : iz2 - h.d + 1;
+                        if (rng.nextInt(10) >= 1) tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), x, z, h, p));
+                        x += h.w + rng.nextInt(2);
+                    }
                 }
             }
-        out.addAll(buildings);
-        if (r.tags().contains("fortress") || r.tags().contains("outpost")) {
-            int wr = radius + 4;
-            out.add(new Wall(r.id(), cx, cz, wr, st));
+        // 가로등: 큰길을 따라 12 블록마다 길가에
+        for (int k = -n; k <= n; k++) {
+            int w = k == 0 ? 2 : 1;
+            for (int t = -radius + 6; t <= radius - 6; t += 12) {
+                tryPlace(placed, free, new Built(Kind.DECOR, r.id(), cx + k * 32 + w + 1, cz + t, Medieval.lamp(p), p));
+                tryPlace(placed, free, new Built(Kind.DECOR, r.id(), cx + t, cz + k * 32 - w - 1, Medieval.lamp(p), p));
+            }
         }
+        out.addAll(placed);
+        // 성벽: 도시 · 요새 · 전초기지 모두 (탑 · 성문)
+        out.add(new Wall(r.id(), cx, cz, radius + 4, radius, p, keepClear));
+    }
+
+    private static void tryPlace(List<Structure> placed, java.util.function.Predicate<Structure> free, Structure s) {
+        if (free.test(s)) placed.add(s);
     }
 
     private static boolean inside(Region r, Structure s, int margin) {
         return s.minX >= r.minX() + margin && s.maxX <= r.maxX() - margin && s.minZ >= r.minZ() + margin && s.maxZ <= r.maxZ() - margin;
     }
 
-    static final class Plaza extends Structure {
-        private final int cx, cz;
-        private final Style st;
+    /** 지형 흔들림: 같은 좌표 = 같은 값 */
+    static int hash(int x, int z) {
+        int h = x * 0x1f1f1f1f ^ z * 0x5bd1e995;
+        h ^= h >>> 15;
+        h *= 0x2c1b3c6d;
+        return h ^ (h >>> 12);
+    }
 
-        Plaza(String region, int cx, int cz, int half, Style st) {
-            super(Kind.PLAZA, region, cx - half, cz - half, cx + half, cz + half);
-            this.cx = cx;
-            this.cz = cz;
-            this.st = st;
+    static String pickAt(List<String> l, int x, int z) {
+        return l.get(Math.floorMod(hash(x, z), l.size()));
+    }
+
+    /** 설계도 하나를 땅에 세운다: 기준 높이 = 기준점 지형, 비탈은 돌 기초로 메우고 위로 솟은 흙 · 나무는 걷어낸다 */
+    static final class Built extends Structure {
+        final Blueprint bp;
+        private final int ax, az;
+        private final Palette p;
+
+        Built(Kind kind, String region, int minX, int minZ, Blueprint bp, Palette p) {
+            this(kind, region, minX, minZ, bp, minX + bp.w / 2, minZ + bp.d / 2, p);
+        }
+
+        /** @param ax · az 기준 높이를 잴 점 (광장 장식은 광장 가운데) */
+        Built(Kind kind, String region, int minX, int minZ, Blueprint bp, int ax, int az, Palette p) {
+            super(kind, region, minX, minZ, minX + bp.w - 1, minZ + bp.d - 1);
+            this.bp = bp;
+            this.ax = ax;
+            this.az = az;
+            this.p = p;
         }
 
         @Override
         public void column(int x, int z, IntBinaryHeight ground, Sink s) {
-            int y = ground.at(cx, cz);
-            s.set(x, y, z, (x + z) % 2 == 0 ? st.road() : st.trim());
-            for (int dy = 1; dy <= 3; dy++) s.set(x, y + dy, z, "AIR");
-            int dx = Math.abs(x - cx), dz = Math.abs(z - cz);
-            if (dx <= 1 && dz <= 1) {   // 우물
-                s.set(x, y, z, dx == 0 && dz == 0 ? "WATER" : st.trim());
-                if (dx == 1 || dz == 1) s.set(x, y + 1, z, st.trim());
+            int base = ground.at(ax, az), g = ground.at(x, z), bx = x - minX, bz = z - minZ;
+            boolean foot = bp.get(bx, 0, bz) != null;
+            if (foot) for (int y = Math.min(g, base) - 2; y < base; y++) s.set(x, y, z, p.foundation());
+            else if (g != base) {
+                for (int y = g + 1; y < base; y++) s.set(x, y, z, "dirt");
+                s.set(x, base, z, p.flat() ? "sand" : "grass_block");
+            }
+            int top = Math.max(g, base + bp.h + 3);
+            for (int y = 0; base + y <= top; y++) {
+                String b = bp.get(bx, y, bz);
+                if (b != null) s.set(x, base + y, z, b);
+                else if (y > 0) s.set(x, base + y, z, "air");
             }
         }
     }
 
-    static final class Road extends Structure {
-        private final Style st;
+    static final class Plaza extends Structure {
+        private final int cx, cz;
+        private final Palette p;
 
-        Road(String region, int x1, int z1, int x2, int z2, Style st) {
+        Plaza(String region, int cx, int cz, int half, Palette p) {
+            super(Kind.PLAZA, region, cx - half, cz - half, cx + half, cz + half);
+            this.cx = cx;
+            this.cz = cz;
+            this.p = p;
+        }
+
+        @Override
+        public void column(int x, int z, IntBinaryHeight ground, Sink s) {
+            int y = ground.at(cx, cz), g = ground.at(x, z);
+            for (int yy = g + 1; yy < y; yy++) s.set(x, yy, z, p.foundation());
+            int ring = Math.max(Math.abs(x - cx), Math.abs(z - cz));
+            // 바깥 테두리 · 동심 띠는 다듬은 돌, 그 사이는 섞어 깐 돌
+            s.set(x, y, z, ring == maxX - cx || ring % 4 == 0 ? p.foundation().equals("cut_sandstone") ? "cut_sandstone" : "polished_andesite" : pickAt(p.road(), x, z));
+            for (int dy = 1; dy <= Math.max(4, g - y); dy++) s.set(x, y + dy, z, "air");
+            int dx = Math.abs(x - cx), dz = Math.abs(z - cz);
+            if (dx <= 1 && dz <= 1) {   // 분수를 못 세우면 남는 우물
+                s.set(x, y, z, dx == 0 && dz == 0 ? "water" : p.foundation());
+                if (dx == 1 || dz == 1) s.set(x, y + 1, z, p.foundation());
+            }
+        }
+    }
+
+    /** 돌길: 길 재질을 섞어 깔고 (자갈 · 이끼 돌 · 다듬은 돌), 위 4 칸을 비운다 */
+    static final class Road extends Structure {
+        private final Palette p;
+
+        Road(String region, int x1, int z1, int x2, int z2, Palette p) {
             super(Kind.ROAD, region, x1, z1, x2, z2);
-            this.st = st;
+            this.p = p;
         }
 
         @Override
         public void column(int x, int z, IntBinaryHeight ground, Sink s) {
             int y = ground.at(x, z);
-            s.set(x, y, z, st.road());
-            for (int dy = 1; dy <= 3; dy++) s.set(x, y + dy, z, "AIR");
+            s.set(x, y, z, pickAt(p.road(), x, z));
+            s.set(x, y - 1, z, p.foundation());
+            for (int dy = 1; dy <= 4; dy++) s.set(x, y + dy, z, "air");
         }
     }
 
-    /** 장식 건물: 바닥 · 벽(모서리 기둥) · 창 · 문 자리 · 낮은 지붕. 안은 비어 있다 (하우징 아님) */
-    static final class Building extends Structure {
-        final int height;
-        private final char door;
-        private final Style st;
-
-        Building(String region, int x1, int z1, int x2, int z2, int height, char door, Style st) {
-            super(Kind.BUILDING, region, x1, z1, x2, z2);
-            this.height = height;
-            this.door = door;
-            this.st = st;
-        }
-
-        @Override
-        public void column(int x, int z, IntBinaryHeight ground, Sink s) {
-            int base = ground.at((minX + maxX) / 2, (minZ + maxZ) / 2);
-            int g = ground.at(x, z);
-            for (int y = Math.min(g, base) - 2; y < base; y++) s.set(x, y, z, st.trim());   // 기초 (비탈 메우기)
-            s.set(x, base, z, st.floor());
-            boolean edgeX = x == minX || x == maxX, edgeZ = z == minZ || z == maxZ;
-            boolean corner = edgeX && edgeZ, wall = edgeX || edgeZ;
-            int midX = (minX + maxX) / 2, midZ = (minZ + maxZ) / 2;
-            boolean doorCol = switch (door) {
-                case 'E' -> x == maxX && z == midZ;
-                case 'N' -> z == minZ && x == midX;
-                case 'S' -> z == maxZ && x == midX;
-                default -> x == minX && z == midZ;
-            };
-            for (int dy = 1; dy <= height; dy++) {
-                String m;
-                if (!wall) m = "AIR";
-                else if (corner) m = st.corner();
-                else if (doorCol && dy <= 2) m = "AIR";
-                else if (dy == 2 && ((edgeX ? z : x) % 3 == 0)) m = st.window();
-                else m = st.wall();
-                s.set(x, base + dy, z, m);
-            }
-            // 지붕: 가장자리에서 안쪽으로 한 칸씩 올라가는 낮은 지붕
-            int inset = Math.min(Math.min(x - minX, maxX - x), Math.min(z - minZ, maxZ - z));
-            int top = base + height + 1 + Math.min(inset, 2);
-            for (int y = base + height + 1; y <= top; y++) s.set(x, y, z, y == top ? st.roof() : (wall ? st.roof() : "AIR"));
-        }
-    }
-
+    /**
+     * 성벽: 두께 3 · 높이 8 의 돌벽 + 바깥쪽 성가퀴 + 안쪽 통로. 모서리와 길 사이마다 5×5 탑 (높이 13, 꼭대기 성가퀴 · 랜턴),
+     * 길이 지나는 곳은 성문 (폭 5 · 높이 5, 아치 + 문 옆 탑). NPC 자리 둘레는 비운다
+     */
     static final class Wall extends Structure {
-        private final int cx, cz, r;
-        private final Style st;
+        private final int cx, cz, r, radius;
+        private final Palette p;
+        private final List<int[]> clear = new ArrayList<>();
 
-        Wall(String region, int cx, int cz, int r, Style st) {
-            super(Kind.WALL, region, cx - r, cz - r, cx + r, cz + r);
+        Wall(String region, int cx, int cz, int r, int radius, Palette p, List<int[]> keepClear) {
+            super(Kind.WALL, region, cx - r - 2, cz - r - 2, cx + r + 2, cz + r + 2);
             this.cx = cx;
             this.cz = cz;
             this.r = r;
-            this.st = st;
+            this.radius = radius;
+            this.p = p;
+            for (int[] k : keepClear) if (Math.abs(Math.max(Math.abs(k[0] - cx), Math.abs(k[1] - cz)) - r) <= 4) clear.add(k);
+        }
+
+        /** 이 열의 {along, off(바깥 +), tower 중심 along} */
+        private int[] frame(int x, int z) {
+            int ax = x - cx, az = z - cz;
+            int dist = Math.max(Math.abs(ax), Math.abs(az));
+            int along = Math.abs(az) >= Math.abs(ax) ? ax : az;
+            return new int[]{along, dist - r};
+        }
+
+        private boolean gate(int along) {
+            int m = Math.floorMod(along + 16, 32) - 16;
+            return Math.abs(m) <= 2 && Math.abs(along) < radius - 8;
+        }
+
+        /** 가장 가까운 탑 중심 along (모서리 = ±r, 길 사이 = 16 + 32k, 성문 양옆 = 길 ± 5) */
+        private int tower(int along) {
+            int best = Integer.MAX_VALUE;
+            int[] cands = {r, -r, Math.floorDiv(along, 32) * 32 + 16, Math.floorDiv(along, 32) * 32 - 16,
+                    Math.round(along / 32f) * 32 + 5, Math.round(along / 32f) * 32 - 5};
+            for (int c : cands) {
+                if (Math.abs(c) > r) continue;
+                boolean side = Math.floorMod(c, 32) == 5 || Math.floorMod(c, 32) == 27;
+                if (side && !gate(c + (Math.floorMod(c, 32) == 5 ? -5 : 5))) continue;
+                if (!side && Math.abs(c) != r && Math.abs(c) > r - 6) continue;
+                if (Math.abs(c - along) < Math.abs(best - along)) best = c;
+            }
+            return best;
         }
 
         @Override
         public boolean covers(int x, int z) {
-            return super.covers(x, z) && (Math.abs(x - cx) == r || Math.abs(z - cz) == r);
+            if (!super.covers(x, z)) return false;
+            int[] f = frame(x, z);
+            return Math.abs(f[1]) <= 2;
         }
 
         @Override
         public void column(int x, int z, IntBinaryHeight ground, Sink s) {
-            if (Math.abs(x - cx) != r && Math.abs(z - cz) != r) return;
-            boolean gate = Math.abs(x - cx) <= 2 || Math.abs(z - cz) <= 2;   // 큰길 끝은 성문
-            int y = ground.at(x, z);
-            for (int dy = 1; dy <= 6; dy++) s.set(x, y + dy, z, gate && dy <= 4 ? "AIR" : (dy == 6 && (x + z) % 2 == 0 ? "AIR" : st.wall()));
+            int[] f = frame(x, z);
+            int along = f[0], off = f[1];
+            if (Math.abs(off) > 2) return;
+            for (int[] k : clear) if (Math.abs(k[0] - x) <= 3 && Math.abs(k[1] - z) <= 3) return;
+            int g = ground.at(x, z);
+            int t = tower(along);
+            boolean corner = Math.abs(x - cx) >= r - 2 && Math.abs(z - cz) >= r - 2;
+            boolean inTower = corner ? Math.abs(Math.abs(x - cx) - r) <= 2 && Math.abs(Math.abs(z - cz) - r) <= 2 : Math.abs(along - t) <= 2;
+            List<String> stone = p.stone();
+            if (inTower) {
+                boolean ns = Math.abs(z - cz) >= Math.abs(x - cx);
+                int tx = corner || !ns ? cx + Integer.signum(x - cx) * r : cx + t;
+                int tz = corner || ns ? cz + Integer.signum(z - cz) * r : cz + t;
+                int base = ground.at(tx, tz);
+                boolean edge = corner ? (Math.abs(Math.abs(x - cx) - r) == 2 || Math.abs(Math.abs(z - cz) - r) == 2) : (Math.abs(along - t) == 2 || Math.abs(off) == 2);
+                for (int y = Math.min(g, base) - 3; y <= base + 12; y++) s.set(x, y, z, edge || y < base || y == base + 12 ? pickAt(stone, x * 31 + y, z) : "air");
+                s.set(x, base, z, edge ? pickAt(stone, x, z) : p.floor());
+                if (edge && (x == tx || z == tz)) for (int y = base + 5; y <= base + 9; y += 4) s.set(x, y, z, "air");   // 화살 구멍
+                if (edge) s.set(x, base + 13, z, Math.floorMod(x + z, 2) == 0 ? pickAt(stone, x, z) : "air");
+                else s.set(x, base + 13, z, x == tx && z == tz ? "lantern" : "air");
+                for (int y = base + 14; y <= base + 16; y++) s.set(x, y, z, "air");
+                return;
+            }
+            if (Math.abs(off) == 2) return;   // 탑만 두께 5
+            boolean gate = gate(along);
+            for (int y = g - 3; y <= g; y++) s.set(x, y, z, p.foundation());
+            for (int dy = 1; dy <= 7; dy++) {
+                String m = pickAt(stone, x * 7 + dy, z);
+                if (gate && dy <= 5) m = "air";
+                if (gate && dy == 5 && Math.abs(Math.floorMod(along + 16, 32) - 16) == 2) m = "stone_brick_stairs[facing=" + archFacing(x, z, along) + ",half=top,shape=straight]";
+                s.set(x, g + dy, z, m);
+            }
+            // 성가퀴: 바깥줄은 하나 걸러 하나, 안쪽은 통로
+            if (off == 1) s.set(x, g + 8, z, Math.floorMod(along, 2) == 0 ? pickAt(stone, x, z) : "air");
+            else s.set(x, g + 8, z, "air");
+            for (int dy = 9; dy <= 10; dy++) s.set(x, g + dy, z, "air");
+            if (gate && off == 0 && Math.floorMod(along + 16, 32) - 16 == 0) s.set(x, g + 5, z, "lantern[hanging=true]");
+        }
+
+        /** 성문 아치 양끝 계단이 문 안쪽을 보게 */
+        private String archFacing(int x, int z, int along) {
+            boolean ns = Math.abs(z - cz) >= Math.abs(x - cx);   // 북 · 남 벽이면 along = x
+            int m = Math.floorMod(along + 16, 32) - 16;
+            if (ns) return m < 0 ? "west" : "east";
+            return m < 0 ? "north" : "south";
         }
     }
 

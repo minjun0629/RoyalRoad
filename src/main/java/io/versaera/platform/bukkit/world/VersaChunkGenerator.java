@@ -3,7 +3,9 @@ package io.versaera.platform.bukkit.world;
 import io.versaera.domain.terrain.SettlementPlanner;
 import io.versaera.domain.terrain.TerrainModel;
 import io.versaera.domain.world.RegionIndex;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.BlockPopulator;
@@ -12,6 +14,7 @@ import org.bukkit.generator.LimitedRegion;
 import org.bukkit.generator.WorldInfo;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +30,7 @@ public final class VersaChunkGenerator extends ChunkGenerator {
     private final List<int[]> keepClear;
     private final Map<String, TerrainModel> models = new ConcurrentHashMap<>();
     private final Map<String, SettlementPlanner> plans = new ConcurrentHashMap<>();
-    private final Map<String, Material> materials = new ConcurrentHashMap<>();
+    private final Map<String, BlockData> blocks = new ConcurrentHashMap<>();
 
     /** @param keepClear NPC 일과 장소 {x, z} — 건물을 짓지 않을 자리 */
     public VersaChunkGenerator(RegionIndex regions, List<int[]> keepClear) {
@@ -39,10 +42,14 @@ public final class VersaChunkGenerator extends ChunkGenerator {
         return plans.computeIfAbsent(w.getName(), n -> SettlementPlanner.plan(regions, n, w.getSeed(), keepClear));
     }
 
-    private Material material(String name) {
-        return materials.computeIfAbsent(name, n -> {
-            Material m = Material.matchMaterial(n);
-            return m == null ? Material.STONE : m;
+    /** "STONE_BRICKS" · "oak_stairs[facing=north,half=bottom]" → 블록 상태 (한 번 읽고 기억) */
+    private BlockData block(String name) {
+        return blocks.computeIfAbsent(name, n -> {
+            try {
+                return Bukkit.createBlockData("minecraft:" + n.toLowerCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                return Material.STONE.createBlockData();
+            }
         });
     }
 
@@ -156,7 +163,7 @@ public final class VersaChunkGenerator extends ChunkGenerator {
                 }
                 // 도시 · 랜드마크: 이 청크에 걸친 구조물의 열만 그린다
                 SettlementPlanner.Sink sink = (x, y, z, m) -> {
-                    if (region.isInRegion(x, y, z)) region.setType(x, y, z, material(m));
+                    if (region.isInRegion(x, y, z)) region.setBlockData(x, y, z, block(m));
                 };
                 for (SettlementPlanner.Structure st : plan(info).in(x0, z0, x0 + 15, z0 + 15))
                     for (int x = Math.max(x0, st.minX); x <= Math.min(x0 + 15, st.maxX); x++)

@@ -17,6 +17,14 @@ pack:
   public-url: ""   # 내장 서버를 쓸 때 외부 주소 (비우면 http://<server-ip>:<port>/versaera.zip)
   menu-background: true   # 메뉴 제목에 팩 배경 글자를 깐다 (팩을 거부한 사람에겐 네모로 보임)
 
+# 배고픔 (원작: 시간이 지나면 배가 고프고, 굶으면 힘이 빠진다)
+#  hours_per_meal: 배부른 상태가 바닥나기까지 게임 시간 (time.ratio 4 면 게임 1시간 = 현실 15분 → 8 = 현실 2시간)
+#  activity_scale: 뛰고 싸워서 줄어드는 바닐라 소모를 이만큼만 (1 = 바닐라 그대로)
+hunger:
+  enabled: true
+  hours_per_meal: 8
+  activity_scale: 0.5
+
 # 기본 세계를 VersaEra 지형으로 (bukkit.yml 의 worlds.<level-name>.generator 를 플러그인이 자동으로 채운다. 끄려면 false)
 world:
   auto-generator: true

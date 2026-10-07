@@ -69,16 +69,18 @@ public final class SecretArtRuntime implements Listener {
         }, 100L, 100L);
     }
 
+    /** /비기: 익힌 비기(이름 · 효과)와 깨달음이 온 비기(이름만)만 보인다 — 모르는 비기는 있다는 것조차 드러나지 않는다 */
     public void list(Player p) {
         String id = p.getUniqueId().toString();
         async.run("arts", () -> s.arts.status(id), st -> {
-            p.sendMessage(Ui.c("&6── 비기 ──"));
-            for (SecretArtService.Status x : st) {
-                SecretArt a = x.art();
-                String state = x.learned() ? "&a익힘" : x.missing() == null ? "&e배울 수 있음" : "&8" + x.missing();
-                p.sendMessage(Ui.c("&f" + a.name() + " &8(" + a.id() + ") " + state + "\n&7  " + a.description()));
+            List<SecretArtService.Status> known = st.stream().filter(SecretArtService.Status::learned).toList();
+            List<SecretArtService.Status> ready = st.stream().filter(x -> !x.learned() && x.missing() == null).toList();
+            if (known.isEmpty() && ready.isEmpty()) {
+                p.sendMessage(Ui.c("&7익힌 비기가 없다"));
+                return;
             }
-            p.sendMessage(Ui.c("&7/비기 배우기 <id> (조각상을 손에 들고) · /비기 쓰기 <id>"));
+            for (SecretArtService.Status x : known) p.sendMessage(Ui.c("&6" + x.art().name() + "\n&7  " + x.art().description()));
+            for (SecretArtService.Status x : ready) p.sendMessage(Ui.c("&e" + x.art().name() + " &8— 깨달음이 왔다 (" + x.art().id() + ")"));
         }, p);
     }
 
