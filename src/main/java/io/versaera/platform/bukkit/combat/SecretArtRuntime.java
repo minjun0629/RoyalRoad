@@ -6,6 +6,7 @@ import io.versaera.domain.art.SecretArt;
 import io.versaera.platform.bukkit.Async;
 import io.versaera.platform.bukkit.Ui;
 import io.versaera.platform.bukkit.binding.ItemCodec;
+import io.versaera.platform.bukkit.listener.CombatListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -34,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>정령창조 조각술: 정령 셋 (길들인 늑대, 10분)</li>
  *   <li>시간 조각술: 초급 가속 · 중급 정지 · 고급 여행</li>
  *   <li>천상의 맛: 잔치 — 주변 모두 포만 · 재생 · 흡수 + 하루 한 번 영구 인내 기록</li>
+ *   <li>조각 검술 · 대재앙의 자연조각술 · 광휘의 검술 · 분검술 · 명예로운 약속 · 다른 하나의 검</li>
  * </ul>
  */
 public final class SecretArtRuntime implements Listener {
@@ -45,6 +47,12 @@ public final class SecretArtRuntime implements Listener {
     private final Map<String, Long> cooldown = new ConcurrentHashMap<>();
     private final Map<UUID, Long> ward = new ConcurrentHashMap<>();
     private final Map<UUID, Deque<Location>> trail = new ConcurrentHashMap<>();
+    private CombatListener combat;
+
+    /** 다른 하나의 검 (TWIN) 은 전투 계산에 붙는다 */
+    public void combat(CombatListener c) {
+        combat = c;
+    }
 
     public SecretArtRuntime(Plugin plugin, GameServices s, Async async, ItemCodec codec) {
         this.plugin = plugin;
@@ -102,7 +110,7 @@ public final class SecretArtRuntime implements Listener {
                 quality = it.quality();
                 s.items.destroy(hand, id, "조각 생명술", "art-life:" + hand);
             }
-            return new int[]{lv, quality};
+            return new int[]{lv, quality, s.growth.statPoints(id, "artistry")};
         }, r -> {
             if (!p.isOnline()) return;
             SecretArt a = s.arts.art(artId);
@@ -155,6 +163,74 @@ public final class SecretArtRuntime implements Listener {
                     }
                 }
                 case "TIME" -> time(p, SecretArt.timeTier(r[0]));
+                case "BLADE" -> {   // 조각 검술: 앞쪽 부채꼴
+                    double dmg = 12 + r[2] * 0.5;
+                    org.bukkit.util.Vector dir = p.getLocation().getDirection().setY(0).normalize();
+                    for (Entity e : p.getNearbyEntities(7, 3, 7)) {
+                        if (!(e instanceof LivingEntity le) || e instanceof Player || e instanceof ArmorStand) continue;
+                        org.bukkit.util.Vector to = e.getLocation().toVector().subtract(p.getLocation().toVector()).setY(0);
+                        if (to.lengthSquared() > 49 || to.lengthSquared() < 1e-4 || to.normalize().dot(dir) < 0.5) continue;
+                        CombatListener.rawDamage(le, dmg, p);
+                    }
+                    for (int i = 0; i < 20; i++) {
+                        double ang = Math.toRadians(p.getLocation().getYaw() + 90) + (i - 10) * 0.1;
+                        p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().add(Math.cos(ang) * 4, 1, Math.sin(ang) * 4), 1);
+                    }
+                }
+                case "DISASTER" -> {   // 대재앙의 자연조각술: 폭풍 + 벼락 (땅은 부수지 않는 효과 번개)
+                    p.getWorld().setStorm(true);
+                    p.getWorld().setWeatherDuration(30 * 20);
+                    List<LivingEntity> targets = new ArrayList<>();
+                    for (Entity e : p.getNearbyEntities(16, 8, 16)) if (e instanceof Monster m) targets.add(m);
+                    for (int i = 0; i < 6; i++) {
+                        int k = i;
+                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                            if (!p.isOnline()) return;
+                            Location at = targets.isEmpty() ? p.getLocation().add(Math.cos(k) * 8, 0, Math.sin(k) * 8)
+                                    : targets.get(k % targets.size()).getLocation();
+                            p.getWorld().strikeLightningEffect(at);
+                            for (Entity e : p.getWorld().getNearbyEntities(at, 3, 3, 3))
+                                if (e instanceof Monster m) CombatListener.rawDamage(m, 20 + r[2] * 0.3, p);
+                        }, 10L + i * 15L);
+                    }
+                }
+                case "RADIANT" -> {   // 광휘의 검술: 앞으로 14 블록 직선
+                    org.bukkit.util.Vector dir = p.getLocation().getDirection().normalize();
+                    Set<Entity> hit = new HashSet<>();
+                    for (double d = 1; d <= 14; d += 0.5) {
+                        Location at = p.getEyeLocation().add(dir.clone().multiply(d));
+                        p.getWorld().spawnParticle(Particle.END_ROD, at, 2, 0.05, 0.05, 0.05, 0);
+                        for (Entity e : p.getWorld().getNearbyEntities(at, 1.2, 1.2, 1.2))
+                            if (e instanceof LivingEntity le && !(e instanceof Player) && !(e instanceof ArmorStand) && hit.add(e)) {
+                                boolean unholy = CombatListener.kinds(le).contains(io.versaera.domain.item.ItemOptions.Kind.UNDEAD)
+                                        || CombatListener.kinds(le).contains(io.versaera.domain.item.ItemOptions.Kind.DEMON);
+                                CombatListener.rawDamage(le, (25 + r[0]) * (unholy ? 2 : 1), p);
+                            }
+                    }
+                }
+                case "SPLIT" -> {   // 분검술: 주위 6 블록 세 번
+                    for (int i = 0; i < 3; i++)
+                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                            if (!p.isOnline()) return;
+                            for (Entity e : p.getNearbyEntities(6, 3, 6))
+                                if (e instanceof LivingEntity le && !(e instanceof Player) && !(e instanceof ArmorStand)) CombatListener.rawDamage(le, 10 + r[0] * 0.5, p);
+                            p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().add(0, 1, 0), 12, 3, 0.5, 3, 0);
+                        }, i * 6L);
+                }
+                case "OATH" -> {   // 명예로운 약속: 파티 힘 · 저항 1분
+                    for (String m : s.parties.members(id)) {
+                        Player o = Bukkit.getPlayer(UUID.fromString(m));
+                        if (o == null || o.getWorld() != p.getWorld() || o.getLocation().distanceSquared(p.getLocation()) > 16 * 16) continue;
+                        o.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 1200, 0));
+                        o.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 1200, 0));
+                        o.sendMessage(Ui.info(p.getName() + "와(과) 명예로운 약속을 나눴다 (1분)"));
+                    }
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 1200, 0));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 1200, 0));
+                }
+                case "TWIN" -> {
+                    if (combat != null) combat.twin(p.getUniqueId(), 30);
+                }
                 case "FEAST" -> {
                     List<Player> eaters = new ArrayList<>();
                     for (Player o : p.getWorld().getPlayers()) if (o.getLocation().distanceSquared(p.getLocation()) <= 16 * 16) eaters.add(o);

@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * 사망 페널티. 두 방식이 있다 (config death.mode):
- * <p><b>canon</b> (기본, CANON): 원작처럼 숙련 레벨까지 떨어짐 · 행동 스탯 하락 · 무작위 아이템 드롭 — {@link #computeCanon}. (원작의 24시간 접속 불가는 넣지 않음)
+ * <p><b>canon</b> (기본, CANON): 원작처럼 스킬 숙련도 하락(레벨은 그대로) · 행동 스탯 하락 · 무작위 아이템 드롭 — {@link #computeCanon}. (원작의 24시간 접속 불가는 넣지 않음)
  * 악명 · 살인자면 더 크게 (Reputation.deathMult). 초보 기간(성문 밖에 못 나가는 동안)에는 없다.
  * <p><b>soft</b> (ORIGINAL 완화판):
  * <ul>
@@ -52,7 +52,8 @@ public final class DeathPenalty {
     }
 
     /**
-     * 원작식: 분야마다 <b>지금 레벨 한 칸 크기</b>의 (3 + 위험도 × 2)% × 배율을 잃는다 — 진행도가 모자라면 레벨이 내려간다.
+     * 원작식: 분야마다 <b>지금 레벨 한 칸 크기</b>의 (3 + 위험도 × 2)% × 배율을 숙련도에서 잃는다.
+     * 원작에서 스킬 레벨은 죽어도 떨어지지 않고 숙련도만 떨어지므로, 지금 레벨의 진행도까지만 깎는다 (0%에서 멈춤).
      * 드롭: (1 + 위험도/3) × ⌈배율⌉ 칸, 최대 6. 어느 칸이 떨어질지는 서버가 고른다.
      * 스탯: 스탯의 바탕이 되는 행동 기록을 (2 + 위험도)% × 배율 잃는다 (원작: 사망하면 스탯도 떨어진다).
      *
@@ -65,8 +66,10 @@ public final class DeathPenalty {
         Map<String, Long> loss = new LinkedHashMap<>();
         for (Map.Entry<String, Long> e : mastery.entrySet()) {
             long xp = e.getValue();
-            int lv = Math.min(Mastery.levelOf(xp), Mastery.MAX_LEVEL - 1);
-            long l = Math.min(xp, (long) Math.floor(Mastery.need(lv) * pct));
+            int lv = Mastery.levelOf(xp);
+            if (lv >= Mastery.MAX_LEVEL) continue;
+            long into = xp - Mastery.cumulative(lv);
+            long l = Math.min(into, (long) Math.floor(Mastery.need(lv) * pct));
             if (l > 0) loss.put(e.getKey(), l);
         }
         int drops = canonDrops(d, m);

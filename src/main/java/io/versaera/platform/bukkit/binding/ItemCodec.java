@@ -44,8 +44,24 @@ public final class ItemCodec {
         m.setDisplayName(Ui.c(Ui.gradeColor(it.quality()) + (it.props().containsKey("title") ? it.props().get("title") : t.name())));
         List<String> lore = new ArrayList<>();
         lore.add(Ui.c("&7" + Quality.gradeName(it.quality()) + " · " + it.quality() / 10));
-        for (var e : t.stats().entrySet())
-            lore.add(Ui.c("&f" + statName(e.getKey()) + " " + Math.round(e.getValue() * Quality.statMultiplier(it.quality()))));
+        boolean appraised = io.versaera.application.GearService.appraised(it);
+        int hidden = 0;
+        for (var e : t.stats().entrySet()) {
+            boolean h = io.versaera.domain.item.ItemOptions.hidden(e.getKey());
+            if (h && !appraised) { hidden++; continue; }
+            // 속성 피해 · 기본 능력은 품질 배율, 나머지(% · 확률)는 그대로
+            boolean scaled = !h || io.versaera.domain.item.ItemOptions.ELEMENTS.contains(e.getKey());
+            long v = scaled ? Math.round(e.getValue() * Quality.statMultiplier(it.quality())) : e.getValue();
+            lore.add(Ui.c((h ? (e.getValue() < 0 || e.getKey().equals("drain") ? "&c" : "&b") : "&f") + statName(e.getKey()) + " " + v));
+        }
+        if (hidden > 0 || (t.lore() != null && !appraised)) lore.add(Ui.c("&8??? 감정하지 않은 능력" + (hidden > 0 ? " " + hidden + "개" : "") + " (/감정)"));
+        if (t.set() != null && types.sets().containsKey(t.set())) lore.add(Ui.c("&a세트: " + types.sets().get(t.set()).name()));
+        if (!t.requires().isEmpty()) {
+            StringBuilder r = new StringBuilder();
+            for (var e : t.requires().entrySet()) r.append(r.length() == 0 ? "" : " · ").append(requirementName.apply(e.getKey())).append(" ").append(e.getValue());
+            lore.add(Ui.c("&7착용: " + r));
+        }
+        if (appraised && t.lore() != null) lore.add(Ui.c("&o&7" + t.lore()));
         if (it.maxDurability() > 0) lore.add(Ui.c("&7내구 " + it.durability() + "/" + it.maxDurability()));
         if (it.creatorName() != null) lore.add(Ui.c("&8" + it.creatorName()));
         m.setLore(lore);
@@ -76,11 +92,14 @@ public final class ItemCodec {
     }
 
     private static String statName(String k) {
-        return switch (k) {
-            case "attack" -> "공격력";
-            case "defense" -> "방어력";
-            default -> k;
-        };
+        return io.versaera.domain.item.ItemOptions.name(k);
+    }
+
+    private java.util.function.Function<String, String> requirementName = k -> k;
+
+    /** 착용 조건 이름 (mastery.swordsmanship → 검술 …) */
+    public void requirementNames(java.util.function.Function<String, String> f) {
+        requirementName = f;
     }
 
     public String instanceId(ItemStack s) {

@@ -9,12 +9,13 @@ import io.versaera.domain.hidden.Condition;
  *
  * @param relic    이 고유 아이템(손에 듦)을 바치면 배운다 (없으면 null)
  * @param discover 이 조건을 채우면 스스로 깨우친다 (없으면 null)
- * @param effect   COMPANION · TRANSFORM · REVIVE · SPIRITS · TIME · FEAST
+ * @param effect   COMPANION · TRANSFORM · REVIVE · SPIRITS · TIME · FEAST · BLADE · DISASTER · RADIANT · SPLIT · OATH · TWIN
  * @param finalArt 최후의 비기: 같은 직업의 다른 비기를 모두 배워야 한다
  */
 public record SecretArt(String id, String name, String job, String discipline, int minLevel, String relic, Condition discover,
                         String effect, long cooldownMs, boolean finalArt, String description, String source) {
-    public static final java.util.Set<String> EFFECTS = java.util.Set.of("COMPANION", "TRANSFORM", "REVIVE", "SPIRITS", "TIME", "FEAST");
+    public static final java.util.Set<String> EFFECTS = java.util.Set.of("COMPANION", "TRANSFORM", "REVIVE", "SPIRITS", "TIME", "FEAST",
+            "BLADE", "DISASTER", "RADIANT", "SPLIT", "OATH", "TWIN");
 
     public SecretArt {
         DomainException.require(id != null && id.matches("[a-z0-9_]+"), "art.bad_id", "비기 id 형식: " + id);

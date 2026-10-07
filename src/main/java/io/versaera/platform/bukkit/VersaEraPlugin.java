@@ -55,6 +55,7 @@ public final class VersaEraPlugin extends JavaPlugin {
     private GameServices services;
     private GatherListener gather;
     private BossRuntime bosses;
+    private io.versaera.platform.bukkit.world.FieldBossRuntime fieldBosses;
     /** 게임 시각(0 ~ 23). 메인 스레드가 5초마다 갱신하고, DB 스레드의 히든 판정은 이 값만 읽는다 */
     private volatile int gameHour = 12;
     public static final String REALMS = "versa_realms";
@@ -77,9 +78,6 @@ public final class VersaEraPlugin extends JavaPlugin {
             // 원작 규칙 (config.yml): 시간 4배 · 원작식 사망 (숙련 · 스탯 하락 · 아이템 드롭)
             services.rules(new io.versaera.application.ServerRules(getConfig().getString("death.mode", "canon"),
                     new io.versaera.domain.time.GameTime(getConfig().getInt("time.ratio", 4))));
-            // 캡슐 · 이용료 (원작의 현실 쪽 규칙을 게임 골드로) — 기본은 꺼짐
-            services.access.rules(new io.versaera.application.AccessService.Rules(getConfig().getBoolean("access.capsule_required", false),
-                    getConfig().getLong("access.subscription_fee", 0), getConfig().getInt("access.subscription_days", 30)));
             exec = new DbExecutor(getLogger());
             int recovered = exec.submit("recover", services.trades::recover).join();
             if (recovered > 0) getLogger().warning("지난 실행에서 끝나지 않은 거래 " + recovered + "건을 취소하고 아이템을 주인에게 돌려보냈습니다");
@@ -112,14 +110,14 @@ public final class VersaEraPlugin extends JavaPlugin {
                 || (noonOnly.contains(id) && (gameHour < 11 || gameHour > 13)));
         io.versaera.platform.bukkit.listener.OriginListener originL = new io.versaera.platform.bukkit.listener.OriginListener(this, services, async, exec);
         regions.confine(originL::confine);   // 초보 기간: 시작 도시 밖으로 못 나감
-        io.versaera.platform.bukkit.listener.AccessListener accessL = new io.versaera.platform.bukkit.listener.AccessListener(this, services, async, exec);
         io.versaera.platform.bukkit.listener.ReputationListener repL = new io.versaera.platform.bukkit.listener.ReputationListener(this, services, async);
         NpcListener npcs = new NpcListener(this, services, async);
         gather = new GatherListener(this, services, async, codec, sessions);
         bosses = new BossRuntime(this, services, async);
         CombatListener combat = new CombatListener(this, services, async, codec);
         SkillListener skills = new SkillListener(this, services, async, codec, bosses);
-        skills.extraHealth(originL::extraHealth);
+        skills.extraHealth(u -> originL.extraHealth(u) + combat.itemHealth(u));   // 종족 + 장비 체력
+        combat.onHealthChanged(skills::reload);
         dungeons = new DungeonRuntime(this, services, async, bosses);
         dungeons.hints(skills::seesHints);
         Bukkit.getScheduler().runTask(this, dungeons::prepareWorld);
@@ -138,6 +136,14 @@ public final class VersaEraPlugin extends JavaPlugin {
         io.versaera.platform.bukkit.combat.SecretArtRuntime artsR = new io.versaera.platform.bukkit.combat.SecretArtRuntime(this, services, async, codec);
         io.versaera.platform.bukkit.world.IronMenTrial trialR = new io.versaera.platform.bukkit.world.IronMenTrial(this, services, async);
         canonCmd.attach(artsR, trialR);
+        artsR.combat(combat);
+        // 필드 보스 · 생활 스킬 · 감정 (BOS-02 · SKL-05 · ITM-02)
+        fieldBosses = new io.versaera.platform.bukkit.world.FieldBossRuntime(this, services, async, sessions::deliver);
+        io.versaera.platform.bukkit.command.LifeCommands lifeCmd = new io.versaera.platform.bukkit.command.LifeCommands(services, async, codec, combat, fieldBosses, sessions::deliver);
+        for (String c : List.of("appraise", "bandage", "whet", "polish", "iron", "roar", "shatter", "fieldboss")) getCommand(c).setExecutor(lifeCmd);
+        codec.requirementNames(k -> k.startsWith("mastery.") ? services.growth.discipline(k.substring(8)).name()
+                : k.startsWith("stat.") ? services.growth.stats().stream().filter(st -> st.id().equals(k.substring(5))).map(st -> st.name()).findFirst().orElse(k)
+                : k.equals("fame") ? "명성" : k);
         services.realm.emperorReward(getConfig().getLong("emperor.reward_gold", 1_000_000));
         io.versaera.platform.bukkit.world.RealmRuntime realmR = new io.versaera.platform.bukkit.world.RealmRuntime(this, services, async, exec);
         io.versaera.platform.bukkit.command.RealmCommands realmCmd = new io.versaera.platform.bukkit.command.RealmCommands(services, async, codec, realmR);
@@ -145,7 +151,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         for (String c : List.of("party", "donate", "gods", "history", "fame", "arts", "trial")) getCommand(c).setExecutor(canonCmd);
                 InventoryGuard guard = new InventoryGuard(this, services, async, codec);
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
-                deathL, dungeons, maps, originL, repL, accessL, artsR, trialR, realmR, new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
+                deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
                 new io.versaera.platform.bukkit.world.TrainingDummies(this, services, async),
                 new StationListener(services, async, codec, sessions), new MenuListener()))
             Bukkit.getPluginManager().registerEvents(l, this);
@@ -166,7 +172,6 @@ public final class VersaEraPlugin extends JavaPlugin {
         GameCommands gc = new GameCommands(services, async, codec, sessions::deliver, p -> facts(p.getUniqueId().toString(), regions), dungeons);
         for (String c : List.of("job", "quest", "guild", "auction", "dungeon")) getCommand(c).setExecutor(gc);
         AdminCommand ac = new AdminCommand(services, async, codec, npcs, bosses, getDataFolder(), sealer, sessions::deliver);
-        ac.onMinor(accessL::setMinor);
         getCommand("versaadmin").setExecutor(ac);
         getCommand("versaadmin").setTabCompleter(ac);
         for (Player p : Bukkit.getOnlinePlayers()) {   // /reload 대비
@@ -311,6 +316,7 @@ public final class VersaEraPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (bosses != null) bosses.stopAll(false);
+        if (fieldBosses != null) fieldBosses.shutdown();
         if (dungeons != null) dungeons.stopAll();
         if (events != null) events.stop();
         if (npcRuntime != null) npcRuntime.removeAll();

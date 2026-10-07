@@ -63,6 +63,30 @@ commands:
   emperor:
     description: 황제
     aliases: [황제]
+  appraise:
+    description: 손에 든 아이템 감정 (숨은 능력 · 내력)
+    aliases: [감정]
+  bandage:
+    description: 붕대 감기 (붕대 하나로 회복)
+    aliases: [붕대]
+  whet:
+    description: 검 갈기 (숫돌 하나 — 10분 공격력 +)
+    aliases: [검갈기]
+  polish:
+    description: 방어구 닦기 (쇠 · 판금 방어구 — 10분 방어력 +)
+    aliases: [닦기]
+  iron:
+    description: 다림질 (천 · 가죽 방어구 — 10분 방어력 +)
+    aliases: [다림질]
+  roar:
+    description: 사자후 (주위 몬스터를 겁주고 파티원에게 힘)
+    aliases: [사자후]
+  shatter:
+    description: 조각 파괴술 (손에 든 조각품을 부수고 예술 스탯만큼 힘을 얻음)
+    aliases: [조각파괴]
+  fieldboss:
+    description: 필드 보스 목록 · 둥지 · 다시 나타나는 때
+    aliases: [필드보스]
   versaadmin:
     description: VersaEra 관리자
     aliases: [va]

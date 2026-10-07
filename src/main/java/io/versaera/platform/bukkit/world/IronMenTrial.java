@@ -69,17 +69,10 @@ public final class IronMenTrial implements Listener {
             p.sendMessage(Ui.error("지금 다른 사람이 시련 중입니다"));
             return;
         }
-        String id = p.getUniqueId().toString();
-        async.run("trial-start", () -> {
-            s.trials.checkStart(id);
-            return true;
-        }, ok -> {
-            if (run != null || !p.isOnline()) return;
-            World w = p.getWorld();
-            int cx = (hall.minX() + hall.maxX()) / 2, cz = (hall.minZ() + hall.maxZ()) / 2;
-            run = new Run(p.getUniqueId(), new Location(w, cx + 0.5, w.getHighestBlockYAt(cx, cz) + 1, cz + 0.5));
-            p.sendTitle(Ui.c("&6철인 100명"), Ui.c("&7모두 쓰러뜨려라 — 30분"), 10, 50, 15);
-        }, p);
+        World w = p.getWorld();
+        int cx = (hall.minX() + hall.maxX()) / 2, cz = (hall.minZ() + hall.maxZ()) / 2;
+        run = new Run(p.getUniqueId(), new Location(w, cx + 0.5, w.getHighestBlockYAt(cx, cz) + 1, cz + 0.5));
+        p.sendTitle(Ui.c("&6철인 100명"), Ui.c("&7모두 쓰러뜨려라 — 30분"), 10, 50, 15);
     }
 
     public void giveUp(Player p) {
@@ -150,7 +143,7 @@ public final class IronMenTrial implements Listener {
         async.run("trial-clear", () -> s.trials.complete(id), first -> {
             p.sendTitle(Ui.c("&6시련 통과"), Ui.c("&7철인 100명을 모두 이겼다"), 10, 70, 20);
             if (first) {
-                p.sendMessage(Ui.info("명성 +300 · 인내 · 힘 기록 +300"));
+                p.sendMessage(Ui.info("명성 +300 · 인내 · 힘 기록 +300 · 단단한 철검 (곧 인벤토리로)"));
                 Bukkit.broadcastMessage(Ui.info(name + " 님이 초급 수련관의 철인 100명을 모두 이겼습니다"));
             } else p.sendMessage(Ui.c("&7이미 통과한 시련이라 보상은 없습니다"));
         }, p);

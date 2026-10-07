@@ -47,10 +47,12 @@ public final class GameServices {
     public final GateService gates;
     public final OriginService origins;
     public final ReputationService reputation;
-    public final AccessService access;
     public final SecretArtService arts;
     public final TrialService trials;
     public final RealmService realm;
+    public final GearService gear;
+    public final LifeSkillService life;
+    public final FieldBossService fieldBosses;
     /** 파티 (접속 중에만 · 메인 스레드 전용) */
     public final io.versaera.domain.party.Parties parties = new io.versaera.domain.party.Parties();
     private volatile ServerRules rules = ServerRules.CANON;
@@ -70,7 +72,7 @@ public final class GameServices {
         this.progress = new JdbcProgressRepository(db);
         this.audit = new JdbcAuditLog(db, clock);
         WalletRepository wallets = new JdbcWalletRepository(db);
-        ItemTypeRegistry types = new ItemTypeRegistry(content.items());
+        ItemTypeRegistry types = new ItemTypeRegistry(content.items(), content.sets());
         this.items = new ItemService(tx, itemRepo, new JdbcDeliveryRepository(db), types, audit, bus, clock);
         this.economy = new EconomyService(tx, wallets, audit, bus, clock);
         this.trades = new TradeService(tx, new JdbcTradeRepository(db), itemRepo, types, wallets, economy, audit, bus, clock);
@@ -100,17 +102,19 @@ public final class GameServices {
         this.origins = new OriginService(tx, new JdbcOriginRepository(db), content.origins(), regions, items, clock, this::rules);
         this.reputation = new ReputationService(tx, progress, economy, regions, content.gods(), content.temples(), clock);
         deaths.attach(origins, reputation);
-        this.access = new AccessService(tx, progress, economy, clock);
         this.arts = new SecretArtService(tx, progress, content.arts(), this, clock);
         this.trials = new TrialService(tx, progress, this);
         java.util.List<int[]> npcSpots = new java.util.ArrayList<>();
         content.places().values().forEach(m -> m.values().forEach(p -> npcSpots.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
         this.realm = new RealmService(tx, new JdbcRealmRepository(db), this, regions, clock, npcSpots);
+        this.gear = new GearService(tx, itemRepo, this, clock);
+        this.life = new LifeSkillService(tx, this);
         growth.xpBonus(origins::xpMult);   // 종족 숙련 보너스
         this.maps = new MapService(tx, new JdbcMapRepository(db));
         this.skills = new SkillBook(this, content.skills(), content.combos());
         this.bosses = new BossService(tx, new JdbcBossRepository(db), content.bosses(), this, bus, clock);
         market.regionDiscount(worldEvents::shopDiscount);
+        this.fieldBosses = new FieldBossService(tx, progress, content.fieldBosses(), this, clock);
         this.dungeons = new DungeonService(tx, new JdbcDungeonRepository(db), progress, content.dungeons(), this, bus, clock);
         // 퀘스트 진행: 발견 · 제작은 도메인 이벤트로 (같은 DB 스레드에서 동기 처리)
         bus.subscribe(io.versaera.domain.event.GameEvents.PlayerDiscovered.class,

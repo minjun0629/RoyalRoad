@@ -52,8 +52,11 @@
 | PTY-01 | 파티 | CANON | **IMPLEMENTED** | CanonDomainTest |
 | TRN-01 | 수련관 허수아비 · 힘 스탯 | CANON | **IMPLEMENTED** | CanonRulesTest |
 | TRN-02 | 초급 수련관 — 철인 100명 | CANON | **IMPLEMENTED** | CanonRulesTest |
-| ART-01 | 비기 · 최후의 비기 | CANON | **IMPLEMENTED** | CanonRulesTest |
-| ACC-01 | 캡슐 · 이용료 · 연령 제한 | CANON | **IMPLEMENTED** | CanonRulesTest |
+| ART-01 | 비기 · 최후의 비기 (+ 조각 검술 · 자연조각술 · 검사의 비기) | CANON | **IMPLEMENTED** | CanonRulesTest |
+| ITM-05 | 장비 능력 · 착용 조건 · 세트 · 감정 | CANON | **IMPLEMENTED** | GearAndFieldBossTest |
+| ITM-06 | 원작 이름 장비 | CANON | **IMPLEMENTED** | GearAndFieldBossTest, CanonRulesTest, ContentIntegrityTest |
+| BOS-03 | 원작 이름 필드 보스 | CANON | **IMPLEMENTED** | GearAndFieldBossTest |
+| SKL-04 | 생활 스킬 (감정 · 붕대 · 손질 · 도축 · 사자후 · 조각 파괴술 · 일점 공격) | CANON | **IMPLEMENTED** | GearAndFieldBossTest |
 | LND-01 | 땅 | CANON | **IMPLEMENTED** | RealmServiceTest |
 | SHP-01 | 개인 상점 | CANON | **IMPLEMENTED** | RealmServiceTest |
 | CST-01 | 성 · 공성 · 세금 · 수입 | CANON | **IMPLEMENTED** | RealmServiceTest |

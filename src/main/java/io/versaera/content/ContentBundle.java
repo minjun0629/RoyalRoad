@@ -34,14 +34,16 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                             List<io.versaera.domain.faith.God> gods,
                             List<io.versaera.domain.faith.Temple> temples,
                             List<io.versaera.domain.faith.Era> eras,
-                            List<io.versaera.domain.art.SecretArt> arts) {
+                            List<io.versaera.domain.art.SecretArt> arts,
+                            List<io.versaera.domain.item.ItemSet> sets,
+                            List<io.versaera.domain.fieldboss.FieldBoss> fieldBosses) {
     public static final List<String> FILES = List.of("items.yml", "disciplines.yml", "action_stats.yml", "recipes.yml", "resources.yml",
-            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml", "gates.yml", "origins.yml", "gods.yml", "history.yml", "secret_arts.yml");
+            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml", "gates.yml", "origins.yml", "gods.yml", "history.yml", "secret_arts.yml", "field_bosses.yml");
 
     public static ContentBundle load(Function<String, InputStream> opener) {
-        Map<String, Object> skills = read(opener, "skills.yml"), gods = read(opener, "gods.yml");
+        Map<String, Object> skills = read(opener, "skills.yml"), gods = read(opener, "gods.yml"), items = read(opener, "items.yml");
         return new ContentBundle(
-                ContentLoader.items(read(opener, "items.yml"), "items.yml"),
+                ContentLoader.items(items, "items.yml"),
                 ContentLoader.disciplines(read(opener, "disciplines.yml"), "disciplines.yml"),
                 ContentLoader.stats(read(opener, "action_stats.yml"), "action_stats.yml"),
                 ContentLoader.recipes(read(opener, "recipes.yml"), "recipes.yml"),
@@ -62,7 +64,9 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                 ContentLoader.gods(gods, "gods.yml"),
                 ContentLoader.temples(gods, "gods.yml"),
                 ContentLoader.eras(read(opener, "history.yml"), "history.yml"),
-                ContentLoader.arts(read(opener, "secret_arts.yml"), "secret_arts.yml"));
+                ContentLoader.arts(read(opener, "secret_arts.yml"), "secret_arts.yml"),
+                ContentLoader.itemSets(items, "items.yml"),
+                ContentLoader.fieldBosses(read(opener, "field_bosses.yml"), "field_bosses.yml"));
     }
 
     public static ContentBundle fromClasspath(ClassLoader cl) {

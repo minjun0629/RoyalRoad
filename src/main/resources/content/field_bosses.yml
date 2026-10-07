@@ -1,0 +1,207 @@
+# 필드 보스 (BOS-02). 이름은 나무위키 「로열 로드/몬스터」 사용자 제공 본문의 보스 몬스터 (CANON).
+# 둥지 자리 · 몸(바닐라 엔티티) · 체력 · 패턴 · 드롭은 이 게임이 정한 것 (ORIGINAL) — 원작의 정확한 위치가 본문에 없는 보스가 많다.
+# 둥지(region) 64 블록 안에 사람이 오면 나타나고, 쓰러지면 respawn_minutes 뒤 다시 나타난다.
+# mechanics: REGEN(재생) · MINIONS(부하 소환) · FEAR(공포: 둔화 · 나약) · VESSEL(생명의 그릇: 그릇을 먼저 부수지 않으면 한 번 되살아남)
+#            ENRAGE(체력 30% 아래 광폭) · BREATH(앞쪽으로 불길) · FLIGHT(공중 도약)
+# drops: "아이템:품질:확률" — 가장 많이 때린 사람에게. reward: 기여 10% 이상인 사람마다
+field_bosses:
+  van_hawk:
+    name: 데스 나이트 반 호크
+    entity: WITHER_SKELETON
+    region: sendeim_valley
+    hp: 900
+    damage: 14
+    respawn_minutes: 120
+    mechanics: [FEAR, ENRAGE, MINIONS]
+    minion: SKELETON
+    kinds: [UNDEAD]
+    drops: ["van_hawk_helm:700:0.25", "dragon_bone:500:0.3"]
+    reward: {money: 4000, xp: {swordsmanship: 300}, fame: 30}
+    description: "죽음의 기사. 주위를 공포로 얼어붙게 하고 해골 병사를 부른다"
+  torido:
+    name: 뱀파이어 토리도
+    entity: VINDICATOR
+    region: todum_depths
+    hp: 1100
+    damage: 13
+    respawn_minutes: 150
+    mechanics: [REGEN, MINIONS, FLIGHT]
+    minion: BAT
+    kinds: [UNDEAD]
+    drops: ["vampire_blood:600:1.0", "coldrim_demon_sword:600:0.05"]
+    reward: {money: 5000, xp: {swordsmanship: 300}, fame: 40}
+    description: "토둠의 뱀파이어 귀족. 상처가 저절로 아물고 박쥐 떼를 부른다"
+  duke_basra:
+    name: 바스라 대공
+    entity: PIGLIN_BRUTE
+    region: basra_cave
+    hp: 1000
+    damage: 15
+    respawn_minutes: 120
+    mechanics: [FEAR, MINIONS, ENRAGE]
+    minion: ZOMBIFIED_PIGLIN
+    kinds: [DEMON]
+    drops: ["demon_horn:600:1.0", "calamor_sword:650:0.15"]
+    reward: {money: 4500, xp: {swordsmanship: 250}, fame: 30}
+    description: "바스라 마굴의 주인. 부하를 거느리고, 몰리면 날뛴다"
+  lich_shire:
+    name: 리치 샤이어
+    entity: EVOKER
+    region: rotten_lich_dungeon
+    hp: 800
+    damage: 12
+    respawn_minutes: 180
+    mechanics: [VESSEL, MINIONS, FEAR]
+    minion: SKELETON
+    kinds: [UNDEAD]
+    drops: ["lich_phylactery_shard:700:1.0", "saint_staff:650:0.15"]
+    reward: {money: 6000, xp: {spellcraft: 400}, fame: 50}
+    description: "생명의 그릇에 목숨을 숨긴 리치. 그릇을 먼저 부수지 않으면 쓰러져도 다시 일어난다"
+  bone_dragon_kurenberg:
+    name: 본 드래곤 쿠렌베르크
+    entity: RAVAGER
+    region: withered_ruins
+    hp: 1600
+    damage: 20
+    respawn_minutes: 240
+    mechanics: [BREATH, FEAR, ENRAGE]
+    kinds: [UNDEAD, DRAGON, LARGE]
+    drops: ["dragon_bone:800:1.0", "red_star:700:0.05"]
+    reward: {money: 9000, xp: {swordsmanship: 500, archery: 500}, fame: 80}
+    description: "뼈만 남은 용. 썩은 숨결을 내뿜는다"
+  kubicha:
+    name: 쿠비챠
+    entity: HOGLIN
+    region: mist_forest
+    hp: 700
+    damage: 11
+    respawn_minutes: 90
+    mechanics: [ENRAGE, FLIGHT]
+    kinds: [LARGE]
+    drops: ["kubicha_boots:650:0.3", "hide:600:1.0"]
+    reward: {money: 2500, xp: {archery: 200}, fame: 20}
+    description: "안개 숲을 뛰어다니는 보스. 무척 빠르다"
+  montus:
+    name: 몬투스
+    entity: IRON_GOLEM
+    region: giants_mountain
+    hp: 1400
+    damage: 18
+    respawn_minutes: 180
+    mechanics: [ENRAGE, FEAR]
+    kinds: [LARGE]
+    drops: ["talok_armor:650:0.1", "iron_ingot:700:1.0"]
+    reward: {money: 6000, xp: {swordsmanship: 350}, fame: 50}
+    description: "산처럼 큰 보스. 한 번 맞으면 크게 다친다"
+  salamander_king:
+    name: 말살의 불도마뱀 왕
+    entity: BLAZE
+    region: jigolas
+    hp: 1000
+    damage: 14
+    respawn_minutes: 150
+    mechanics: [BREATH, MINIONS, REGEN]
+    minion: MAGMA_CUBE
+    kinds: [DEMON]
+    drops: ["red_star:650:0.05", "sky_metal:700:0.5"]
+    reward: {money: 5000, xp: {spellcraft: 300}, fame: 40}
+    description: "열화의 땅을 다스리는 불도마뱀의 왕. 불길을 뿜고 용암 덩어리를 부른다"
+  belkain:
+    name: 벨카인
+    entity: VINDICATOR
+    region: belkain_lair
+    hp: 900
+    damage: 13
+    respawn_minutes: 120
+    mechanics: [MINIONS, ENRAGE]
+    minion: PILLAGER
+    drops: ["cold_lot_sword:650:0.15", "clay_sword:600:0.3"]
+    reward: {money: 4000, xp: {swordsmanship: 250}, fame: 30}
+    description: "은신처에 숨어 사는 우두머리. 부하를 끌고 다닌다"
+  king_hydra:
+    name: 킹 히드라
+    entity: RAVAGER
+    region: rotten_foam_swamp
+    hp: 1500
+    damage: 16
+    respawn_minutes: 200
+    mechanics: [REGEN, BREATH, ENRAGE]
+    kinds: [LARGE]
+    drops: ["dragon_scale:700:1.0", "chaos_axe:650:0.05"]
+    reward: {money: 7000, xp: {swordsmanship: 400}, fame: 60}
+    description: "늪의 머리 여럿 달린 괴물. 금세 다시 아물어 한꺼번에 몰아쳐야 한다"
+  freikis:
+    name: 프레이키스
+    entity: GHAST
+    region: ulta_range
+    hp: 800
+    damage: 12
+    respawn_minutes: 120
+    mechanics: [FLIGHT, FEAR]
+    kinds: [LARGE]
+    drops: ["yerika_bow:650:0.15", "dragon_scale:600:0.5"]
+    reward: {money: 4000, xp: {archery: 300}, fame: 30}
+    description: "높은 산을 나는 보스. 활이 아니면 잡기 어렵다"
+  barkan:
+    name: 불사의 군단장 바르칸 데몰라
+    entity: EVOKER
+    region: niflheim_wastes
+    hp: 2000
+    damage: 18
+    respawn_minutes: 360
+    mechanics: [VESSEL, MINIONS, FEAR, ENRAGE]
+    minion: ZOMBIE
+    kinds: [UNDEAD]
+    drops: ["lich_phylactery_shard:800:1.0", "agatha_holy_sword:700:0.1", "van_hawk_helm:700:0.1"]
+    reward: {money: 12000, xp: {spellcraft: 600, swordsmanship: 400}, fame: 120}
+    description: "불사의 군단을 이끈 리치. 생명의 그릇과 언데드 군대를 거느린다"
+  keibern:
+    name: 케이베른
+    entity: RAVAGER
+    region: east_peaks
+    hp: 2000
+    damage: 22
+    respawn_minutes: 360
+    mechanics: [BREATH, FEAR, ENRAGE, FLIGHT]
+    kinds: [DRAGON, LARGE]
+    drops: ["dragon_scale:850:1.0", "dragon_bone:850:1.0", "roa_masterpiece:700:0.08"]
+    reward: {money: 15000, xp: {swordsmanship: 700, archery: 700}, fame: 150}
+    description: "용. 숨결 한 번에 사람 여럿이 쓰러진다"
+  randoni:
+    name: 랜도니
+    entity: RAVAGER
+    region: randoni_lair
+    hp: 2048
+    damage: 24
+    respawn_minutes: 480
+    mechanics: [BREATH, FEAR, ENRAGE, REGEN]
+    kinds: [DRAGON, LARGE]
+    drops: ["dragon_scale:900:1.0", "red_star:750:0.1"]
+    reward: {money: 18000, xp: {swordsmanship: 800, archery: 800}, fame: 200}
+    description: "대화산 레어의 용"
+  mahilgorta:
+    name: 마힐고르타
+    entity: WITHER_SKELETON
+    region: devil_gate
+    hp: 1800
+    damage: 20
+    respawn_minutes: 300
+    mechanics: [FEAR, MINIONS, ENRAGE, REGEN]
+    minion: VEX
+    kinds: [DEMON]
+    drops: ["demon_horn:800:1.0", "coldrim_demon_sword:700:0.1"]
+    reward: {money: 12000, xp: {swordsmanship: 600}, fame: 120}
+    description: "악마계의 문을 지키는 악마"
+  kleta:
+    name: 클레타
+    entity: PIGLIN_BRUTE
+    region: hell_rift
+    hp: 1500
+    damage: 18
+    respawn_minutes: 240
+    mechanics: [ENRAGE, MINIONS, BREATH]
+    minion: BLAZE
+    kinds: [DEMON]
+    drops: ["demon_horn:750:1.0", "chaos_axe:650:0.08"]
+    reward: {money: 9000, xp: {swordsmanship: 500}, fame: 80}
+    description: "지옥의 틈에 사는 보스"

@@ -19,3 +19,10 @@ disciplines:
   trading:       {name: 교역,     category: SOCIAL,      source: ORIGINAL}
   spellcraft:    {name: 마법,     category: COMBAT,      source: SOURCE-BASED}
   woodworking:   {name: 목공,     category: PRODUCTION,  hand: true, source: ORIGINAL}
+  # 생활 스킬 (원작: 감정 · 붕대 감기 · 검 갈기 · 방어구 닦기 · 다림질 · 도축 — CANON 이름, 효과 수치는 ORIGINAL)
+  appraisal:     {name: 감정,     category: SUPPORT,     source: CANON}
+  bandaging:     {name: 붕대 감기, category: SUPPORT,    hand: true, source: CANON}
+  whetting:      {name: 검 갈기,  category: SUPPORT,     hand: true, source: CANON}
+  polishing:     {name: 방어구 닦기, category: SUPPORT,  hand: true, source: CANON}
+  ironing:       {name: 다림질,   category: SUPPORT,     hand: true, source: CANON}
+  butchery:      {name: 도축,     category: GATHERING,   hand: true, source: CANON}

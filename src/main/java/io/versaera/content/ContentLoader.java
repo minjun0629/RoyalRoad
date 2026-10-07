@@ -133,7 +133,37 @@ public final class ContentLoader {
     public static List<ItemType> items(Map<String, Object> root, String file) {
         return each(root, "items", file, (id, m) -> new ItemType(id, req(m, "name"), ItemCategory.valueOf(req(m, "category")), req(m, "material"),
                 i(m, "durability", 0), i(m, "weight", 0), new LinkedHashSet<>(list(m, "tags")), intMap(m, "stats"), intMap(m, "requires"),
-                str(m, "source", "ORIGINAL")));
+                str(m, "source", "ORIGINAL"), str(m, "lore", null), str(m, "set", null)));
+    }
+
+    /** items.yml 의 sets (없어도 됨) */
+    public static List<io.versaera.domain.item.ItemSet> itemSets(Map<String, Object> root, String file) {
+        if (!root.containsKey("sets")) return List.of();
+        return each(root, "sets", file, (id, m) -> {
+            Map<Integer, Map<String, Integer>> b = new LinkedHashMap<>();
+            Object raw = m.get("bonuses");   // 키가 숫자라 YAML 이 Integer 로 읽는다
+            if (raw instanceof Map<?, ?> rb) for (var e : rb.entrySet()) {
+                Map<String, Integer> v = new LinkedHashMap<>();
+                if (e.getValue() instanceof Map<?, ?> rv) for (var x : rv.entrySet()) v.put(x.getKey().toString(), ((Number) x.getValue()).intValue());
+                b.put(Integer.parseInt(e.getKey().toString()), v);
+            }
+            return new io.versaera.domain.item.ItemSet(id, req(m, "name"), b, str(m, "source", "ORIGINAL"));
+        });
+    }
+
+    public static List<io.versaera.domain.fieldboss.FieldBoss> fieldBosses(Map<String, Object> root, String file) {
+        return each(root, "field_bosses", file, (id, m) -> {
+            List<io.versaera.domain.fieldboss.FieldBoss.Drop> drops = new ArrayList<>();
+            for (String x : list(m, "drops")) {   // "item:품질:확률"
+                String[] p = x.split(":");
+                drops.add(new io.versaera.domain.fieldboss.FieldBoss.Drop(p[0], Integer.parseInt(p[1]), Double.parseDouble(p[2])));
+            }
+            Set<io.versaera.domain.item.ItemOptions.Kind> kinds = new LinkedHashSet<>();
+            for (String k : list(m, "kinds")) kinds.add(io.versaera.domain.item.ItemOptions.Kind.valueOf(k));
+            return new io.versaera.domain.fieldboss.FieldBoss(id, req(m, "name"), req(m, "entity"), req(m, "region"), d(m, "hp", 100), d(m, "damage", 6),
+                    i(m, "respawn_minutes", 60), new LinkedHashSet<>(list(m, "mechanics")), str(m, "minion", null), kinds, drops,
+                    reward(m.get("reward")), str(m, "description", ""), str(m, "source", "CANON"));
+        });
     }
 
     public static List<Discipline> disciplines(Map<String, Object> root, String file) {

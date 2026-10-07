@@ -46,6 +46,34 @@ prices:
   relic_transform_statue: 5000
   relic_revival_statue: 8000
   emperor_crown: 500000
+  hard_iron_sword: 900
+  zahab_carving_knife: 60000
+  clay_sword: 2500
+  calamor_sword: 6000
+  agatha_holy_sword: 15000
+  cold_lot_sword: 12000
+  coldrim_demon_sword: 45000
+  roa_masterpiece: 30000
+  red_star: 60000
+  chaos_axe: 50000
+  yerika_bow: 14000
+  saint_staff: 14000
+  graham_helm: 3000
+  graham_plate: 5000
+  graham_greaves: 4000
+  graham_boots: 3000
+  talok_helm: 9000
+  talok_armor: 14000
+  van_hawk_helm: 25000
+  kubicha_boots: 8000
+  dragon_bone: 900
+  dragon_scale: 700
+  vampire_blood: 300
+  demon_horn: 500
+  lich_phylactery_shard: 1200
+  bandage: 8
+  whetstone: 15
+  raw_meat: 5
   smithing_hammer: 120
   carving_knife: 110
   sewing_kit: 90

@@ -94,8 +94,6 @@ public final class RegionTracker implements Listener {
     private void cross(Player p, io.versaera.domain.world.Gate g) {
         String id = p.getUniqueId().toString();
         async.run("gate", () -> {
-            if (s.access.minor(id) && g.minExploration() > 1)
-                throw io.versaera.domain.common.DomainException.of("gate.minor", "미성년 보호 대상은 다른 차원으로 건너갈 수 없습니다");
             return s.gates.check(id, g);
         }, d -> {
             if (!p.isOnline()) return;

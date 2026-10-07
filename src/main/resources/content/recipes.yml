@@ -17,11 +17,15 @@ recipes:
                      slots: {head: {accepts: "type:silver_ingot", count: 2, weight: 3}, shaft: {accepts: "type:highland_timber", count: 2}}}
   forge_knife:      {name: 조각칼,    discipline: smithing, min_level: 2, action_level: 3, output: carving_knife, xp: 15,
                      slots: {blade: {accepts: "type:iron_ingot", count: 1, weight: 2}, handle: {accepts: "tag:wood", count: 1}}}
+  grind_whetstone:  {name: 숫돌,     discipline: smithing, min_level: 1, action_level: 1, output: whetstone, xp: 3,
+                     slots: {stone: {accepts: "type:sandstone_block", count: 1}}}
   forge_pickaxe:    {name: 철 곡괭이, discipline: smithing, min_level: 2, action_level: 3, output: iron_pickaxe, xp: 15,
                      slots: {head: {accepts: "type:iron_ingot", count: 3, weight: 2}, handle: {accepts: "tag:wood", count: 2}}}
   # ---- 재봉 · 가죽
   weave_linen:      {name: 리넨 짜기, discipline: tailoring, min_level: 1, action_level: 1, output: linen_cloth, xp: 6,
                      slots: {fiber: {accepts: "type:flax_fiber", count: 3}}}
+  cut_bandage:      {name: 붕대,     discipline: tailoring, min_level: 1, action_level: 1, output: bandage, xp: 3,
+                     slots: {cloth: {accepts: "type:linen_cloth", count: 1}}}
   sew_robe:         {name: 리넨 로브, discipline: tailoring, min_level: 3, action_level: 5, output: linen_robe, tool: tool_sewing, xp: 25,
                      slots: {cloth: {accepts: "tag:cloth", count: 4, weight: 3}, dye: {accepts: "tag:dye", count: 1, optional: true, bonus: 50}}}
   tan_leather:      {name: 무두질,   discipline: leatherwork, min_level: 1, action_level: 1, output: leather, xp: 6,

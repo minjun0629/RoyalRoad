@@ -94,8 +94,6 @@ public final class DungeonService {
         DomainException.require(party.size() >= d.minParty() && party.size() <= d.maxParty(), "dungeon.party",
                 d.name() + " 은(는) " + d.minParty() + " ~ " + d.maxParty() + "명이 들어갈 수 있습니다");
         for (String m : party) DomainException.require(!runOf.containsKey(m), "dungeon.busy", "이미 던전에 들어가 있는 사람이 있습니다");
-        if (s.access != null)   // 연령 제한 (ACC-01): 미성년은 전투 모험 불가
-            for (String m : party) DomainException.require(!s.access.minor(m), "dungeon.minor", "미성년 보호 대상은 던전에 들어갈 수 없습니다");
         String id = UUID.randomUUID().toString();
         DungeonRun run = new DungeonRun(DungeonLayout.generate(seed, d.rooms()), party, clock.nowMillis(), d.timeLimitMs(), d.levers());
         tx.inTx(() -> {

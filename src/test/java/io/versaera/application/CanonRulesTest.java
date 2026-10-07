@@ -50,7 +50,7 @@ class CanonRulesTest {
     }
 
     @Test
-    void beginnersDieWithoutPenaltyThenCanonDeathTakesLevelsStatsAndItems() throws Exception {
+    void beginnersDieWithoutPenaltyThenCanonDeathTakesProficiencyStatsAndItems() throws Exception {
         try (TestWorld w = new TestWorld()) {
             String p = TestWorld.player();
             w.s.origins.create(p, "human", Gender.MALE, "serabourg");
@@ -68,7 +68,8 @@ class CanonRulesTest {
             w.now.addAndGet(8L * 86_400_000L);
             var o = w.s.deaths.die(p, "fallen_crater", 4, List.of());
             assertFalse(o.beginner());
-            assertEquals(5, w.s.growth.level(p, "mining"), "원작식: 진행도가 모자라면 레벨이 떨어진다");
+            assertEquals(6, w.s.growth.level(p, "mining"), "원작식: 스킬 레벨은 떨어지지 않는다");
+            assertEquals(Mastery.cumulative(6), w.s.growth.xp(p, "mining"), "숙련도만 0%까지 떨어진다");
             assertTrue(o.penalty().drops() >= 1, "무작위 아이템 드롭");
             assertEquals(2000 - 120, w.s.growth.counter(p, "talk.npc"), "원작식: 스탯 바탕 기록이 (2 + 위험도)% 준다");
             assertTrue(w.s.growth.statPoints(p, "charm") < charmBefore, "스탯이 떨어진다");
@@ -87,7 +88,7 @@ class CanonRulesTest {
             assertFalse(w.s.reputation.standing(c).murderer());
             // 사망 페널티가 더 크다
             assertTrue(Reputation.deathMult(sa.notoriety(), true) >= 2);
-            Map<String, Long> m = Map.of("mining", Mastery.cumulative(10));
+            Map<String, Long> m = Map.of("mining", Mastery.cumulative(10) + Mastery.need(10) - 1);
             assertTrue(DeathPenalty.computeCanon(m, Map.of(), 2, 2).totalXpLoss() > DeathPenalty.computeCanon(m, Map.of(), 2, 1).totalXpLoss());
             // 몬스터 사냥으로 씻긴다
             w.s.reputation.monsterKilled(a);
@@ -119,38 +120,6 @@ class CanonRulesTest {
         assertEquals("명사", Reputation.fameName(5_000));
     }
 
-    @Test
-    void capsuleSubscriptionAndMinorRules() throws Exception {
-        try (TestWorld w = new TestWorld()) {
-            String p = TestWorld.player();
-            assertNull(w.s.access.admit(p), "기본은 모두 꺼짐");
-            w.s.access.rules(new AccessService.Rules(true, 1000, 30));
-            String q = TestWorld.player();
-            assertNotNull(w.s.access.admit(q), "캡슐이 없으면 못 들어온다");
-            w.s.access.registerCapsule(q);
-            assertNull(w.s.access.admit(q), "첫 30일은 무료");
-            long until = w.s.access.paidUntil(q);
-            w.now.addAndGet(31L * 86_400_000L);
-            assertNotNull(w.s.access.admit(q), "기간이 끝나고 돈이 없으면 못 들어온다");
-            w.s.economy.deposit(q, 1500, "test", "q1");
-            assertNull(w.s.access.admit(q), "돈이 있으면 자동 결제");
-            assertEquals(500, w.s.economy.balance(q));
-            assertTrue(w.s.access.paidUntil(q) > until + 30L * 86_400_000L);
-            assertNull(w.s.access.admit(q), "같은 기간에 두 번 내지 않는다");
-            assertEquals(500, w.s.economy.balance(q));
-            // 미성년: 던전에 못 들어간다
-            w.s.access.setMinor(q, true);
-            assertTrue(w.s.access.minor(q));
-            String dungeon = w.s.content.dungeons().get(0).id();
-            int min = w.s.content.dungeons().get(0).minParty();
-            java.util.List<String> party = new java.util.ArrayList<>(List.of(q));
-            while (party.size() < min) party.add(TestWorld.player());
-            assertThrows(DomainException.class, () -> w.s.dungeons.start(dungeon, party, 1));
-            w.s.access.setMinor(q, false);
-            assertFalse(w.s.access.minor(q));
-        }
-    }
-
     private static String relic(TestWorld w, String owner, String type) {
         var it = w.s.items.create(type, 700, null, "test", "test", Map.of(), owner, "relic:" + owner + ":" + type);
         w.s.items.confirmDelivered(it.id(), owner);
@@ -177,14 +146,18 @@ class CanonRulesTest {
             assertThrows(DomainException.class, () -> w.s.arts.learn(p, "time_sculpting", null), "다른 비기를 다 익혀야 최후의 비기");
             w.s.tx.inTx(() -> {
                 w.s.progress.addCounter(p, "art.experience", 2000);
-                w.s.progress.addCounter(p, "craft.sculpting", 3000);
-                w.s.progress.setMasteryXp(p, "exploration", Mastery.cumulative(15));
+                w.s.progress.addCounter(p, "craft.sculpting", 4000);
+                w.s.progress.setMasteryXp(p, "exploration", Mastery.cumulative(18));
+                w.s.progress.setMasteryXp(p, "swordsmanship", Mastery.cumulative(10));
                 w.s.progress.setMasteryXp(p, "sculpting", Mastery.cumulative(29));
                 return null;
             });
             assertEquals("discover", w.s.arts.learn(p, "sculpt_transform", null), "스스로 깨우친다");
             assertEquals("discover", w.s.arts.learn(p, "spirit_creation", null), "정령창조 조각술은 스스로");
             assertEquals("relic", w.s.arts.learn(p, "sculpt_revival", relic(w, p, "relic_revival_statue")));
+            assertEquals("discover", w.s.arts.learn(p, "sculpting_swordsmanship", null), "조각 검술: 조각 + 검술");
+            assertEquals("discover", w.s.arts.learn(p, "nature_sculpting", null), "대재앙의 자연조각술");
+            assertThrows(DomainException.class, () -> w.s.arts.learn(p, "radiant_sword", null), "검사의 비기는 검사만");
             assertEquals("final", w.s.arts.learn(p, "time_sculpting", null));
             assertEquals(1, io.versaera.domain.art.SecretArt.timeTier(w.s.arts.castLevel(p, "time_sculpting")), "숙련 29 = 초급 시간 가속");
             assertEquals(3, io.versaera.domain.art.SecretArt.timeTier(31));
@@ -200,14 +173,12 @@ class CanonRulesTest {
     void ironMenTrialRewardsOnce() throws Exception {
         try (TestWorld w = new TestWorld()) {
             String p = TestWorld.player();
-            w.s.trials.checkStart(p);
             assertTrue(w.s.trials.complete(p));
             assertFalse(w.s.trials.complete(p), "보상은 처음 한 번");
             assertTrue(w.s.trials.cleared(p));
             assertEquals(300, w.s.reputation.standing(p).fame());
             assertEquals(300, w.s.growth.counter(p, "hit.training"));
-            w.s.access.setMinor(p, true);
-            assertThrows(DomainException.class, () -> w.s.trials.checkStart(p));
+            assertEquals(1, w.s.items.pendingDeliveries(p).stream().filter(it -> it.typeId().equals("hard_iron_sword")).count(), "단단한 철검은 한 번");
         }
     }
 }
