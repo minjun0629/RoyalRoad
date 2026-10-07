@@ -119,6 +119,35 @@ class NpcWorldTest {
     }
 
     @Test
+    void trainingInstructorGivesAPracticeSwordOnceAndCountsDummyHits() throws Exception {
+        try (TestWorld w = new TestWorld()) {
+            String p = TestWorld.player();
+            var instructors = w.s.npcWorld.profiles().stream().filter(x -> x.archetype().equals("drill_instructor")).toList();
+            assertTrue(instructors.size() >= 20, "도시마다 훈련 교관: " + instructors.size());
+            String first = instructors.get(0).id(), other = instructors.stream().filter(x -> !w.s.relations.npc(x.id()).region().equals(w.s.relations.npc(first).region()))
+                    .findFirst().orElseThrow().id();
+            assertFalse(w.s.npcWorld.giftTaken(p, first));
+            assertTrue(w.s.npcWorld.receiveGift(p, first).isEmpty(), "게임 아이템만 (바닐라 없음)");
+            assertTrue(w.s.items.pendingDeliveries(p).stream().anyMatch(it -> it.typeId().equals("practice_sword")), "수련용 목검");
+            assertTrue(w.s.items.pendingBulk(p).stream().anyMatch(b -> b.typeId().equals("bandage")), "붕대");
+            assertTrue(w.s.npcWorld.giftTaken(p, first));
+            assertThrows(DomainException.class, () -> w.s.npcWorld.receiveGift(p, first), "한 번만");
+            assertThrows(DomainException.class, () -> w.s.npcWorld.receiveGift(p, other), "다른 도시의 교관에게도 다시 받을 수 없다");
+            // 궁술 교관: 바닐라 화살은 플랫폼이 준다
+            String archer = w.s.npcWorld.profiles().stream().filter(x -> x.archetype().equals("archery_instructor")).findFirst().orElseThrow().id();
+            assertEquals(java.util.List.of("minecraft:arrow:64"), w.s.npcWorld.receiveGift(p, archer));
+            // 허수아비 백 번
+            var q = w.s.quests.all().stream().filter(x -> first.equals(x.giver()) && x.objectives().get(0).type() == io.versaera.domain.quest.QuestDefinition.Type.TRAIN
+                    && !x.daily()).findFirst().orElseThrow();
+            w.s.quests.accept(p, q.id(), w.s.facts(p, null, 12));
+            w.s.quests.record(p, io.versaera.domain.quest.QuestDefinition.Type.KILL, "dummy", 100, 0);
+            assertThrows(DomainException.class, () -> w.s.quests.complete(p, "P", q.id(), null, java.util.List.of()), "처치로는 안 센다");
+            w.s.quests.record(p, io.versaera.domain.quest.QuestDefinition.Type.TRAIN, "dummy", 100, 0);
+            assertTrue(w.s.quests.complete(p, "P", q.id(), null, java.util.List.of()).money() > 0);
+        }
+    }
+
+    @Test
     void questCompletionIsRememberedAndHelpsTheRegion() throws Exception {
         try (TestWorld w = new TestWorld()) {
             String p = TestWorld.player();

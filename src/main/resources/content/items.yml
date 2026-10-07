@@ -49,6 +49,10 @@ items:
   # ---- 무기 · 방어구 (고유)
   iron_longsword:  {name: 철 장검,     category: WEAPON, material: IRON_SWORD,  durability: 400, weight: 4, tags: [sword], stats: {attack: 12}, requires: {mastery.swordsmanship: 3}}
   iron_dagger:     {name: 철 단검,     category: WEAPON, material: IRON_SWORD,  durability: 300, weight: 2, tags: [dagger], stats: {attack: 8}}
+  practice_sword:  {name: 수련용 목검, category: WEAPON, material: WOODEN_SWORD, durability: 500, weight: 2, tags: [sword, practice], stats: {attack: 5}, source: SOURCE-BASED,
+                    lore: "훈련 교관이 처음 온 사람에게 쥐여 주는 목검. 가볍고 잘 부러지지 않는다"}
+  practice_bow:    {name: 수련용 활,   category: WEAPON, material: BOW,          durability: 400, weight: 1, tags: [bow, practice], stats: {attack: 6}, source: ORIGINAL,
+                    lore: "궁술 교관이 빌려주는 짧은 활. 과녁 연습에 알맞다"}
   ash_bow:         {name: 물푸레 활,   category: WEAPON, material: BOW,         durability: 300, weight: 2, tags: [bow], stats: {attack: 10}}
   oak_staff:       {name: 참나무 지팡이, category: WEAPON, material: STICK, durability: 280, weight: 2, tags: [staff], stats: {attack: 9}}
   ash_bow_fine:    {name: 고원 장궁,   category: WEAPON, material: BOW,  durability: 380, weight: 3, tags: [bow], stats: {attack: 13}, requires: {mastery.archery: 8}}

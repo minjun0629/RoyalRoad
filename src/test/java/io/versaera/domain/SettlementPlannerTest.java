@@ -36,7 +36,7 @@ class SettlementPlannerTest {
     }
 
     private SettlementPlanner plan(long seed) {
-        return SettlementPlanner.plan(regions, "world", seed, npcPlaces());
+        return SettlementPlanner.plan(regions, "world", seed, npcPlaces(), Set.of(), allNpcPlaces());
     }
 
     @Test

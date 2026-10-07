@@ -554,7 +554,9 @@ public final class VersaEraPlugin extends JavaPlugin {
         ContentBundle.handPlaces(opener).values().forEach(m -> m.values().forEach(p -> npcSpots.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
         java.util.Set<String> starts = new java.util.HashSet<>();
         for (var city : c.origins().cities()) starts.add(city.region());
-        VersaChunkGenerator g = new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots, starts);
+        List<int[]> crowd = new java.util.ArrayList<>();   // 생성 주민 자리: 작은 장식만 비켜 선다
+        c.places().values().forEach(m -> m.values().forEach(p -> crowd.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
+        VersaChunkGenerator g = new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots, starts, crowd);
         generators.put(worldName, g);
         return g;
     }

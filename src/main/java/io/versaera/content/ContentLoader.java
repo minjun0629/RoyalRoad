@@ -166,7 +166,7 @@ public final class ContentLoader {
             return new io.versaera.domain.npc.Archetype(id, req(m, "job"), str(m, "category", "LIFE"), new LinkedHashSet<>(list(m, "services")),
                     new LinkedHashSet<>(list(m, "likes")), new LinkedHashSet<>(list(m, "dislikes")), list(m, "personalities"), list(m, "schedule"),
                     list(m, "stock"), new LinkedHashSet<>(list(m, "buys")), new LinkedHashSet<>(list(m, "produces")), new LinkedHashSet<>(list(m, "consumes")),
-                    list(m, "lines"), lo, hi, b(m, "evil", false), str(m, "trains", null), qs);
+                    list(m, "lines"), lo, hi, b(m, "evil", false), str(m, "trains", null), qs, list(m, "gifts"));
         })) arch.put(a.id(), a);
         Map<String, Map<String, Integer>> cultures = new LinkedHashMap<>();
         for (var e : section(root, "cultures", file).entrySet()) {
