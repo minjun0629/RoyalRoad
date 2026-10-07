@@ -1,0 +1,89 @@
+# 업적 · 칭호 (ACH-01 · ACH-02) — 모두 ORIGINAL.
+# when: 히든 조건과 같은 문법 (counter · mastery · affinity · discovered · all · any). 지역 · 시각 조건은 쓰지 않는다.
+# 쓸 수 있는 행동 기록: kill.monster · death · quest.completed · talk.npc · gift.npc · discover.<종류> · craft.<분야> · gather.<분야>
+#   dungeon.cleared · boss.field · repair.count · fame · trial.ironmen · art.experience · art.created · pet.tamed · pet.level
+#   ride.distance(100블록 단위) · travel.carriage · travel.ship · raid.cleared · guild.quest · achievement.count
+# reward: money · fame · title (칭호 id) · points (업적 점수)
+titles:
+  first_light:    {name: 첫 새벽,       color: "&f", desc: "베르사 대륙에 처음 발을 디딘 사람"}
+  wanderer:       {name: 방랑자,         color: "&7", desc: "지역 25곳을 밟은 사람"}
+  pathfinder:     {name: 길을 여는 자,   color: "&a", desc: "지역 80곳을 밟은 사람"}
+  cartographer:   {name: 지도 위의 사람, color: "&2", desc: "지역 160곳을 밟은 사람"}
+  hunter:         {name: 사냥꾼,         color: "&c", desc: "몬스터 500마리"}
+  slayer:         {name: 학살자,         color: "&4", desc: "몬스터 5000마리"}
+  giant_slayer:   {name: 거인 사냥꾼,     color: "&6", desc: "필드 보스 10번"}
+  delver:         {name: 깊은 곳의 손님, color: "&8", desc: "던전 20번"}
+  raider:         {name: 공격대원,       color: "&5", desc: "레이드 공략"}
+  raid_veteran:   {name: 공략의 기억,     color: "&d", desc: "레이드 10번 공략"}
+  colossus_breaker: {name: 거상을 부순 자, color: "&6", desc: "무너진 거상 레이드 공략"}
+  frost_breaker:  {name: 서리를 깬 자,   color: "&b", desc: "서리 껍데기 레이드 공략"}
+  abyss_diver:    {name: 심연을 본 자,   color: "&3", desc: "심연의 갑각 레이드 공략"}
+  friend_of_all:  {name: 마을의 벗,       color: "&e", desc: "NPC 와 3000번 이야기"}
+  benefactor:     {name: 은인,           color: "&e", desc: "의뢰 300건"}
+  master_smith:   {name: 망치의 주인,     color: "&6", desc: "대장 숙련 마스터"}
+  master_sculptor: {name: 돌에 숨을 넣는 자, color: "&f", desc: "대형 조각 10점"}
+  artisan:        {name: 장인,           color: "&e", desc: "제작 1000번"}
+  beast_friend:   {name: 짐승의 벗,       color: "&a", desc: "동물 5마리 길들이기"}
+  beast_master:   {name: 짐승의 주인,     color: "&2", desc: "펫 레벨 30"}
+  rider:          {name: 기수,           color: "&6", desc: "말을 타고 50000 블록"}
+  voyager:        {name: 항해자,         color: "&9", desc: "배로 20번 여행"}
+  famous:         {name: 이름난 이,       color: "&e", desc: "명성 3000"}
+  legend:         {name: 살아 있는 전설,   color: "&6", desc: "명성 20000"}
+  ironman:        {name: 철인,           color: "&7", desc: "철인 100명 시련 통과"}
+  guild_pillar:   {name: 길드의 기둥,     color: "&b", desc: "길드 의뢰 30건"}
+  completionist:  {name: 기록하는 자,     color: "&d", desc: "업적 40개"}
+  undying:        {name: 쓰러져도 일어나는 자, color: "&8", desc: "100번 쓰러짐"}
+
+achievements:
+  # ---- 탐험
+  first_steps:     {name: 첫걸음,           category: 탐험, desc: "지역 5곳 발견",  when: {counter: discover.region, at_least: 5},   reward: {money: 100, fame: 5, title: first_light, points: 5}}
+  wanderer:        {name: 발길 닿는 대로,   category: 탐험, desc: "지역 25곳 발견", when: {counter: discover.region, at_least: 25},  reward: {money: 500, fame: 20, title: wanderer, points: 10}}
+  pathfinder:      {name: 길을 여는 자,     category: 탐험, desc: "지역 80곳 발견", when: {counter: discover.region, at_least: 80},  reward: {money: 2000, fame: 80, title: pathfinder, points: 25}}
+  cartographer:    {name: 대륙의 끝까지,     category: 탐험, desc: "지역 160곳 발견", when: {counter: discover.region, at_least: 160}, reward: {money: 8000, fame: 300, title: cartographer, points: 50}}
+  meet_people:     {name: 낯선 얼굴들,       category: 탐험, desc: "NPC 50명과 처음 이야기", when: {counter: discover.npc, at_least: 50}, reward: {money: 300, fame: 10, points: 10}}
+  meet_many:       {name: 대륙의 이웃,       category: 탐험, desc: "NPC 300명과 처음 이야기", when: {counter: discover.npc, at_least: 300}, reward: {money: 3000, fame: 100, points: 30}}
+  # ---- 전투
+  first_blood:     {name: 첫 사냥,           category: 전투, desc: "몬스터 1마리", when: {counter: kill.monster, at_least: 1},     reward: {money: 20, points: 5}}
+  hunter:          {name: 사냥꾼,           category: 전투, desc: "몬스터 500마리", when: {counter: kill.monster, at_least: 500},  reward: {money: 800, fame: 30, title: hunter, points: 15}}
+  slayer:          {name: 끝없는 사냥,       category: 전투, desc: "몬스터 5000마리", when: {counter: kill.monster, at_least: 5000}, reward: {money: 6000, fame: 200, title: slayer, points: 40}}
+  giant_hunter:    {name: 거인과 마주하다,   category: 전투, desc: "필드 보스 1번",  when: {counter: boss.field, at_least: 1},  reward: {money: 500, fame: 30, points: 15}}
+  giant_slayer:    {name: 거인 사냥꾼,       category: 전투, desc: "필드 보스 10번", when: {counter: boss.field, at_least: 10}, reward: {money: 5000, fame: 200, title: giant_slayer, points: 40}}
+  delver:          {name: 깊은 곳의 손님,     category: 전투, desc: "던전 20번",      when: {counter: dungeon.cleared, at_least: 20}, reward: {money: 3000, fame: 100, title: delver, points: 30}}
+  raider:          {name: 공격대의 일원,     category: 전투, desc: "레이드 1번 공략", when: {counter: raid.cleared, at_least: 1},  reward: {money: 2000, fame: 100, title: raider, points: 30}}
+  raid_veteran:    {name: 공략의 기억,       category: 전투, desc: "레이드 10번 공략", when: {counter: raid.cleared, at_least: 10}, reward: {money: 10000, fame: 400, title: raid_veteran, points: 60}}
+  ironman:         {name: 철인,             category: 전투, desc: "철인 100명 시련 통과", when: {counter: trial.ironmen, at_least: 1}, reward: {fame: 100, title: ironman, points: 30}}
+  undying:         {name: 다시 일어나다,     category: 전투, desc: "100번 쓰러짐",   when: {counter: death, at_least: 100}, reward: {fame: 10, title: undying, points: 10}, hidden: true}
+  sword_adept:     {name: 검의 길,           category: 전투, desc: "검술 30",        when: {mastery: swordsmanship, level: 30}, reward: {money: 1500, fame: 50, points: 20}}
+  bow_adept:       {name: 활의 길,           category: 전투, desc: "궁술 30",        when: {mastery: archery, level: 30},       reward: {money: 1500, fame: 50, points: 20}}
+  spell_adept:     {name: 마법의 길,         category: 전투, desc: "마법 30",        when: {mastery: spellcraft, level: 30},    reward: {money: 1500, fame: 50, points: 20}}
+  # ---- 생활
+  first_craft:     {name: 첫 작품,           category: 생활, desc: "대장 기술로 1번 제작", when: {counter: craft.smithing, at_least: 1}, reward: {money: 50, points: 5}}
+  artisan:         {name: 장인,             category: 생활, desc: "제작 1000번 (대장 · 재봉 · 요리 · 목공 중 하나)", when: {any: [{counter: craft.smithing, at_least: 1000}, {counter: craft.tailoring, at_least: 1000}, {counter: craft.cooking, at_least: 1000}, {counter: craft.woodworking, at_least: 1000}]}, reward: {money: 5000, fame: 150, title: artisan, points: 35}}
+  master_smith:    {name: 망치의 주인,       category: 생활, desc: "대장 기술 마스터 (31)", when: {mastery: smithing, level: 31}, reward: {money: 10000, fame: 300, title: master_smith, points: 50}}
+  miner:           {name: 갱도의 사람,       category: 생활, desc: "채광 1000번",    when: {counter: gather.mining, at_least: 1000},  reward: {money: 1500, fame: 30, points: 15}}
+  angler:          {name: 물가의 사람,       category: 생활, desc: "낚시 1000번",    when: {counter: gather.fishing, at_least: 1000}, reward: {money: 1500, fame: 30, points: 15}}
+  woodsman:        {name: 숲의 사람,         category: 생활, desc: "벌목 1000번",    when: {counter: gather.logging, at_least: 1000}, reward: {money: 1500, fame: 30, points: 15}}
+  first_artwork:   {name: 돌에 새긴 이름,     category: 생활, desc: "대형 조각 1점",  when: {counter: art.created, at_least: 1},  reward: {money: 500, fame: 30, points: 15}}
+  master_sculptor: {name: 돌에 숨을 넣는 자, category: 생활, desc: "대형 조각 10점", when: {counter: art.created, at_least: 10}, reward: {money: 5000, fame: 300, title: master_sculptor, points: 40}}
+  repairman:       {name: 고쳐 쓰는 사람,     category: 생활, desc: "수리 300번",     when: {counter: repair.count, at_least: 300}, reward: {money: 800, fame: 20, points: 10}}
+  # ---- 동료
+  first_pet:       {name: 첫 친구,           category: 동료, desc: "동물 1마리 길들이기", when: {counter: pet.tamed, at_least: 1}, reward: {money: 200, fame: 10, points: 10}}
+  beast_friend:    {name: 짐승의 벗,         category: 동료, desc: "동물 5마리 길들이기", when: {counter: pet.tamed, at_least: 5}, reward: {money: 1500, fame: 60, title: beast_friend, points: 20}}
+  beast_master:    {name: 짐승의 주인,       category: 동료, desc: "펫을 레벨 30까지",   when: {counter: pet.level, at_least: 30}, reward: {money: 6000, fame: 200, title: beast_master, points: 40}}
+  rider:           {name: 바람을 가르다,     category: 동료, desc: "말을 타고 50000 블록", when: {counter: ride.distance, at_least: 500}, reward: {money: 3000, fame: 80, title: rider, points: 25}}
+  # ---- 여행
+  first_carriage:  {name: 마차의 손님,       category: 여행, desc: "마차 여행 1번",  when: {counter: travel.carriage, at_least: 1}, reward: {money: 50, points: 5}}
+  first_voyage:    {name: 첫 항해,           category: 여행, desc: "배 여행 1번",    when: {counter: travel.ship, at_least: 1},     reward: {money: 100, fame: 5, points: 10}}
+  voyager:         {name: 항해자,           category: 여행, desc: "배 여행 20번",   when: {counter: travel.ship, at_least: 20},    reward: {money: 2000, fame: 60, title: voyager, points: 25}}
+  # ---- 사회
+  chatty:          {name: 수다쟁이,         category: 사회, desc: "NPC 와 3000번 이야기", when: {counter: talk.npc, at_least: 3000}, reward: {money: 2000, fame: 80, title: friend_of_all, points: 25}}
+  giver:           {name: 마음을 건네다,     category: 사회, desc: "선물 100번",     when: {counter: gift.npc, at_least: 100}, reward: {money: 800, fame: 30, points: 15}}
+  helper:          {name: 부탁을 들어주는 사람, category: 사회, desc: "의뢰 50건",  when: {counter: quest.completed, at_least: 50},  reward: {money: 1000, fame: 40, points: 15}}
+  benefactor:      {name: 은인,             category: 사회, desc: "의뢰 300건",     when: {counter: quest.completed, at_least: 300}, reward: {money: 6000, fame: 200, title: benefactor, points: 40}}
+  famous:          {name: 이름이 퍼지다,     category: 사회, desc: "명성 3000",      when: {counter: fame, at_least: 3000},  reward: {money: 3000, title: famous, points: 30}}
+  legend:          {name: 살아 있는 전설,     category: 사회, desc: "명성 20000",     when: {counter: fame, at_least: 20000}, reward: {money: 20000, title: legend, points: 80}}
+  guild_hand:      {name: 길드의 손,         category: 사회, desc: "길드 의뢰 5건 기여",  when: {counter: guild.quest, at_least: 5},  reward: {money: 500, fame: 20, points: 10}}
+  guild_pillar:    {name: 길드의 기둥,       category: 사회, desc: "길드 의뢰 30건 기여", when: {counter: guild.quest, at_least: 30}, reward: {money: 4000, fame: 150, title: guild_pillar, points: 35}}
+  # ---- 기록
+  collector:       {name: 기록을 모으는 사람, category: 기록, desc: "업적 10개",      when: {counter: achievement.count, at_least: 10}, reward: {money: 1000, points: 10}}
+  completionist:   {name: 기록하는 자,       category: 기록, desc: "업적 40개",      when: {counter: achievement.count, at_least: 40}, reward: {money: 10000, fame: 300, title: completionist, points: 50}}

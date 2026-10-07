@@ -46,13 +46,19 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                             List<io.versaera.domain.item.ItemSet> sets,
                             List<io.versaera.domain.fieldboss.FieldBoss> fieldBosses,
                             List<io.versaera.domain.npc.NpcProfile> npcProfiles,
-                            Map<String, io.versaera.domain.npc.Archetype> archetypes) {
+                            Map<String, io.versaera.domain.npc.Archetype> archetypes,
+                            Expansion expansion) {
     public static final List<String> FILES = List.of("items.yml", "disciplines.yml", "action_stats.yml", "recipes.yml", "resources.yml",
-            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml", "gates.yml", "origins.yml", "gods.yml", "history.yml", "secret_arts.yml", "field_bosses.yml", "npc_population.yml");
+            "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml", "gates.yml", "origins.yml", "gods.yml", "history.yml", "secret_arts.yml", "field_bosses.yml", "npc_population.yml",
+            "achievements.yml", "pets.yml", "travel.yml", "weather.yml", "raids.yml", "artworks.yml", "guild_quests.yml");
 
     public static ContentBundle load(Function<String, InputStream> opener) {
         Map<String, Object> skills = read(opener, "skills.yml"), gods = read(opener, "gods.yml"), items = read(opener, "items.yml");
-        List<Region> regions = ContentLoader.regions(read(opener, "regions.yml"), "regions.yml");
+        List<Region> loaded = ContentLoader.regions(read(opener, "regions.yml"), "regions.yml");
+        // 항구 도시에 port 태그 (선장이 살고 배가 닿는 곳) — 노선망과 주민 생성이 같은 기준을 쓴다
+        Object pr = read(opener, "travel.yml").get("port_range");
+        Set<String> ports = io.versaera.domain.travel.TravelNetwork.ports(loaded, pr instanceof Number n ? n.intValue() : 900);
+        List<Region> regions = loaded.stream().map(r -> ports.contains(r.id()) ? r.withTag("port") : r).toList();
         List<NpcDefinition> npcs = new ArrayList<>(ContentLoader.npcs(read(opener, "npcs.yml"), "npcs.yml"));
         Map<String, Map<String, NpcSchedule.Point>> places = new LinkedHashMap<>(ContentLoader.places(read(opener, "places.yml"), "places.yml"));
         MarketCatalog market = ContentLoader.market(read(opener, "market.yml"), "market.yml");
@@ -94,7 +100,8 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                 ContentLoader.itemSets(items, "items.yml"),
                 ContentLoader.fieldBosses(read(opener, "field_bosses.yml"), "field_bosses.yml"),
                 pop.profiles(),
-                rules.archetypes());
+                rules.archetypes(),
+                ContentLoader.expansion(f -> read(opener, f), regions));
     }
 
     public static ContentBundle fromClasspath(ClassLoader cl) {

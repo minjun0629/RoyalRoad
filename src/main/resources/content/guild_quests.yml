@@ -1,0 +1,20 @@
+# 길드 주간 의뢰 (GLD-03) — 모두 ORIGINAL. 매주 길드마다 3개가 정해진다 (길드 id · 주로 결정).
+# counter: 길드원 모두의 그 행동 기록 증가를 합친다 · deposit: true 면 counter 는 재료 태그 — 길드 창고에 넣은 개수로 센다
+# money: 길드 금고 · activity: 길드 활동 점수 (기여한 길드원 모두 명성 +10)
+quests:
+  hunt_together:   {name: 함께 사냥,         counter: kill.monster,     target: 1500, money: 3000, activity: 300, desc: "몬스터 1500마리"}
+  hunt_hard:       {name: 큰 사냥,           counter: boss.field,       target: 3,    money: 6000, activity: 600, desc: "필드 보스 3번"}
+  delve:           {name: 깊은 곳으로,       counter: dungeon.cleared,  target: 10,   money: 4000, activity: 400, desc: "던전 10번"}
+  help_town:       {name: 마을 돕기,         counter: quest.completed,  target: 60,   money: 3000, activity: 300, desc: "의뢰 60건"}
+  explore:         {name: 지도 넓히기,       counter: discover.region,  target: 40,   money: 2500, activity: 250, desc: "새 지역 40곳"}
+  forge:           {name: 길드 대장간,       counter: craft.smithing,   target: 150,  money: 3500, activity: 350, desc: "대장 제작 150번"}
+  kitchen:         {name: 길드 식탁,         counter: craft.cooking,    target: 200,  money: 2500, activity: 250, desc: "요리 200번"}
+  ore_stock:       {name: 광석 비축,         counter: ore,      deposit: true, target: 640, money: 3000, activity: 300, desc: "길드 창고에 광석 640개"}
+  timber_stock:    {name: 목재 비축,         counter: wood,     deposit: true, target: 640, money: 2500, activity: 250, desc: "길드 창고에 목재 640개"}
+  herb_stock:      {name: 약초 비축,         counter: herb,     deposit: true, target: 320, money: 2500, activity: 250, desc: "길드 창고에 약초 320개"}
+  tame:            {name: 동료 모으기,       counter: pet.tamed,        target: 10,   money: 2000, activity: 200, desc: "동물 10마리 길들이기"}
+  raid:            {name: 공격대,             counter: raid.cleared,     target: 8,    money: 8000, activity: 800, desc: "레이드 공략 8번 (길드원 합계)"}
+storage:
+  # 하루에 꺼낼 수 있는 양 (계급별, -1 = 제한 없음)
+  daily_withdraw: {LEADER: -1, OFFICER: -1, MEMBER: 128}
+  max_kinds: 120

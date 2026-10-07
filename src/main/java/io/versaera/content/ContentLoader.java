@@ -451,6 +451,71 @@ public final class ContentLoader {
 
     /** when: {all: [...]} · {any: [...]} · {counter: key, at_least: n} · {mastery: d, level: n} · {affinity: npc, at_least: n}
      *  · {region: id} · {hours: [from, to]} · {discovered: "kind:ref"} */
+    // ------------------------------------------------------------------ 모험 확장 (V7)
+    public static Expansion expansion(java.util.function.Function<String, Map<String, Object>> read, List<Region> regions) {
+        Map<String, Object> ach = read.apply("achievements.yml");
+        Map<String, io.versaera.domain.achievement.Title> titles = new LinkedHashMap<>();
+        for (var t : each(ach, "titles", "achievements.yml", (id, m) -> new io.versaera.domain.achievement.Title(id, req(m, "name"), str(m, "color", "&f"), str(m, "desc", ""))))
+            titles.put(t.id(), t);
+        var achievements = each(ach, "achievements", "achievements.yml", (id, m) -> {
+            Map<String, Object> r = map(m.get("reward"));
+            String title = str(r, "title", null);
+            if (title != null && !titles.containsKey(title)) throw new IllegalArgumentException("없는 칭호: " + title);
+            return new io.versaera.domain.achievement.Achievement(id, req(m, "name"), str(m, "category", "기타"), str(m, "desc", ""), condition(m.get("when")),
+                    l(r, "money", 0), i(r, "fame", 0), title, b(m, "hidden", false), i(r, "points", 10));
+        });
+        var species = each(read.apply("pets.yml"), "species", "pets.yml", (id, m) -> {
+            Map<String, Object> t = map(m.get("tame"));
+            Map<Integer, String> skills = new TreeMap<>();
+            for (var e : map(m.get("skills")).entrySet()) skills.put(Integer.parseInt(String.valueOf(e.getKey())), String.valueOf(e.getValue()));
+            return new io.versaera.domain.pet.Species(id, req(m, "name"), req(m, "entity"), i(t, "level", 0), new LinkedHashSet<>(list(t, "food")),
+                    d(t, "chance", 0.3), new LinkedHashSet<>(list(m, "habitat")), i(m, "health", 10), i(m, "attack", 1), d(m, "health_per_level", 1),
+                    d(m, "attack_per_level", 0.2), skills);
+        });
+        Map<String, Object> tr = read.apply("travel.yml");
+        var mounts = each(tr, "mounts", "travel.yml", (id, m) -> new io.versaera.domain.travel.MountKind(id, req(m, "name"), req(m, "entity"),
+                d(m, "speed", 0.22), d(m, "jump", 0.6), i(m, "health", 20), l(m, "price", 1000), i(m, "riding", 0), str(m, "color", "NONE")));
+        var network = io.versaera.domain.travel.TravelNetwork.build(regions, new io.versaera.domain.travel.TravelNetwork.Rules(
+                mode(section(tr, "carriage", "travel.yml")), mode(section(tr, "ship", "travel.yml")), i(tr, "port_range", 900)));
+        Map<String, Object> w = read.apply("weather.yml");
+        var kinds = each(w, "kinds", "weather.yml", (id, m) -> new io.versaera.domain.weather.WeatherKind(id, req(m, "name"), doubleMap(map(m.get("gather"))),
+                d(m, "melee", 1), d(m, "ranged", 1), d(m, "spell", 1), b(m, "indoor", false), b(m, "downfall", false), str(m, "particle", null), str(m, "desc", "")));
+        List<io.versaera.domain.weather.Climate> climates = new ArrayList<>();
+        if (!(w.get("climates") instanceof List<?> cl)) throw new ContentException("weather.yml / climates 가 목록이 아닙니다");
+        for (Object o : cl) {
+            Map<String, Object> m = map(o);
+            climates.add(new io.versaera.domain.weather.Climate(req(m, "id"), new LinkedHashSet<>(list(m, "tags")), intMap(m, "weights")));
+        }
+        var raids = each(read.apply("raids.yml"), "raids", "raids.yml", (id, m) -> {
+            List<String> pl = list(m, "players");
+            Map<String, Object> r = map(m.get("reward"));
+            String title = str(r, "title", null);
+            if (title != null && !titles.containsKey(title)) throw new IllegalArgumentException("없는 칭호: " + title);
+            return new io.versaera.domain.raid.RaidDefinition(id, req(m, "name"), req(m, "region"), req(m, "boss"), Integer.parseInt(pl.get(0)),
+                    Integer.parseInt(pl.get(1)), i(m, "mastery", 0), l(m, "time_limit_minutes", 15) * 60_000L, l(r, "money", 0), list(r, "items"), title,
+                    i(r, "fame", 0), str(m, "desc", ""));
+        });
+        var arts = each(read.apply("artworks.yml"), "kinds", "artworks.yml", (id, m) -> {
+            List<io.versaera.domain.art.ArtworkKind.Part> parts = new ArrayList<>();
+            if (m.get("parts") instanceof List<?> pl) for (Object o : pl) {
+                Map<String, Object> p = map(o);
+                parts.add(new io.versaera.domain.art.ArtworkKind.Part(req(p, "slot"), list(p, "tags"), i(p, "amount", 1)));
+            }
+            return new io.versaera.domain.art.ArtworkKind(id, req(m, "name"), d(m, "scale", 1), i(m, "level", 0), parts, i(m, "fame", 0), str(m, "desc", ""));
+        });
+        Map<String, Object> gq = read.apply("guild_quests.yml");
+        var guildQuests = each(gq, "quests", "guild_quests.yml", (id, m) -> new io.versaera.domain.guild.GuildQuestDef(id, req(m, "name"), req(m, "counter"),
+                l(m, "target", 1), l(m, "money", 0), l(m, "activity", 0), b(m, "deposit", false), str(m, "desc", "")));
+        Map<String, Object> st = section(gq, "storage", "guild_quests.yml");
+        return new Expansion(achievements, titles, species, mounts, network, kinds, climates, l(w, "window_minutes", 40) * 60_000L, i(w, "cell", 3000),
+                raids, arts, guildQuests, intMap(st, "daily_withdraw"), i(st, "max_kinds", 120));
+    }
+
+    private static io.versaera.domain.travel.TravelNetwork.Mode mode(Map<String, Object> m) {
+        return new io.versaera.domain.travel.TravelNetwork.Mode(i(m, "links", 3), i(m, "max_distance", 4000), l(m, "base", 20), d(m, "per_block", 0.04),
+                d(m, "blocks_per_second", 30));
+    }
+
     static Condition condition(Object o) {
         Map<String, Object> m = map(o);
         if (m.isEmpty()) throw new IllegalArgumentException("조건이 비었습니다");

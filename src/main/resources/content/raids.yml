@@ -1,0 +1,50 @@
+# 레이드 (RAID-01) — 모두 ORIGINAL. 여러 파티를 묶은 공격대(최대 5파티 · 40명)가 지역 가운데에 불러낸 거대 보스(bosses.yml)에 도전한다.
+# 공격대장이 그 지역 안에서 /레이드 시작 <id>. 공격대원은 모두 그 지역 안에 있어야 하고, 이번 주에 아직 귀속되지 않아야 한다.
+# mastery: 공격대원 모두 가장 높은 전투 숙련이 이 이상 · time_limit_minutes 안에 쓰러뜨리지 못하면 보스가 물러난다
+# reward: 공격대원마다 (보스 자체 보상과 별도) · items "종류:품질:수량"
+raids:
+  colossus_ruins:
+    name: 무너진 거상의 광장
+    region: calamor_ruins
+    boss: fallen_colossus
+    players: [6, 24]
+    mastery: 15
+    time_limit_minutes: 15
+    reward: {money: 4000, fame: 150, items: ["sky_metal:750:3"], title: colossus_breaker}
+    desc: "칼라모르 폐도 한가운데, 옛 파수거상이 다시 일어섰다"
+  frost_court:
+    name: 서리 군주의 빈 궁정
+    region: niflheim_wastes
+    boss: frost_husk
+    players: [6, 24]
+    mastery: 20
+    time_limit_minutes: 15
+    reward: {money: 6000, fame: 200, items: ["frost_crystal:800:4"], title: frost_breaker}
+    desc: "니플하임의 얼음 폐허에 군주의 껍데기만 남아 성을 지킨다"
+  dune_maw:
+    name: 모래바다의 아가리
+    region: sand_sea
+    boss: dune_rake_worm
+    players: [8, 30]
+    mastery: 24
+    time_limit_minutes: 18
+    reward: {money: 7000, fame: 250, items: ["raw_gem:800:4"]}
+    desc: "남부 사막 아래에서 갈퀴웜이 대상들을 삼킨다"
+  shard_crater:
+    name: 하늘 파편의 분화구
+    region: fallen_crater
+    boss: shard_warden
+    players: [8, 30]
+    mastery: 27
+    time_limit_minutes: 18
+    reward: {money: 9000, fame: 300, items: ["sky_metal:850:4"]}
+    desc: "추락한 하늘 조각을 지키는 수호수"
+  abyss_shore:
+    name: 심연이 밀려오는 해안
+    region: barna_port
+    boss: abyss_carapace
+    players: [10, 40]
+    mastery: 30
+    time_limit_minutes: 20
+    reward: {money: 14000, fame: 500, items: ["deep_eel:900:8", "raw_gem:900:4"], title: abyss_diver}
+    desc: "항구 바르나 앞바다에서 심해 갑각왕이 올라온다"

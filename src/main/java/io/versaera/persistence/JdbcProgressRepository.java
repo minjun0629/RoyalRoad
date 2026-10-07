@@ -76,6 +76,27 @@ public final class JdbcProgressRepository implements ProgressRepository {
     }
 
     @Override
+    public java.util.List<String> discoveries(String uuid, String kind) {
+        return j.query("SELECT ref FROM discovery WHERE uuid = ? AND kind = ? ORDER BY created_at, ref", ps -> {
+            ps.setString(1, uuid);
+            ps.setString(2, kind);
+        }, rs -> rs.getString(1));
+    }
+
+    @Override
+    public java.util.Map<String, Integer> discoveryCounts(String uuid) {
+        java.util.Map<String, Integer> out = new java.util.TreeMap<>();
+        j.query("SELECT kind, COUNT(*) FROM discovery WHERE uuid = ? GROUP BY kind", ps -> ps.setString(1, uuid),
+                rs -> out.put(rs.getString(1), rs.getInt(2)));
+        return out;
+    }
+
+    @Override
+    public int worldFirsts(String uuid) {
+        return j.one("SELECT COUNT(*) FROM world_first WHERE uuid = ?", ps -> ps.setString(1, uuid), rs -> rs.getInt(1), 0);
+    }
+
+    @Override
     public boolean claimWorldFirst(String kind, String ref, String uuid, String name, long at) {
         return j.update("INSERT OR IGNORE INTO world_first (kind, ref, uuid, name, created_at) VALUES (?, ?, ?, ?, ?)", ps -> {
             ps.setString(1, kind);

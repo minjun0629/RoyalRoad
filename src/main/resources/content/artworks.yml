@@ -1,0 +1,53 @@
+# 대형 조각 작품 (ART-02) — 모두 ORIGINAL. 여러 재료가 자리마다 쓰인다. 재료에 따라 색 · 결이 달라진다 (리소스팩이 재료별 모양을 만든다).
+# 조각칼을 손에 들고 /조각 <종류> → 재료 고르기 → 바라보는 자리에 세운다. 다른 사람이 하루 한 번 감상하면 버프 · 만든 사람 명성 · 지역 번영.
+# parts.tags: 그 자리에 쓸 수 있는 재료 태그 (stone · marble · metal · gem · wood)
+kinds:
+  bust:
+    name: 흉상
+    scale: 1.0
+    level: 5
+    fame: 40
+    parts:
+      - {slot: pedestal, tags: [stone, wood], amount: 4}
+      - {slot: body, tags: [stone, marble, metal, wood], amount: 6}
+    desc: "받침 위의 얼굴 하나"
+  statue:
+    name: 입상
+    scale: 1.6
+    level: 12
+    fame: 120
+    parts:
+      - {slot: pedestal, tags: [stone], amount: 8}
+      - {slot: body, tags: [marble, stone, metal], amount: 16}
+      - {slot: accent, tags: [metal, gem], amount: 3}
+    desc: "사람 키보다 큰 서 있는 모습"
+  beast:
+    name: 짐승상
+    scale: 1.8
+    level: 15
+    fame: 150
+    parts:
+      - {slot: pedestal, tags: [stone], amount: 10}
+      - {slot: body, tags: [stone, marble, metal, wood], amount: 20}
+      - {slot: accent, tags: [gem, metal], amount: 4}
+    desc: "웅크린 짐승 — 수호의 뜻"
+  monument:
+    name: 기념비
+    scale: 3.0
+    level: 25
+    fame: 400
+    parts:
+      - {slot: pedestal, tags: [stone], amount: 32}
+      - {slot: body, tags: [marble, stone], amount: 48}
+      - {slot: accent, tags: [metal, gem], amount: 12}
+    desc: "광장 하나를 차지하는 거대한 탑과 인물"
+  fountain:
+    name: 분수
+    scale: 2.2
+    level: 18
+    fame: 220
+    parts:
+      - {slot: pedestal, tags: [stone, marble], amount: 24}
+      - {slot: body, tags: [marble, metal], amount: 12}
+      - {slot: accent, tags: [gem], amount: 4}
+    desc: "물이 흐르는 둥근 수반"

@@ -17,7 +17,7 @@ public record Archetype(String id, String job, String category, Set<String> serv
                         List<String> personalities, List<String> schedule, List<String> stock, Set<String> buys, Set<String> produces,
                         Set<String> consumes, List<String> lines, int minLevel, int maxLevel, boolean evil, String trains,
                         List<QuestTemplate> quests) {
-    public static final Set<String> SERVICES = Set.of("SHOP", "REPAIR", "INN", "HEAL", "TRAIN", "RUMOR", "SONG", "AUCTION", "LORE", "QUEST");
+    public static final Set<String> SERVICES = Set.of("SHOP", "REPAIR", "INN", "HEAL", "TRAIN", "RUMOR", "SONG", "AUCTION", "LORE", "QUEST", "STABLE", "CARRIAGE", "SHIP");
     public static final Set<String> PLACES = Set.of("work", "home", "market", "tavern", "square", "temple", "gate");
 
     /**

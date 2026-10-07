@@ -1,5 +1,7 @@
 package io.versaera.application.port;
 
+import java.util.List;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,6 +24,15 @@ public interface ProgressRepository {
     boolean discover(String uuid, String kind, String ref, long at);
 
     boolean discovered(String uuid, String kind, String ref);
+
+    /** 그 종류로 발견한 것들 (먼저 발견한 순) */
+    List<String> discoveries(String uuid, String kind);
+
+    /** 종류 → 발견 수 */
+    Map<String, Integer> discoveryCounts(String uuid);
+
+    /** 이 사람이 차지한 서버 최초 발견 수 */
+    int worldFirsts(String uuid);
 
     record WorldFirst(String uuid, String name, long at) {}
 
