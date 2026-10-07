@@ -183,7 +183,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         for (String c : List.of("party", "donate", "gods", "history", "fame", "arts", "trial")) getCommand(c).setExecutor(canonCmd);
                 InventoryGuard guard = new InventoryGuard(this, services, async, codec);
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
-                deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
+                deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.HeadGear(codec), new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
                 new io.versaera.platform.bukkit.world.TrainingDummies(this, services, async),
                 new StationListener(services, async, codec, sessions), new MenuListener()))
             Bukkit.getPluginManager().registerEvents(l, this);

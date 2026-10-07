@@ -33,6 +33,7 @@ public final class PixelArt {
         if (t.hasTag("dagger")) return "dagger";
         if (t.hasTag("sword") || m.endsWith("_SWORD")) return "sword";
         if (t.hasTag("crown")) return "crown";
+        if (t.hasTag("helmet")) return "helmet";
         if (m.endsWith("_HELMET")) return "helmet";
         if (m.endsWith("_CHESTPLATE")) return "chest";
         if (m.endsWith("_LEGGINGS")) return "legs";

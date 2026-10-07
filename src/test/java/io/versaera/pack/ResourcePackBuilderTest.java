@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -75,7 +76,17 @@ class ResourcePackBuilderTest {
         for (var t : c.items()) {
             if (!ResourcePackBuilder.modeled(t)) continue;
             String model = new String(files.get("assets/versaera/models/item/" + t.id() + ".json"), StandardCharsets.UTF_8);
-            assertTrue(model.contains("versaera:item/" + t.id()), t.id());
+            boolean solid = Sculpt.of(t) != null;
+            assertTrue(model.contains(solid ? "versaera:item3d/" + t.id() : "versaera:item/" + t.id()), t.id());
+            if (solid) {   // 입체 모델: 상자 좌표는 -16 ~ 32, 회전은 Minecraft 가 허용하는 각도만
+                var nums = java.util.regex.Pattern.compile("\"(?:from|to)\":\\[([^\\]]*)\\]").matcher(model);
+                int n = 0;
+                while (nums.find()) for (String v : nums.group(1).split(",")) { double d = Double.parseDouble(v); assertTrue(d >= -16 && d <= 32, t.id() + " " + d); n++; }
+                assertTrue(n >= 6, "모델에 상자가 있다: " + t.id());
+                var ang = java.util.regex.Pattern.compile("\"angle\":(-?[0-9.]+)").matcher(model);
+                while (ang.find()) assertTrue(java.util.Set.of("-45", "-22.5", "0", "22.5", "45").contains(ang.group(1)), t.id() + " angle " + ang.group(1));
+                assertTrue(model.contains("\"display\""), "손 · 아이콘 표시 변환: " + t.id());
+            }
             var img = ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/item/" + t.id() + ".png")));
             assertEquals(32, img.getWidth(), t.id());
             int opaque = 0;
@@ -107,6 +118,12 @@ class ResourcePackBuilderTest {
             assertTrue(pack.models().containsKey("fboss/" + fb.id() + "/" + part.name()));
         }
         assertNotNull(files.get("assets/versaera/models/mob/iron_mask.json"));
+        // 입체 투구: 투구 재질이 아니어야 머리에 3D 모델이 보인다
+        for (String h : List.of("graham_helm", "talok_helm", "van_hawk_helm", "emperor_crown")) {
+            var t = c.items().stream().filter(x -> x.id().equals(h)).findFirst().orElseThrow();
+            assertFalse(t.material().endsWith("_HELMET"), h);
+            assertNotNull(Sculpt.of(t), h);
+        }
         // 입은 갑옷: 모습마다 무늬 텍스처 2장 + 아틀라스 + 데이터팩 무늬
         var looks = new java.util.TreeSet<>(ArmorLooks.looks(c.items()).values());
         assertTrue(looks.contains("graham") && looks.contains("talok"), "세트는 한 모습");

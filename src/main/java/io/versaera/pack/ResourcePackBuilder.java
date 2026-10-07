@@ -81,9 +81,11 @@ public final class ResourcePackBuilder {
             b.fieldBossModel(fb);
         }
         put(models, "mob/iron_mask");
-        var mask = ModelKit.build("iron_mask", ModelKit.rig("MASK"), new ModelKit.Style(new Color(158, 164, 176), new Color(120, 124, 136),
-                new Color(255, 120, 60), new Color(40, 36, 44), new Color(200, 206, 216), "metal", "metal"), "mob/iron_mask",
-                "{\"head\":{\"translation\":[0,-6.5,0],\"scale\":[1.1,1.1,1.1]},\"fixed\":{\"scale\":[1,1,1]}}");
+        // 철인의 쇠 가면 = 입체 큰 투구 (머리 중심 = 모델 중심)
+        var maskType = new io.versaera.domain.item.ItemType("iron_mask", "쇠 가면", io.versaera.domain.item.ItemCategory.ARMOR, "IRON_HELMET", 1, 1,
+                Set.of("helmet"), Map.of(), Map.of(), "ORIGINAL");
+        Sculpt.Made maskMade = Sculpt.of(maskType);
+        var mask = ModelKit.build("iron_mask", List.of(new ModelKit.Part("mask", "NONE", 8, 8, 8, 0, maskMade.cubes())), maskMade.style(), "mob/iron_mask", maskMade.display());
         b.text("assets/versaera/models/mob/iron_mask.json", mask.models().get("mask"));
         b.png("assets/versaera/textures/mob/iron_mask.png", mask.texture());
         // 아이템: 바닐라 재질마다 덮어쓰기 목록
@@ -139,8 +141,15 @@ public final class ResourcePackBuilder {
             case "FISHING_ROD" -> "minecraft:item/handheld_rod";
             default -> PixelArt.handheld(kind) ? "minecraft:item/handheld" : "minecraft:item/generated";
         };
-        text("assets/versaera/models/item/" + t.id() + ".json", "{\"parent\":\"" + parent + "\",\"textures\":{\"layer0\":\"versaera:item/" + t.id() + "\"}}");
         png("assets/versaera/textures/item/" + t.id() + ".png", PixelArt.item(t));
+        Sculpt.Made made = Sculpt.of(t);
+        if (made != null) {   // 입체 조각 모델 (그림은 부서질 때 파티클 · 문서용으로 남긴다)
+            var built = ModelKit.build(t.id(), List.of(new ModelKit.Part("item", "NONE", 8, 8, 8, 0, made.cubes())), made.style(), "item3d/" + t.id(), made.display());
+            text("assets/versaera/models/item/" + t.id() + ".json", built.models().get("item"));
+            png("assets/versaera/textures/item3d/" + t.id() + ".png", built.texture());
+            return;
+        }
+        text("assets/versaera/models/item/" + t.id() + ".json", "{\"parent\":\"" + parent + "\",\"textures\":{\"layer0\":\"versaera:item/" + t.id() + "\"}}");
     }
 
     /** 바닐라 아이템 모델을 그대로 두고 CustomModelData 덮어쓰기만 더한다 */

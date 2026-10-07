@@ -63,11 +63,12 @@ items:
   # 비기의 조각상 (던전의 숨은 보상) — 손에 들고 /비기 배우기
   relic_life_statue:      {name: 생명이 깃든 조각상,   category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 4, tags: [art, sculpture, relic], source: CANON}
   relic_transform_statue: {name: 모습을 바꾸는 조각상, category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 4, tags: [art, sculpture, relic], source: CANON}
-  emperor_crown:          {name: 황제의 왕관, category: ARMOR, material: GOLDEN_HELMET, durability: 2000, weight: 2, tags: [helmet, crown], stats: {defense: 6}, source: CANON}
+  emperor_crown:          {name: 황제의 왕관, category: ARMOR, material: PAPER, durability: 2000, weight: 2, tags: [helmet, crown], stats: {defense: 6}, source: CANON}
   relic_revival_statue:   {name: 되살리는 조각상,     category: ARTWORK, material: ARMOR_STAND, durability: 100, weight: 4, tags: [art, sculpture, relic], source: CANON}
   relief_plaque:   {name: 부조 명판,   category: ARTWORK, material: ITEM_FRAME, durability: 120, weight: 4, tags: [art, relief]}
   wind_chime:      {name: 바람 풍경,   category: ARTWORK, material: BELL,       durability: 80,  weight: 1, tags: [art, sky]}
-  # ---- 원작에 이름이 나온 장비 (이름 CANON — 나무위키 「로열 로드/아이템」 사용자 제공 본문. 능력 수치는 ORIGINAL)
+  # ---- 원작에 이름이 나온 장비
+  # 투구는 material: PAPER — 머리에 쓰면 리소스팩의 입체 모델이 그대로 보인다 (바닐라 투구 재질이면 납작한 갑옷 그림으로만 보임). 쓰기는 플러그인이 (우클릭 · 투구 칸) (이름 CANON — 나무위키 「로열 로드/아이템」 사용자 제공 본문. 능력 수치는 ORIGINAL)
   # 공격력 · 방어력 말고 다른 능력과 내력(lore)은 /감정 으로 감정해야 보인다. requires: 착용 조건 (대장 기술 숙련 1마다 1% 줄어든다)
   hard_iron_sword:  {name: 단단한 철검, category: WEAPON, material: IRON_SWORD, durability: 700, weight: 4, tags: [sword], stats: {attack: 14, crit: 3}, source: CANON,
                      lore: "초급 수련관을 통과한 사람에게 주는 튼튼한 철검. 잘 부러지지 않는다"}
@@ -93,7 +94,7 @@ items:
                      lore: "엘프 궁수 예리카의 활. 화살에 번개가 실린다"}
   saint_staff:      {name: 성자의 지팡이, category: WEAPON, material: BLAZE_ROD, durability: 800, weight: 2, tags: [staff], stats: {attack: 20, holy: 12, vs_undead: 40, regen: 1}, requires: {mastery.spellcraft: 15}, source: CANON,
                      lore: "성자가 짚던 지팡이. 든 사람의 상처를 천천히 낫게 한다"}
-  graham_helm:      {name: 그라함의 투구, category: ARMOR, material: IRON_HELMET, durability: 700, weight: 3, tags: [helmet], stats: {defense: 7}, set: graham, requires: {mastery.swordsmanship: 10}, source: CANON,
+  graham_helm:      {name: 그라함의 투구, category: ARMOR, material: PAPER, durability: 700, weight: 3, tags: [helmet], stats: {defense: 7}, set: graham, requires: {mastery.swordsmanship: 10}, source: CANON,
                      lore: "기사 그라함의 갑주 중 투구"}
   graham_plate:     {name: 그라함의 갑옷, category: ARMOR, material: IRON_CHESTPLATE, durability: 900, weight: 8, stats: {defense: 14}, set: graham, requires: {mastery.swordsmanship: 10}, source: CANON,
                      lore: "기사 그라함의 갑주 중 몸통"}
@@ -101,11 +102,11 @@ items:
                      lore: "기사 그라함의 갑주 중 각반"}
   graham_boots:     {name: 그라함의 장화, category: ARMOR, material: IRON_BOOTS, durability: 700, weight: 3, stats: {defense: 6}, set: graham, requires: {mastery.swordsmanship: 10}, source: CANON,
                      lore: "기사 그라함의 갑주 중 장화"}
-  talok_helm:       {name: 탈로크의 투구, category: ARMOR, material: NETHERITE_HELMET, durability: 1000, weight: 4, tags: [helmet], stats: {defense: 10, health: 2}, set: talok, requires: {stat.strength: 10}, source: CANON,
+  talok_helm:       {name: 탈로크의 투구, category: ARMOR, material: PAPER, durability: 1000, weight: 4, tags: [helmet], stats: {defense: 10, health: 2}, set: talok, requires: {stat.strength: 10}, source: CANON,
                      lore: "바바리안 전사 탈로크의 투구"}
   talok_armor:      {name: 탈로크의 갑옷, category: ARMOR, material: NETHERITE_CHESTPLATE, durability: 1400, weight: 10, stats: {defense: 20, health: 4}, set: talok, requires: {stat.strength: 10}, source: CANON,
                      lore: "바바리안 전사 탈로크의 갑옷. 함께 입으면 짐승 같은 힘이 난다"}
-  van_hawk_helm:    {name: 반 호크의 투구, category: ARMOR, material: NETHERITE_HELMET, durability: 1200, weight: 4, tags: [helmet, cursed], stats: {defense: 14, health: 4, thorns: 5}, requires: {mastery.swordsmanship: 16}, source: CANON,
+  van_hawk_helm:    {name: 반 호크의 투구, category: ARMOR, material: PAPER, durability: 1200, weight: 4, tags: [helmet, cursed], stats: {defense: 14, health: 4, thorns: 5}, requires: {mastery.swordsmanship: 16}, source: CANON,
                      lore: "데스 나이트 반 호크가 쓰던 투구. 죽음의 기운이 서려 있다"}
   kubicha_boots:    {name: 쿠비챠의 부츠, category: ARMOR, material: LEATHER_BOOTS, durability: 600, weight: 1, stats: {defense: 5, speed: 15}, requires: {stat.endurance: 10}, source: CANON,
                      lore: "가볍기 짝이 없는 부츠. 신으면 발걸음이 빨라진다"}
