@@ -36,6 +36,10 @@ jobs:
                requires: {all: [{mastery: cooking, level: 10}, {counter: craft.cooking, at_least: 60}]}, perks: {craft_quality.cooking: 50}}
   sculptor:   {name: 조각가, slot: LIFE, tier: 1, source: ORIGINAL,
                requires: {all: [{mastery: sculpting, level: 10}, {counter: art.experience, at_least: 80}]}, perks: {craft_quality.sculpting: 50}}
+  # 히든 직업: 조건을 채우기 전에는 직업 창에 나오지 않는다. 이름은 원작(위드의 직업), 조건 · 효과는 이 게임의 것
+  moonlight_sculptor: {name: 달빛 조각사, slot: LIFE, tier: 2, parent: sculptor, source: CANON,
+               requires: {all: [{mastery: sculpting, level: 20}, {counter: art.experience, at_least: 500}, {counter: art.masterpiece, at_least: 1}]},
+               perks: {craft_quality.sculpting: 120, attack_pct: 0.03}}
   alchemist:  {name: 연금술사, slot: LIFE, tier: 1, source: ORIGINAL,
                requires: {all: [{mastery: alchemy, level: 10}, {counter: craft.alchemy, at_least: 50}]}, perks: {craft_quality.alchemy: 50}}
   woodwright: {name: 목수, slot: LIFE, tier: 1, source: ORIGINAL,

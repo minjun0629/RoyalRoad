@@ -363,10 +363,13 @@ public final class SculptingRuntime implements Listener {
     private void finish(Player p, Session ss) {
         String uuid = p.getUniqueId().toString(), region = regionOf.apply(p.getUniqueId());
         boolean moon = moonlit(ss.base);
-        double roll = moon ? 0.5 + rng.nextDouble() * 0.5 : rng.nextDouble();   // 달빛은 손 떨림을 줄인다
+        double r0 = rng.nextDouble();
         Location at = ss.base;
         String title = ss.kind.name();
         async.run("art-create", () -> {
+            // 달빛은 손 떨림을 줄인다 — 달빛 조각사는 더
+            boolean master = s.jobs.held(uuid).values().stream().anyMatch(h -> h.jobId().equals("moonlight_sculptor"));
+            double roll = moon ? (master ? 0.75 + r0 * 0.25 : 0.5 + r0 * 0.5) : r0;
             Artwork made = s.artworks.create(uuid, ss.kind.id(), ss.picks, at.getWorld().getName(), at.getBlockX(), at.getBlockY(), at.getBlockZ(), ss.yaw,
                     title, region, roll);
             return moon ? s.artworks.markMoonlit(uuid, made.id()) : made;   // 달빛 조각품은 계속 은은하게 빛난다

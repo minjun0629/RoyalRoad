@@ -285,7 +285,8 @@ public final class SecretArtRuntime implements Listener {
             for (Player o : who) o.addPotionEffect(new PotionEffect(type, Integer.parseInt(x[2]) * 20, Integer.parseInt(x[1])));
         }
         for (Player o : who) if (o != p) o.sendMessage(Ui.info(p.getName() + " — " + a.name()));
-        p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1f, 1.2f);
+        for (Player o : who) fx(o.getLocation(), a, 1.2);
+        sound(p.getLocation(), a, org.bukkit.Sound.BLOCK_AMETHYST_BLOCK_CHIME);
     }
 
     /**
@@ -322,8 +323,62 @@ public final class SecretArtRuntime implements Listener {
                     default -> p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, c, 14, range / 2, 0.4, range / 2, 0);
                 }
                 if (slow > 0) p.getWorld().spawnParticle(Particle.SNOWFLAKE, c, 30, range / 2, 0.5, range / 2, 0.02);
-                p.getWorld().playSound(c, org.bukkit.Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.9f);
+                if ("trail".equals(a.params().get("pattern")) || "line".equals(shape)) {   // 직선: 날아가는 기운
+                    Particle pt = particle(a);
+                    for (double d = 1; d <= range; d += 0.5) p.getWorld().spawnParticle(pt, c.clone().add(dir.clone().multiply(d)), 2, 0.1, 0.1, 0.1, 0.01);
+                } else fx(p.getLocation(), a, "circle".equals(shape) ? range : range * 0.6);
+                sound(c, a, org.bukkit.Sound.ENTITY_PLAYER_ATTACK_SWEEP);
             }, (long) i * every);
+    }
+
+    // ------------------------------------------------------------------ 비기마다 다른 모습 (params: fx 입자 · pattern 모양 · sound 소리)
+    private static Particle particle(SecretArt a) {
+        try {
+            return Particle.valueOf(a.params().getOrDefault("fx", "END_ROD"));
+        } catch (IllegalArgumentException e) {
+            return Particle.END_ROD;
+        }
+    }
+
+    private static void sound(Location at, SecretArt a, org.bukkit.Sound fallback) {
+        org.bukkit.Sound snd = fallback;
+        try {
+            if (a.params().containsKey("sound")) snd = org.bukkit.Sound.valueOf(a.params().get("sound"));
+        } catch (IllegalArgumentException ignored) {
+        }
+        at.getWorld().playSound(at, snd, 1f, 1f);
+    }
+
+    /** ring 고리 · spiral 감아 오르는 나선 · pillar 솟는 기둥 · burst 터짐 · rain 위에서 쏟아짐 · trail(직선 비기는 strike 가 그림) */
+    private void fx(Location base, SecretArt a, double radius) {
+        Particle pt = particle(a);
+        org.bukkit.World w = base.getWorld();
+        String pattern = a.params().getOrDefault("pattern", "burst");
+        double r = Math.max(1, radius);
+        switch (pattern) {
+            case "ring" -> {
+                for (int i = 0; i < 36; i++) {
+                    double ang = Math.PI * 2 * i / 36;
+                    w.spawnParticle(pt, base.clone().add(Math.cos(ang) * r, 0.2, Math.sin(ang) * r), 1, 0, 0.05, 0, 0);
+                }
+            }
+            case "spiral" -> {
+                for (int i = 0; i < 48; i++) {
+                    double ang = i * 0.4, h = i * 0.05;
+                    w.spawnParticle(pt, base.clone().add(Math.cos(ang) * r * 0.8, h, Math.sin(ang) * r * 0.8), 1, 0, 0, 0, 0);
+                }
+            }
+            case "pillar" -> {
+                for (double h = 0; h < 3.5; h += 0.15) w.spawnParticle(pt, base.clone().add(0, h, 0), 2, 0.25, 0, 0.25, 0);
+            }
+            case "rain" -> {
+                for (int k = 0; k < 6; k++) {
+                    int tick = k;
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> w.spawnParticle(pt, base.clone().add(0, 4, 0), 25, r, 0.3, r, 0.2), tick * 4L);
+                }
+            }
+            default -> w.spawnParticle(pt, base.clone().add(0, 1, 0), 40, r * 0.4, 0.6, r * 0.4, 0.08);
+        }
     }
 
     private void time(Player p, int tier) {
