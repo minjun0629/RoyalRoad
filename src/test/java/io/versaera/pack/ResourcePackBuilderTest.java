@@ -176,4 +176,30 @@ class ResourcePackBuilderTest {
         assertTrue(new String(dp.get("pack.mcmeta"), StandardCharsets.UTF_8).contains("\"pack_format\":15"));
         assertTrue(pack.zip().length < 1_000_000, "팩이 가볍다: " + pack.zip().length);
     }
+
+    @Test
+    void everyModelTextureIsInAnAtlas() throws Exception {
+        var pack = ResourcePackBuilder.build(io.versaera.content.ContentBundle.fromClasspath(getClass().getClassLoader()));
+        Map<String, byte[]> files = unzip(pack.zip());
+        String atlas = new String(files.get("assets/minecraft/atlases/blocks.json"), java.nio.charset.StandardCharsets.UTF_8);
+        java.util.Set<String> covered = new java.util.HashSet<>(java.util.Set.of("item", "block"));
+        var dm = java.util.regex.Pattern.compile("\"source\":\"([^\"]+)\"").matcher(atlas);
+        while (dm.find()) covered.add(dm.group(1));
+        int checked = 0;
+        for (var e : files.entrySet()) {
+            if (!e.getKey().contains("/models/") || !e.getKey().endsWith(".json")) continue;
+            var m = java.util.regex.Pattern.compile("\"(?:minecraft|versaera):([a-z0-9_]+)/[^\"]*\"").matcher(new String(e.getValue(), java.nio.charset.StandardCharsets.UTF_8));
+            String json = new String(e.getValue(), java.nio.charset.StandardCharsets.UTF_8);
+            int t = json.indexOf("\"textures\"");
+            if (t < 0) continue;
+            String tex = json.substring(t, json.indexOf('}', t) + 1);
+            var tm = java.util.regex.Pattern.compile("\"versaera:([a-z0-9_]+)/([^\"]+)\"").matcher(tex);
+            while (tm.find()) {
+                assertTrue(covered.contains(tm.group(1)), e.getKey() + " 의 텍스처 폴더 '" + tm.group(1) + "' 가 아틀라스에 없다 → 보라 · 검정 격자");
+                assertTrue(files.containsKey("assets/versaera/textures/" + tm.group(1) + "/" + tm.group(2) + ".png"), "텍스처 파일 없음: " + tm.group(0));
+                checked++;
+            }
+        }
+        assertTrue(checked > 300, "검사한 텍스처 참조 " + checked);
+    }
 }

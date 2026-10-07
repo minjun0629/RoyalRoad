@@ -28,10 +28,10 @@ gradle build                         # Paper 저장소에서 API 를 받아 빌�
 gradle build -PapiJar=<api.jar>      # 저장소에 접속할 수 없을 때, 가지고 있는 API jar 로 빌드
 ```
 
-결과: `build/libs/VersaEra-0.4.2.jar`
+결과: `build/libs/VersaEra-0.4.3.jar`
 
 ```bash
-gradle release                       # jar 와 리소스팩을 저장소 맨 위(VersaEra-0.4.2.jar · VersaEra-ResourcePack.zip)에 만든다 → 그대로 커밋 · 푸시
+gradle release                       # jar 와 리소스팩을 저장소 맨 위(VersaEra-0.4.3.jar · VersaEra-ResourcePack.zip)에 만든다 → 그대로 커밋 · 푸시
 gradle buildPack                     # 리소스팩만 다시 만들기
 ```
 
@@ -41,7 +41,7 @@ gradle buildPack                     # 리소스팩만 다시 만들기
 
 | 파일 | 할 일 |
 |---|---|
-| [`VersaEra-0.4.2.jar`](VersaEra-0.4.2.jar) | 받아서 서버의 `plugins/` 에 넣고 켜면 끝 |
+| [`VersaEra-0.4.3.jar`](VersaEra-0.4.3.jar) | 받아서 서버의 `plugins/` 에 넣고 켜면 끝 |
 | [`VersaEra-ResourcePack.zip`](VersaEra-ResourcePack.zip) | **받을 필요 없음** — 플러그인이 접속한 플레이어에게 이 파일의 GitHub 주소를 보내고, 플레이어의 게임이 GitHub 에서 직접 받습니다 |
 
 - 서버 포트를 열거나 주소 · 해시를 적을 필요가 없습니다. 플레이어가 어느 IP · 어느 나라에서 접속하든 GitHub 에서 받으므로 그대로 됩니다 (저장소는 공개).
@@ -63,7 +63,8 @@ gradle buildPack                     # 리소스팩만 다시 만들기
 | `secret.key` | 히든 콘텐츠 봉인 키 · 월드 이벤트 시간표 시드 — **백업하고, 공유하지 마세요** |
 | `hidden.sealed` | 봉인된 히든 규칙 (`/va hidden generate` 또는 `/va seal`) |
 
-3. 지역 좌표(`content/regions.yml`)는 30000 × 30000 월드 기준입니다 (가운데 22500 × 22500 이 베르사 대륙, 바깥은 신대륙 · 극지). 다른 차원(거인계 · 신계 등)은 플러그인이 시작할 때 세계 `versa_realms` 를 자동으로 만듭니다 (`config.yml` 의 `realms.enabled`). 지역에 맞는 땅을 만들려면 **새 세계**를 VersaEra 생성기로 만듭니다:
+3. 기본 세계는 플러그인이 `bukkit.yml` 에 `worlds.<level-name>.generator: VersaEra` 를 자동으로 넣어 VersaEra 지형으로 만듭니다 (`config.yml` 의 `world.auto-generator`). 이미 야생 지형으로 만들어진 세계라면 서버를 끄고 `world`, `world_nether`, `world_the_end` 폴더를 지운 뒤(또는 `/va 초기화 전체 확인` 후) 다시 켜세요.
+   지역 좌표(`content/regions.yml`)는 30000 × 30000 월드 기준입니다 (가운데 22500 × 22500 이 베르사 대륙, 바깥은 신대륙 · 극지). 다른 차원(거인계 · 신계 등)은 플러그인이 시작할 때 세계 `versa_realms` 를 자동으로 만듭니다 (`config.yml` 의 `realms.enabled`). 지역에 맞는 땅을 만들려면 **새 세계**를 VersaEra 생성기로 만듭니다:
 
 ```yaml
 # bukkit.yml
@@ -207,6 +208,8 @@ worlds:
 | `/va hidden generate [개수]` | 서버 비밀 시드로 히든 규칙을 만들어 곧바로 봉인 (평문을 남기지 않음 · 기존 봉인을 덮어씀) |
 | `/va event` | 월드 이벤트 진행 · 다음 시작까지 남은 시간 |
 | `/va npc info <id>` | NPC 직업 틀 · 레벨 · 관계 · 떠돌이 위치 · 희귀 시각 · 지역 번영 |
+| `/va 초기화 <이름> 확인` | 그 사람의 진행 · 돈 · 아이템 · 펫 · 땅 · 작품을 지움 (접속 중이면 인벤토리를 비우고 내보냄, 다시 들어오면 종족 고르기부터). 길드장은 먼저 길드를 넘겨야 함 |
+| `/va 초기화 전체 확인` | 다음 시작 때 DB 와 세계를 지우고 처음부터 (설정 · 콘텐츠 · 봉인 키는 남김) |
 | `/va perf` | NPC 수 · 콘텐츠 수 · 메모리 |
 
 ## 히든 콘텐츠 작성

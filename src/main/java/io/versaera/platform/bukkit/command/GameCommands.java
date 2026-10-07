@@ -144,7 +144,7 @@ public final class GameCommands implements CommandExecutor {
                 String tid = t.getUniqueId().toString();
                 async.run("guild-invite", () -> { s.guilds.invite(id, tid); return s.guilds.guildOf(id).orElseThrow(); }, g -> {
                     p.sendMessage(Ui.info(t.getName() + " 초대"));
-                    t.sendMessage(Ui.info("[" + g.tag() + "] " + g.name() + " 초대 · /길드 수락 " + g.tag()));
+                    t.sendMessage(Ui.info("[" + g.tag() + "] " + g.name() + " 길드 초대"));
                 }, p);
             }
             case "수락", "accept" -> async.run("guild-accept", () -> {

@@ -126,7 +126,7 @@ public final class CanonCommands implements CommandExecutor {
                     if (t == null) throw io.versaera.domain.common.DomainException.of("party.no_player", "접속 중인 사람이 아닙니다");
                     s.parties.invite(id, t.getUniqueId().toString());
                     p.sendMessage(Ui.info(t.getName() + " 님을 초대했다"));
-                    t.sendMessage(Ui.info(p.getName() + " 님이 파티에 초대했다 — /파티 수락"));
+                    t.sendMessage(Ui.info(p.getName() + " 님이 파티에 초대했다"));
                 }
                 case "수락", "accept" -> {
                     String leader = s.parties.accept(id);

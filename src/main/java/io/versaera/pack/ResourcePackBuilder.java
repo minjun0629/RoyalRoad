@@ -119,10 +119,29 @@ public final class ResourcePackBuilder {
             b.png("assets/versaera/textures/trims/models/armor/" + e.getKey() + "_leggings.png", ArmorLooks.texture(e.getKey(), e.getValue(), true));
         }
         if (!lookMaterial.isEmpty()) b.text("assets/minecraft/atlases/armor_trims.json", ArmorLooks.atlas(lookMaterial.keySet()));
+        // 블록 · 아이템 아틀라스 (1.19.3+): 기본으로는 textures/block · item 만 읽으므로, 팩이 쓰는 다른 폴더를 등록한다 — 없으면 보라 · 검정 격자
+        b.text("assets/minecraft/atlases/blocks.json", blockAtlas(b.files.keySet()));
         models = all;
         b.uiFont();
         b.png("pack.png", icon());
         return b.zip(models);
+    }
+
+    /** versaera 텍스처 중 item · block 밖의 폴더를 블록 아틀라스에 넣는다 (directory 소스는 모든 이름공간에 적용) */
+    static String blockAtlas(Collection<String> paths) {
+        Set<String> dirs = new TreeSet<>();
+        for (String f : paths) {
+            if (!f.startsWith("assets/versaera/textures/") || !f.endsWith(".png")) continue;
+            String rest = f.substring("assets/versaera/textures/".length());
+            int slash = rest.indexOf('/');
+            if (slash <= 0) continue;
+            String dir = rest.substring(0, slash);
+            if (!dir.equals("item") && !dir.equals("block") && !dir.equals("trims")) dirs.add(dir);
+        }
+        StringBuilder sb = new StringBuilder("{\"sources\":[");
+        int i = 0;
+        for (String d : dirs) sb.append(i++ == 0 ? "" : ",").append("{\"type\":\"directory\",\"source\":\"").append(d).append("\",\"prefix\":\"").append(d).append("/\"}");
+        return sb.append("]}").toString();
     }
 
     private static void put(Map<String, Integer> models, String model) {

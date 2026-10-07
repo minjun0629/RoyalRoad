@@ -94,7 +94,6 @@ public final class OriginListener implements Listener {
             if (c.get().beginner(System.currentTimeMillis())) {
                 Region here = s.regions.at(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ());
                 if (!s.origins.insideCity(c.get(), here == null ? null : here.id())) spawnIn(p, c.get().city());
-                p.sendMessage(Ui.info("초보 기간: " + c.get().city().name() + " 안에서 일하고 수련하세요 (현실 " + hours(c.get().beginnerUntil() - System.currentTimeMillis()) + " 남음)"));
             }
         }, p);
     }
@@ -185,7 +184,7 @@ public final class OriginListener implements Listener {
             });
         }
         m.open(p);
-        p.sendTitle(Ui.c("&6로열 로드에 오신 것을 환영합니다"), Ui.c("&7종족 · 성별 · 시작 도시를 고르세요 — 한 번 고르면 바꿀 수 없습니다"), 10, 80, 20);
+        p.sendTitle(Ui.c("&6로열 로드"), "", 10, 60, 20);
     }
 
     private void genderMenu(Player p) {
@@ -238,8 +237,8 @@ public final class OriginListener implements Listener {
             p.closeInventory();
             spawnIn(p, city);
             applyPerks(p, c);
-            p.sendTitle(Ui.c("&6" + city.name()), Ui.c("&7" + c.race().name() + " · " + g.label + " — 여기서 시작합니다"), 10, 70, 20);
-            p.sendMessage(Ui.info("보리빵 10개가 배달함으로 왔습니다. 처음 한 달(게임 시간) 동안은 도시 밖으로 나갈 수 없습니다 — 일거리를 찾고, 수련관에서 허수아비를 치세요."));
+            p.sendTitle(Ui.c("&6" + city.name()), Ui.c("&7" + c.race().name() + " · " + g.label), 10, 70, 20);
+            p.sendMessage(Ui.info("보리빵 10개가 배달함으로 왔습니다"));
         }, p);
     }
 

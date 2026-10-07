@@ -140,7 +140,7 @@ public final class PlayerCommand implements CommandExecutor {
         if (t == null || t.equals(p)) { p.sendMessage(Ui.error("상대를 찾을 수 없습니다")); return true; }
         requests.put(t.getUniqueId(), p.getUniqueId());
         p.sendMessage(Ui.info(t.getName() + " 님에게 거래 요청"));
-        t.sendMessage(Ui.info(p.getName() + " 님의 거래 요청 · /거래 수락"));
+        t.sendMessage(Ui.info(p.getName() + " 님의 거래 요청"));
         return true;
     }
 }

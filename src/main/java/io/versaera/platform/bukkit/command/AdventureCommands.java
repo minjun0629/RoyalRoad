@@ -265,7 +265,7 @@ public final class AdventureCommands implements CommandExecutor, TabCompleter {
                 String id = p.getUniqueId().toString(), req = UUID.randomUUID().toString();
                 async.run("mount-buy", () -> s.travel.buy(id, npcId, k.id(), req), mt -> {
                     p.closeInventory();
-                    p.sendMessage(Ui.info(mt.name() + " 을(를) 샀다 — /탈것"));
+                    p.sendMessage(Ui.info(mt.name() + " 을(를) 샀다"));
                 }, p);
             });
         }
@@ -299,7 +299,7 @@ public final class AdventureCommands implements CommandExecutor, TabCompleter {
                 if (t == null) throw DomainException.of("raid.no_player", "접속 중인 파티장이 아닙니다");
                 s.parties.raidInvite(id, t.getUniqueId().toString());
                 p.sendMessage(Ui.info(t.getName() + " 파티를 공격대에 초대했다"));
-                t.sendMessage(Ui.info(p.getName() + " 님이 공격대에 초대했다 — /레이드 수락"));
+                t.sendMessage(Ui.info(p.getName() + " 님이 공격대에 초대했다"));
             }
             case "수락", "accept" -> {
                 String head = s.parties.raidAccept(id);
