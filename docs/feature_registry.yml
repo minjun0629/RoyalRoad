@@ -1392,7 +1392,7 @@ features:
     source: "나무위키 「로열 로드/아이템」 (사용자 제공 본문)"
     source_type: "원작 이름"
     classification: CANON
-    description: "단단한 철검(철인 100명 통과 보상) · 자하브의 조각칼 · 클레이 소드 · 칼라모르의 검 · 아가사의 거룩한 검 · 차가운 로트의 검 · 콜드림의 데몬 소드 · 로아의 명검 · 레드 스타 · 혼돈의 도끼 · 예리카의 활 · 성자의 지팡이 · 그라함의 갑주(4벌 세트) · 탈로크의 전투복(2벌 세트) · 반 호크의 투구 · 쿠비챠의 부츠. 이름 CANON, 능력 수치 · 얻는 곳(필드 보스 드롭) ORIGINAL"
+    description: "단단한 철검(철인 100명 통과 보상) · 자하브의 조각칼 · 클레이 소드 · 칼라모르의 검 · 아가사의 거룩한 검 · 차가운 로트의 검 · 콜드림의 데몬 소드 · 로아의 명검 · 레드 스타 · 혼돈의 도끼 · 예리카의 활 · 성자의 지팡이 · 그라함의 갑주(4벌 세트) · 탈로크의 전투복(2벌 세트) · 반 호크의 투구 · 쿠비챠의 부츠. 2차: 검 6 (석양의 단혼검 · 말살의 검 · 군신 토르의 검 · 루의 신검 · 빙하의 검 · 울토르) · 시오그라데의 활 · 동맹의 증표 지팡이 · 창 6 (전통적인 녹슨 창 · 잘 제련된 창 · 파스크란 · 가르뭉 · 봉인된 썬더 스피어 · 악마 대공 제노키스) · 기타 무기 9 (바라보의 강철 부리 · 사이곤의 은 갈퀴 · 세레나의 하프 · 셀린의 부채 · 드워프 우노반의 전투용 석궁 · 주인이 자주 바뀐 시미터 · 락티샤의 쟁기 · 구름의 물뿌리개) · 갑옷 6 · 투구 · 방패 · 부츠 · 장신구 12 (반지 · 목걸이 · 팔찌 · 장갑 · 망토 · 구슬 — 핫바나 왼손에 두면 효과, 최대 3개) · 유물 4 (헤레인의 잔 · 부활의 마법서 · 유스켈란타의 거울 · 지골라스의 지하 지도) · 파고의 왕관. 이름 CANON, 능력 수치 · 얻는 곳(필드 보스 드롭) ORIGINAL"
     player_experience: "원작에 나온 물건을 보스에게서 얻는다"
     dependencies: [ITM-05, BOS-03, TRN-02]
     implementation: "content/items.yml · field_bosses.yml · TrialService"
@@ -1402,7 +1402,7 @@ features:
     performance_risk: "없음"
     security_risk: "보상은 키로 한 번만"
     persistence: "DB"
-    tests: [GearAndFieldBossTest, CanonRulesTest, ContentIntegrityTest]
+    tests: [GearAndFieldBossTest, CanonRulesTest, ContentIntegrityTest, CanonItemSheetTest]
     server_test: BLOCKED
     status: IMPLEMENTED
 
@@ -1412,7 +1412,7 @@ features:
     source: "나무위키 「로열 로드/몬스터」 (사용자 제공 본문)"
     source_type: "원작 이름"
     classification: CANON
-    description: "16 보스: 데스 나이트 반 호크 · 뱀파이어 토리도 · 바스라 대공 · 리치 샤이어 · 본 드래곤 쿠렌베르크 · 쿠비챠 · 몬투스 · 말살의 불도마뱀 왕 · 벨카인 · 킹 히드라 · 프레이키스 · 바르칸 데몰라 · 케이베른 · 랜도니 · 마힐고르타 · 클레타. 둥지 64 블록 안에 사람이 오면 나타나고, 쓰러지면 정해진 분 뒤 다시. 패턴: 재생 · 부하 소환 · 공포 · 생명의 그릇(그릇을 먼저 부수지 않으면 한 번 부활) · 광폭 · 숨결 · 도약. 가장 많이 때린 사람에게 확률 드롭, 기여 10% 이상은 돈 · 숙련 · 명성. 출현 번호로 한 번만 보상 · 서버 최초 처치 기록. 둥지 · 몸 · 수치 ORIGINAL (본문에 위치가 없는 보스가 많음)"
+    description: "33 보스: 데스 나이트 반 호크 · 뱀파이어 토리도 · 바스라 대공 · 리치 샤이어 · 본 드래곤 쿠렌베르크 · 혼돈의 대전사 쿠비챠 · 몬투스 · 말살의 불도마뱀 왕 · 벨카인 · 킹 히드라 · 프레이키스 · 아크 리치 바르칸 데모프 · 케이베른 · 랜도니 · 마힐고르타 · 클레타 · 잔혹한 우롤바 · 데스 로드 · 히드라 · 라바 · 킹 그리핀 · 엘핀 퀸 스파이더 · 하실리스 · 교주 사흐란 · 대왕 아반나 로드리암 · 본 드래곤 다이아크 · 혼돈의 드래곤 아우솔레토 · 엠비뉴의 화신 · 대사제 헤울러 · 라보스 여왕 갈라트로 · 폭식의 악마 델암 · 에센 포라트 · 마족 병사 하이어거 · 대마녀 페쳇 (나무위키 「로열 로드/보스 몬스터」 목차 검색 요약 · 원작 드롭: 반 호크 → 데스 나이트의 목걸이 · 헤레인의 잔, 쿠비챠 → 지골라스의 지하 지도 · 슬로어의 결혼 반지 · 레드 스타, 바르칸 → 소멸과 영겁의 반지). 빠진 것: 대신관 페이로드 · 데이몬드(사람) · 바르칸의 소환체 · 영웅을 기다리는 고요한 탑(장소). 둥지 64 블록 안에 사람이 오면 나타나고, 쓰러지면 정해진 분 뒤 다시. 패턴: 재생 · 부하 소환 · 공포 · 생명의 그릇(그릇을 먼저 부수지 않으면 한 번 부활) · 광폭 · 숨결 · 도약. 가장 많이 때린 사람에게 확률 드롭, 기여 10% 이상은 돈 · 숙련 · 명성. 출현 번호로 한 번만 보상 · 서버 최초 처치 기록. 둥지 · 몸 · 수치 ORIGINAL (본문에 위치가 없는 보스가 많음)"
     player_experience: "이름난 보스를 찾아가 잡는다"
     dependencies: [CMB-01, QST-01, ITM-06]
     implementation: "domain.fieldboss.FieldBoss · application.FieldBossService · platform.bukkit.world.FieldBossRuntime · /필드보스"
@@ -1551,17 +1551,17 @@ features:
     source: 사용자 요청 (2026-10)
     source_type: 설계 요구
     classification: ORIGINAL
-    description: "지역 위험도에 맞춰 성벽 밖에 토끼 · 여우 · 늑대 · 거미 · 고블린 … (레벨 · 게임 재료 전리품), 성벽 안 밤 몬스터 없음. 토끼 · 여우는 맞으면 때린 사람을 쫓아가 문다"
+    description: "content/monsters.yml 의 45 종 (원작 이름 30+): 원작 서식지가 있는 몬스터는 그 지역에서 4 배 자주 — 절망의 평원 = 오크 · 미노타우로스 · 평원의 사냥꾼, 유로키나 산맥 = 다크엘프 · 다크 랜서 · 다크 샤먼, 니플하임 · 죽음의 계곡 = 스켈레톤 · 좀비 · 구울 · 고스트 · 데스 나이트, 바란 마을 둘레 = 리자드맨, 추방의 장벽 = 도플갱어 …, 나머지는 지역 태그 · 위험도로. 먼저 덤비는 몬스터 / 맞으면 반격하는 짐승, 레벨 · 체력 · 공격력 · 전리품(고유 무기는 배달), 성벽 안 밤 몬스터 없음"
     player_experience: 시작 도시 둘레에 초보 사냥감이 있다
     dependencies: []
-    implementation: platform.bukkit.world.FieldMobRuntime
-    data_model: 없음 (저장하지 않음)
+    implementation: domain.world.FieldMonster · platform.bukkit.world.FieldMobRuntime
+    data_model: content/monsters.yml (몸은 저장하지 않음)
     ui: 이름표
     resource_pack: 없음
     performance_risk: 사람마다 근처 6~8 마리까지
     security_risk: 없음
     persistence: 없음
-    tests: []
+    tests: [FieldMonsterTest]
     server_test: BLOCKED
     status: PARTIAL
 

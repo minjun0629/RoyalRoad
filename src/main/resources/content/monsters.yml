@@ -1,0 +1,110 @@
+# 들판 몬스터 (WLD-05). 사람 둘레 18 ~ 32 블록, 도시 성벽 밖에 나온다 (FieldMobRuntime).
+# 이름: source CANON = 원작(소설 『달빛조각사』의 게임 로열 로드)에 나온 몬스터 — 나무위키 「달빛조각사/연표」 · 「로열 로드/보스 몬스터」,
+#       Legendary Moonlight Sculptor Wiki 「Monsters」 · 「Category:Monster」 검색 요약 (01_RESEARCH.md §6).
+#       SOURCE-BASED = 원작 종족(오크 · 다크엘프 …)에 이 게임이 붙인 병종 · ORIGINAL = 이 게임의 것.
+# 레벨 · 체력 · 공격력 · 전리품 · 무리 크기는 모두 이 게임이 정한 값 (원작 수치 아님).
+# regions: 원작 서식지 (그 지역 · 아래 지역에서 4 배 자주) · tags + danger: 지역 태그가 맞고 위험도가 범위 안이면 ("any" = 모든 땅)
+# hostile: 먼저 덤빈다 (false = 맞으면 반격) · drops: "아이템:확률[:개수]" (품질은 레벨만큼) · kinds: 속성 추가 피해 판정
+monsters:
+  # ---- 초보 사냥감 (원작: 위드가 처음 사냥하던 짐승들)
+  rabbit:        {name: 토끼, entity: RABBIT, hp: 6, damage: 1, level: [1, 4], tags: [any], danger: [0, 1], hostile: false, weight: 6, pack: [1, 2],
+                  drops: ["raw_meat:1.0", "hide:0.5"], source: CANON}
+  fox:           {name: 여우, entity: FOX, hp: 10, damage: 2, level: [3, 7], tags: [any], danger: [0, 1], hostile: false, weight: 4,
+                  drops: ["hide:1.0:2"], source: CANON}
+  raccoon:       {name: 너구리, entity: FOX, hp: 9, damage: 2, level: [2, 6], tags: [forest, plains, farmland, lake, river], danger: [0, 2], hostile: false, weight: 3,
+                  drops: ["hide:1.0"], source: CANON}
+  deer:          {name: 사슴, entity: GOAT, hp: 14, damage: 2, level: [4, 9], tags: [forest, highland, plains, mountain], danger: [0, 2], hostile: false, weight: 3,
+                  drops: ["raw_meat:1.0:2", "hide:0.6"], source: CANON}
+  wolf:          {name: 늑대, entity: WOLF, hp: 16, damage: 4, level: [7, 14], tags: [forest, highland, frontier, plains, mountain], danger: [1, 3], weight: 4, pack: [1, 3],
+                  drops: ["hide:1.0", "raw_meat:0.6"], source: CANON}
+  grey_wolf:     {name: 회색 늑대, entity: WOLF, hp: 22, damage: 5, level: [14, 22], tags: [forest, highland, frontier, mountain, frozen], danger: [2, 4], weight: 3, pack: [2, 3],
+                  drops: ["hide:1.0:2", "raw_meat:0.6"], source: ORIGINAL}
+  bear:          {name: 곰, entity: POLAR_BEAR, hp: 40, damage: 6, level: [15, 25], tags: [forest, mountain, highland, frozen], danger: [2, 4], hostile: false, weight: 2,
+                  drops: ["hide:1.0:3", "raw_meat:1.0:2"], source: CANON}
+  # ---- 흔한 몬스터
+  goblin:        {name: 고블린, entity: ZOMBIE, baby: true, hp: 18, damage: 3, level: [10, 20], tags: [forest, plains, highland, mountain, frontier], danger: [1, 3], weight: 4, pack: [2, 3],
+                  drops: ["whetstone:0.3", "copper_ore:0.3"], source: CANON}
+  kobold:        {name: 코볼트, entity: HUSK, baby: true, hp: 20, damage: 3, level: [12, 24], tags: [mountain, underground, deep, canyon], danger: [1, 4], weight: 4, pack: [2, 3],
+                  drops: ["iron_ore:0.4", "copper_ore:0.4"], source: CANON}
+  giant_spider:  {name: 독거미, entity: SPIDER, hp: 18, damage: 4, level: [14, 26], tags: [forest, canyon, ruins, swamp], danger: [2, 4], weight: 3,
+                  drops: ["flax_fiber:0.8:2"], source: ORIGINAL}
+  skeleton_soldier: {name: 해골 병사, entity: SKELETON, hp: 20, damage: 4, level: [20, 34], tags: [ruins, badlands, valley], danger: [3, 5], weight: 3, kinds: [UNDEAD],
+                  drops: ["old_bone:0.8"], source: ORIGINAL}
+  pillager:      {name: 약탈자, entity: VINDICATOR, hp: 28, damage: 6, level: [26, 40], tags: [plains, highland, frontier, forest, ruins], danger: [4, 6], weight: 2,
+                  drops: ["whetstone:0.5", "iron_ingot:0.3"], source: ORIGINAL}
+  mist_spider:   {name: 독안개 거미, entity: CAVE_SPIDER, hp: 14, damage: 4, level: [28, 40], tags: [forest, swamp, mist, canyon], danger: [4, 6], weight: 2,
+                  drops: ["flax_fiber:0.6:2"], source: ORIGINAL}
+  desert_mummy:  {name: 사막 미라, entity: HUSK, hp: 22, damage: 5, level: [18, 34], tags: [desert, salt], danger: [2, 6], weight: 3, kinds: [UNDEAD],
+                  drops: ["linen_cloth:0.6", "old_bone:0.4"], source: ORIGINAL}
+  frost_skeleton: {name: 서리 해골, entity: STRAY, hp: 22, damage: 5, level: [24, 40], tags: [frozen], danger: [2, 6], weight: 3, kinds: [UNDEAD],
+                  drops: ["old_bone:0.8", "frost_crystal:0.2"], source: ORIGINAL}
+
+  # ---- 로자임: 바란 마을 둘레 리자드맨 소굴 (원작 2권 — 위드가 생존자 구출 퀘스트로 토벌)
+  lizardman:     {name: 리자드맨, entity: DROWNED, hp: 26, damage: 5, level: [30, 45], regions: [rosenheim_frontier, howling_valley, lavias_peak], tags: [swamp, lake, river], danger: [2, 4],
+                  weight: 3, pack: [2, 3], drops: ["lizard_scale:0.8", "raw_meat:0.3"], source: CANON}
+  lizardman_warrior: {name: 리자드맨 전사, entity: DROWNED, hp: 34, damage: 6, level: [40, 55], regions: [rosenheim_frontier, howling_valley], weight: 2,
+                  drops: ["lizard_scale:1.0:2", "whetstone:0.3"], source: SOURCE-BASED}
+
+  # ---- 절망의 평원 · 오크랜드: 오크 100만이 넘는 땅 (원작). 미노타우로스 · 평원의 사냥꾼도 이곳에
+  orc_warrior:   {name: 오크 전사, entity: VINDICATOR, hp: 36, damage: 7, level: [100, 140], regions: [plains_of_despair, orc_land, yunopu_canyon], weight: 6, pack: [2, 4],
+                  drops: ["orc_tusk:0.7", "iron_ingot:0.3", "raw_meat:0.4"], source: SOURCE-BASED}
+  orc_spearman:  {name: 오크 창병, entity: PILLAGER, hp: 32, damage: 6, level: [100, 140], regions: [plains_of_despair, orc_land], weight: 4, pack: [1, 3],
+                  drops: ["orc_tusk:0.6", "oak_timber:0.3"], source: SOURCE-BASED}
+  orc_shaman:    {name: 오크 주술사, entity: WITCH, hp: 30, damage: 5, level: [110, 150], regions: [plains_of_despair, orc_land], weight: 2,
+                  drops: ["orc_tusk:0.5", "moonleaf:0.6:2"], source: SOURCE-BASED}
+  minotaur:      {name: 미노타우로스, entity: RAVAGER, hp: 90, damage: 10, level: [180, 240], regions: [plains_of_despair, yunopu_canyon], weight: 2,
+                  kinds: [LARGE], drops: ["minotaur_horn:0.8", "hide:1.0:3"], source: CANON}
+  plains_hunter: {name: 평원의 사냥꾼, entity: RAVAGER, hp: 120, damage: 12, level: [300, 340], regions: [plains_of_despair], weight: 1,
+                  kinds: [LARGE], drops: ["minotaur_horn:1.0:2", "hide:1.0:4"], source: CANON, desc: "평원을 떠도는 소 같은 마수"}
+
+  # ---- 유로키나 산맥: 다크엘프 (원작 — 오크 40만과 함께 다크엘프 성을 친다)
+  dark_elf_warrior: {name: 다크엘프 전사, entity: VINDICATOR, hp: 38, damage: 8, level: [150, 200], regions: [yurokina_range], weight: 5, pack: [1, 3],
+                  drops: ["iron_ingot:0.4", "whetstone:0.4"], source: SOURCE-BASED}
+  dark_elf_archer: {name: 다크엘프 궁수, entity: PILLAGER, hp: 30, damage: 7, level: [150, 200], regions: [yurokina_range], weight: 4, pack: [1, 2],
+                  drops: ["highland_timber:0.4", "flax_fiber:0.5"], source: SOURCE-BASED}
+  dark_lancer:   {name: 다크 랜서, entity: VINDICATOR, hp: 44, damage: 9, level: [180, 230], regions: [yurokina_range], weight: 2,
+                  drops: ["iron_ingot:0.6", "leather:0.4"], source: CANON}
+  dark_shaman:   {name: 다크 샤먼, entity: WITCH, hp: 34, damage: 6, level: [180, 230], regions: [yurokina_range], weight: 2,
+                  drops: ["moonleaf:0.6:2", "raw_gem:0.3"], source: CANON}
+
+  # ---- 불사의 군단: 니플하임 · 죽음의 계곡 · 폐허 (원작 — 1차전 상대가 스켈레톤 · 좀비 · 구울)
+  skeleton:      {name: 스켈레톤, entity: SKELETON, hp: 24, damage: 5, level: [60, 120], regions: [niflheim_wastes, sendeim_valley, furghol_ruins, rotten_lich_dungeon], tags: [ruins], danger: [3, 6],
+                  weight: 5, pack: [2, 4], kinds: [UNDEAD], drops: ["old_bone:1.0", "clay_sword:0.004"], source: CANON}
+  zombie:        {name: 좀비, entity: ZOMBIE, hp: 30, damage: 5, level: [60, 120], regions: [niflheim_wastes, sendeim_valley, rotten_lich_dungeon], tags: [ruins], danger: [3, 6],
+                  weight: 4, pack: [2, 3], kinds: [UNDEAD], drops: ["raw_meat:0.3", "old_bone:0.4"], source: CANON}
+  ghoul:         {name: 구울, entity: HUSK, hp: 36, damage: 7, level: [90, 150], regions: [niflheim_wastes, sendeim_valley, kaolya_blight], tags: [ruins, underground, deep], danger: [4, 6],
+                  weight: 3, kinds: [UNDEAD], drops: ["old_bone:0.6", "ectoplasm:0.2"], source: CANON}
+  ghost:         {name: 고스트, entity: VEX, hp: 20, damage: 5, level: [100, 160], regions: [sendeim_valley, niflheim_wastes, withered_ruins, kaolya_blight], weight: 2,
+                  kinds: [UNDEAD], drops: ["ectoplasm:0.6"], source: CANON}
+  specter:       {name: 스펙터, entity: VEX, hp: 28, damage: 7, level: [160, 220], regions: [withered_ruins, kaolya_blight, embinyu_sanctum], weight: 2,
+                  kinds: [UNDEAD], drops: ["ectoplasm:0.9"], source: CANON}
+  death_knight:  {name: 데스 나이트, entity: WITHER_SKELETON, hp: 70, damage: 11, level: [200, 280], regions: [sendeim_valley, niflheim_wastes, withered_ruins], weight: 1,
+                  kinds: [UNDEAD], drops: ["old_bone:1.0:2", "iron_ingot:0.6", "ectoplasm:0.4"], source: CANON}
+  spartoi:       {name: 스파르토이, entity: STRAY, hp: 40, damage: 8, level: [200, 260], regions: [jigolas, ring_of_fire, randoni_lair], weight: 2, pack: [2, 3],
+                  kinds: [UNDEAD], drops: ["dragon_bone:0.1", "old_bone:1.0"], source: CANON, desc: "용의 이빨에서 태어난 해골 전사"}
+
+  # ---- 북부 · 하늘: 그리핀 (원작 — 하베린의 협곡의 노란 그리핀 무리) · 와이번
+  griffin:       {name: 노란 그리핀, entity: PHANTOM, hp: 34, damage: 7, level: [120, 180], regions: [ugot, baroque_north, thousand_pillars, lavias], tags: [canyon], danger: [3, 5],
+                  weight: 2, pack: [1, 3], drops: ["griffin_feather:1.0:2", "raw_meat:0.5"], source: CANON}
+  wyvern:        {name: 와이번, entity: PHANTOM, hp: 60, damage: 10, level: [200, 280], regions: [jigolas, inferno, ring_of_fire, east_peaks], tags: [volcano], danger: [5, 6],
+                  weight: 2, kinds: [DRAGON], drops: ["wyvern_scale:0.9", "dragon_bone:0.05"], source: CANON}
+
+  # ---- 사막 · 황무지
+  basilisk:      {name: 바실리스크, entity: SPIDER, hp: 50, damage: 9, level: [180, 240], regions: [desert_of_tranquility, heated_desert, gordle_habitat], tags: [desert], danger: [4, 6],
+                  weight: 2, drops: ["basilisk_eye:0.5", "lizard_scale:0.8:2"], source: CANON}
+  giant_ant:     {name: 거대 개미, entity: CAVE_SPIDER, hp: 26, damage: 5, level: [60, 110], regions: [exile_wall, lost_road_badlands, sand_sea], tags: [badlands, desert], danger: [2, 5],
+                  weight: 3, pack: [2, 4], drops: ["sandstone_block:0.3"], source: CANON}
+  armored_insect: {name: 갑충, entity: SPIDER, hp: 44, damage: 6, level: [80, 130], regions: [lost_road_badlands, buried_city], tags: [badlands], danger: [4, 6],
+                  weight: 2, drops: ["armored_shell:0.7", "iron_ore:0.4"], source: CANON}
+  doppelganger:  {name: 도플갱어, entity: ZOMBIE_VILLAGER, hp: 40, damage: 8, level: [120, 170], regions: [exile_wall], weight: 2,
+                  drops: ["ectoplasm:0.3", "raw_gem:0.2"], source: CANON, desc: "추방자의 마을 둘레에 나타난다 (원작)"}
+
+  # ---- 금역 · 괴수의 땅
+  chimera:       {name: 키메라, entity: RAVAGER, hp: 110, damage: 13, level: [280, 360], regions: [grapes, averian_forest, great_forest], weight: 2,
+                  kinds: [LARGE], drops: ["hide:1.0:3", "demon_horn:0.3"], source: CANON}
+  cyclops:       {name: 사이클롭스, entity: IRON_GOLEM, hp: 140, damage: 14, level: [300, 380], regions: [grapes, giants_mountain, west_new_continent], weight: 1,
+                  kinds: [LARGE], drops: ["marble_block:0.6:2", "raw_gem:0.4"], source: CANON}
+  centaur:       {name: 켄타우로스, entity: SKELETON, hp: 40, damage: 7, level: [120, 180], regions: [benzen_plains, odein_plains, garnaf_plains], tags: [plains], danger: [4, 6],
+                  weight: 2, pack: [1, 2], drops: ["hide:0.8", "highland_timber:0.3"], source: CANON}
+  lamia:         {name: 라미아, entity: WITCH, hp: 38, damage: 7, level: [140, 200], regions: [rotten_foam_swamp], tags: [swamp], danger: [3, 6], weight: 2,
+                  drops: ["lizard_scale:0.6", "moonleaf:0.5"], source: CANON}

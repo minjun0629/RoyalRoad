@@ -22,7 +22,7 @@ import java.util.Map;
 public record Expansion(List<Achievement> achievements, Map<String, Title> titles, List<Species> species, List<MountKind> mounts,
                         TravelNetwork travel, List<WeatherKind> weatherKinds, List<Climate> climates, long weatherWindowMs, int weatherCell,
                         List<RaidDefinition> raids, List<ArtworkKind> artworks, List<GuildQuestDef> guildQuests, Map<String, Integer> guildWithdraw,
-                        int guildMaxKinds) {
+                        int guildMaxKinds, List<io.versaera.domain.world.FieldMonster> monsters) {
     public static final List<String> FILES = List.of("achievements.yml", "pets.yml", "travel.yml", "weather.yml", "raids.yml", "artworks.yml",
-            "guild_quests.yml");
+            "guild_quests.yml", "monsters.yml");
 }

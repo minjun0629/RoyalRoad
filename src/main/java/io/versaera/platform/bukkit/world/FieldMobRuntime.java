@@ -2,6 +2,7 @@ package io.versaera.platform.bukkit.world;
 
 import io.versaera.application.GameServices;
 import io.versaera.domain.terrain.SettlementPlanner;
+import io.versaera.domain.world.FieldMonster;
 import io.versaera.domain.world.Region;
 import io.versaera.platform.bukkit.Ui;
 import org.bukkit.Bukkit;
@@ -25,58 +26,47 @@ import org.bukkit.plugin.Plugin;
 import java.util.*;
 
 /**
- * 들판의 몬스터 (WLD-05). 바닐라 생물 무리는 바이옴을 따라 나와서 도시 둘레에 토끼 · 여우가 없다 → 지역 위험도에 맞춰 직접 내보낸다.
+ * 들판의 몬스터 (WLD-05). 바닐라 생물 무리는 바이옴을 따라 나와서 지역에 맞지 않는다 → content/monsters.yml 의 몬스터를 지역에 맞춰 직접 내보낸다.
  * <ul>
- *   <li>위험도 0: 토끼 · 여우 (초보 사냥감 — 원작에서 처음 사냥하던 짐승) · 1: + 늑대 · 2: 늑대 무리 · 거미 · 고블린 · 3 이상: 해골 병사 · 약탈자 …
- *       사막은 미라, 얼음 땅은 서리 해골</li>
+ *   <li>원작 서식지가 있는 몬스터는 그 지역에서 (절망의 평원 = 오크 · 미노타우로스, 유로키나 산맥 = 다크엘프, 니플하임 · 죽음의 계곡 = 불사의 군단,
+ *       바란 마을 둘레 = 리자드맨 …), 나머지는 지역 태그 · 위험도로 (초보 땅 = 토끼 · 여우 · 너구리 · 사슴)</li>
  *   <li>사람 둘레 18 ~ 32 블록, 도시 성벽 밖에만. 사람마다 근처에 몇 마리까지만, 멀어지면 사라진다 (저장하지 않음)</li>
- *   <li>토끼 · 여우는 맞으면 화가 나서 때린 사람을 쫓아가 문다 (24 블록 넘게 멀어지면 포기)</li>
- *   <li>체력은 위험도만큼 강해지고, 낮에도 타지 않는다. 도시 성벽 안에는 밤 몬스터가 자연히 생기지 않는다</li>
+ *   <li>hostile 몬스터는 12 블록 안의 사람에게 먼저 덤비고, 순한 짐승(토끼 · 여우 · 사슴 · 곰 …)은 맞으면 때린 사람을 쫓아가 문다 (24 블록 넘게 멀어지면 포기)</li>
+ *   <li>이름표에 레벨, 체력 · 공격력은 몬스터마다, 낮에도 타지 않는다. 전리품은 게임 재료 (품질은 레벨만큼) — 고유 무기는 잡은 사람에게 배달</li>
+ *   <li>도시 성벽 안에는 밤 몬스터가 자연히 생기지 않는다</li>
  * </ul>
  */
 public final class FieldMobRuntime implements Listener {
     static final String TAG = "versa_field";
-
-    private record Kind(EntityType type, String name, double health, boolean angry) {}
+    /** 몸에 근접 공격 행동이 없어서 직접 쫓아가 무는 몸 */
+    private static final Set<EntityType> BITERS = EnumSet.of(EntityType.RABBIT, EntityType.FOX, EntityType.GOAT);
 
     private final GameServices s;
     private final io.versaera.platform.bukkit.binding.ItemCodec codec;
+    private final io.versaera.platform.bukkit.Async async;
+    private final java.util.function.Consumer<Player> deliver;
     private final Random rng = new Random();
     private final Map<UUID, Integer> levels = new HashMap<>();
+    private final Map<UUID, FieldMonster> kindOf = new HashMap<>();
     private final Set<UUID> ours = new HashSet<>();
-    /** 맞고 화난 토끼 · 여우 → 쫓는 사람 */
+    /** 화난 몬스터 → 쫓는 사람 */
     private final Map<UUID, UUID> foes = new HashMap<>();
     private final Map<UUID, Long> bitAt = new HashMap<>();
+    private final Map<String, Map<FieldMonster, Integer>> tables = new HashMap<>();
 
-    public FieldMobRuntime(Plugin plugin, GameServices s, io.versaera.platform.bukkit.binding.ItemCodec codec) {
+    public FieldMobRuntime(Plugin plugin, GameServices s, io.versaera.platform.bukkit.binding.ItemCodec codec, io.versaera.platform.bukkit.Async async,
+                           java.util.function.Consumer<Player> deliver) {
         this.s = s;
         this.codec = codec;
+        this.async = async;
+        this.deliver = deliver;
         Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 100L, 80L);
         Bukkit.getScheduler().runTaskTimer(plugin, this::chase, 20L, 5L);
     }
 
-    private static List<Kind> table(int danger, Set<String> tags) {
-        List<Kind> l = new ArrayList<>();
-        if (danger <= 1) {
-            for (int i = 0; i < 3; i++) l.add(new Kind(EntityType.RABBIT, "토끼", 6, false));
-            for (int i = 0; i < 2; i++) l.add(new Kind(EntityType.FOX, "여우", 10, false));
-            if (danger == 1) l.add(new Kind(EntityType.WOLF, "늑대", 16, true));
-            return l;
-        }
-        boolean desert = tags.contains("desert"), frozen = tags.contains("frozen");
-        l.add(new Kind(EntityType.WOLF, "늑대", 16, true));
-        l.add(new Kind(EntityType.WOLF, "회색 늑대", 20, true));
-        l.add(new Kind(EntityType.SPIDER, "독거미", 18, false));
-        l.add(new Kind(desert ? EntityType.HUSK : frozen ? EntityType.STRAY : EntityType.ZOMBIE, desert ? "사막 미라" : frozen ? "서리 해골" : "고블린", 20, false));
-        if (danger >= 3) {
-            l.add(new Kind(frozen ? EntityType.STRAY : EntityType.SKELETON, "해골 병사", 20, false));
-            l.add(new Kind(EntityType.HUSK, "오크 척후병", 26, false));
-        }
-        if (danger >= 4) {
-            l.add(new Kind(EntityType.VINDICATOR, "약탈자", 28, false));
-            l.add(new Kind(EntityType.CAVE_SPIDER, "독안개 거미", 14, false));
-        }
-        return l;
+    /** 이 지역에 나오는 몬스터 (지역마다 한 번 계산) */
+    private Map<FieldMonster, Integer> table(Region r) {
+        return tables.computeIfAbsent(r.id(), k -> FieldMonster.table(s.content.expansion().monsters(), r, s.regions));
     }
 
     /** 도시 성벽(+ 4 블록) 안인가 */
@@ -94,10 +84,10 @@ public final class FieldMobRuntime implements Listener {
         for (Iterator<UUID> it = ours.iterator(); it.hasNext(); ) {
             UUID u = it.next();
             Entity e = Bukkit.getEntity(u);
-            if (e == null || !e.isValid()) { it.remove(); levels.remove(u); continue; }
+            if (e == null || !e.isValid()) { it.remove(); levels.remove(u); kindOf.remove(u); foes.remove(u); continue; }
             boolean near = false;
             for (Player p : e.getWorld().getPlayers()) if (p.getLocation().distanceSquared(e.getLocation()) < 80 * 80) { near = true; break; }
-            if (!near) { e.remove(); it.remove(); levels.remove(u); }
+            if (!near) { e.remove(); it.remove(); levels.remove(u); kindOf.remove(u); foes.remove(u); }
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.isDead() || p.getGameMode() == org.bukkit.GameMode.SPECTATOR) continue;
@@ -105,7 +95,7 @@ public final class FieldMobRuntime implements Listener {
             World w = at.getWorld();
             Region r = s.regions.at(w.getName(), at.getBlockX(), at.getBlockY(), at.getBlockZ());
             if (r == null) continue;
-            int danger = r.danger(), cap = danger <= 1 ? 6 : 8, near = 0;
+            int cap = r.danger() <= 1 ? 6 : 8, near = 0;
             for (UUID u : ours) {
                 Entity e = Bukkit.getEntity(u);
                 if (e != null && e.getWorld().equals(w) && e.getLocation().distanceSquared(at) < 40 * 40) near++;
@@ -115,10 +105,10 @@ public final class FieldMobRuntime implements Listener {
             if (spot == null) continue;
             Region sr = s.regions.at(w.getName(), spot.getBlockX(), spot.getBlockY(), spot.getBlockZ());
             if (sr == null) continue;
-            List<Kind> kinds = table(sr.danger(), sr.tags());
-            Kind k = kinds.get(rng.nextInt(kinds.size()));
-            int pack = k.type() == EntityType.WOLF || k.type() == EntityType.RABBIT ? 1 + rng.nextInt(2) : 1;
-            for (int i = 0; i < pack && near + i < cap; i++) spawn(k, spot.clone().add(rng.nextInt(3) - 1, 0, rng.nextInt(3) - 1), sr.danger());
+            FieldMonster k = FieldMonster.pick(table(sr), rng.nextDouble());
+            if (k == null) continue;
+            int pack = k.minPack() + rng.nextInt(k.maxPack() - k.minPack() + 1);
+            for (int i = 0; i < pack && near + i < cap; i++) spawn(k, spot.clone().add(rng.nextInt(3) - 1, 0, rng.nextInt(3) - 1));
         }
     }
 
@@ -139,30 +129,39 @@ public final class FieldMobRuntime implements Listener {
         return null;
     }
 
-    private void spawn(Kind k, Location at, int danger) {
-        Entity e = at.getWorld().spawnEntity(at, k.type());
+    private void spawn(FieldMonster k, Location at) {
+        EntityType type;
+        try {
+            type = EntityType.valueOf(k.entity());
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+        Entity e = at.getWorld().spawnEntity(at, type);
         if (!(e instanceof LivingEntity le)) { e.remove(); return; }
         le.addScoreboardTag(TAG);
+        for (var kind : k.kinds()) le.addScoreboardTag("versa_kind_" + kind.name());
         le.setRemoveWhenFarAway(true);
-        int lv = Math.max(1, danger * 6 + 1 + rng.nextInt(4));
+        if (k.baby() && le instanceof org.bukkit.entity.Ageable ag) ag.setBaby();
+        int lv = k.minLevel() + rng.nextInt(k.maxLevel() - k.minLevel() + 1);
         levels.put(le.getUniqueId(), lv);
-        le.setCustomName(Ui.c((k.angry() || danger >= 2 ? "&c" : "&f") + k.name() + " &7Lv." + lv));
+        kindOf.put(le.getUniqueId(), k);
+        le.setCustomName(Ui.c((k.hostile() ? "&c" : "&f") + k.name() + " &7Lv." + lv));
         le.setCustomNameVisible(true);
-        double hp = k.health() * (1 + Math.max(0, danger - 1) * 0.5);
         AttributeInstance max = le.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (max != null) {
-            max.setBaseValue(hp);
-            le.setHealth(hp);
+            max.setBaseValue(k.hp());
+            le.setHealth(k.hp());
         }
-        if (k.angry() && le instanceof Wolf wolf) wolf.setAngry(true);
+        AttributeInstance atk = le.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+        if (atk != null) atk.setBaseValue(k.damage());
+        if (k.hostile() && le instanceof Wolf wolf) wolf.setAngry(true);
         ours.add(le.getUniqueId());
     }
 
-    /** 토끼 · 여우도 맞으면 반격한다: 때린 사람을 쫓아가 문다 (사냥감이지만 공짜는 아니다) */
+    /** 맞으면 반격한다: 때린 사람을 쫓는다 (순한 짐승도 사냥감이지만 공짜는 아니다) */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHit(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
         if (!e.getEntity().getScoreboardTags().contains(TAG)) return;
-        if (e.getEntityType() != EntityType.RABBIT && e.getEntityType() != EntityType.FOX) return;
         Player p = e.getDamager() instanceof Player pl ? pl
                 : e.getDamager() instanceof org.bukkit.entity.Projectile pr && pr.getShooter() instanceof Player sh ? sh : null;
         if (p == null) return;
@@ -170,50 +169,89 @@ public final class FieldMobRuntime implements Listener {
             LivingEntity le = (LivingEntity) e.getEntity();
             String name = le.getCustomName();
             if (name != null) le.setCustomName(name.replace("§f", "§c"));
-            le.getWorld().playSound(le.getLocation(), e.getEntityType() == EntityType.FOX ? org.bukkit.Sound.ENTITY_FOX_AGGRO : org.bukkit.Sound.ENTITY_RABBIT_ATTACK, 1f, 1.2f);
+            if (e.getEntityType() == EntityType.FOX || e.getEntityType() == EntityType.RABBIT)
+                le.getWorld().playSound(le.getLocation(), e.getEntityType() == EntityType.FOX ? org.bukkit.Sound.ENTITY_FOX_AGGRO : org.bukkit.Sound.ENTITY_RABBIT_ATTACK, 1f, 1.2f);
         }
         foes.put(e.getEntity().getUniqueId(), p.getUniqueId());
     }
 
+    private static boolean fair(Player p) {
+        return !p.isDead() && p.getGameMode() != org.bukkit.GameMode.CREATIVE && p.getGameMode() != org.bukkit.GameMode.SPECTATOR;
+    }
+
     private void chase() {
+        // 먼저 덤비는 몬스터: 12 블록 안의 사람을 찾는다
+        for (UUID u : ours) {
+            if (foes.containsKey(u)) continue;
+            FieldMonster k = kindOf.get(u);
+            if (k == null || !k.hostile()) continue;
+            Entity e = Bukkit.getEntity(u);
+            if (e == null || !e.isValid()) continue;
+            Player best = null;
+            double bd = 12 * 12;
+            for (Player p : e.getWorld().getPlayers()) {
+                double d = p.getLocation().distanceSquared(e.getLocation());
+                if (d < bd && fair(p)) { bd = d; best = p; }
+            }
+            if (best != null) foes.put(u, best.getUniqueId());
+        }
         long now = System.currentTimeMillis();
         for (Iterator<Map.Entry<UUID, UUID>> it = foes.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<UUID, UUID> f = it.next();
             Entity e = Bukkit.getEntity(f.getKey());
             Player p = Bukkit.getPlayer(f.getValue());
-            if (!(e instanceof org.bukkit.entity.Mob m) || !m.isValid() || p == null || p.isDead() || !p.getWorld().equals(m.getWorld())
-                    || p.getGameMode() == org.bukkit.GameMode.CREATIVE || p.getGameMode() == org.bukkit.GameMode.SPECTATOR
+            if (!(e instanceof org.bukkit.entity.Mob m) || !m.isValid() || p == null || !fair(p) || !p.getWorld().equals(m.getWorld())
                     || p.getLocation().distanceSquared(m.getLocation()) > 24 * 24) {
                 it.remove();
                 bitAt.remove(f.getKey());
+                if (e instanceof org.bukkit.entity.Mob m2 && m2.isValid()) m2.setTarget(null);
+                continue;
+            }
+            if (!BITERS.contains(m.getType())) {   // 근접 · 원거리 공격 행동이 있는 몸: 표적만 정해 주면 알아서 싸운다
+                if (m.getTarget() != p) m.setTarget(p);
                 continue;
             }
             boolean fox = m.getType() == EntityType.FOX;
             if (p.getLocation().distanceSquared(m.getLocation()) <= (fox ? 2.2 * 2.2 : 1.8 * 1.8)) {
                 if (now - bitAt.getOrDefault(m.getUniqueId(), 0L) < (fox ? 1000 : 1300)) continue;
                 bitAt.put(m.getUniqueId(), now);
+                FieldMonster k = kindOf.get(m.getUniqueId());
                 int lv = levels.getOrDefault(m.getUniqueId(), 1);
-                p.damage((fox ? 2.0 : 1.0) + lv * 0.15, m);
-                m.getWorld().playSound(m.getLocation(), fox ? org.bukkit.Sound.ENTITY_FOX_BITE : org.bukkit.Sound.ENTITY_RABBIT_ATTACK, 1f, 1f);
+                p.damage((k == null ? 1.0 : k.damage()) + lv * 0.15, m);
+                m.getWorld().playSound(m.getLocation(), fox ? org.bukkit.Sound.ENTITY_FOX_BITE
+                        : m.getType() == EntityType.GOAT ? org.bukkit.Sound.ENTITY_GOAT_RAM_IMPACT : org.bukkit.Sound.ENTITY_RABBIT_ATTACK, 1f, 1f);
             } else m.getPathfinder().moveTo(p, fox ? 1.5 : 1.8);
         }
     }
 
-    /** 전리품: 바닐라 대신 게임 재료 (짐승 = 생가죽 · 생고기, 품질은 레벨만큼) */
+    /** 전리품: 바닐라 대신 게임 재료 (품질은 레벨만큼). 고유 아이템(무기 · 방어구)은 잡은 사람에게 배달 */
     @EventHandler
     public void onDeath(org.bukkit.event.entity.EntityDeathEvent e) {
         if (!e.getEntity().getScoreboardTags().contains(TAG)) return;
-        int lv = levels.getOrDefault(e.getEntity().getUniqueId(), 1);
-        levels.remove(e.getEntity().getUniqueId());
-        foes.remove(e.getEntity().getUniqueId());
-        ours.remove(e.getEntity().getUniqueId());
+        UUID id = e.getEntity().getUniqueId();
+        int lv = levels.getOrDefault(id, 1);
+        FieldMonster k = kindOf.remove(id);
+        levels.remove(id);
+        foes.remove(id);
+        ours.remove(id);
         e.getDrops().clear();
-        int q = Math.min(900, 250 + lv * 20 + rng.nextInt(100));
-        switch (e.getEntityType()) {
-            case RABBIT -> { e.getDrops().add(codec.bulk("raw_meat", q, 1)); if (rng.nextInt(2) == 0) e.getDrops().add(codec.bulk("hide", q, 1)); }
-            case FOX -> e.getDrops().add(codec.bulk("hide", q, 1 + rng.nextInt(2)));
-            case WOLF -> { e.getDrops().add(codec.bulk("hide", q, 1)); e.getDrops().add(codec.bulk("raw_meat", q, 1 + rng.nextInt(2))); }
-            default -> { if (rng.nextInt(4) == 0) e.getDrops().add(codec.bulk("whetstone", q, 1)); }
+        if (k == null) return;
+        int q = Math.min(950, 200 + lv * 2 + rng.nextInt(80));
+        Player killer = e.getEntity().getKiller();
+        for (FieldMonster.Drop d : k.drops()) {
+            if (rng.nextDouble() >= d.chance()) continue;
+            var type = codec.types().get(d.item());
+            if (type == null) continue;
+            if (!type.category().unique()) {
+                e.getDrops().add(codec.bulk(d.item(), q, d.count()));
+                continue;
+            }
+            if (killer == null) continue;
+            String uuid = killer.getUniqueId().toString(), req = UUID.randomUUID().toString();
+            async.run("field-drop", () -> s.items.create(d.item(), q, null, k.name(), "drop", Map.of(), uuid, req), it -> {
+                Bukkit.broadcastMessage(Ui.c("&6" + killer.getName() + " &f님이 &e" + k.name() + "&f 에게서 &d" + type.name() + "&f 을(를) 얻었습니다!"));
+                if (killer.isOnline()) deliver.accept(killer);
+            }, null);
         }
     }
 
@@ -238,5 +276,7 @@ public final class FieldMobRuntime implements Listener {
             if (e != null) e.remove();
         }
         ours.clear();
+        kindOf.clear();
+        foes.clear();
     }
 }

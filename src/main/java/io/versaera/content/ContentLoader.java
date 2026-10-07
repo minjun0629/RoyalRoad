@@ -515,7 +515,26 @@ public final class ContentLoader {
                 l(m, "target", 1), l(m, "money", 0), l(m, "activity", 0), b(m, "deposit", false), str(m, "desc", "")));
         Map<String, Object> st = section(gq, "storage", "guild_quests.yml");
         return new Expansion(achievements, titles, species, mounts, network, kinds, climates, l(w, "window_minutes", 40) * 60_000L, i(w, "cell", 3000),
-                raids, arts, guildQuests, intMap(st, "daily_withdraw"), i(st, "max_kinds", 120));
+                raids, arts, guildQuests, intMap(st, "daily_withdraw"), i(st, "max_kinds", 120), monsters(read.apply("monsters.yml"), "monsters.yml"));
+    }
+
+    /** 들판 몬스터 (monsters.yml) */
+    public static List<io.versaera.domain.world.FieldMonster> monsters(Map<String, Object> root, String file) {
+        return each(root, "monsters", file, (id, m) -> {
+            List<String> lv = list(m, "level"), pack = list(m, "pack"), danger = list(m, "danger");
+            List<io.versaera.domain.world.FieldMonster.Drop> drops = new ArrayList<>();
+            for (String x : list(m, "drops")) {   // "아이템:확률[:개수]"
+                String[] p = x.split(":");
+                drops.add(new io.versaera.domain.world.FieldMonster.Drop(p[0], Double.parseDouble(p[1]), p.length > 2 ? Integer.parseInt(p[2]) : 1));
+            }
+            Set<io.versaera.domain.item.ItemOptions.Kind> kinds = new LinkedHashSet<>();
+            for (String k : list(m, "kinds")) kinds.add(io.versaera.domain.item.ItemOptions.Kind.valueOf(k));
+            return new io.versaera.domain.world.FieldMonster(id, req(m, "name"), req(m, "entity"), i(m, "hp", 20), d(m, "damage", 3),
+                    Integer.parseInt(lv.get(0)), Integer.parseInt(lv.get(lv.size() - 1)), new LinkedHashSet<>(list(m, "regions")),
+                    new LinkedHashSet<>(list(m, "tags")), danger.isEmpty() ? 0 : Integer.parseInt(danger.get(0)), danger.isEmpty() ? 9 : Integer.parseInt(danger.get(danger.size() - 1)),
+                    b(m, "hostile", true), i(m, "weight", 3), pack.isEmpty() ? 1 : Integer.parseInt(pack.get(0)), pack.isEmpty() ? 1 : Integer.parseInt(pack.get(pack.size() - 1)),
+                    kinds, drops, b(m, "baby", false), str(m, "source", "ORIGINAL"), str(m, "desc", ""));
+        });
     }
 
     private static io.versaera.domain.travel.TravelNetwork.Mode mode(Map<String, Object> m) {

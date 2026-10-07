@@ -18,6 +18,7 @@ public final class PixelArt {
     // ------------------------------------------------------------------ 모양 고르기
     public static String kind(ItemType t) {
         String m = t.material(), id = t.id();
+        for (String k : ACCESSORY_KINDS) if (t.hasTag(k)) return k;
         if (t.hasTag("axe") || t.hasTag("tool_axe") || (m.endsWith("_AXE") && t.category() != ItemCategory.TOOL)) return "axe";
         if (t.hasTag("tool_carving")) return "knife";
         if (t.hasTag("tool_sewing")) return "needle";
@@ -95,10 +96,144 @@ public final class PixelArt {
         return c.image(true);
     }
 
+    /** 장신구 · 원작 물건의 모양 (태그 이름 = 모양 이름) */
+    static final java.util.List<String> ACCESSORY_KINDS = java.util.List.of("ring", "necklace", "bracelet", "gloves", "cloak", "orb", "harp", "fan",
+            "cup", "book", "mirror", "map", "rake", "plow", "watering_can", "pickaxe_weapon");
+
+    static void cutEllipse(Canvas.Layer l, double cx, double cy, double rx, double ry) {
+        for (int y = 0; y < 32; y++)
+            for (int x = 0; x < 32; x++) {
+                double dx = (x + 0.5 - cx) / rx, dy = (y + 0.5 - cy) / ry;
+                if (dx * dx + dy * dy <= 1) l.cut(x, y);
+            }
+    }
+
+    /** 장신구 · 원작 물건 그림. 없는 모양이면 false */
+    static boolean accessory(Canvas c, String k, Color metal, Color acc, Color own) {
+        Color gem = acc != null ? acc : own;
+        switch (k) {
+            case "ring" -> {
+                Canvas.Layer band = c.layer().ellipse(16, 19, 9, 9);
+                cutEllipse(band, 16, 19, 6.2, 6.2);
+                band.commit(R(GOLD), 0);
+                c.layer().ellipse(16, 9.5, 4.2, 4.2).commit(R(gem), 0);                                       // 보석
+                c.layer().rect(13, 12, 7, 2).commit(R(GOLD), 0);                                              // 물림쇠
+                c.set(15, 8, Color.WHITE);
+            }
+            case "necklace" -> {
+                for (int i = 0; i <= 20; i++) {                                                               // 늘어진 사슬
+                    double a = Math.PI * i / 20;
+                    int x = (int) Math.round(16 - Math.cos(a) * 11), y = (int) Math.round(5 + Math.sin(a) * 15);
+                    if (i % 2 == 0) c.layer().ellipse(x + 0.5, y + 0.5, 1.1, 1.1).commit(R(GOLD), 0);
+                }
+                c.layer().poly(new double[]{16, 21, 16, 11}, new double[]{18, 23, 30, 23}).commit(R(gem), 0.05);   // 펜던트
+                c.set(15, 21, Color.WHITE);
+            }
+            case "bracelet" -> {
+                Canvas.Layer band = c.layer().ellipse(16, 17, 12, 8);
+                cutEllipse(band, 16, 17, 8.5, 4.6);
+                band.commit(R(k.equals("bracelet") && acc == null ? GOLD : metal), 0.05);
+                for (int x = 8; x <= 24; x += 4) c.layer().ellipse(x + 0.5, x == 16 ? 25.5 : 24.2 - Math.abs(x - 16) * 0.35, 1.5, 1.5).commit(R(gem), 0);
+            }
+            case "gloves" -> {
+                c.layer().rect(9, 16, 13, 12).ellipse(15.5, 16, 6.5, 4).commit(R(LEATHER), 0.25);               // 손등
+                for (int i = 0; i < 4; i++) c.layer().rect(9 + i * 3, 6 + Math.abs(i - 1), 3, 11).commit(R(LEATHER), 0.25);   // 손가락
+                c.layer().line(21, 18, 26, 13, 3.2).commit(R(LEATHER), 0.25);                                  // 엄지
+                c.layer().rect(8, 26, 15, 3).commit(R(acc != null ? acc : WRAP), 0.1);                        // 손목
+            }
+            case "cloak" -> {
+                c.layer().poly(new double[]{11, 21, 28, 4}, new double[]{4, 4, 29, 29}).commit(R(new Color(118, 118, 126)), 0.3);
+                c.layer().rect(10, 3, 12, 3).commit(R(DARKWOOD), 0.1);                                        // 깃
+                c.layer().ellipse(16, 5, 1.8, 1.8).commit(R(GOLD), 0);                                       // 여밈
+                for (int y = 9; y < 28; y += 3) c.set(16 + (y % 2), y, Canvas.ramp(new Color(118, 118, 126))[0]);
+            }
+            case "orb" -> {
+                Color glass = acc != null ? acc : new Color(150, 90, 200);
+                c.layer().ellipse(16, 14, 10, 10).commit(R(glass), 0.05);
+                c.layer().rect(10, 24, 12, 3).rect(12, 27, 8, 2).commit(R(DARKWOOD), 0.2);                   // 받침
+                for (int i = 0; i < 8; i++) c.set(12 + i, 8 + (i * 7) % 11, Canvas.ramp(glass)[0]);          // 금
+                c.set(12, 9, Color.WHITE);
+                c.set(13, 9, Color.WHITE);
+            }
+            case "harp" -> {
+                c.layer().line(7, 27, 9, 5, 3).line(9, 5, 25, 11, 3).commit(R(GOLD), 0.05);                  // 기둥 · 목
+                c.layer().line(7, 27, 25, 27, 3).line(25, 11, 25, 27, 2.6).commit(R(WOOD), 0.15);
+                for (int x = 11; x <= 23; x += 3) for (int y = 7 + (x - 9) * 6 / 16; y <= 25; y++) c.set(x, y, new Color(236, 232, 220));   // 줄
+            }
+            case "fan" -> {
+                Canvas.Layer leaf = c.layer();
+                for (int i = 0; i <= 8; i++) {
+                    double a = Math.PI * (0.15 + 0.7 * i / 8);
+                    leaf.line(16, 26, 16 - Math.cos(a) * 14, 26 - Math.sin(a) * 14, 3.4);
+                }
+                leaf.commit(R(gem), 0.1);
+                for (int i = 0; i <= 8; i += 2) {
+                    double a = Math.PI * (0.15 + 0.7 * i / 8);
+                    c.layer().line(16, 26, 16 - Math.cos(a) * 13, 26 - Math.sin(a) * 13, 1).commit(R(DARKWOOD), 0);
+                }
+                c.layer().ellipse(16, 26, 2, 2).commit(R(GOLD), 0);
+            }
+            case "cup" -> {
+                c.layer().poly(new double[]{7, 25, 21, 11}, new double[]{5, 5, 17, 17}).commit(R(GOLD), 0.05);   // 잔
+                c.layer().rect(14, 17, 4, 7).commit(R(GOLD), 0.05);                                          // 대
+                c.layer().ellipse(16, 26, 7, 2.6).commit(R(GOLD), 0.05);                                     // 받침
+                c.layer().ellipse(16, 6, 8, 1.6).commit(R(new Color(150, 20, 30)), 0);                       // 붉은 술
+                c.layer().ellipse(16, 11, 2, 2).commit(R(gem), 0);
+            }
+            case "book" -> {
+                c.layer().rect(6, 5, 20, 23).commit(R(new Color(110, 40, 40)), 0.15);                        // 표지
+                c.layer().rect(24, 6, 3, 21).commit(R(new Color(236, 226, 196)), 0.2);                       // 책장
+                c.layer().rect(6, 5, 3, 23).commit(R(DARKWOOD), 0.1);                                        // 책등
+                c.layer().ellipse(16, 16, 4.5, 4.5).commit(R(GOLD), 0);                                     // 문양
+                c.layer().ellipse(16, 16, 2, 2).commit(R(gem), 0);
+            }
+            case "mirror" -> {
+                c.layer().ellipse(16, 13, 10, 11).commit(R(GOLD), 0.05);
+                c.layer().ellipse(16, 13, 7.5, 8.5).commit(R(new Color(170, 210, 230)), 0);
+                c.layer().line(16, 23, 16, 30, 3.2).commit(R(GOLD), 0.05);
+                for (int i = 0; i < 4; i++) c.set(12 + i, 8 + i, Color.WHITE);
+            }
+            case "map" -> {
+                c.layer().poly(new double[]{4, 13, 20, 28, 28, 20, 13, 4}, new double[]{6, 4, 6, 4, 26, 28, 26, 28}).commit(R(new Color(222, 200, 150)), 0.25);
+                for (int i = 0; i < 12; i++) c.set(8 + i, 12 + (int) Math.round(Math.sin(i * 0.8) * 3), new Color(150, 60, 40));   // 길
+                c.layer().line(20, 18, 24, 22, 1.2).line(24, 18, 20, 22, 1.2).commit(R(new Color(200, 30, 30)), 0);                // X
+            }
+            case "rake" -> {
+                c.layer().line(5, 28, 22, 11, 2.6).commit(R(WOOD), 0.2);
+                c.layer().line(17, 6, 28, 17, 2.4).commit(R(metal.equals(IRON) ? new Color(214, 218, 224) : metal), 0.05);
+                for (int i = 0; i < 4; i++) c.layer().line(18 + i * 3, 7 + i * 3, 21 + i * 3, 4 + i * 3, 1.6).commit(R(new Color(214, 218, 224)), 0);
+            }
+            case "plow" -> {
+                c.layer().line(4, 8, 22, 22, 2.8).commit(R(WOOD), 0.2);                                      // 손잡이 자루
+                c.layer().poly(new double[]{18, 29, 25, 14}, new double[]{18, 22, 29, 26}).commit(R(metal), 0.05);   // 보습
+                c.layer().line(4, 8, 8, 4, 2.4).commit(R(DARKWOOD), 0.1);
+            }
+            case "watering_can" -> {
+                c.layer().rect(8, 12, 14, 14).ellipse(15, 12, 7, 2.5).commit(R(new Color(140, 170, 200)), 0.05);
+                c.layer().line(22, 20, 29, 10, 2.4).commit(R(new Color(140, 170, 200)), 0.05);               // 주둥이
+                c.layer().ellipse(29, 9, 2.2, 1.6).commit(R(new Color(200, 220, 240)), 0);
+                Canvas.Layer handle = c.layer().ellipse(15, 9, 7, 5);
+                cutEllipse(handle, 15, 9.5, 5, 3.6);
+                handle.cutRect(0, 10, 32, 22);
+                handle.commit(R(new Color(110, 130, 160)), 0);
+                for (int i = 0; i < 3; i++) c.set(25 + i * 2, 4 + i, new Color(120, 190, 255));            // 물방울
+            }
+            case "pickaxe_weapon" -> {
+                c.layer().line(6, 27, 21, 12, 3).commit(R(WRAP), 0.25);
+                c.layer().poly(new double[]{14, 21, 30, 23}, new double[]{9, 4, 3, 12}).commit(R(metal), 0.05);   // 강철 부리
+                c.set(29, 3, Color.WHITE);
+            }
+            default -> {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** 손에 들었을 때 막대처럼 기울여 드는 모양 (item/handheld) */
     public static boolean handheld(String kind) {
         return switch (kind) {
-            case "sword", "dagger", "axe", "spear", "staff", "knife", "hammer", "pickaxe", "rod", "bone" -> true;
+            case "sword", "dagger", "axe", "spear", "staff", "knife", "hammer", "pickaxe", "rod", "bone", "rake", "plow", "pickaxe_weapon" -> true;
             default -> false;
         };
     }
@@ -146,6 +281,10 @@ public final class PixelArt {
         Color guard = acc != null ? acc : BRASS;
         boolean canon = "CANON".equals(t.source()) && t.category().unique();
         if (t.hasTag("practice")) return practice(c, k);
+        if (accessory(c, k, metal, acc, own)) {
+            if (canon) c.sparkle(28, 3, new Color(255, 226, 110));
+            return c.image(true);
+        }
         switch (k) {
             case "sword" -> {
                 boolean big = t.stats().getOrDefault("attack", 0) >= 30;

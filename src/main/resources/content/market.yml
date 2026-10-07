@@ -87,6 +87,64 @@ prices:
   ash_bow: 200
   practice_sword: 40
   practice_bow: 50
+  # 원작 아이템 2 · 들판 몬스터 재료
+  old_bone: 4
+  orc_tusk: 40
+  minotaur_horn: 120
+  lizard_scale: 30
+  wyvern_scale: 260
+  griffin_feather: 90
+  ectoplasm: 110
+  basilisk_eye: 180
+  armored_shell: 70
+  sunset_soul_sword: 9000
+  annihilation_sword: 90000
+  thor_war_god_sword: 150000
+  lu_divine_sword: 50000
+  glacier_sword: 24000
+  ultor: 42000
+  sioggrade_bow: 30000
+  alliance_staff: 8000
+  rusty_spear: 60
+  refined_spear: 900
+  pascran_spear: 14000
+  garmung_spear: 20000
+  sealed_thunder_spear: 32000
+  zenokis_spear: 60000
+  barabo_beak: 5000
+  saigon_silver_rake: 4000
+  serena_harp: 6000
+  celine_fan: 5000
+  unoban_crossbow: 18000
+  wandering_scimitar: 2500
+  laktisha_plow: 3000
+  cloud_watering_can: 2500
+  mad_warrior_half_plate: 7000
+  sky_ruler_armor: 38000
+  fabio_heavy_armor: 45000
+  kallamore_commander_armor: 20000
+  earth_armor: 40000
+  conqueror_leather: 16000
+  cold_ones_boots: 6000
+  orc_lord_helm: 9000
+  demon_helm: 22000
+  ancient_shield: 12000
+  bloody_old_gloves: 800
+  grudge_gloves: 15000
+  gray_shroud: 11000
+  baharan_bracelet: 7000
+  selina_flower_bracelet: 3000
+  witch_broken_orb: 9000
+  ring_of_extinction: 80000
+  sloar_wedding_ring: 12000
+  vampiric_ring: 14000
+  death_knight_necklace: 20000
+  black_life_necklace: 18000
+  herein_cup: 15000
+  pago_crown: 30000
+  revival_tome: 40000
+  yuskelanta_mirror: 25000
+  jigolas_map: 8000
   oak_staff: 190
   ash_bow_fine: 420
   buckler: 210

@@ -114,6 +114,104 @@ items:
                      lore: "데스 나이트 반 호크가 쓰던 투구. 죽음의 기운이 서려 있다"}
   kubicha_boots:    {name: 쿠비챠의 부츠, category: ARMOR, material: LEATHER_BOOTS, durability: 600, weight: 1, stats: {defense: 5, speed: 15}, requires: {stat.endurance: 10}, source: CANON,
                      lore: "가볍기 짝이 없는 부츠. 신으면 발걸음이 빨라진다"}
+  # ---- 원작 무기 · 방어구 · 장신구 2 (이름 CANON — 나무위키 「로열 로드/아이템」 검색 요약, 01_RESEARCH.md §5. 능력 수치 · 내력 문장은 ORIGINAL)
+  # 장신구(accessory: 반지 · 목걸이 · 팔찌 · 장갑 · 망토 · 구슬)는 핫바나 왼손에 두면 효과 (한 사람 최대 3개)
+  sunset_soul_sword: {name: 석양의 단혼검, category: WEAPON, material: IRON_SWORD, durability: 750, weight: 4, tags: [sword], stats: {attack: 21, crit: 10, fire: 3}, requires: {mastery.swordsmanship: 11}, source: CANON,
+                     lore: "노을빛이 감도는 검. 한 번에 혼을 끊듯 깊이 벤다"}
+  annihilation_sword: {name: 말살의 검, category: WEAPON, material: NETHERITE_SWORD, durability: 1600, weight: 6, tags: [sword], stats: {attack: 44, fire: 18, vs_large: 10}, requires: {mastery.swordsmanship: 24, fame: 800}, source: CANON,
+                     lore: "불의 힘을 크게 키우는 검. 대제왕이 들었다는 이야기가 전한다"}
+  thor_war_god_sword: {name: 군신 토르의 검, category: WEAPON, material: NETHERITE_SWORD, durability: 2000, weight: 7, tags: [sword], stats: {attack: 50, lightning: 12, crit: 10, stun: 8}, requires: {mastery.swordsmanship: 28, fame: 1500}, source: CANON,
+                     lore: "전쟁의 신의 검. 로열 로드에서 가장 강한 무기로 꼽힌다"}
+  lu_divine_sword:  {name: 루의 신검, category: WEAPON, material: GOLDEN_SWORD, durability: 1300, weight: 4, tags: [sword], stats: {attack: 36, holy: 14, vs_undead: 35, vs_demon: 35}, requires: {mastery.swordsmanship: 20, fame: 600}, source: CANON,
+                     lore: "빛의 신 루의 축복을 받은 검. 어둠의 것들을 태운다"}
+  glacier_sword:    {name: 빙하의 검, category: WEAPON, material: DIAMOND_SWORD, durability: 1000, weight: 5, tags: [sword], stats: {attack: 30, ice: 10, slow: 25}, requires: {mastery.swordsmanship: 17}, source: CANON,
+                     lore: "녹지 않는 얼음으로 벼린 검"}
+  ultor:            {name: 울토르, category: WEAPON, material: NETHERITE_SWORD, durability: 1400, weight: 6, tags: [sword], stats: {attack: 39, pierce: 15, vs_human: 15}, requires: {mastery.swordsmanship: 21}, source: CANON,
+                     lore: "이름이 새겨진 묵직한 검"}
+  sioggrade_bow:    {name: 시오그라데의 활, category: WEAPON, material: BOW, durability: 1000, weight: 2, tags: [bow], stats: {attack: 30, crit: 12, pierce: 10}, requires: {mastery.archery: 18}, source: CANON,
+                     lore: "멀리서도 과녁을 꿰뚫는 명궁의 활"}
+  alliance_staff:   {name: 동맹의 증표 지팡이, category: WEAPON, material: BLAZE_ROD, durability: 800, weight: 2, tags: [staff], stats: {attack: 18, holy: 6, resist: 5, health: 2}, requires: {mastery.spellcraft: 12}, source: CANON,
+                     lore: "마탈로스트 교단이 이웃 부족들과 동맹을 맺은 뒤 증표로 삼은 지팡이"}
+  rusty_spear:      {name: 전통적인 녹슨 창, category: WEAPON, material: TRIDENT, durability: 300, weight: 4, tags: [spear], stats: {attack: 11}, source: CANON,
+                     lore: "오래 쓰여 녹이 슨 창. 그래도 찌를 수는 있다"}
+  refined_spear:    {name: 잘 제련된 창, category: WEAPON, material: TRIDENT, durability: 600, weight: 4, tags: [spear], stats: {attack: 17, pierce: 5}, requires: {mastery.spearmanship: 6}, source: CANON,
+                     lore: "쇠를 잘 다듬어 만든 창"}
+  pascran_spear:    {name: 파스크란의 창, category: WEAPON, material: TRIDENT, durability: 900, weight: 5, tags: [spear], stats: {attack: 26, pierce: 12, crit: 6}, requires: {mastery.spearmanship: 14}, source: CANON,
+                     lore: "이름난 창잡이가 쓰던 창"}
+  garmung_spear:    {name: 가르뭉의 창, category: WEAPON, material: TRIDENT, durability: 1000, weight: 6, tags: [spear], stats: {attack: 29, vs_large: 20, stun: 5}, requires: {mastery.spearmanship: 16, stat.strength: 10}, source: CANON,
+                     lore: "큰 짐승을 꿰뚫는 무거운 창"}
+  sealed_thunder_spear: {name: 봉인된 썬더 스피어, category: WEAPON, material: TRIDENT, durability: 1100, weight: 5, tags: [spear], stats: {attack: 31, lightning: 9, stun: 6}, requires: {mastery.spearmanship: 18}, source: CANON,
+                     lore: "번개를 가둔 창. 봉인이 다 풀리지 않았다"}
+  zenokis_spear:    {name: 악마 대공 제노키스의 창, category: WEAPON, material: TRIDENT, durability: 1500, weight: 7, tags: [spear, cursed], stats: {attack: 42, dark: 12, lifesteal: 5, drain: 1}, requires: {mastery.spearmanship: 22}, source: CANON,
+                     lore: "악마 대공의 창. 강하지만 든 사람의 생명을 갉아먹는다 (저주)"}
+  barabo_beak:      {name: 바라보의 강철 부리, category: WEAPON, material: IRON_PICKAXE, durability: 700, weight: 4, tags: [pickaxe_weapon], stats: {attack: 20, pierce: 20}, source: CANON,
+                     lore: "강철로 된 새 부리 모양의 무기. 갑옷 틈을 쪼아 뚫는다"}
+  saigon_silver_rake: {name: 사이곤의 은 갈퀴, category: WEAPON, material: IRON_HOE, durability: 650, weight: 3, tags: [rake], stats: {attack: 16, holy: 4, vs_undead: 20}, source: CANON,
+                     lore: "은으로 된 갈퀴. 언데드가 싫어한다"}
+  serena_harp:      {name: 세레나의 하프, category: WEAPON, material: STICK, durability: 600, weight: 2, tags: [harp, instrument, accessory], stats: {attack: 6, regen: 1, resist: 5}, source: CANON,
+                     lore: "맑은 소리가 나는 하프. 곁에 두면 마음이 가라앉는다"}
+  celine_fan:       {name: 셀린의 부채, category: WEAPON, material: FEATHER, durability: 500, weight: 1, tags: [fan, accessory], stats: {attack: 8, speed: 8, crit: 4}, source: CANON,
+                     lore: "가벼운 부채. 몸놀림이 날래진다"}
+  unoban_crossbow:  {name: 드워프 우노반의 전투용 석궁, category: WEAPON, material: CROSSBOW, durability: 900, weight: 5, tags: [bow, crossbow], stats: {attack: 28, pierce: 15}, requires: {mastery.archery: 14}, source: CANON,
+                     lore: "드워프 장인 우노반이 만든 석궁. 무겁지만 단단히 꿰뚫는다"}
+  wandering_scimitar: {name: 주인이 자주 바뀐 시미터, category: WEAPON, material: IRON_SWORD, durability: 550, weight: 3, tags: [sword], stats: {attack: 17, crit: 6, speed: 4}, source: CANON,
+                     lore: "여러 손을 거쳐 온 굽은 칼. 손잡이에 닳은 자국이 겹겹이 있다"}
+  laktisha_plow:    {name: 락티샤의 쟁기, category: TOOL, material: IRON_HOE, durability: 900, weight: 6, tags: [plow], stats: {attack: 10, craft: 4}, source: CANON,
+                     lore: "땅을 깊이 가는 쟁기. 농사짓는 사람에게는 보물이다"}
+  cloud_watering_can: {name: 구름의 물뿌리개, category: TOOL, material: PAPER, durability: 600, weight: 2, tags: [watering_can], stats: {craft: 5}, source: CANON,
+                     lore: "비구름처럼 물을 뿌리는 물뿌리개"}
+  mad_warrior_half_plate: {name: 미친 전사의 하프 플레이트, category: ARMOR, material: IRON_CHESTPLATE, durability: 900, weight: 7, stats: {defense: 13, health: 2, speed: -5}, requires: {stat.strength: 8}, source: CANON,
+                     lore: "싸움에 미친 전사가 입던 반갑옷"}
+  sky_ruler_armor:  {name: 하늘 지배자의 갑옷, category: ARMOR, material: DIAMOND_CHESTPLATE, durability: 1400, weight: 6, stats: {defense: 19, speed: 8, resist: 5}, requires: {mastery.swordsmanship: 18}, source: CANON,
+                     lore: "하늘을 다스리던 자의 갑옷. 깃털처럼 가볍다"}
+  fabio_heavy_armor: {name: 파비오의 견고한 중갑옷, category: ARMOR, material: NETHERITE_CHESTPLATE, durability: 1800, weight: 12, stats: {defense: 22, resist: 8, speed: -10}, requires: {stat.strength: 14}, source: CANON,
+                     lore: "무겁고 단단한 중갑옷. 웬만한 공격은 튕겨 낸다"}
+  kallamore_commander_armor: {name: 칼라모르 왕국 기사단장의 갑옷, category: ARMOR, material: IRON_CHESTPLATE, durability: 1200, weight: 9, stats: {defense: 17, health: 3, vs_human: 5}, requires: {mastery.swordsmanship: 15}, source: CANON,
+                     lore: "칼라모르 기사단장이 입던 갑옷"}
+  earth_armor:      {name: 대지의 갑옷, category: ARMOR, material: NETHERITE_CHESTPLATE, durability: 1600, weight: 11, stats: {defense: 21, health: 5, regen: 1}, requires: {stat.endurance: 14}, source: CANON,
+                     lore: "땅의 기운이 깃든 갑옷. 서 있기만 해도 기운이 차오른다"}
+  conqueror_leather: {name: 정복자를 위한 존엄한 가죽 갑옷, category: ARMOR, material: LEATHER_CHESTPLATE, durability: 1000, weight: 4, stats: {defense: 12, speed: 6, crit: 4}, requires: {fame: 500}, source: CANON,
+                     lore: "정복자에게 어울리는 위엄 있는 가죽 갑옷"}
+  cold_ones_boots:  {name: 차가운 자들의 부츠, category: ARMOR, material: IRON_BOOTS, durability: 800, weight: 3, stats: {defense: 7, resist: 5}, source: CANON,
+                     lore: "얼음처럼 차가운 쇠 부츠. 언 땅에서도 미끄러지지 않는다"}
+  orc_lord_helm:    {name: 오크 로드의 강철 투구, category: ARMOR, material: PAPER, durability: 1100, weight: 5, tags: [helmet], stats: {defense: 11, health: 3}, requires: {stat.strength: 10}, source: CANON,
+                     lore: "오크 로드가 쓰던 강철 투구. 뿔이 달렸다"}
+  demon_helm:       {name: 악마 투구, category: ARMOR, material: PAPER, durability: 1300, weight: 4, tags: [helmet, cursed], stats: {defense: 13, thorns: 8, drain: 1}, requires: {mastery.swordsmanship: 18}, source: CANON,
+                     lore: "악마의 얼굴을 한 투구. 때린 자에게 피해를 돌려준다 (저주)"}
+  ancient_shield:   {name: 고대의 방패, category: ARMOR, material: SHIELD, durability: 1200, weight: 6, tags: [shield], stats: {defense: 10, resist: 6}, source: CANON,
+                     lore: "오래된 문양이 새겨진 방패"}
+  bloody_old_gloves: {name: 피로 얼룩진 낡은 장갑, category: ARMOR, material: LEATHER, durability: 400, weight: 1, tags: [gloves, accessory], stats: {defense: 2, crit: 3}, source: CANON,
+                     lore: "핏자국이 지워지지 않는 낡은 장갑"}
+  grudge_gloves:    {name: 사무치는 원한을 가진 장갑, category: ARMOR, material: LEATHER, durability: 800, weight: 1, tags: [gloves, accessory, cursed], stats: {defense: 4, dark: 6, lifesteal: 3, drain: 1}, source: CANON,
+                     lore: "원한이 서린 장갑. 휘두르는 손에 어둠이 실린다 (저주)"}
+  gray_shroud:      {name: 망자의 회색 망토, category: ARMOR, material: PHANTOM_MEMBRANE, durability: 700, weight: 1, tags: [cloak, accessory], stats: {defense: 3, resist: 6, speed: 4}, source: CANON,
+                     lore: "죽은 자가 두르던 잿빛 망토"}
+  baharan_bracelet: {name: 바하란의 팔찌, category: ARMOR, material: GOLD_NUGGET, durability: 600, weight: 1, tags: [bracelet, accessory], stats: {health: 3, resist: 4}, source: CANON,
+                     lore: "단단한 금 팔찌"}
+  selina_flower_bracelet: {name: 셀리나의 꽃팔찌, category: ARMOR, material: GOLD_NUGGET, durability: 300, weight: 1, tags: [bracelet, flower, accessory], stats: {regen: 1, health: 1}, source: CANON,
+                     lore: "꽃을 엮어 만든 팔찌. 시들지 않는다"}
+  witch_broken_orb: {name: 마녀의 깨진 구슬, category: ARMOR, material: HEART_OF_THE_SEA, durability: 300, weight: 1, tags: [orb, accessory, cursed], stats: {dark: 5, crit: 4, drain: 1}, source: CANON,
+                     lore: "금이 간 마녀의 수정 구슬. 아직 힘이 새어 나온다 (저주)"}
+  ring_of_extinction: {name: 소멸과 영겁의 반지, category: ARMOR, material: GOLD_NUGGET, durability: 2000, weight: 1, tags: [ring, accessory], stats: {lifesteal: 6, regen: 2, dark: 6, health: 4}, requires: {mastery.spellcraft: 20}, source: CANON,
+                     lore: "리치 바르칸 데모프를 쓰러뜨리고 얻는 반지. 둘레의 생명력을 조금씩 빨아들인다"}
+  sloar_wedding_ring: {name: 슬로어의 결혼 반지, category: ARMOR, material: GOLD_NUGGET, durability: 1000, weight: 1, tags: [ring, accessory], stats: {health: 3, regen: 1}, source: CANON,
+                     lore: "한 쌍으로 된 결혼 반지 가운데 하나"}
+  vampiric_ring:    {name: 요사스러운 흡혈 반지, category: ARMOR, material: GOLD_NUGGET, durability: 900, weight: 1, tags: [ring, accessory, cursed], stats: {lifesteal: 5, drain: 1}, source: CANON,
+                     lore: "피를 빨아들이는 반지. 끼고 있으면 낯빛이 창백해진다 (저주)"}
+  death_knight_necklace: {name: 데스 나이트의 목걸이, category: ARMOR, material: GOLD_NUGGET, durability: 1200, weight: 1, tags: [necklace, accessory], stats: {health: 4, vs_human: 6, thorns: 4}, source: CANON,
+                     lore: "데스 나이트 반 호크가 걸고 있던 목걸이"}
+  black_life_necklace: {name: 검은 생명의 목걸이, category: ARMOR, material: GOLD_NUGGET, durability: 1100, weight: 1, tags: [necklace, accessory], stats: {health: 6, dark: 4}, source: CANON,
+                     lore: "검은 보석이 박힌 목걸이. 생명력을 북돋운다"}
+  herein_cup:       {name: 헤레인의 잔, category: ARTWORK, material: GOLD_INGOT, durability: 100, weight: 2, tags: [relic, cup], source: CANON,
+                     lore: "데스 나이트 반 호크가 지니고 있던 잔"}
+  pago_crown:       {name: 파고의 왕관, category: ARMOR, material: PAPER, durability: 1500, weight: 2, tags: [helmet, crown], stats: {defense: 5, health: 2}, requires: {fame: 1000}, source: CANON,
+                     lore: "옛 왕 파고가 쓰던 왕관"}
+  revival_tome:     {name: 부활의 마법서, category: ARTWORK, material: BOOK, durability: 100, weight: 1, tags: [relic, book], source: CANON,
+                     lore: "죽은 이를 되살리는 마법이 적혔다는 책. 이제는 읽을 수 없는 글자가 많다"}
+  yuskelanta_mirror: {name: 유스켈란타의 거울, category: ARTWORK, material: PRISMARINE_CRYSTALS, durability: 100, weight: 2, tags: [relic, mirror], source: CANON,
+                     lore: "비친 것의 참모습을 보여 준다는 거울"}
+  jigolas_map:      {name: 지골라스의 지하 지도, category: ARTWORK, material: PAPER, durability: 100, weight: 1, tags: [relic, map], source: CANON,
+                     lore: "열화의 땅 지골라스 아래 길을 그린 지도"}
   # ---- 보스 재료 (ORIGINAL)
   dragon_bone:      {name: 용의 뼈,     category: MATERIAL, material: BONE,        weight: 3, tags: [bone, dragon]}
   dragon_scale:     {name: 용의 비늘,   category: MATERIAL, material: PRISMARINE_SHARD, weight: 1, tags: [scale, dragon]}
@@ -123,6 +221,16 @@ items:
   bandage:          {name: 붕대,        category: CONSUMABLE, material: PAPER,     weight: 1, tags: [bandage], source: CANON}
   whetstone:        {name: 숫돌,        category: MATERIAL, material: FLINT,       weight: 1, tags: [whetstone]}
   raw_meat:         {name: 날고기,      category: MATERIAL, material: BEEF,        weight: 2, tags: [meat]}
+  # ---- 들판 몬스터 재료 (monsters.yml, ORIGINAL)
+  old_bone:         {name: 낡은 뼈,     category: MATERIAL, material: BONE,        weight: 1, tags: [bone]}
+  orc_tusk:         {name: 오크의 엄니, category: MATERIAL, material: RABBIT_FOOT, weight: 1, tags: [horn]}
+  minotaur_horn:    {name: 미노타우로스의 뿔, category: MATERIAL, material: RABBIT_FOOT, weight: 2, tags: [horn]}
+  lizard_scale:     {name: 리자드맨 비늘, category: MATERIAL, material: PRISMARINE_SHARD, weight: 1, tags: [scale]}
+  wyvern_scale:     {name: 와이번 비늘, category: MATERIAL, material: PRISMARINE_SHARD, weight: 1, tags: [scale, dragon]}
+  griffin_feather:  {name: 그리핀 깃털, category: MATERIAL, material: FEATHER,     weight: 1, tags: [feather]}
+  ectoplasm:        {name: 망령의 정수, category: MATERIAL, material: ECHO_SHARD,  weight: 1, tags: [undead]}
+  armored_shell:    {name: 갑충 껍데기, category: MATERIAL, material: SCUTE,      weight: 2, tags: [scale]}
+  basilisk_eye:     {name: 바실리스크의 눈, category: MATERIAL, material: SPIDER_EYE, weight: 1, tags: [gem]}
 
 # 세트 (2개 · 4개 입으면 보너스, 아래 단계도 함께). 이름 CANON, 수치 ORIGINAL
 sets:

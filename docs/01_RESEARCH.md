@@ -135,7 +135,22 @@
 | **데스 나이트 반 호크**: 칼라모르의 기사였다가 죽은 뒤 암흑 군대를 지휘 | CANON | 같은 문서 |
 | **엠비뉴 교단** 관련 보스들 | CANON(존재) | 세부 RESEARCH_REQUIRED |
 
-**규칙**: 이 이름들은 현재 시대에 몬스터로 다시 나오지 않는다. 기록 · 전설 · 유적 이름으로만 쓴다.
+**규칙 (바뀜)**: 처음에는 이 이름들을 기록 · 전설로만 쓰기로 했으나, 사용자 요청으로 필드 보스(BOS-03) · 들판 몬스터(WLD-05)로 다시 나온다.
+이름 · 성격은 원작, 둥지 · 체력 · 드롭은 이 게임의 것.
+
+### 6-2. 2차 조사 (2026-10, 검색 요약 — 본문은 이 환경에서 열 수 없음)
+
+| 내용 | 분류 | 근거 |
+|---|---|---|
+| 보스 목차: 반 호크 · 토리도 · 바스라 대공 · 리치 샤이어 · 쿠렌베르크 · 잔혹한 우롤바 · 데스 로드 · 히드라 · 라바 · 킹 그리핀 · 데이몬드 · 엘핀 퀸 스파이더 · 대신관 페이로드 · 바르칸 데모프의 소환체 · 킹 히드라 · 블랙 이무기 프레이키스 · 혼돈의 대전사 쿠비챠 · 영웅을 기다리는 고요한 탑 · 하실리스 · 교주 사흐란 · 대왕 아반나 로드리암 · 본 드래곤 다이아크 · 혼돈의 드래곤 아우솔레토 · 엠비뉴의 화신 · 대사제 헤울러 · 라보스 여왕 갈라트로 · 폭식의 악마 델암 · 아크 리치 바르칸 데모프 · 에센 포라트 · 마족 병사 하이어거 · 대마녀 페쳇 | CANON | 나무위키 「로열 로드/보스 몬스터」 r119 · r128 검색 요약 |
+| 데스 로드 = 던전 텐바인의 보스 · 히드라 = 엘드라 호수 동쪽 통곡의 늪 · 킹 그리핀 = 하베린의 협곡 노란 그리핀의 우두머리 · 라바 = 성 잔해의 언데드 지렁이 · 하실리스 = 바르칸 휘하 유령 해적 제독 · 에센 포라트 = 아르펜 해안의 날개 달린 바다뱀 · 하이어거 = 고급 수련관 보스(긴 낫) · 페쳇 = 차원을 넘나들며 참 몸을 숨김(들모레 요새) · 아우솔레토 = 물리 · 마법 저항이 극히 높은 블랙 드래곤 | CANON | 같은 검색 요약 |
+| 텐바인 · 엘드라 호수 · 하베린 협곡 · 들모레 요새는 이 지도에 없음 → 성격이 맞는 지역에 둥지 | ORIGINAL | field_bosses.yml 주석 |
+| 보스 드롭: 반 호크 → 데스 나이트의 목걸이 · 반 호크의 마법 헬름 · 헤레인의 잔 / 쿠비챠 → 쿠비챠의 부츠 · 판금 갑옷 세트 · 지골라스의 지하 지도 · 레드 스타 · 슬로어의 결혼 반지 / 바르칸 → 소멸과 영겁의 반지 | CANON | 나무위키 「로열 로드/아이템」 검색 요약 |
+| 아이템 목록 (검 · 활 · 지팡이 · 창 · 기타 무기 · 갑옷 · 장신구 · 기타) — items.yml 「원작 무기 · 방어구 · 장신구 2」 | CANON (이름) | 나무위키 「로열 로드/아이템」 r133 · r184 · r215 검색 요약 |
+| 몬스터: 토끼 · 여우 · 너구리 · 코볼트 · 고블린 · 오크 · 다크엘프 · 미노타우로스 · 평원의 사냥꾼 · 리자드맨(바란 마을 소굴, 2권) · 스켈레톤 · 좀비 · 구울(불사의 군단 1차전) · 고스트 · 스펙터 · 데스 나이트 · 스파르토이 · 와이번 · 그리핀 · 바실리스크 · 키메라 · 사이클롭스 · 켄타우로스 · 라미아 · 거대 개미 · 갑충 · 도플갱어(추방자의 마을) · 다크 랜서 · 다크 샤먼 · 곰 · 사슴 | CANON (이름) | Legendary Moonlight Sculptor Wiki 「Monsters」 · 「Category:Monster」 · 「Minotaur」 · 「Hunter of Plains」, 나무위키 「달빛조각사/연표」 검색 요약 |
+| 몬스터 한국어 이름 일부는 영어 위키 이름의 음역 (다크 랜서 · 다크 샤먼 · 갑충 등) | RESEARCH_REQUIRED (표기) | 한국어 본문 확인 못 함 |
+| 영어 위키의 Amazon Huntress · Woomba · Demonic Warden 은 한국어 이름을 몰라 넣지 않음 | RESEARCH_REQUIRED | 같은 이유 |
+| 원작 몬스터 · 아이템 **전부**를 다 넣었는지는 확인할 수 없다 — 목록 문서 본문을 열 수 없어서 검색 요약에 나온 것만 넣었다 | RESEARCH_REQUIRED | §0 접근 제한 |
 
 ## 7. 사망 · 기타 규칙
 
@@ -192,3 +207,10 @@
 - [게임와이 — 달빛조각사 신규 외전 지역 (오데인 요새)](http://www.gamey.kr/news/articleView.html?idxno=1612588)
 - (지도 작업 때 위 문서 본문은 개발 환경에서 열 수 없어 **검색 결과 요약**으로만 확인했습니다. 원작 지도 그림은 쓰지 않았습니다.)
 - [Legendary Moonlight Sculptor Wiki — Character Stats](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Character_Stats)
+- [나무위키 「로열 로드/보스 몬스터」 (r128 판)](https://namu.wiki/w/%EB%A1%9C%EC%97%B4%20%EB%A1%9C%EB%93%9C/%EB%B3%B4%EC%8A%A4%20%EB%AA%AC%EC%8A%A4%ED%84%B0?uuid=22f49f3e-4541-4f6e-abe3-84f1af2c7564)
+- [나무위키 「로열 로드/아이템」 (r215 판)](https://namu.wiki/w/%EB%A1%9C%EC%97%B4%20%EB%A1%9C%EB%93%9C/%EC%95%84%EC%9D%B4%ED%85%9C?uuid=37bfde15-955e-4e99-a43d-e03dddc3b816)
+- [나무위키 「달빛조각사/연표」](https://namu.wiki/w/%EB%8B%AC%EB%B9%9B%EC%A1%B0%EA%B0%81%EC%82%AC/%EC%97%B0%ED%91%9C)
+- [Legendary Moonlight Sculptor Wiki — Monsters](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Monsters)
+- [Legendary Moonlight Sculptor Wiki — Category:Monster](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Category:Monster)
+- [Legendary Moonlight Sculptor Wiki — Minotaur](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Minotaur)
+- [Legendary Moonlight Sculptor Wiki — Hunter of Plains](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Hunter_of_Plains)

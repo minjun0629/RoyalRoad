@@ -50,7 +50,7 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                             Expansion expansion) {
     public static final List<String> FILES = List.of("items.yml", "disciplines.yml", "action_stats.yml", "recipes.yml", "resources.yml",
             "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml", "gates.yml", "origins.yml", "gods.yml", "history.yml", "secret_arts.yml", "field_bosses.yml", "npc_population.yml",
-            "achievements.yml", "pets.yml", "travel.yml", "weather.yml", "raids.yml", "artworks.yml", "guild_quests.yml");
+            "achievements.yml", "pets.yml", "travel.yml", "weather.yml", "raids.yml", "artworks.yml", "guild_quests.yml", "monsters.yml");
 
     public static ContentBundle load(Function<String, InputStream> opener) {
         Map<String, Object> skills = read(opener, "skills.yml"), gods = read(opener, "gods.yml"), items = read(opener, "items.yml");
