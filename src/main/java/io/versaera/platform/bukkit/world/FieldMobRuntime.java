@@ -30,6 +30,7 @@ import java.util.*;
  *   <li>위험도 0: 토끼 · 여우 (초보 사냥감 — 원작에서 처음 사냥하던 짐승) · 1: + 늑대 · 2: 늑대 무리 · 거미 · 고블린 · 3 이상: 해골 병사 · 약탈자 …
  *       사막은 미라, 얼음 땅은 서리 해골</li>
  *   <li>사람 둘레 18 ~ 32 블록, 도시 성벽 밖에만. 사람마다 근처에 몇 마리까지만, 멀어지면 사라진다 (저장하지 않음)</li>
+ *   <li>토끼 · 여우는 맞으면 화가 나서 때린 사람을 쫓아가 문다 (24 블록 넘게 멀어지면 포기)</li>
  *   <li>체력은 위험도만큼 강해지고, 낮에도 타지 않는다. 도시 성벽 안에는 밤 몬스터가 자연히 생기지 않는다</li>
  * </ul>
  */
@@ -43,11 +44,15 @@ public final class FieldMobRuntime implements Listener {
     private final Random rng = new Random();
     private final Map<UUID, Integer> levels = new HashMap<>();
     private final Set<UUID> ours = new HashSet<>();
+    /** 맞고 화난 토끼 · 여우 → 쫓는 사람 */
+    private final Map<UUID, UUID> foes = new HashMap<>();
+    private final Map<UUID, Long> bitAt = new HashMap<>();
 
     public FieldMobRuntime(Plugin plugin, GameServices s, io.versaera.platform.bukkit.binding.ItemCodec codec) {
         this.s = s;
         this.codec = codec;
         Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 100L, 80L);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::chase, 20L, 5L);
     }
 
     private static List<Kind> table(int danger, Set<String> tags) {
@@ -153,12 +158,54 @@ public final class FieldMobRuntime implements Listener {
         ours.add(le.getUniqueId());
     }
 
+    /** 토끼 · 여우도 맞으면 반격한다: 때린 사람을 쫓아가 문다 (사냥감이지만 공짜는 아니다) */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onHit(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
+        if (!e.getEntity().getScoreboardTags().contains(TAG)) return;
+        if (e.getEntityType() != EntityType.RABBIT && e.getEntityType() != EntityType.FOX) return;
+        Player p = e.getDamager() instanceof Player pl ? pl
+                : e.getDamager() instanceof org.bukkit.entity.Projectile pr && pr.getShooter() instanceof Player sh ? sh : null;
+        if (p == null) return;
+        if (!foes.containsKey(e.getEntity().getUniqueId())) {
+            LivingEntity le = (LivingEntity) e.getEntity();
+            String name = le.getCustomName();
+            if (name != null) le.setCustomName(name.replace("§f", "§c"));
+            le.getWorld().playSound(le.getLocation(), e.getEntityType() == EntityType.FOX ? org.bukkit.Sound.ENTITY_FOX_AGGRO : org.bukkit.Sound.ENTITY_RABBIT_ATTACK, 1f, 1.2f);
+        }
+        foes.put(e.getEntity().getUniqueId(), p.getUniqueId());
+    }
+
+    private void chase() {
+        long now = System.currentTimeMillis();
+        for (Iterator<Map.Entry<UUID, UUID>> it = foes.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<UUID, UUID> f = it.next();
+            Entity e = Bukkit.getEntity(f.getKey());
+            Player p = Bukkit.getPlayer(f.getValue());
+            if (!(e instanceof org.bukkit.entity.Mob m) || !m.isValid() || p == null || p.isDead() || !p.getWorld().equals(m.getWorld())
+                    || p.getGameMode() == org.bukkit.GameMode.CREATIVE || p.getGameMode() == org.bukkit.GameMode.SPECTATOR
+                    || p.getLocation().distanceSquared(m.getLocation()) > 24 * 24) {
+                it.remove();
+                bitAt.remove(f.getKey());
+                continue;
+            }
+            boolean fox = m.getType() == EntityType.FOX;
+            if (p.getLocation().distanceSquared(m.getLocation()) <= (fox ? 2.2 * 2.2 : 1.8 * 1.8)) {
+                if (now - bitAt.getOrDefault(m.getUniqueId(), 0L) < (fox ? 1000 : 1300)) continue;
+                bitAt.put(m.getUniqueId(), now);
+                int lv = levels.getOrDefault(m.getUniqueId(), 1);
+                p.damage((fox ? 2.0 : 1.0) + lv * 0.15, m);
+                m.getWorld().playSound(m.getLocation(), fox ? org.bukkit.Sound.ENTITY_FOX_BITE : org.bukkit.Sound.ENTITY_RABBIT_ATTACK, 1f, 1f);
+            } else m.getPathfinder().moveTo(p, fox ? 1.5 : 1.8);
+        }
+    }
+
     /** 전리품: 바닐라 대신 게임 재료 (짐승 = 생가죽 · 생고기, 품질은 레벨만큼) */
     @EventHandler
     public void onDeath(org.bukkit.event.entity.EntityDeathEvent e) {
         if (!e.getEntity().getScoreboardTags().contains(TAG)) return;
         int lv = levels.getOrDefault(e.getEntity().getUniqueId(), 1);
         levels.remove(e.getEntity().getUniqueId());
+        foes.remove(e.getEntity().getUniqueId());
         ours.remove(e.getEntity().getUniqueId());
         e.getDrops().clear();
         int q = Math.min(900, 250 + lv * 20 + rng.nextInt(100));

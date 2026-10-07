@@ -28,7 +28,7 @@ archetypes:
                quests: [{target: "item:leather", amount: 6, money: 240, xp: {leatherwork: 40}, affinity: 12, daily: true, title: "{npc}의 가죽끈", label: 무두질한 가죽 6개}]}
   carpenter:  {job: 목수, category: PRODUCTION, services: [SHOP, QUEST], likes: [wood], dislikes: [potion],
                personalities: [대패질 소리를 좋아함, 집 짓는 이야기만 함],
-               schedule: ["6-18:work", "18-21:tavern", "21-6:home"], stock: ["oak_timber:450", "highland_timber:420", "iron_hatchet:400"],
+               schedule: ["6-18:carpentry", "18-21:tavern", "21-6:home"], stock: ["oak_timber:450", "highland_timber:420", "iron_hatchet:400"],
                buys: [wood], consumes: [wood], produces: [wood], level: [10, 30],
                lines: ["못이나 건네 주게.", "기둥이 곧아야 집이 서지.", "자네 집이라면 공짜로 지어 주지."],
                quests: [{target: "item:oak_timber", amount: 10, money: 200, xp: {logging: 40}, affinity: 10, daily: true, title: "{npc}의 기둥감", label: 참나무 목재 10개}]}

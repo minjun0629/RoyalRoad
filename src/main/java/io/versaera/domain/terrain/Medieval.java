@@ -577,6 +577,56 @@ public final class Medieval {
         return b;
     }
 
+    /**
+     * 목공소 마당 (목수의 일터): 울타리 친 마당 + 북쪽 반은 나무 지붕 처마. 화살 작업대(목공 제작대) 둘 · 제작대 · 통나무 더미 ·
+     * 톱질 모탕 · 대패질 부스러기(퇴비통). 문은 남쪽(광장 쪽).
+     */
+    public static Blueprint carpentryYard(Palette p, SplittableRandom rng) {
+        int W = 11, D = 9;
+        Blueprint b = new Blueprint(W, 8, D);
+        String wood = p.frameWood(), fence = wood + "_fence", planks = wood + "_planks", log = "stripped_" + wood + "_log";
+        for (int x = 0; x < W; x++)
+            for (int z = 0; z < D; z++) {
+                boolean edge = x == 0 || x == W - 1 || z == 0 || z == D - 1;
+                b.set(x, 0, z, edge ? p.foundation() : z <= 3 ? planks : rng.nextInt(3) == 0 ? "coarse_dirt" : "dirt_path");
+                if (edge && z > 3) b.set(x, 1, z, fence + (x == 0 || x == W - 1 ? "[north=true,south=" + (z < D - 1) + "]" : "[east=" + (x > 0) + ",west=" + (x < W - 1) + "]"));
+            }
+        // 북쪽 처마: 뒷벽(판자) + 기둥 넷 + 평지붕(반 블록)
+        for (int x = 0; x < W; x++) {
+            for (int y = 1; y <= 3; y++) b.set(x, y, 0, x == 0 || x == W - 1 ? log + "[axis=y]" : planks);
+            for (int z = 0; z <= 4; z++) b.set(x, 4, z, wood + "_slab[type=bottom]");
+        }
+        for (int x : new int[]{0, W - 1}) for (int z = 1; z <= 3; z++) for (int y = 1; y <= 3; y++) b.set(x, y, z, z == 3 ? log + "[axis=y]" : planks);
+        for (int x : new int[]{3, 7}) for (int y = 1; y <= 3; y++) b.set(x, y, 4, fence);
+        // 작업대: 화살 작업대(목공) 둘 · 제작대 · 숫돌, 처마 밑 뒷벽을 따라
+        b.set(2, 1, 1, "fletching_table");
+        b.set(3, 1, 1, "crafting_table");
+        b.set(4, 1, 1, "fletching_table");
+        b.set(6, 1, 1, "grindstone[face=floor,facing=south]");
+        b.set(7, 1, 1, "barrel[facing=up]");
+        b.set(8, 1, 1, "composter");                                   // 대팻밥 통
+        b.set(2, 2, 0, "lantern[hanging=false]");
+        b.set(8, 2, 0, "lantern[hanging=false]");
+        // 통나무 더미 (동쪽 마당, 눕힌 통나무 2 단)
+        for (int z = 5; z <= 7; z++) {
+            b.set(W - 2, 1, z, log.replace("stripped_", "") + "[axis=z]");
+            b.set(W - 3, 1, z, log.replace("stripped_", "") + "[axis=z]");
+            b.set(W - 2, 2, z, log.replace("stripped_", "") + "[axis=z]");
+        }
+        // 톱질 모탕: 울타리 다리 둘 + 반 블록 판 (서쪽 마당), 옆에 장작 패는 그루터기
+        b.set(2, 1, 6, fence);
+        b.set(4, 1, 6, fence);
+        b.set(3, 1, 6, wood + "_slab[type=top]");
+        b.set(2, 2, 6, wood + "_slab[type=bottom]");
+        b.set(4, 2, 6, wood + "_slab[type=bottom]");
+        b.set(1, 1, 7, log + "[axis=y]");
+        // 남쪽 문
+        int gate = W / 2;
+        b.set(gate, 1, D - 1, wood + "_fence_gate[facing=south,open=true,in_wall=false]");
+        for (int dx : new int[]{-1, 1}) b.set(gate + dx, 2, D - 1, "lantern[hanging=false]");
+        return b;
+    }
+
     // ------------------------------------------------------------------ 시장 노점 · 분수 · 가로등
     /** 노점: 울타리 기둥 네 개 + 줄무늬 천 지붕 + 상품 */
     public static Blueprint stall(Palette p, SplittableRandom rng) {

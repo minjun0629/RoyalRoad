@@ -89,6 +89,9 @@ class SettlementPlannerTest {
             if (!SettlementPlanner.isTown(r) || !r.world().equals("world")) continue;
             long big = p.structures().stream().filter(s -> s.kind == Kind.BUILDING && s.region.equals(r.id()) && (s.maxX - s.minX) >= 10).count();
             assertTrue(big >= 4, r.id() + " 큰 건물(성당 · 여관 · 대장간 · 훈련장 · 회관) " + big);
+            int[] g = SettlementPlanner.townGrid(r);
+            assertTrue(p.structures().stream().anyMatch(s -> s.kind == Kind.BUILDING && s.region.equals(r.id()) && s.minX == g[0] + 20 && s.maxZ == g[1] + 29),
+                    r.id() + " 목공소 마당 (목수 일터) 없음");
         }
     }
 

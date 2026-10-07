@@ -206,6 +206,10 @@ public final class SettlementPlanner {
         // 광장 북서쪽 칸: 훈련장 (문이 광장 쪽)
         Blueprint yard = Medieval.trainingYard(p, rng);
         tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 4 - yard.w, cz - 15 - yard.d + 1, yard, p));
+        // 광장 남동쪽 칸 안쪽 (대장간 남쪽 · 시장 회관 동쪽): 목공소 마당 (목수의 일터, 화살 작업대 = 목공 제작대, 문이 남쪽 길 쪽).
+        // 북동쪽 칸은 랜드마크 자리라 비운다
+        Blueprint carpentry = Medieval.carpentryYard(p, rng);
+        tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx + 20, cz + 29 - carpentry.d + 1, carpentry, p));
         // 광장 남쪽: 길드 회관 (시계탑 · 파란 깃발) · 시장 회관 (경매장, 노란 깃발)
         Blueprint guild = Medieval.guildHall(p, rng);
         tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 3 - guild.w, cz + 14, guild, p));

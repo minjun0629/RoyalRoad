@@ -1551,7 +1551,7 @@ features:
     source: 사용자 요청 (2026-10)
     source_type: 설계 요구
     classification: ORIGINAL
-    description: "지역 위험도에 맞춰 성벽 밖에 토끼 · 여우 · 늑대 · 거미 · 고블린 … (레벨 · 게임 재료 전리품), 성벽 안 밤 몬스터 없음"
+    description: "지역 위험도에 맞춰 성벽 밖에 토끼 · 여우 · 늑대 · 거미 · 고블린 … (레벨 · 게임 재료 전리품), 성벽 안 밤 몬스터 없음. 토끼 · 여우는 맞으면 때린 사람을 쫓아가 문다"
     player_experience: 시작 도시 둘레에 초보 사냥감이 있다
     dependencies: []
     implementation: platform.bukkit.world.FieldMobRuntime
@@ -1611,7 +1611,7 @@ features:
     source: 사용자 요청 (2026-10)
     source_type: 설계 요구
     classification: ORIGINAL
-    description: "제조법을 고르면 제작대 곁에서 몇 초 동안 만든다 — 분야마다 소리 · 효과, 떠나면 멈추고 재료 반환. 명품은 제목, 걸작은 서버 알림. 화살 작업대 = 목공"
+    description: "제조법을 고르면 제작대 곁에서 몇 초 동안 만든다 — 분야마다 소리 · 효과, 떠나면 멈추고 재료 반환. 명품은 제목, 걸작은 서버 알림. 화살 작업대 = 목공 (훈련장 · 도시마다 목공소 마당, 목수가 일하는 곳)"
     player_experience: 제작이 클릭 한 번이 아니라 일이 된다
     dependencies: []
     implementation: platform.bukkit.listener.StationListener

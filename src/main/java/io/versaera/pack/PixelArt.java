@@ -70,6 +70,31 @@ public final class PixelArt {
         return "blob";
     }
 
+    static final Color PALE_WOOD = new Color(204, 160, 102), ROPE = new Color(196, 178, 128);
+
+    /** 수련용 무기: 쇠 · 놋쇠 없이 밝은 나무와 끈으로 — 진짜 무기와 한눈에 구별된다 */
+    private static BufferedImage practice(Canvas c, String k) {
+        if (k.equals("bow")) {
+            Canvas.Layer limb = c.layer();
+            for (int i = 0; i <= 40; i++) { double a = Math.PI * i / 40; limb.line(7 + Math.sin(a) * 12, 4 + i * 0.6, 7 + Math.sin(a) * 12, 4 + i * 0.6, 2.2); }
+            limb.commit(R(PALE_WOOD), 0.2);
+            c.layer().rect(17, 14, 3, 5).commit(R(ROPE), 0.3);                                            // 끈 감은 손잡이
+            for (int y = 15; y <= 18; y += 2) c.set(17, y, Canvas.ramp(ROPE)[0]);
+            for (int y = 4; y <= 28; y++) c.set(7, y, new Color(214, 206, 186));                          // 삼베 시위
+            c.layer().ellipse(7.5, 4, 1.2, 1.2).ellipse(7.5, 28, 1.2, 1.2).commit(R(DARKWOOD), 0);
+            return c.image(true);
+        }
+        // 목검: 둥근 끝 · 나뭇결 · 막대 코등이 · 끈 감은 손잡이
+        c.layer().line(6.5, 25.5, 4, 28, 3.2).commit(R(ROPE), 0.3);
+        for (int i = 0; i < 3; i++) c.set(5 + i, 27 - i, Canvas.ramp(ROPE)[0]);
+        c.layer().ellipse(3.4, 28.6, 1.5, 1.5).commit(R(DARKWOOD), 0);
+        c.layer().line(4.5, 21.5, 10.5, 27.5, 2.4).commit(R(DARKWOOD), 0.1);
+        c.layer().line(9, 23, 26, 6, 4.2).ellipse(26, 6, 2.1, 2.1).commit(R(PALE_WOOD), 0.15);
+        Color grain = Canvas.ramp(PALE_WOOD)[0];
+        for (int i = 0; i < 14; i += 3) { c.set(11 + i, 21 - i, grain); c.set(12 + i, 20 - i, grain); }
+        return c.image(true);
+    }
+
     /** 손에 들었을 때 막대처럼 기울여 드는 모양 (item/handheld) */
     public static boolean handheld(String kind) {
         return switch (kind) {
@@ -120,6 +145,7 @@ public final class PixelArt {
         Color metal = metal(t.material()), acc = accent(t), own = hashed(t.id(), 0.55f, 0.8f);
         Color guard = acc != null ? acc : BRASS;
         boolean canon = "CANON".equals(t.source()) && t.category().unique();
+        if (t.hasTag("practice")) return practice(c, k);
         switch (k) {
             case "sword" -> {
                 boolean big = t.stats().getOrDefault("attack", 0) >= 30;
