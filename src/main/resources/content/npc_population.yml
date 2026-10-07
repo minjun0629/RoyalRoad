@@ -280,18 +280,66 @@ archetypes:
                level: [30, 50], lines: ["값부터 말하지.", "요즘 일거리가 많아.", "자네 일이라면 반값에 하지."],
                quests: [{target: "kill:any", amount: 50, money: 500, xp: {spearmanship: 100}, affinity: 15, daily: true, title: "용병의 일감", label: 몬스터 50마리}]}
 
+  # ---- 거리의 사람들 (도시를 채우는 보통 주민)
+  citizen:    {job: 주민, category: SOCIAL, services: [RUMOR], likes: [food, cloth], dislikes: [ore],
+               personalities: [이웃 소식에 밝음, 장날만 기다림, 잔소리가 많음, 길을 잘 알려 줌],
+               schedule: ["7-9:home", "9-12:market", "12-14:square", "14-18:market", "18-21:tavern", "21-7:home"], level: [1, 15],
+               lines: ["처음 보는 얼굴이네.", "오늘 장이 붐비더군.", "자네 소문 들었어, 잘했다며?"],
+               quests: [{target: "item:barley_bread", amount: 3, money: 60, affinity: 8, daily: true, title: "{npc}의 저녁거리", label: 보리빵 3개}]}
+  child:      {job: 아이, category: SOCIAL, services: [RUMOR], likes: [food, art], dislikes: [potion],
+               personalities: [모험가를 졸졸 따라다님, 숨바꼭질 대장, 질문이 끝이 없음],
+               schedule: ["8-12:square", "12-13:home", "13-18:square", "18-8:home"], level: [1, 3],
+               lines: ["아저씨 모험가예요?", "칼 한 번만 만져 봐도 돼요?", "나도 크면 아저씨처럼 될 거예요!"],
+               quests: [{target: "partner", money: 20, affinity: 10, title: "{npc}의 심부름", label: "{partner}에게 쪽지 전하기"}]}
+  elder:      {job: 노인, category: SOCIAL, services: [RUMOR, LORE], likes: [food, art], dislikes: [metal],
+               personalities: [옛날이야기를 끝없이 함, 날씨를 무릎으로 앎, 젊은이를 걱정함],
+               schedule: ["9-12:square", "12-14:home", "14-17:temple", "17-9:home"], level: [5, 25],
+               lines: ["요즘 젊은 것들은…", "옛날엔 저 성벽도 없었지.", "자네를 보니 내 젊을 적 생각이 나는구먼."]}
+  laborer:    {job: 일꾼, category: LIFE, services: [RUMOR, QUEST], likes: [food, wood], dislikes: [art],
+               personalities: [힘자랑을 좋아함, 하루 품삯에 웃고 움], 
+               schedule: ["6-12:work", "12-13:tavern", "13-19:work", "19-22:tavern", "22-6:home"], level: [5, 20],
+               lines: ["비켜, 짐 지나가오.", "오늘 품삯은 괜찮았지.", "자네 덕에 일이 일찍 끝났네."],
+               quests: [{target: "item:oak_timber", amount: 5, money: 90, xp: {logging: 20}, affinity: 8, daily: true, title: "{npc}의 짐 나르기", label: 참나무 목재 5개}]}
+  maid:       {job: 하녀, category: SOCIAL, services: [RUMOR], likes: [cloth, food], dislikes: [hide],
+               personalities: [저택 소문을 다 앎, 늘 바쁨],
+               schedule: ["6-10:market", "10-20:work", "20-6:home"], level: [3, 12],
+               lines: ["바빠서요, 실례해요.", "마님 심부름 중이에요.", "당신한테만 말하는 건데요…"]}
+  drunkard:   {job: 주정뱅이, category: SOCIAL, services: [RUMOR], likes: [food], dislikes: [potion],
+               personalities: [술잔을 놓지 않음, 왕년의 무용담, 가끔 진짜 비밀을 흘림],
+               schedule: ["10-16:square", "16-3:tavern", "3-10:home"], level: [5, 30],
+               lines: ["딸꾹, 한 잔 사겠나?", "내가 왕년에 말이야…", "자네한테만 말해 주지, 딸꾹, 숨은 길이 있어."]}
+  beggar:     {job: 거지, category: SOCIAL, services: [RUMOR], likes: [food], dislikes: [metal],
+               personalities: [골목마다 아는 사람이 있음, 동전 한 닢에 고마워함],
+               schedule: ["7-20:square", "20-7:temple"], level: [1, 10],
+               lines: ["한 푼만 줍쇼.", "고맙소, 복 받으실 거요.", "나리, 뒷골목 일은 내게 물으시오."],
+               quests: [{target: "item:barley_bread", amount: 1, money: 10, affinity: 15, daily: true, title: "{npc}의 배고픔", label: 보리빵 1개}]}
+  apprentice: {job: 견습생, category: PRODUCTION, services: [RUMOR, QUEST], likes: [metal, wood, cloth], dislikes: [potion],
+               personalities: [스승 흉내를 냄, 실수투성이지만 열심임],
+               schedule: ["6-19:work", "19-21:square", "21-6:home"], level: [3, 15],
+               lines: ["스승님께 혼나는 중이에요.", "이거 제가 만든 거예요!", "언젠가 당신 장비도 만들어 드릴게요."],
+               quests: [{target: "item:iron_ore", amount: 3, money: 70, affinity: 10, daily: true, title: "{npc}의 연습 재료", label: 철 원석 3개}]}
+  courier:    {job: 배달부, category: SOCIAL, services: [RUMOR, QUEST], likes: [food], dislikes: [ore],
+               personalities: [발이 빠름, 늘 숨이 참, 도시의 지름길을 다 앎],
+               schedule: ["6-11:gate", "11-15:market", "15-19:gate", "19-6:home"], level: [5, 18],
+               lines: ["급한 편지라서요!", "북문 쪽은 오늘 붐벼요.", "당신 편지는 제일 먼저 갖다 드릴게요."],
+               quests: [{target: "partner", money: 70, affinity: 10, title: "{npc}의 밀린 배달", label: "{partner}에게 편지 전하기"}]}
+  street_vendor: {job: 노점상, category: SOCIAL, services: [SHOP, RUMOR], likes: [food, grain], dislikes: [hide],
+               personalities: [목청이 큼, 덤을 잘 줌, 값을 깎으면 서운해함],
+               schedule: ["6-19:market", "19-22:tavern", "22-6:home"], stock: ["barley_bread:450", "wheat_sheaf:420"], buys: [food, grain], level: [3, 15],
+               lines: ["싸요 싸! 갓 구운 빵이요!", "오늘은 덤이 있소.", "단골이니 반값이오!"]}
 # 지역 성격(태그) → 사는 주민 (같은 지역에 여러 태그가 있으면 모두 더한다, 지역당 최대 max_per_region)
 cultures:
-  city:        {blacksmith: 1, grocer: 1, general: 1, guard: 2, innkeeper: 1, priest: 1, baker: 1, tailor: 1, herbalist: 1, carpenter: 1, cook: 1, stablemaster: 1, coachman: 1}
+  city:        {blacksmith: 2, grocer: 2, general: 1, guard: 4, innkeeper: 2, priest: 2, baker: 2, tailor: 1, herbalist: 1, carpenter: 2, cook: 2, stablemaster: 1, coachman: 1,
+                citizen: 6, child: 4, elder: 3, laborer: 3, maid: 2, drunkard: 2, beggar: 1, apprentice: 3, courier: 2, street_vendor: 3}
   port:        {ship_captain: 1}
   market:      {auctioneer: 1, jeweler: 1, weaponsmith: 1, armorer: 1, antique: 1}
   scholar:     {scholar: 2, alchemist: 1, mage_merchant: 1, cartographer: 1}
   artisan:     {sculptor: 2, mason: 1, jeweler: 1}
-  fortress:    {knight: 1, soldier: 2, instructor: 1, armorer: 1, coachman: 1}
-  outpost:     {guard: 1, hunter: 1, tanner: 1, carpenter: 1, coachman: 1}
+  fortress:    {knight: 2, soldier: 5, instructor: 1, armorer: 1, coachman: 1, citizen: 3, laborer: 2, courier: 1}
+  outpost:     {guard: 3, hunter: 1, tanner: 1, carpenter: 1, coachman: 1, citizen: 3, laborer: 2, drunkard: 1}
   frontier:    {hunter: 1, tanner: 1, woodcutter: 1, tamer: 1}
-  farmland:    {farmer: 3, shepherd: 1, baker: 1, tamer: 1}
-  plains:      {farmer: 1, shepherd: 1}
+  farmland:    {farmer: 5, shepherd: 2, baker: 1, tamer: 1, citizen: 2, child: 2, elder: 1}
+  plains:      {farmer: 2, shepherd: 1, citizen: 1}
   mountain:    {miner: 2}
   underground: {miner: 2}
   highland:    {shepherd: 1, miner: 1}
@@ -304,14 +352,14 @@ cultures:
   dungeon_site: {adventurer: 1, treasure_hunter: 1}
   ruins:       {scholar: 1, treasure_hunter: 1}
   badlands:    {smuggler: 1, info_broker: 1}
-max_per_region: 20
+max_per_region: 60
 
 # 떠돌이: 가까운 도시들을 차례로 돈다 (도시 수 · 속도 블록/분). 도시마다 실제 30분 머물고, 시각만으로 자리가 정해진다 (저장 없음)
 wanderers:
-  peddler:          {count: 8, stops: 5, speed: 120}
-  bard:             {count: 4, stops: 6, speed: 90}
-  mercenary:        {count: 4, stops: 4, speed: 140}
-  treasure_hunter:  {count: 3, stops: 5, speed: 110}
+  peddler:          {count: 24, stops: 5, speed: 120}
+  bard:             {count: 12, stops: 6, speed: 90}
+  mercenary:        {count: 12, stops: 4, speed: 140}
+  treasure_hunter:  {count: 9, stops: 5, speed: 110}
 
 # 희귀 NPC: 정해진 지역에 정해진 시각 · 날에만 나타난다. 메뉴 · 목록 어디에도 나오지 않는다 (만나면 발견 기록 npc:<id>)
 rare:
