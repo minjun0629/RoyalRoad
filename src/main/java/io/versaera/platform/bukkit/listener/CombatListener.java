@@ -50,7 +50,7 @@ public final class CombatListener implements Listener {
     private final Map<String, String> pendingXpDiscipline = new ConcurrentHashMap<>();
     private final Map<String, Integer> pendingWear = new ConcurrentHashMap<>();
     private final Map<String, String> wearOwner = new ConcurrentHashMap<>();
-    private final RandomGenerator rng = RandomGenerator.getDefault();
+    private final RandomGenerator rng = new java.util.Random();   // getDefault() 는 Paper 의 플러그인 환경에서 구현(jdk.random)을 못 찾는다
     /** 직업 효과 캐시: uuid → {공격 %, 방어 %, 치명 확률 가산} */
     private final Map<String, double[]> perks = new ConcurrentHashMap<>();
     private static final double[] NO_PERKS = {0, 0, 0};

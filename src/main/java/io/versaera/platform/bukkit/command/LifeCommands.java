@@ -44,7 +44,7 @@ public final class LifeCommands implements CommandExecutor, Listener {
     private final Consumer<Player> deliver;
     private final Map<String, Long> cooldown = new ConcurrentHashMap<>();
     private final Map<UUID, Long> lastHurt = new ConcurrentHashMap<>();
-    private final RandomGenerator rng = RandomGenerator.getDefault();
+    private final RandomGenerator rng = new java.util.Random();   // getDefault() 는 Paper 의 플러그인 환경에서 구현(jdk.random)을 못 찾는다
 
     public LifeCommands(GameServices s, Async async, ItemCodec codec, CombatListener combat, FieldBossRuntime bosses, Consumer<Player> deliver) {
         this.s = s;

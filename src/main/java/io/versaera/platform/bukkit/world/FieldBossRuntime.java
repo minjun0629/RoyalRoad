@@ -69,7 +69,7 @@ public final class FieldBossRuntime implements Listener {
     private final Map<UUID, Live> byBody = new ConcurrentHashMap<>();
     /** 보스 id → [다시 나타나는 시각, 출현 번호] (DB 에서 읽어 둔 값) */
     private final Map<String, long[]> schedule = new ConcurrentHashMap<>();
-    private final RandomGenerator rng = RandomGenerator.getDefault();
+    private final RandomGenerator rng = new java.util.Random();   // getDefault() 는 Paper 의 플러그인 환경에서 구현(jdk.random)을 못 찾는다
     private int tick;
 
     public FieldBossRuntime(Plugin plugin, GameServices s, Async async, Consumer<Player> deliver) {
