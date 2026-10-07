@@ -38,7 +38,7 @@ public final class GatherListener implements Listener {
     private final Map<Material, ResourceNode> byBlock = new EnumMap<>(Material.class);
     private final Map<Location, Regrow> regrow = new HashMap<>();
     private final ResourceNode river, sea;
-    private final RandomGenerator rng = RandomGenerator.getDefault();
+    private final RandomGenerator rng = new java.util.Random();   // getDefault() 는 Paper 의 플러그인 환경에서 구현(jdk.random)을 못 찾는다
 
     private java.util.function.BiPredicate<java.util.UUID, String> petSkill = (u, k) -> false;
 
