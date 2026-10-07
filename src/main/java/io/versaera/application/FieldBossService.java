@@ -100,6 +100,7 @@ public final class FieldBossService {
             s.growth.record(u, "boss.field", 1);
             s.quests.record(u, QuestDefinition.Type.BOSS, id, 1, 0);
         }
+        s.npcWorld.bossSlain(b.name(), b.region(), rewarded, "fboss:" + id + ":" + generation);   // 그 지역 사람들이 기억하고 번영한다
         List<String> names2 = new ArrayList<>();
         for (String d : dropped) names2.add(s.items.types().get(d.split(":")[0]).name());
         return new Defeat(id, top, rewarded, names2, first[0], next);

@@ -151,6 +151,46 @@ public final class ContentLoader {
         });
     }
 
+    // ------------------------------------------------------------------ 주민 생성 규칙 (npc_population.yml)
+    public static io.versaera.domain.npc.NpcPopulation.Rules population(Map<String, Object> root, String file) {
+        Map<String, io.versaera.domain.npc.Archetype> arch = new LinkedHashMap<>();
+        for (var a : each(root, "archetypes", file, (id, m) -> {
+            List<io.versaera.domain.npc.Archetype.QuestTemplate> qs = new ArrayList<>();
+            if (m.get("quests") instanceof List<?> l) for (Object o : l) {
+                Map<String, Object> q = map(o);
+                qs.add(new io.versaera.domain.npc.Archetype.QuestTemplate(req(q, "target"), i(q, "amount", 1), l(q, "money", 0), intMap(q, "xp"),
+                        i(q, "affinity", 5), b(q, "daily", false), b(q, "hidden", false), req(q, "title"), str(q, "label", "")));
+            }
+            List<String> lv = list(m, "level");
+            int lo = lv.isEmpty() ? 5 : Integer.parseInt(lv.get(0)), hi = lv.size() < 2 ? lo + 10 : Integer.parseInt(lv.get(1));
+            return new io.versaera.domain.npc.Archetype(id, req(m, "job"), str(m, "category", "LIFE"), new LinkedHashSet<>(list(m, "services")),
+                    new LinkedHashSet<>(list(m, "likes")), new LinkedHashSet<>(list(m, "dislikes")), list(m, "personalities"), list(m, "schedule"),
+                    list(m, "stock"), new LinkedHashSet<>(list(m, "buys")), new LinkedHashSet<>(list(m, "produces")), new LinkedHashSet<>(list(m, "consumes")),
+                    list(m, "lines"), lo, hi, b(m, "evil", false), str(m, "trains", null), qs);
+        })) arch.put(a.id(), a);
+        Map<String, Map<String, Integer>> cultures = new LinkedHashMap<>();
+        for (var e : section(root, "cultures", file).entrySet()) {
+            Map<String, Integer> c = new LinkedHashMap<>();
+            for (var x : map(e.getValue()).entrySet()) {
+                if (!arch.containsKey(x.getKey())) throw new ContentException(file + " / cultures." + e.getKey() + ": 없는 직업 틀 " + x.getKey());
+                c.put(x.getKey(), ((Number) x.getValue()).intValue());
+            }
+            cultures.put(e.getKey(), c);
+        }
+        Map<String, io.versaera.domain.npc.NpcPopulation.Wander> wanderers = new LinkedHashMap<>();
+        for (var e : section(root, "wanderers", file).entrySet()) {
+            Map<String, Object> m = map(e.getValue());
+            wanderers.put(e.getKey(), new io.versaera.domain.npc.NpcPopulation.Wander(i(m, "count", 1), i(m, "stops", 4), d(m, "speed", 100)));
+        }
+        List<io.versaera.domain.npc.NpcPopulation.RareSpec> rare = new ArrayList<>(each(root, "rare", file, (id, m) -> {
+            List<String> h = list(m, "hours");
+            return new io.versaera.domain.npc.NpcPopulation.RareSpec(id, req(m, "name"), req(m, "archetype"), req(m, "region"),
+                    Integer.parseInt(h.get(0)), Integer.parseInt(h.get(1)), i(m, "every_days", 1), i(m, "level", 50), str(m, "line", null), str(m, "trains", null));
+        }));
+        Object max = root.get("max_per_region");
+        return new io.versaera.domain.npc.NpcPopulation.Rules(arch, cultures, max instanceof Number n ? n.intValue() : 16, wanderers, rare);
+    }
+
     public static List<io.versaera.domain.fieldboss.FieldBoss> fieldBosses(Map<String, Object> root, String file) {
         return each(root, "field_bosses", file, (id, m) -> {
             List<io.versaera.domain.fieldboss.FieldBoss.Drop> drops = new ArrayList<>();

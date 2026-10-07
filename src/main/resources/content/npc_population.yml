@@ -1,0 +1,311 @@
+# 주민 생성 규칙 (NPC-03, ORIGINAL). npcs.yml 의 손으로 만든 NPC 와 함께, 지역 성격(태그)에 맞는 주민을 결정적으로 만들어 넣는다.
+# 같은 콘텐츠 = 같은 주민 (이름 · 가족 · 자리 · 상점 · 의뢰가 서버를 다시 켜도 같다). 플레이어별 관계 · 기억은 DB.
+#
+# archetypes: 직업 틀
+#   services: SHOP 상점 · REPAIR 수리 · INN 쉼(체력 · 허기) · HEAL 치유(독 · 시듦) · TRAIN 숙련 지도 · RUMOR 소문 · SONG 노래(이동 · 재생)
+#             AUCTION 경매장 · LORE 연대기 · QUEST 의뢰 (모두 실제로 동작)
+#   schedule: "시작-끝:장소" — 장소 키 work · home · market · tavern · square · temple · gate
+#   stock: 파는 물건 "아이템:품질" · buys: 사 주는 태그 · produces / consumes: 지역 경제(공급 · 수요)에 더하는 태그
+#   lines: [낯섦, 보통, 가까움] 한 줄 대사 · trains: TRAIN 이 가르치는 숙련 분야
+#   quests: 의뢰 틀 — target: "item:<id>" · "kill:<엔티티|any>" · "partner"(관계 있는 NPC 에게 전하기) · "ruin"(가까운 유적 찾기) · "craft:<분야>"
+#           hidden: true 면 목록에 없고, 그 NPC 와 '신뢰' 단계가 되면 열린다
+archetypes:
+  # ---- 생산
+  blacksmith: {job: 대장장이, category: PRODUCTION, services: [SHOP, REPAIR, QUEST, TRAIN], trains: smithing, likes: [metal, ore], dislikes: [potion],
+               personalities: [무뚝뚝하지만 솜씨를 알아봄, 망치 소리로 기분을 말함, 손님보다 쇠를 먼저 봄],
+               schedule: ["6-12:work", "12-13:tavern", "13-20:work", "20-6:home"], stock: ["iron_ingot:450", "smithing_hammer:420", "iron_pickaxe:400", "whetstone:450"],
+               buys: [ore, metal, mineral, sword, dagger, spear, tool_hammer], consumes: [ore, metal], level: [20, 45],
+               lines: ["쇠 볼 줄 모르면 저리 가.", "오늘 쇠는 괜찮군.", "자네 무기라면 따로 손봐 주지."],
+               quests: [{target: "item:iron_ore", amount: 8, money: 260, xp: {smithing: 40}, affinity: 12, daily: true, title: "{npc}의 쇠가 모자라다", label: 철 원석 8개},
+                        {target: "partner", money: 180, affinity: 10, title: "{npc}의 주문서", label: "{partner}에게 주문서 전하기"},
+                        {target: "craft:smithing", amount: 3, money: 600, xp: {smithing: 200}, affinity: 40, hidden: true, title: "{npc}의 마지막 담금질", label: 대장 제작 3번}]}
+  armorer:    {job: 갑옷장이, category: PRODUCTION, services: [SHOP, REPAIR, QUEST], likes: [metal, leather], dislikes: [fish],
+               personalities: [치수를 눈대중으로 맞힘, 갑옷에 이름을 새겨 줌],
+               schedule: ["7-19:work", "19-21:tavern", "21-7:home"], stock: ["iron_mail:400", "leather_jerkin:420", "buckler:400"],
+               buys: [metal, leather, hide, shield], consumes: [metal, leather], level: [20, 40],
+               lines: ["치수부터 재지.", "갑옷은 몸에 맞아야 갑옷이야.", "자네 갑옷은 내가 책임지지."],
+               quests: [{target: "item:leather", amount: 6, money: 240, xp: {leatherwork: 40}, affinity: 12, daily: true, title: "{npc}의 가죽끈", label: 무두질한 가죽 6개}]}
+  carpenter:  {job: 목수, category: PRODUCTION, services: [SHOP, QUEST], likes: [wood], dislikes: [potion],
+               personalities: [대패질 소리를 좋아함, 집 짓는 이야기만 함],
+               schedule: ["6-18:work", "18-21:tavern", "21-6:home"], stock: ["oak_timber:450", "highland_timber:420", "iron_hatchet:400"],
+               buys: [wood], consumes: [wood], produces: [wood], level: [10, 30],
+               lines: ["못이나 건네 주게.", "기둥이 곧아야 집이 서지.", "자네 집이라면 공짜로 지어 주지."],
+               quests: [{target: "item:oak_timber", amount: 10, money: 200, xp: {logging: 40}, affinity: 10, daily: true, title: "{npc}의 기둥감", label: 참나무 목재 10개}]}
+  tailor:     {job: 재봉사, category: PRODUCTION, services: [SHOP, QUEST, TRAIN], trains: tailoring, likes: [cloth, dye, fiber], dislikes: [hide],
+               personalities: [소문에 밝음, 옷깃만 보고 사람을 앎],
+               schedule: ["8-19:work", "19-22:square", "22-8:home"], stock: ["linen_cloth:450", "linen_robe:420", "sewing_kit:400", "indigo_dye:450"],
+               buys: [fiber, cloth, dye, leather], consumes: [fiber, cloth], level: [10, 35],
+               lines: ["옷이 날개라네.", "그 옷 소매가 해졌구먼.", "자네 옷은 내가 새로 지어 주지."],
+               quests: [{target: "item:flax_fiber", amount: 12, money: 180, xp: {tailoring: 40}, affinity: 10, daily: true, title: "{npc}의 실이 떨어졌다", label: 아마 섬유 12개}]}
+  tanner:     {job: 가죽공, category: PRODUCTION, services: [SHOP, QUEST], likes: [hide, leather], dislikes: [cloth],
+               personalities: [냄새에 무심함, 사냥꾼과 친함],
+               schedule: ["6-17:work", "17-20:tavern", "20-6:home"], stock: ["leather:450", "hide:450"],
+               buys: [hide, leather, meat], consumes: [hide], produces: [leather], level: [10, 30],
+               lines: ["가죽 냄새는 금방 익숙해지지.", "좋은 가죽은 사냥꾼 손에서 나와.", "자네가 가져오는 가죽은 늘 좋아."],
+               quests: [{target: "item:hide", amount: 8, money: 200, xp: {leatherwork: 40}, affinity: 12, daily: true, title: "{npc}의 가죽 통", label: 생가죽 8개}]}
+  jeweler:    {job: 세공사, category: PRODUCTION, services: [SHOP, QUEST], likes: [gem, mineral], dislikes: [food],
+               personalities: [돋보기를 늘 쓰고 있음, 흠집 하나에 한숨],
+               schedule: ["9-19:work", "19-22:tavern", "22-9:home"], stock: ["raw_gem:450", "silver_ingot:420"],
+               buys: [gem, mineral, metal], consumes: [gem], level: [25, 45],
+               lines: ["흠, 손때가 묻었군.", "빛이 고르게 들어가야 보석이지.", "자네가 찾은 원석은 늘 결이 좋아."],
+               quests: [{target: "item:raw_gem", amount: 3, money: 500, xp: {dexterity: 60}, affinity: 15, title: "{npc}의 원석 주문", label: 보석 원석 3개}]}
+  alchemist:  {job: 연금술사, category: PRODUCTION, services: [SHOP, QUEST, TRAIN], trains: alchemy, likes: [herb, gem, sand], dislikes: [metal],
+               personalities: [실험에 진심, 눈썹이 그을려 있음],
+               schedule: ["9-21:work", "21-9:home"], stock: ["mortar:420", "minor_tonic:450", "healing_draught:420"],
+               buys: [herb, gem, frost], consumes: [herb], level: [20, 45],
+               lines: ["만지지 마! 터진다.", "약초 냄새가 좋은 날이야.", "자네 몫의 약은 늘 따로 빼 두지."],
+               quests: [{target: "item:moonleaf", amount: 8, money: 220, xp: {herbalism: 50}, affinity: 12, daily: true, title: "{npc}의 달잎풀", label: 달잎풀 8개},
+                        {target: "craft:alchemy", amount: 3, money: 700, xp: {alchemy: 220}, affinity: 40, hidden: true, title: "{npc}의 금지된 배합", label: 연금 3번}]}
+  cook:       {job: 요리사, category: PRODUCTION, services: [SHOP, INN, QUEST, TRAIN], trains: cooking, likes: [fish, grain, herb, seasoning], dislikes: [ore],
+               personalities: [손님의 입맛을 기억함, 간을 볼 때 눈을 감음],
+               schedule: ["9-23:tavern", "23-9:home"], stock: ["hearty_stew:480", "grilled_fish:450", "barley_bread:450"],
+               buys: [fish, grain, herb, seasoning, meat], consumes: [fish, grain, meat], level: [10, 35],
+               lines: ["배고프면 앉아.", "오늘 국물이 잘 우러났어.", "자네 자리는 늘 비워 두지."],
+               quests: [{target: "item:salmon", amount: 6, money: 180, xp: {fishing: 40}, affinity: 10, daily: true, title: "{npc}의 생선 주문", label: 연어 6마리},
+                        {target: "item:raw_meat", amount: 6, money: 180, xp: {butchery: 40}, affinity: 10, daily: true, title: "{npc}의 고기 주문", label: 날고기 6개}]}
+  baker:      {job: 제빵사, category: PRODUCTION, services: [SHOP, QUEST], likes: [grain], dislikes: [fish],
+               personalities: [새벽 세 시에 일어남, 밀가루를 늘 묻히고 다님],
+               schedule: ["3-14:work", "14-17:square", "17-3:home"], stock: ["barley_bread:480", "wheat_sheaf:450"],
+               buys: [grain], consumes: [grain], level: [5, 25],
+               lines: ["빵 하나 들고 가.", "반죽이 잘 부풀었어.", "자네 몫으로 제일 잘 구워진 걸 남겨 뒀지."],
+               quests: [{target: "item:wheat_sheaf", amount: 12, money: 150, xp: {herbalism: 30}, affinity: 10, daily: true, title: "{npc}의 밀가루", label: 밀 다발 12개}]}
+  farmer:     {job: 농부, category: LIFE, services: [SHOP, QUEST], likes: [grain, food], dislikes: [potion],
+               personalities: [하늘부터 봄, 말이 느리지만 정확함, 새벽부터 일함],
+               schedule: ["5-12:work", "12-13:home", "13-19:work", "19-5:home"], stock: ["wheat_sheaf:480", "flax_fiber:450"],
+               buys: [grain, food], produces: [grain, fiber], level: [3, 20],
+               lines: ["밭 밟지 마시오.", "올해는 비가 알맞았어.", "자네 덕에 밭이 무사했지."],
+               quests: [{target: "kill:ZOMBIE", amount: 10, money: 160, xp: {swordsmanship: 30}, affinity: 12, daily: true, title: "밭을 망치는 것들", label: 좀비 10마리},
+                        {target: "partner", money: 140, affinity: 8, title: "{npc}의 수확 소식", label: "{partner}에게 수확 소식 전하기"}]}
+  shepherd:   {job: 목동, category: LIFE, services: [SHOP, QUEST], likes: [food, grain], dislikes: [meat],
+               personalities: [양 이름을 다 앎, 휘파람을 잘 붊],
+               schedule: ["5-19:work", "19-5:home"], stock: ["hide:450", "linen_cloth:420"],
+               produces: [hide, fiber], buys: [grain], level: [3, 18],
+               lines: ["양이 놀라니 조용히.", "늑대만 없으면 좋은 날이야.", "양들이 자네를 알아보네."],
+               quests: [{target: "kill:WOLF", amount: 4, money: 150, xp: {archery: 30}, affinity: 12, daily: true, title: "늑대를 쫓아 주시오", label: 늑대 4마리}]}
+  miner:      {job: 광부, category: LIFE, services: [SHOP, QUEST], likes: [ore, food], dislikes: [cloth],
+               personalities: [갱도 이야기만 함, 등불 없이도 길을 앎],
+               schedule: ["6-18:work", "18-21:tavern", "21-6:home"], stock: ["iron_ore:450", "copper_ore:450", "silver_ore:400"],
+               produces: [ore, mineral], buys: [food, tool_pick], level: [10, 30],
+               lines: ["갱도는 놀이터가 아니야.", "오늘 맥이 좋았어.", "자네라면 새 갱도로 데려가 주지."],
+               quests: [{target: "kill:CAVE_SPIDER", amount: 6, money: 220, xp: {mining: 40}, affinity: 12, daily: true, title: "갱도의 거미", label: 동굴 거미 6마리},
+                        {target: "item:iron_pickaxe", amount: 1, money: 300, xp: {smithing: 60}, affinity: 15, title: "{npc}의 부러진 곡괭이", label: 철 곡괭이 1개}]}
+  fisher:     {job: 어부, category: LIFE, services: [SHOP, QUEST, TRAIN], trains: fishing, likes: [fish, seasoning], dislikes: [ore],
+               personalities: [날씨를 귀신같이 맞힘, 물때를 달력처럼 외움],
+               schedule: ["4-12:work", "12-16:market", "16-4:home"], stock: ["salmon:450", "ash_rod:420", "sea_salt:450"],
+               produces: [fish, seasoning], buys: [fish], level: [5, 25],
+               lines: ["그물 밟지 말고.", "오늘은 물이 맑아.", "자네한테만 알려 주는 자리가 있지."],
+               quests: [{target: "item:deep_eel", amount: 2, money: 300, xp: {fishing: 80}, affinity: 15, title: "{npc}도 못 잡은 장어", label: 심해 장어 2마리}]}
+  woodcutter: {job: 나무꾼, category: LIFE, services: [SHOP, QUEST], likes: [wood, food], dislikes: [gem],
+               personalities: [도끼를 아이처럼 아낌, 숲의 소리를 잘 앎],
+               schedule: ["6-18:work", "18-6:home"], stock: ["oak_timber:470", "highland_timber:450"],
+               produces: [wood], buys: [tool_axe, food], level: [5, 22],
+               lines: ["나무 쓰러지는 쪽에 서지 마.", "이 숲은 아직 넉넉해.", "자네라면 좋은 나무 자리를 알려 주지."],
+               quests: [{target: "kill:SPIDER", amount: 8, money: 160, xp: {logging: 30}, affinity: 10, daily: true, title: "숲길의 거미", label: 거미 8마리}]}
+  hunter:     {job: 사냥꾼, category: LIFE, services: [SHOP, QUEST, TRAIN], trains: archery, likes: [hide, meat, wood], dislikes: [cloth],
+               personalities: [발자국을 읽음, 말수가 적음],
+               schedule: ["4-17:work", "17-20:tavern", "20-4:home"], stock: ["hide:450", "raw_meat:450", "ash_bow:420"],
+               produces: [hide, meat], buys: [hide, meat, bow], level: [10, 30],
+               lines: ["바람이 바뀌었군.", "오늘 흔적이 많았어.", "자네와 사냥이라면 같이 가지."],
+               quests: [{target: "kill:any", amount: 20, money: 220, xp: {archery: 50}, affinity: 12, daily: true, title: "사냥터 정리", label: 몬스터 20마리}]}
+  sculptor:   {job: 조각가, category: PRODUCTION, services: [SHOP, QUEST, TRAIN], trains: sculpting, likes: [stone, marble, art], dislikes: [potion],
+               personalities: [옛 조각상을 보수하는 고집쟁이, 돌의 결을 사람 얼굴처럼 봄],
+               schedule: ["5-11:square", "11-19:work", "19-5:home"], stock: ["carving_knife:420", "marble_block:450"],
+               buys: [stone, marble, art], consumes: [stone, marble], level: [15, 40],
+               lines: ["돌 안에 뭐가 들었는지 보이나?", "오늘은 손이 잘 풀리는군.", "자네 작품은 내 작업대 옆에 두지."],
+               quests: [{target: "item:marble_block", amount: 4, money: 320, xp: {sculpting: 60}, affinity: 12, title: "{npc}의 대리석", label: 대리석 4개},
+                        {target: "craft:sculpting", amount: 2, money: 800, xp: {sculpting: 260}, affinity: 45, hidden: true, title: "{npc}가 남긴 미완성 조각", label: 조각 2번}]}
+  mason:      {job: 석공, category: PRODUCTION, services: [SHOP, QUEST], likes: [stone], dislikes: [cloth],
+               personalities: [먼지를 뒤집어써도 웃음, 성벽 하나하나를 기억함],
+               schedule: ["6-18:work", "18-21:tavern", "21-6:home"], stock: ["sandstone_block:450", "marble_block:430"],
+               produces: [stone], buys: [stone], level: [10, 30],
+               lines: ["돌은 거짓말을 안 하지.", "오늘은 벽이 곧게 올라갔어.", "자네 집 기초는 내가 놓지."],
+               quests: [{target: "item:sandstone_block", amount: 10, money: 180, xp: {mining: 30}, affinity: 10, daily: true, title: "{npc}의 돌이 모자라", label: 사암 10개}]}
+  # ---- 상업
+  grocer:     {job: 식료품 상인, category: COMMERCE, services: [SHOP, QUEST], likes: [food, grain, fish], dislikes: [ore],
+               personalities: [값을 깎으면 서운해함, 신선한 것만 들임],
+               schedule: ["7-20:market", "20-7:home"], stock: ["barley_bread:450", "wheat_sheaf:450", "sea_salt:450", "grilled_fish:420"],
+               buys: [grain, fish, food, seasoning], consumes: [grain, fish], level: [5, 25],
+               lines: ["싱싱한 걸로 골라 가.", "오늘 들어온 게 좋아.", "자네 몫은 따로 챙겨 뒀네."],
+               quests: [{target: "partner", money: 150, affinity: 8, title: "{npc}의 외상 장부", label: "{partner}에게 장부 전하기"}]}
+  general:    {job: 잡화상, category: COMMERCE, services: [SHOP, RUMOR, QUEST], likes: [cloth, wood, metal], dislikes: [potion],
+               personalities: [없는 게 없다고 자랑함, 손님 얼굴을 다 외움],
+               schedule: ["7-20:market", "20-22:tavern", "22-7:home"], stock: ["linen_cloth:450", "bandage:450", "whetstone:450", "sea_salt:450", "iron_hatchet:400"],
+               buys: [ore, wood, grain, fish, herb, hide, metal, cloth, fiber], level: [5, 25],
+               lines: ["뭐든 있다네.", "오늘은 손님이 좀 들었어.", "자네라면 외상도 되네."],
+               quests: [{target: "item:bandage", amount: 10, money: 160, xp: {tailoring: 30}, affinity: 10, daily: true, title: "붕대가 동났다", label: 붕대 10개}]}
+  weaponsmith: {job: 무기상, category: COMMERCE, services: [SHOP, QUEST], likes: [metal, sword, bow], dislikes: [food],
+               personalities: [칼날을 손톱으로 튕겨 봄, 무기 내력을 줄줄 욈],
+               schedule: ["8-20:market", "20-8:home"], stock: ["iron_longsword:420", "ash_bow:420", "iron_dagger:420", "oak_staff:420"],
+               buys: [sword, dagger, spear, bow, staff, metal], level: [20, 40],
+               lines: ["날 무딘 건 안 팔아.", "그 칼, 좀 갈아야겠군.", "자네한테 맞는 게 들어왔네."],
+               quests: [{target: "item:iron_longsword", amount: 1, money: 420, xp: {smithing: 60}, affinity: 15, title: "{npc}의 납품", label: 철 장검 1자루}]}
+  herbalist:  {job: 약초상, category: COMMERCE, services: [SHOP, HEAL, QUEST], likes: [herb], dislikes: [ore],
+               personalities: [풀 이름으로 사람을 부름, 약초 말리는 냄새가 남],
+               schedule: ["6-12:work", "12-19:market", "19-6:home"], stock: ["moonleaf:450", "saltroot:450", "minor_tonic:450", "bandage:450"],
+               buys: [herb], consumes: [herb], level: [8, 30],
+               lines: ["아픈 데라도 있나?", "오늘 말린 풀이 잘 말랐어.", "자네라면 귀한 풀도 내주지."],
+               quests: [{target: "item:saltroot", amount: 8, money: 180, xp: {herbalism: 40}, affinity: 10, daily: true, title: "{npc}의 소금뿌리", label: 소금뿌리 8개}]}
+  antique:    {job: 골동품 상인, category: COMMERCE, services: [SHOP, RUMOR, LORE], likes: [art, relic, gem], dislikes: [food],
+               personalities: [먼지 앉은 물건만 좋아함, 옛 이야기를 값으로 매김],
+               schedule: ["10-20:market", "20-10:home"], stock: ["figurine:450", "relief_plaque:420", "wind_chime:420"],
+               buys: [art, relic, sculpture, gem], level: [25, 45],
+               lines: ["그건 오래돼 보이는군.", "옛것엔 다 이야기가 있어.", "자네한테만 보여 주는 물건이 있지."],
+               quests: [{target: "ruin", money: 400, xp: {exploration: 120}, affinity: 15, title: "{npc}가 찾는 옛터", label: "{ruin} 찾아가기"}]}
+  auctioneer: {job: 경매인, category: COMMERCE, services: [AUCTION, RUMOR], likes: [gem, art], dislikes: [fish],
+               personalities: [목소리가 크고 빠름, 값을 한 번 들으면 잊지 않음],
+               schedule: ["9-21:market", "21-9:home"], level: [20, 40],
+               lines: ["다음 물건!", "오늘 값이 잘 붙었어.", "자네 물건은 앞자리에 올려 주지."]}
+  mage_merchant: {job: 마법 상인, category: COMMERCE, services: [SHOP, RUMOR, QUEST], likes: [gem, frost, sky], dislikes: [meat],
+               personalities: [소매에서 반짝이는 가루가 떨어짐, 말끝마다 주문 같음],
+               schedule: ["10-22:market", "22-10:home"], stock: ["oak_staff:420", "frost_crystal:400", "minor_tonic:450"],
+               buys: [gem, frost, sky, staff], level: [25, 45],
+               lines: ["손 조심하시오.", "오늘은 마나가 잔잔하군.", "자네라면 이걸 다룰 수 있겠지."],
+               quests: [{target: "item:frost_crystal", amount: 3, money: 420, xp: {spellcraft: 80}, affinity: 15, title: "{npc}의 서리 수정", label: 서리 수정 3개}]}
+  caravan:    {job: 대상인, category: COMMERCE, services: [SHOP, RUMOR, QUEST], likes: [cloth, metal, gem], dislikes: [fish],
+               personalities: [약속을 목숨처럼 지킴, 낙타 이야기를 좋아함],
+               schedule: ["6-20:market", "20-6:home"], stock: ["glass_sand:450", "sandstone_block:450", "saltroot:450", "linen_cloth:430"],
+               buys: [sand, herb, wood, fish, cloth, gem], level: [15, 35],
+               lines: ["물은 챙겼나?", "다음 오아시스까진 사흘이야.", "자네라면 대상에 끼워 주지."],
+               quests: [{target: "kill:HUSK", amount: 10, money: 260, xp: {exploration: 60}, affinity: 12, daily: true, title: "모래 속의 것들", label: 허스크 10마리}]}
+  # ---- 사회 · 군사
+  guard:      {job: 경비병, category: SOCIAL, services: [RUMOR, QUEST], likes: [food, metal], dislikes: [potion],
+               personalities: [근무 중엔 웃지 않음, 밤 근무를 싫어함, 성문 앞을 지킴],
+               schedule: ["6-18:gate", "18-22:tavern", "22-6:home"], level: [15, 35],
+               lines: ["수상한 짓 하지 마시오.", "오늘은 조용하군.", "자네 덕에 성문이 편하네."],
+               quests: [{target: "kill:any", amount: 25, money: 240, xp: {swordsmanship: 50}, affinity: 12, daily: true, title: "성 밖 순찰", label: 몬스터 25마리}]}
+  soldier:    {job: 병사, category: SOCIAL, services: [QUEST], likes: [food, metal], dislikes: [art],
+               personalities: [고향 이야기를 자주 함, 상관을 흉봄],
+               schedule: ["5-17:gate", "17-21:tavern", "21-5:home"], level: [15, 35],
+               lines: ["무슨 일이오.", "교대 시간이 멀었군.", "자네와 함께라면 든든하지."],
+               quests: [{target: "kill:SKELETON", amount: 12, money: 240, xp: {archery: 40}, affinity: 12, daily: true, title: "성벽 아래 해골", label: 스켈레톤 12마리}]}
+  knight:     {job: 기사, category: SOCIAL, services: [TRAIN, QUEST, RUMOR], trains: swordsmanship, likes: [metal, sword], dislikes: [potion],
+               personalities: [명예를 따짐, 엄격하지만 버티는 자를 존중함],
+               schedule: ["6-12:work", "12-14:temple", "14-20:work", "20-6:home"], level: [35, 55],
+               lines: ["검을 든 자라면 예를 갖추시오.", "자세가 조금 나아졌군.", "자네와 등을 맞댈 수 있겠지."],
+               quests: [{target: "kill:PILLAGER", amount: 8, money: 400, xp: {swordsmanship: 100}, affinity: 15, title: "영지의 약탈자", label: 약탈자 8명},
+                        {target: "kill:any", amount: 100, money: 1200, xp: {swordsmanship: 400}, affinity: 50, hidden: true, title: "{npc}가 맡기는 맹세", label: 몬스터 100마리}]}
+  instructor: {job: 교관, category: SOCIAL, services: [TRAIN, QUEST], trains: swordsmanship, likes: [food, metal], dislikes: [potion],
+               personalities: [소리가 큼, 쓰러진 자를 일으켜 세움],
+               schedule: ["6-18:work", "18-6:home"], level: [30, 50],
+               lines: ["다시!", "조금 나아졌다.", "가르칠 게 없군. 이제 자네가 가르쳐."],
+               quests: [{target: "kill:any", amount: 40, money: 300, xp: {swordsmanship: 80}, affinity: 12, daily: true, title: "훈련장의 규칙", label: 몬스터 40마리}]}
+  priest:     {job: 사제, category: SOCIAL, services: [HEAL, LORE, QUEST], likes: [art, food], dislikes: [potion],
+               personalities: [목소리가 낮고 온화함, 장례와 축제를 모두 맡음],
+               schedule: ["5-12:temple", "12-13:square", "13-20:temple", "20-5:home"], level: [20, 45],
+               lines: ["신의 가호가 있기를.", "오늘도 무사하시오.", "자네를 위해 따로 기도하지."],
+               quests: [{target: "kill:ZOMBIE", amount: 15, money: 240, xp: {spellcraft: 40}, affinity: 15, daily: true, title: "묘지를 지켜 주시오", label: 좀비 15마리}]}
+  noble:      {job: 귀족, category: SOCIAL, services: [RUMOR, QUEST], likes: [gem, art], dislikes: [fish, hide],
+               personalities: [말끝을 길게 끎, 가문 이야기를 자랑함],
+               schedule: ["10-14:square", "14-20:home", "20-24:tavern", "0-10:home"], level: [10, 30],
+               lines: ["흠, 누구시던가.", "오늘 연회가 있지.", "자네라면 우리 가문 손님이지."],
+               quests: [{target: "item:raw_gem", amount: 2, money: 600, affinity: 15, title: "{npc}의 장신구", label: 보석 원석 2개},
+                        {target: "partner", money: 300, affinity: 12, title: "{npc}의 밀서", label: "{partner}에게 밀서 전하기"}]}
+  tax_collector: {job: 세금 징수원, category: SOCIAL, services: [RUMOR], likes: [metal, gem], dislikes: [food],
+               personalities: [장부를 끼고 다님, 웃는 법을 잊음],
+               schedule: ["9-17:market", "17-9:home"], level: [10, 25],
+               lines: ["낼 건 내야지.", "올해 장부가 두껍군.", "자네 상점은 정직하더군."]}
+  innkeeper:  {job: 여관 주인, category: LIFE, services: [INN, SHOP, RUMOR, QUEST], likes: [food, fish, grain], dislikes: [ore],
+               personalities: [손님 이야기를 다 들어 줌, 방값은 깎아 주지 않음],
+               schedule: ["6-24:tavern", "0-6:home"], stock: ["hearty_stew:450", "barley_bread:450"],
+               buys: [food, fish, grain], consumes: [food, grain], level: [10, 30],
+               lines: ["방 하나 남았소.", "오늘 손님이 많군.", "자네 방은 늘 깨끗하게 해 두지."],
+               quests: [{target: "partner", money: 140, affinity: 8, title: "{npc}의 빌린 돈", label: "{partner}에게 빚 받아 오기"}]}
+  # ---- 전문
+  scholar:    {job: 학자, category: SPECIALIST, services: [LORE, RUMOR, QUEST, TRAIN], trains: exploration, likes: [art, gem], dislikes: [meat],
+               personalities: [조용하지만 유적 이야기에는 눈을 빛냄, 책을 베개로 씀],
+               schedule: ["8-20:work", "20-8:home"], level: [20, 45],
+               lines: ["조용히 해 주게.", "흥미로운 기록이 나왔어.", "자네에게만 보여 줄 기록이 있지."],
+               quests: [{target: "ruin", money: 360, xp: {exploration: 150}, affinity: 15, title: "{npc}의 현장 조사", label: "{ruin} 찾아가기"},
+                        {target: "ruin", money: 900, xp: {exploration: 400}, affinity: 45, hidden: true, title: "{npc}가 숨긴 지도 조각", label: "{ruin} 찾아가기"}]}
+  cartographer: {job: 지도 제작자, category: SPECIALIST, services: [RUMOR, QUEST], likes: [cloth, art], dislikes: [fish],
+               personalities: [잉크 얼룩투성이, 지도에 빈칸이 있으면 잠을 못 잠],
+               schedule: ["7-19:work", "19-7:home"], level: [15, 35],
+               lines: ["여기 빈칸 보이나?", "새 길을 그려 넣었어.", "자네가 다녀온 곳은 다 그려 두지."],
+               quests: [{target: "ruin", money: 300, xp: {exploration: 120}, affinity: 15, daily: true, title: "지도의 빈칸", label: "{ruin} 찾아가기"}]}
+  adventurer: {job: 모험가, category: SPECIALIST, services: [SHOP, RUMOR, QUEST], likes: [food, potion, metal], dislikes: [cloth],
+               personalities: [무용담을 부풀림, 상처 자랑을 함],
+               schedule: ["6-20:work", "20-6:tavern"], stock: ["minor_tonic:450", "bandage:450", "healing_draught:400"],
+               buys: [potion, food, metal], level: [20, 45],
+               lines: ["안쪽엔 들어가지 마.", "어제 저 안에서 큰일 날 뻔했지.", "다음엔 자네와 같이 들어가지."],
+               quests: [{target: "kill:any", amount: 30, money: 320, xp: {swordsmanship: 60}, affinity: 12, daily: true, title: "입구 정리", label: 몬스터 30마리}]}
+  treasure_hunter: {job: 보물 사냥꾼, category: SPECIALIST, services: [RUMOR, QUEST], likes: [gem, relic, art], dislikes: [food],
+               personalities: [삽을 늘 메고 다님, 소문만 들으면 짐을 쌈],
+               schedule: ["5-20:work", "20-5:home"], level: [20, 45],
+               lines: ["여기 판 거 아니야.", "이 근처에 뭔가 있어.", "자네라면 반 나눠 주지."],
+               quests: [{target: "ruin", money: 500, xp: {exploration: 180}, affinity: 15, title: "{npc}가 들은 소문", label: "{ruin} 찾아가기"}]}
+  # ---- 특수 (악명 높은 사람과만 상대)
+  smuggler:   {job: 밀수업자, category: SPECIAL, evil: true, services: [SHOP, RUMOR], likes: [gem, metal], dislikes: [food],
+               personalities: [묻지 않고 사고 묻지 않고 판다, 늘 출구 쪽에 앉음],
+               schedule: ["20-24:tavern", "0-6:work", "6-20:home"], stock: ["greater_draught:400", "iron_dagger:380", "raw_gem:350"],
+               buys: [gem, metal, sword, dagger, relic], level: [20, 40],
+               lines: ["넌 아무것도 못 봤어.", "오늘 물건이 들어왔지.", "너라면 뒷문도 열어 주지."]}
+  info_broker: {job: 정보상, category: SPECIAL, evil: true, services: [RUMOR], likes: [gem, metal], dislikes: [food],
+               personalities: [이름을 셋은 씀, 웃는 얼굴로 값을 부름],
+               schedule: ["18-24:tavern", "0-18:home"], level: [20, 40],
+               lines: ["공짜 소식은 없어.", "요즘 시끄러운 데가 있지.", "너한테만 하는 얘기야."]}
+  # ---- 떠돌이 (여러 도시를 돈다)
+  peddler:    {job: 행상인, category: COMMERCE, services: [SHOP, RUMOR], likes: [cloth, food], dislikes: [ore],
+               personalities: [짐 보따리가 사람보다 큼, 다음 도시 소식을 먼저 앎],
+               stock: ["bandage:450", "minor_tonic:450", "linen_cloth:450", "sea_salt:450", "whetstone:450", "barley_bread:450"],
+               buys: [cloth, food, herb, hide, fish], level: [10, 30],
+               lines: ["싸게 줄게, 진짜야.", "다음 도시는 값이 더 비싸.", "자네 몫은 따로 챙겼지."]}
+  bard:       {job: 음유시인, category: SPECIAL, services: [SONG, RUMOR, LORE], likes: [art, food], dislikes: [ore],
+               personalities: [영웅담을 노래로 지음, 동전 소리에 귀가 밝음],
+               level: [10, 30], lines: ["한 곡 들어 보겠소?", "이 노래는 북쪽에서 배웠지.", "자네 이야기도 노래로 만들었다네."]}
+  mercenary:  {job: 용병, category: SPECIAL, services: [RUMOR, QUEST, TRAIN], trains: spearmanship, likes: [metal, food], dislikes: [art],
+               personalities: [돈만 주면 어디든, 의리는 따로 챙김],
+               level: [30, 50], lines: ["값부터 말하지.", "요즘 일거리가 많아.", "자네 일이라면 반값에 하지."],
+               quests: [{target: "kill:any", amount: 50, money: 500, xp: {spearmanship: 100}, affinity: 15, daily: true, title: "용병의 일감", label: 몬스터 50마리}]}
+
+# 지역 성격(태그) → 사는 주민 (같은 지역에 여러 태그가 있으면 모두 더한다, 지역당 최대 max_per_region)
+cultures:
+  city:        {blacksmith: 1, grocer: 1, general: 1, guard: 2, innkeeper: 1, priest: 1, baker: 1, tailor: 1, herbalist: 1, carpenter: 1, cook: 1}
+  market:      {auctioneer: 1, jeweler: 1, weaponsmith: 1, armorer: 1, antique: 1}
+  scholar:     {scholar: 2, alchemist: 1, mage_merchant: 1, cartographer: 1}
+  artisan:     {sculptor: 2, mason: 1, jeweler: 1}
+  fortress:    {knight: 1, soldier: 2, instructor: 1, armorer: 1}
+  outpost:     {guard: 1, hunter: 1, tanner: 1, carpenter: 1}
+  frontier:    {hunter: 1, tanner: 1, woodcutter: 1}
+  farmland:    {farmer: 3, shepherd: 1, baker: 1}
+  plains:      {farmer: 1, shepherd: 1}
+  mountain:    {miner: 2}
+  underground: {miner: 2}
+  highland:    {shepherd: 1, miner: 1}
+  forest:      {woodcutter: 1, hunter: 1}
+  river:       {fisher: 1}
+  lake:        {fisher: 2}
+  coast:       {fisher: 2}
+  desert:      {caravan: 1}
+  frozen:      {hunter: 1}
+  dungeon_site: {adventurer: 1, treasure_hunter: 1}
+  ruins:       {scholar: 1, treasure_hunter: 1}
+  badlands:    {smuggler: 1, info_broker: 1}
+max_per_region: 16
+
+# 떠돌이: 가까운 도시들을 차례로 돈다 (도시 수 · 속도 블록/분)
+wanderers:
+  peddler:          {count: 8, stops: 5, speed: 120}
+  bard:             {count: 4, stops: 6, speed: 90}
+  mercenary:        {count: 4, stops: 4, speed: 140}
+  treasure_hunter:  {count: 3, stops: 5, speed: 110}
+
+# 희귀 NPC: 정해진 지역에 정해진 시각 · 날에만 나타난다. 메뉴 · 목록 어디에도 나오지 않는다 (만나면 발견 기록 npc:<id>)
+rare:
+  wandering_smith_master:
+    {name: 무명의 장인, archetype: blacksmith, region: thor_deep_hammer, hours: [2, 4], every_days: 3, level: 60,
+     line: "망치 소리를 듣고 왔나. 드문 귀로군.", trains: smithing}
+  hermit_swordsman:
+    {name: 칼을 묻은 은자, archetype: knight, region: ulta_range, hours: [18, 20], every_days: 4, level: 70,
+     line: "검은 들 때보다 내려놓을 때 어렵지.", trains: swordsmanship}
+  ancient_mage:
+    {name: 별을 세는 노인, archetype: scholar, region: astra_academy, hours: [0, 2], every_days: 5, level: 75,
+     line: "별 하나가 사라졌어. 자네는 봤나?", trains: spellcraft}
+  stone_listener:
+    {name: 돌의 목소리를 듣는 이, archetype: sculptor, region: morata_free_city, hours: [4, 6], every_days: 4, level: 65,
+     line: "이 돌이 자네 이름을 부르더군.", trains: sculpting}
+  relic_collector:
+    {name: 낡은 상자를 든 수집가, archetype: antique, region: calamor_ruins, hours: [12, 13], every_days: 2, level: 55,
+     line: "그 손에 든 것, 얼마에 넘기겠나?"}
+  secret_cook:
+    {name: 간판 없는 주방의 요리사, archetype: cook, region: harden, hours: [22, 24], every_days: 3, level: 60,
+     line: "맛을 아는 혀로군. 앉게.", trains: cooking}

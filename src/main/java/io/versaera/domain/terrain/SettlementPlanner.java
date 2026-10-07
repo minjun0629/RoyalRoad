@@ -96,7 +96,7 @@ public final class SettlementPlanner {
             if (!r.world().equals(world)) continue;
             Set<String> t = r.tags();
             // 땅속 지역(수로 · 매몰 도시)에는 도시를 짓지 않고, 지표에 랜드마크(반쯤 묻힌 오벨리스크 등)만 둔다
-            boolean town = r.maxY() >= 64 && (t.contains("city") || t.contains("outpost") || t.contains("fortress"));
+            boolean town = isTown(r);
             SplittableRandom rng = new SplittableRandom(seed ^ r.id().hashCode() * 0x9E3779B97F4A7C15L);
             Style st = Style.of(r, regions);
             int cx = (r.minX() + r.maxX()) / 2, cz = (r.minZ() + r.maxZ()) / 2;
@@ -108,11 +108,25 @@ public final class SettlementPlanner {
         return new SettlementPlanner(out);
     }
 
-    // ------------------------------------------------------------------ 도시
-    private static void town(List<Structure> out, Region r, Style st, int cx, int cz, SplittableRandom rng, List<int[]> keepClear, Structure landmark) {
+    /** 도시를 짓는 지역인가 (city · outpost · fortress, 지표) */
+    public static boolean isTown(Region r) {
+        Set<String> t = r.tags();
+        return r.maxY() >= 64 && (t.contains("city") || t.contains("outpost") || t.contains("fortress"));
+    }
+
+    /**
+     * 도시의 길 격자: {가운데 x, 가운데 z, 반지름}. 길은 x = cx + k·32 · z = cz + k·32 (|k| ≤ 반지름/32) 에 반지름 끝까지 난다.
+     * 길 · 광장 위에는 건물을 짓지 않는다 → NPC 자리를 길 위에 두면 이미 만들어진 세계에서도 벽 안에 서지 않는다.
+     */
+    public static int[] townGrid(Region r) {
         int half = Math.min(r.maxX() - r.minX(), r.maxZ() - r.minZ()) / 2;
         int radius = Math.max(40, Math.min(140, half - 12));
-        radius = radius / 32 * 32;
+        return new int[]{(r.minX() + r.maxX()) / 2, (r.minZ() + r.maxZ()) / 2, radius / 32 * 32};
+    }
+
+    // ------------------------------------------------------------------ 도시
+    private static void town(List<Structure> out, Region r, Style st, int cx, int cz, SplittableRandom rng, List<int[]> keepClear, Structure landmark) {
+        int radius = townGrid(r)[2];
         List<Structure> roads = new ArrayList<>();
         Structure plaza = new Plaza(r.id(), cx, cz, 10, st);
         // 길: 32 블록 간격 격자 (가운데 두 길은 넓게)

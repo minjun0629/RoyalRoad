@@ -34,7 +34,13 @@ class ContentIntegrityTest {
 
     @Test
     void npcSchedulesHavePlacesInsideTheirRegion() {
+        Set<String> wanderers = new HashSet<>();
+        for (var pr : c.npcProfiles()) if (pr.wanderer()) {
+            wanderers.add(pr.id());
+            for (String r : pr.route()) assertTrue(c.regions().stream().anyMatch(x -> x.id().equals(r)), pr.id() + " 경로의 없는 지역: " + r);
+        }
         for (var n : c.npcs()) {
+            if (wanderers.contains(n.id())) continue;   // 떠돌이는 경로를 따라 움직인다 (NpcRuntime)
             var places = c.places().get(n.id());
             assertNotNull(places, "장소가 없는 NPC: " + n.id());
             var region = c.regions().stream().filter(r -> r.id().equals(n.region())).findFirst().orElseThrow();

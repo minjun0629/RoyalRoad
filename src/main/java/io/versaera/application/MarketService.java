@@ -67,6 +67,31 @@ public final class MarketService {
         return discount.applyAsDouble(uuid) + regionDiscount.applyAsDouble(m.region());
     }
 
+    private java.util.function.ToDoubleBiFunction<String, String> npcDiscount = (u, n) -> 0;
+
+    /** NPC 와의 관계 · 그 지역 번영에 따른 할인 (NpcWorldService) — 적대면 예외를 던져 거래를 막는다 */
+    public void npcDiscount(java.util.function.ToDoubleBiFunction<String, String> f) {
+        this.npcDiscount = f;
+    }
+
+    /** 이 NPC 에게서 살 때의 값 (메뉴에 보이는 값 = 실제로 내는 값) */
+    public Quote quoteAt(String uuid, String npcId, String typeId, int quality) {
+        MarketCatalog.Market m = catalog.market(shop(npcId).market());
+        long base = catalog.base(typeId), sup = supply(m.id(), typeId);
+        double r = region(m, typeId);
+        return new Quote(typeId, quality, MarketPricing.buyPrice(base, r, sup, quality, discountFor(uuid, m) + npcDiscount.applyAsDouble(uuid, npcId)),
+                MarketPricing.sellPrice(base, r, sup, quality));
+    }
+
+    /** 지역 경제: NPC 생산자 · 소비자가 시장의 공급을 움직인다 */
+    public void adjustSupply(String market, String typeId, long delta) {
+        catalog.market(market);
+        tx.inTx(() -> {
+            repo.setSupply(market, typeId, supply(market, typeId) + delta, clock.nowMillis());
+            return null;
+        });
+    }
+
     public MarketCatalog catalog() {
         return catalog;
     }
@@ -108,7 +133,8 @@ public final class MarketService {
         String key = "shop_buy:" + requestId;
         long paid = tx.inTx(() -> {
             long sup = supply(m.id(), o.typeId());
-            long total = MarketPricing.buyTotal(catalog.base(o.typeId()), region(m, o.typeId()), sup, o.quality(), amount, discountFor(uuid, m));
+            long total = MarketPricing.buyTotal(catalog.base(o.typeId()), region(m, o.typeId()), sup, o.quality(), amount,
+                    discountFor(uuid, m) + npcDiscount.applyAsDouble(uuid, npcId));
             if (!economy.transferInTx(uuid, NPC_WALLET, total, "shop_buy", key, after)) return 0L;   // 같은 요청 반복
             if (t.category().unique())
                 for (int i = 0; i < amount; i++) items.createInTx(o.typeId(), o.quality(), null, npcId, "shop", Map.of(), uuid, key + ":" + i, after);

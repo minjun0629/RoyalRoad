@@ -34,7 +34,7 @@ public record QuestDefinition(String id, String title, String giver, Grade grade
 
         public boolean matches(Type t, String what) {
             if (t != type) return false;
-            if (type == Type.KILL && target.equals("any")) return true;
+            if (type == Type.KILL) return target.equals("any") || target.equalsIgnoreCase(what);
             if (type == Type.CRAFT && target.startsWith("discipline:")) return what.startsWith("discipline:") ? what.equals(target) : false;
             return target.equals(what);
         }

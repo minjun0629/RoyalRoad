@@ -53,6 +53,7 @@ public final class GameServices {
     public final GearService gear;
     public final LifeSkillService life;
     public final FieldBossService fieldBosses;
+    public final NpcWorldService npcWorld;
     /** 파티 (접속 중에만 · 메인 스레드 전용) */
     public final io.versaera.domain.party.Parties parties = new io.versaera.domain.party.Parties();
     private volatile ServerRules rules = ServerRules.CANON;
@@ -115,6 +116,9 @@ public final class GameServices {
         this.bosses = new BossService(tx, new JdbcBossRepository(db), content.bosses(), this, bus, clock);
         market.regionDiscount(worldEvents::shopDiscount);
         this.fieldBosses = new FieldBossService(tx, progress, content.fieldBosses(), this, clock);
+        this.npcWorld = new NpcWorldService(tx, progress, new io.versaera.persistence.JdbcWorldStateRepository(db), this, content.npcProfiles(),
+                content.archetypes(), clock, zone, bus);
+        market.npcDiscount(npcWorld::shopDiscount);
         this.dungeons = new DungeonService(tx, new JdbcDungeonRepository(db), progress, content.dungeons(), this, bus, clock);
         // 퀘스트 진행: 발견 · 제작은 도메인 이벤트로 (같은 DB 스레드에서 동기 처리)
         bus.subscribe(io.versaera.domain.event.GameEvents.PlayerDiscovered.class,
