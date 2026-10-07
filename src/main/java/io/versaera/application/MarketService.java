@@ -87,7 +87,8 @@ public final class MarketService {
     public void adjustSupply(String market, String typeId, long delta) {
         catalog.market(market);
         tx.inTx(() -> {
-            repo.setSupply(market, typeId, supply(market, typeId) + delta, clock.nowMillis());
+            long cur = supply(market, typeId);   // NPC 경제는 값 범위(±150) 끝까지만 민다 — 플레이어 거래로 넘어선 값은 건드리지 않는다
+            repo.setSupply(market, typeId, Math.max(Math.min(cur, -150), Math.min(Math.max(cur, 150), cur + delta)), clock.nowMillis());
             return null;
         });
     }

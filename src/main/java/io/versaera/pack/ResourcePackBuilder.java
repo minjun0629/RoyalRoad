@@ -275,7 +275,8 @@ public final class ResourcePackBuilder {
     /** 메뉴 아이콘 키 — Menu.ui(key, …) 가 같은 키를 쓴다 */
     public static final List<String> UI_ICONS = List.of("quest", "quest_active", "shop", "gift", "news", "combat", "life", "guild", "money",
             "auction", "sell", "stat", "map_known", "map_unknown", "member", "reputation",
-            "arts", "fieldboss", "appraise", "bandage", "land", "castle", "nation", "party", "trial", "gods", "history", "character", "close", "job");
+            "arts", "fieldboss", "appraise", "bandage", "land", "castle", "nation", "party", "trial", "gods", "history", "character", "close", "job",
+            "rumor", "train", "inn", "heal", "repair", "song", "people");
 
     private void uiIcon(String key) {
         text("assets/versaera/models/ui/" + key + ".json",
@@ -452,6 +453,48 @@ public final class ResourcePackBuilder {
             }
             case "close" -> {
                 c.layer().line(7, 7, 25, 25, 4.5).line(25, 7, 7, 25, 4.5).commit(Canvas.ramp(red), 0);
+            }
+            case "rumor" -> {   // 말풍선 + 물음표
+                c.layer().ellipse(16, 13, 13, 10).poly(new double[]{8, 14, 6}, new double[]{19, 21, 28}).commit(Canvas.ramp(paper), 0.08);
+                c.layer().line(13, 10, 16, 7.5, 2).line(16, 7.5, 19, 10, 2).line(19, 10, 16, 13.5, 2).line(16, 13.5, 16, 15.5, 2).commit(Canvas.ramp(blue), 0);
+                c.layer().ellipse(16, 18.5, 1.3, 1.3).commit(Canvas.ramp(blue), 0);
+            }
+            case "train" -> {   // 펼친 책 위의 별
+                c.layer().poly(new double[]{3, 16, 16, 3}, new double[]{12, 15, 28, 25}).commit(Canvas.ramp(paper), 0.1);
+                c.layer().poly(new double[]{16, 29, 29, 16}, new double[]{15, 12, 25, 28}).commit(Canvas.ramp(Canvas.mix(paper, dark, 0.12)), 0.1);
+                c.layer().line(16, 15, 16, 28, 1.2).commit(Canvas.ramp(wood), 0);
+                c.layer().poly(new double[]{16, 18, 23, 19, 20.5, 16, 11.5, 13, 9, 14}, new double[]{2, 6.5, 7, 9.5, 14, 11.5, 14, 9.5, 7, 6.5}).commit(Canvas.ramp(gold), 0);
+            }
+            case "inn" -> {   // 침대
+                c.layer().rect(4, 9, 3, 18).rect(25, 15, 3, 12).commit(Canvas.ramp(wood), 0.1);
+                c.layer().rect(7, 18, 18, 6).commit(Canvas.ramp(red), 0.05);
+                c.layer().ellipse(11, 15.5, 4, 2.6).commit(Canvas.ramp(paper), 0.05);
+                c.layer().rect(7, 22, 18, 2).commit(Canvas.ramp(wood), 0);
+                c.sparkle(22, 8, new Color(200, 210, 255));
+            }
+            case "heal" -> {   // 붉은 십자 물약
+                c.layer().ellipse(16, 20, 9, 8).rect(13, 5, 6, 9).commit(Canvas.ramp(Canvas.mix(paper, blue, 0.2)), 0.05);
+                c.layer().ellipse(16, 21, 7.5, 6).commit(Canvas.ramp(red), 0.05);
+                c.layer().rect(15, 17, 2, 8).rect(12, 20, 8, 2).commit(Canvas.ramp(Color.WHITE), 0);
+                c.layer().rect(12, 3, 8, 3).commit(Canvas.ramp(wood), 0);
+            }
+            case "repair" -> {   // 망치와 모루
+                c.layer().poly(new double[]{5, 27, 24, 21, 11, 8}, new double[]{18, 18, 22, 22, 22, 22}).rect(12, 22, 8, 3).rect(9, 25, 14, 3).commit(Canvas.ramp(steel), 0.1);
+                c.layer().line(10, 15, 22, 4, 2.2).commit(Canvas.ramp(wood), 0);
+                c.layer().poly(new double[]{17, 24, 27, 20}, new double[]{4, 1, 6, 9}).commit(Canvas.ramp(dark), 0.05);
+                c.sparkle(8, 14, new Color(255, 200, 90));
+            }
+            case "song" -> {   // 류트 + 음표
+                c.layer().ellipse(12, 21, 8, 7).commit(Canvas.ramp(wood), 0.1);
+                c.layer().ellipse(12, 21, 2, 2).commit(Canvas.ramp(dark), 0);
+                c.layer().line(15, 17, 24, 6, 2.5).commit(Canvas.ramp(Canvas.mix(wood, dark, 0.3)), 0);
+                c.layer().ellipse(24, 22, 2.5, 2).line(26, 22, 26, 12, 1.2).commit(Canvas.ramp(purple), 0);
+            }
+            case "people" -> {   // 세 사람
+                c.layer().ellipse(9, 11, 3.5, 3.5).ellipse(23, 11, 3.5, 3.5).commit(Canvas.ramp(skin), 0.05);
+                c.layer().ellipse(9, 23, 6, 6).ellipse(23, 23, 6, 6).cutRect(0, 27, 32, 5).commit(Canvas.ramp(blue), 0.05);
+                c.layer().ellipse(16, 9, 4, 4).commit(Canvas.ramp(skin), 0.05);
+                c.layer().ellipse(16, 23, 7, 7).cutRect(0, 28, 32, 4).commit(Canvas.ramp(green), 0.05);
             }
             default -> c.layer().rect(8, 8, 16, 16).commit(Canvas.ramp(gold), 0);
         }

@@ -507,6 +507,66 @@ features:
     server_test: BLOCKED
     status: IMPLEMENTED
 
+
+  - id: NPC-03
+    feature: "NPC 인구 생성 (직업 틀 · 지역 문화 · 가족 · 관계 · 의뢰)"
+    category: "NPC"
+    source: "정식 출시 사양 §12-A · B · H · I · O"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "npc_population.yml 의 직업 틀 40종을 지역 태그별 문화에 맞춰 배치하는 결정적 생성기 (지역 id 시드). 936명 · 가족 · 사제 · 경쟁 · 주종 · 거래처 · 소문 · NPC 의뢰 1117 (숨은 89) · 상점 644"
+    player_experience: "모든 도시에 그 지역다운 사람들이 살고, 서로 아는 사이다"
+    dependencies: [NPC-01, NPC-02, QST-01, TRD-02]
+    implementation: "domain.npc.NpcPopulation · Archetype · NpcProfile · NpcNames · content.ContentLoader.population"
+    data_model: "content/npc_population.yml (생성 결과는 저장하지 않음 — 같은 입력이면 같은 결과)"
+    ui: "NPC 창 머리 (레벨 · 집안 · 아는 사람들)"
+    resource_pack: "NPC 메뉴 아이콘 rumor · train · inn · heal · repair · song · people"
+    performance_risk: "서버 시작 때 한 번 생성 (수십 ms)"
+    security_risk: "없음 (콘텐츠)"
+    persistence: "없음 (결정적)"
+    tests: [NpcPopulationTest, ContentIntegrityTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: NPC-04
+    feature: "NPC 관계 단계 · 기억 · 관계 전파 · NPC 의 일"
+    category: "NPC"
+    source: "정식 출시 사양 §12-E · F · G · N · P"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "10단계 관계(적대~특별 관계), 단계별 대사 · 할인 · 열리는 일. 기억(의뢰 · 선물 · 단골 · 지도 · 보스)이 대사가 됨. 호감이 크게 오르면 가족 · 거래처 · 스승에게 퍼지고 경쟁자는 반대. 소문 · 숙련 지도 · 숙소 · 치유 · 노래 · 수리. 신뢰 = 숨은 의뢰. 떠돌이 19 · 희귀 NPC 6"
+    player_experience: "NPC 가 나를 기억하고, 한 사람과 친해지면 그 가족도 반긴다"
+    dependencies: [NPC-03, ECO-01, SKL-01]
+    implementation: "application.NpcWorldService · domain.npc.Relation.Stage · domain.npc.Wandering · NpcListener · ui.NpcMenus · /va npc info"
+    data_model: "npc_memory (V6) · npc_relation"
+    ui: "대화 3줄 (대사 · 기억 · 단계/열림) + NPC 창 버튼"
+    resource_pack: "메뉴 아이콘"
+    performance_risk: "대화 · 창은 DB 스레드, 기억은 최근 1~3건만 읽음"
+    security_risk: "돈 드는 일은 요청 key 로 한 번만, 지도 · 노래는 하루 한 번 key, 적대면 거래 거부 (서버 검증)"
+    persistence: DB
+    tests: [NpcWorldTest, WanderingTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: NPC-05
+    feature: "지역 번영 · NPC 경제 · 대규모 NPC 런타임"
+    category: "NPC"
+    source: "정식 출시 사양 §12-J · K · R · U"
+    source_type: "설계 요구"
+    classification: ORIGINAL
+    description: "지역 번영(-1000~1000, 1주 반감기): 의뢰 · 거래 · 필드 보스 토벌로 오름. 단계(쇠퇴 · 평범 · 번성 · 융성)가 상점 값과 귀한 물건 상인의 존재를 바꿈. 생산자 · 소비자 NPC 가 1시간마다 시장 공급을 움직임. 런타임은 128 블록 칸 공간 색인으로 플레이어 주변 NPC 만 계산"
+    player_experience: "내가 도운 마을이 번성하고 값이 내려간다"
+    dependencies: [NPC-04, ECO-01, BOS-03]
+    implementation: "NpcWorldService.contribute · tier · economyTick · refreshPresence · platform.bukkit.listener.NpcRuntime"
+    data_model: "region_state · region_contribution (V6)"
+    ui: "대화 줄의 '마을 번성' · NPC 창 머리"
+    resource_pack: "없음"
+    performance_risk: "전체 순회 없음 (주변 3×3 칸), 떠난 상인 목록은 5분마다 DB 스레드에서 캐시, 경제는 1시간마다 DB 스레드"
+    security_risk: "같은 일로 두 번 오르지 않음 (region_contribution key)"
+    persistence: DB
+    tests: [NpcWorldTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
   - id: QST-01
     feature: "의뢰 (일상 · 숙련 · 험로 · 전설 · 숨은 의뢰)"
     category: "퀘스트"

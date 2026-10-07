@@ -40,8 +40,13 @@ public final class NpcMenus {
         this.facts = facts;
     }
 
-    private record Home(NpcDefinition npc, int affinity, List<QuestDefinition> available, List<QuestService.Active> active, boolean shop,
-                        Map<String, Long> forecast) {}
+    private record Home(NpcDefinition npc, io.versaera.domain.npc.Relation.Stage stage, int affinity, List<QuestDefinition> available,
+                        List<QuestService.Active> active, boolean shop, Map<String, Long> forecast, Set<String> services, List<String> info,
+                        List<String> people) {}
+
+    private static final Map<String, String> LINK = Map.ofEntries(Map.entry("SPOUSE", "배우자"), Map.entry("PARENT", "부모"),
+            Map.entry("CHILD", "자식"), Map.entry("SIBLING", "형제"), Map.entry("PARTNER", "거래처"), Map.entry("MASTER", "스승"),
+            Map.entry("APPRENTICE", "제자"), Map.entry("RIVAL", "경쟁자"), Map.entry("LORD", "주군"), Map.entry("VASSAL", "가신"));
 
     public void open(Player p, String npcId) {
         String id = p.getUniqueId().toString();
@@ -57,15 +62,36 @@ public final class NpcMenus {
             List<QuestService.Active> mine = s.quests.active(id).stream().filter(a -> npcId.equals(a.def().giver())).toList();
             Map<String, Long> fc = new LinkedHashMap<>();
             s.worldEvents.forecastBy(npcId).forEach((d, t) -> fc.put(d.name(), t));
-            return new Home(n, s.relations.affinity(id, npcId), s.quests.available(id, npcId, f), mine,
-                    s.market.catalog().shops().containsKey(npcId), fc);
+            var stage = s.npcWorld.stage(id, npcId);
+            var arch = s.npcWorld.archetypeOf(npcId);
+            Set<String> services = arch == null ? Set.of() : Set.copyOf(arch.services());
+            List<String> info = new ArrayList<>();
+            List<String> people = new ArrayList<>();
+            s.npcWorld.profile(npcId).ifPresent(pr -> {
+                info.add("&7Lv." + pr.level() + (pr.family() != null ? " &8· &7" + pr.family() + "씨 집안" : ""));
+                if (pr.wanderer()) {
+                    String town = s.npcWorld.wandererTown(npcId);
+                    info.add("&7떠돌이 &8· &7" + (town == null ? "길 위" : s.regions.byId(town).name()));
+                }
+                for (var l : pr.links()) {
+                    NpcDefinition o = s.relations.npc(l.npc());
+                    people.add("&7" + LINK.getOrDefault(l.type(), l.type()) + " &f" + o.name() + " &8" + o.job()
+                            + (o.region().equals(n.region()) ? "" : " · " + s.regions.byId(o.region()).name()));
+                }
+            });
+            info.add("&7마을 " + s.npcWorld.tier(n.region()).label);
+            for (var mem : s.npcWorld.memories(id, npcId, 3)) info.add("&8기억: " + mem.kind().toLowerCase(Locale.ROOT) + " " + mem.detail());
+            return new Home(n, stage, s.relations.affinity(id, npcId), s.quests.available(id, npcId, f), mine,
+                    s.market.catalog().shops().containsKey(npcId), fc, services, info, people);
         }, h -> home(p, h), p);
     }
 
     private void home(Player p, Home h) {
         Menu m = new Menu(3, "&8" + h.npc().name());
-        m.set(4, Menu.icon(Material.PLAYER_HEAD, "&f" + h.npc().name() + " &7" + h.npc().job(),
-                List.of("&7" + Relation.tierName(h.affinity()) + " " + h.affinity())), null);
+        List<String> head = new ArrayList<>();
+        head.add("&7" + h.stage().label + " " + h.affinity());
+        head.addAll(h.info());
+        m.set(4, Menu.icon(Material.PLAYER_HEAD, "&f" + h.npc().name() + " &7" + h.npc().job(), head), null);
         int slot = 9;
         for (QuestService.Active a : h.active()) {
             if (slot > 17) break;
@@ -75,15 +101,96 @@ public final class NpcMenus {
             if (slot > 17) break;
             m.set(slot++, questIcon(q, null), e -> accept(p, q));
         }
-        if (h.shop()) m.set(22, Menu.ui("shop", Material.EMERALD, "&a상점", List.of()), e -> shop(p, h.npc().id()));
+        String npc = h.npc().id();
+        Set<String> sv = h.services();
+        if (sv.contains("RUMOR") || sv.contains("LORE"))
+            m.set(18, Menu.ui("rumor", Material.MAP, "&b소문", List.of(need(h, Relation.Stage.INTEREST), "&7가 보지 못한 곳 하나")), e -> rumor(p, npc));
+        if (sv.contains("TRAIN"))
+            m.set(19, Menu.ui("train", Material.ENCHANTED_BOOK, "&e지도", List.of(need(h, Relation.Stage.FRIENDLY), "&7하루 한 번 · 숙련 경험")), e -> train(p, npc));
         if (!h.forecast().isEmpty()) {
             List<String> lines = new ArrayList<>();
             long now = System.currentTimeMillis();
             h.forecast().forEach((name, t) -> lines.add("&f" + name + " &7" + Math.max(1, Duration.ofMillis(t - now).toMinutes()) + "분 뒤"));
             m.set(20, Menu.ui("news", Material.CLOCK, "&e소식", lines), null);
         }
-        m.set(24, Menu.ui("gift", Material.POPPY, "&d선물", List.of("&7손에 든 재료 1개")), e -> gift(p, h.npc().id()));
+        if (sv.contains("INN")) m.set(21, Menu.ui("inn", Material.RED_BED, "&f쉼", List.of("&7체력 · 배고픔 회복 · 휴식")), e -> paid(p, npc, "INN"));
+        else if (sv.contains("HEAL")) m.set(21, Menu.ui("heal", Material.POTION, "&f치유", List.of("&7체력 회복 · 해로운 효과 제거")), e -> paid(p, npc, "HEAL"));
+        if (h.shop()) m.set(22, Menu.ui("shop", Material.EMERALD, "&a상점",
+                h.stage().discount() > 0 ? List.of("&e할인 " + Math.round(h.stage().discount() * 100) + "%") : List.of()), e -> shop(p, npc));
+        if (sv.contains("REPAIR")) m.set(23, Menu.ui("repair", Material.ANVIL, "&f수리", List.of("&7손에 든 장비")), e -> repair(p, npc));
+        m.set(24, Menu.ui("gift", Material.POPPY, "&d선물", List.of("&7손에 든 재료 1개")), e -> gift(p, npc));
+        if (sv.contains("SONG")) m.set(25, Menu.ui("song", Material.NOTE_BLOCK, "&d노래", List.of("&7하루 한 번")), e -> song(p, npc));
+        if (!h.people().isEmpty()) m.set(26, Menu.ui("people", Material.BOOK, "&f아는 사람들", h.people().subList(0, Math.min(12, h.people().size()))), null);
         m.open(p);
+    }
+
+    private static String need(Home h, Relation.Stage min) {
+        return h.stage().atLeast(min) ? "&a열림" : "&c'" + min.label + "' 이상";
+    }
+
+    // ------------------------------------------------------------------ NPC 의 일
+    private void rumor(Player p, String npcId) {
+        String id = p.getUniqueId().toString();
+        async.run("npc-rumor", () -> s.npcWorld.rumor(id, npcId), r -> {
+            p.closeInventory();
+            p.sendMessage(Ui.c("&b소문 &7" + r.regionName() + " &8— &7" + r.direction() + " 쪽 " + r.distance() + " 블록"));
+        }, p);
+    }
+
+    private void train(Player p, String npcId) {
+        String id = p.getUniqueId().toString();
+        async.run("npc-train", () -> s.npcWorld.train(id, npcId), l -> {
+            p.closeInventory();
+            p.sendMessage(Ui.c("&e지도 &7" + s.growth.discipline(l.discipline()).name() + " &a+" + l.xp() + " &8(-" + l.cost() + " 골드)"));
+        }, p);
+    }
+
+    private void paid(Player p, String npcId, String service) {
+        String id = p.getUniqueId().toString(), req = UUID.randomUUID().toString();
+        async.run("npc-" + service, () -> s.npcWorld.paidService(id, npcId, service, req), cost -> {
+            p.closeInventory();
+            var max = p.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH);
+            p.setHealth(max == null ? 20 : max.getValue());
+            if (service.equals("INN")) {
+                p.setFoodLevel(20);
+                p.setSaturation(10);
+                p.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.REGENERATION, 20 * 60, 0));
+            } else {
+                for (var t : List.of(org.bukkit.potion.PotionEffectType.POISON, org.bukkit.potion.PotionEffectType.WITHER,
+                        org.bukkit.potion.PotionEffectType.WEAKNESS, org.bukkit.potion.PotionEffectType.SLOW, org.bukkit.potion.PotionEffectType.BLINDNESS,
+                        org.bukkit.potion.PotionEffectType.HUNGER, org.bukkit.potion.PotionEffectType.CONFUSION))
+                    p.removePotionEffect(t);
+            }
+            p.sendMessage(Ui.info((service.equals("INN") ? "푹 쉬었다" : "상처가 아물었다") + " (-" + cost + " 골드)"));
+        }, p);
+    }
+
+    private void song(Player p, String npcId) {
+        String id = p.getUniqueId().toString();
+        async.run("npc-song", () -> s.npcWorld.song(id, npcId), first -> {
+            p.closeInventory();
+            if (!first) { p.sendMessage(Ui.c("&7오늘은 이미 들었다")); return; }
+            p.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.LUCK, 20 * 600, 0));
+            p.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.SPEED, 20 * 600, 0));
+            p.playSound(p.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1.2f);
+            p.sendMessage(Ui.c("&d노래 &7발걸음이 가벼워졌다 (10분)"));
+        }, p);
+    }
+
+    private void repair(Player p, String npcId) {
+        String iid = codec.instanceId(p.getInventory().getItemInMainHand());
+        if (iid == null) { p.sendMessage(Ui.error("고칠 장비를 손에 드세요")); return; }
+        String id = p.getUniqueId().toString(), req = UUID.randomUUID().toString();
+        async.run("npc-repair", () -> {
+            var r = s.npcWorld.repair(id, npcId, iid, req);
+            return new Object[]{r, s.items.find(iid).orElseThrow()};
+        }, res -> {
+            var r = (io.versaera.domain.item.Repair.Result) res[0];
+            var it = (io.versaera.domain.item.ItemInstance) res[1];
+            int slot = p.getInventory().getHeldItemSlot();
+            if (iid.equals(codec.instanceId(p.getInventory().getItem(slot)))) p.getInventory().setItem(slot, codec.unique(it));
+            p.sendMessage(Ui.info("수리 " + it.durability() + "/" + it.maxDurability() + (r.maxAfter() < r.maxBefore() ? "  &c최대 -" + (r.maxBefore() - r.maxAfter()) : "")));
+        }, p);
     }
 
     private ItemStack questIcon(QuestDefinition q, QuestService.Active a) {
@@ -149,7 +256,8 @@ public final class NpcMenus {
         if (taken == null) return;
         String id = p.getUniqueId().toString();
         Set<String> tags = codec.types().get(type).tags();
-        async.run("gift", () -> s.relations.gift(id, npcId, tags, q), gain -> {
+        String name = codec.types().get(type).name();
+        async.run("gift", () -> s.npcWorld.gift(id, npcId, tags, q, name), gain -> {
             p.closeInventory();
             p.sendMessage(Ui.c(gain > 0 ? "&a호감 +" + gain : gain < 0 ? "&c호감 " + gain : "&7반응 없음"));
         }, err -> InventoryOps.give(p, codec, taken), p);
@@ -162,7 +270,7 @@ public final class NpcMenus {
             MarketCatalog.Shop sh = s.market.shop(npcId);
             List<long[]> prices = new ArrayList<>();
             for (MarketCatalog.Offer o : sh.sells()) {
-                var qt = s.market.quote(id, sh.market(), o.typeId(), o.quality());
+                var qt = s.market.quoteAt(id, npcId, o.typeId(), o.quality());
                 prices.add(new long[]{qt.buy()});
             }
             return new Object[]{sh, prices, s.economy.balance(id)};
@@ -186,9 +294,19 @@ public final class NpcMenus {
         }, p);
     }
 
+    /** 거래가 끝난 뒤 (DB 스레드): 단골 기억 · 지역 번영. 이미 끝난 거래는 되돌리지 않는다 */
+    private long traded(String uuid, String npcId, long amount, String req) {
+        try {
+            s.npcWorld.traded(uuid, npcId, amount, req);
+        } catch (RuntimeException ex) {
+            java.util.logging.Logger.getLogger("VersaEra").warning("npc trade memory: " + ex);
+        }
+        return amount;
+    }
+
     private void buy(Player p, String npcId, int idx, int amount) {
         String id = p.getUniqueId().toString(), req = UUID.randomUUID().toString();
-        async.run("shop-buy", () -> s.market.buy(id, npcId, idx, amount, req), paid -> {
+        async.run("shop-buy", () -> traded(id, npcId, s.market.buy(id, npcId, idx, amount, req), req), paid -> {
             p.sendMessage(Ui.info("-" + paid + " 골드"));
             deliver.accept(p);
             shop(p, npcId);
@@ -201,7 +319,7 @@ public final class NpcMenus {
         String unique = codec.instanceId(hand);
         if (unique != null) {
             p.getInventory().setItemInMainHand(null);
-            async.run("shop-sell-u", () -> s.market.sellUnique(id, npcId, unique, req), got -> {
+            async.run("shop-sell-u", () -> traded(id, npcId, s.market.sellUnique(id, npcId, unique, req), req), got -> {
                 p.sendMessage(Ui.info("+" + got + " 골드"));
                 shop(p, npcId);
             }, err -> p.getInventory().addItem(hand), p);   // 실패: 서버 상태는 그대로(PLAYER) → 그 아이템을 다시 쥐여 준다
@@ -211,7 +329,7 @@ public final class NpcMenus {
         if (type == null) { p.sendMessage(Ui.error("팔 물건을 손에 드세요")); return; }
         int q = codec.bulkQuality(hand), n = hand.getAmount();
         p.getInventory().setItemInMainHand(null);
-        async.run("shop-sell", () -> s.market.sellBulk(id, npcId, type, q, n, req), got -> {
+        async.run("shop-sell", () -> traded(id, npcId, s.market.sellBulk(id, npcId, type, q, n, req), req), got -> {
             p.sendMessage(Ui.info("+" + got + " 골드"));
             shop(p, npcId);
         }, err -> deliver.accept(p), p);   // 실패하면 서비스가 배달함으로 돌려준다

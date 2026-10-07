@@ -196,6 +196,9 @@ public final class VersaEraPlugin extends JavaPlugin {
                 if (p != null) skills.reload(p);
             });
         });
+        // NPC 세계 (NPC-05): 5분마다 떠나 있는 상인 다시 셈, 1시간마다 지역 경제 (생산 · 소비가 시장 공급을 움직임) — 모두 DB 스레드
+        Bukkit.getScheduler().runTaskTimer(this, () -> async.fire("npc-presence", services.npcWorld::refreshPresence), 20L, 6000L);
+        Bukkit.getScheduler().runTaskTimer(this, () -> async.fire("npc-economy", services.npcWorld::economyTick), 2400L, 72000L);
         // 경매 만료: 10분마다 50건씩 (물건은 판매자 배달함으로)
         Bukkit.getScheduler().runTaskTimer(this, () -> async.fire("auction-expire", () -> services.auctions.expire(50)), 1200L, 12000L);
         PlayerCommand pc = new PlayerCommand(services, async, codec, sessions::deliver, maps::give);

@@ -119,7 +119,8 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                         ok -> sender.sendMessage(Ui.info("잔액 반영")), sender);
             }
             case "npc" -> {
-                if (!(sender instanceof Player p) || a.length < 3 || !a[1].equals("spawn")) { sender.sendMessage(Ui.error("/va npc spawn <id>")); return; }
+                if (a.length >= 3 && a[1].equals("info")) { npcInfo(sender, a[2]); return; }
+                if (!(sender instanceof Player p) || a.length < 3 || !a[1].equals("spawn")) { sender.sendMessage(Ui.error("/va npc spawn <id> · /va npc info <id>")); return; }
                 npcs.spawn(s.relations.npc(a[2]), p.getLocation());
                 sender.sendMessage(Ui.info("NPC " + a[2]));
             }
@@ -145,11 +146,30 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             }
             case "perf" -> {
                 Runtime rt = Runtime.getRuntime();
+                sender.sendMessage(Ui.info("NPC " + s.relations.all().size() + " (프로필 " + s.npcWorld.profiles().size() + " · 떠난 상인 " + s.npcWorld.absent().size() + ")"));
                 sender.sendMessage(Ui.info("지역 " + s.regions.all().size() + " · 레시피 " + s.crafting.all().size() + " · 히든 " + (s.hidden() == null ? 0 : s.hidden().ruleCount())
                         + " · 메모리 " + (rt.totalMemory() - rt.freeMemory()) / 1048576 + "MB"));
             }
             default -> sender.sendMessage(Ui.info("inspect · item · audit · give · money · npc spawn · boss spawn|stop · seal · hidden generate · event · perf"));
         }
+    }
+
+    /** NPC 한 명: 직업 틀 · 레벨 · 관계 · 지금 자리 · 지역 번영 (번영은 DB 스레드에서 읽는다) */
+    private void npcInfo(CommandSender sender, String id) {
+        async.run("admin-npc", () -> {
+            var n = s.relations.npc(id);
+            List<String> out = new ArrayList<>();
+            out.add(n.name() + " · " + n.job() + " · " + n.region() + (n.evil() ? " · 악" : ""));
+            s.npcWorld.profile(id).ifPresent(p -> {
+                out.add("틀 " + p.archetype() + " · Lv." + p.level() + (p.family() != null ? " · " + p.family() + " " + p.household() : "")
+                        + (p.trains() != null ? " · 지도 " + p.trains() : ""));
+                out.add("관계 " + p.links().size() + " · 소문 " + p.rumors().size() + " · 숨은 의뢰 " + p.hiddenQuests().size()
+                        + (p.wanderer() ? " · 떠돌이 " + String.join(">", p.route()) + " (지금 " + (s.npcWorld.wandererTown(id) == null ? "길 위" : s.npcWorld.wandererTown(id)) + ")" : "")
+                        + (p.rare() != null ? " · 희귀 " + p.rare().hourFrom() + "~" + p.rare().hourTo() + "시, " + p.rare().everyDays() + "일마다" : ""));
+            });
+            out.add("지역 번영 " + s.npcWorld.prosperity(n.region()) + " (" + s.npcWorld.tier(n.region()).label + ")" + (s.npcWorld.present(id) ? "" : " · 떠나 있음"));
+            return out;
+        }, out -> out.forEach(l -> sender.sendMessage(Ui.info(l))), sender);
     }
 
     /**

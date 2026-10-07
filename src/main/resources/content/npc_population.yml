@@ -282,7 +282,7 @@ cultures:
   badlands:    {smuggler: 1, info_broker: 1}
 max_per_region: 16
 
-# 떠돌이: 가까운 도시들을 차례로 돈다 (도시 수 · 속도 블록/분)
+# 떠돌이: 가까운 도시들을 차례로 돈다 (도시 수 · 속도 블록/분). 도시마다 실제 30분 머물고, 시각만으로 자리가 정해진다 (저장 없음)
 wanderers:
   peddler:          {count: 8, stops: 5, speed: 120}
   bard:             {count: 4, stops: 6, speed: 90}

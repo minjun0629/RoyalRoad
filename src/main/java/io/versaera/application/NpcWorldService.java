@@ -44,6 +44,9 @@ public final class NpcWorldService {
 
     public record Lesson(String discipline, long xp, long cost) {}
 
+    /** 떠돌이가 도시 하나에 머무는 시간 (실제 시간) */
+    public static final long WANDER_STAY_MS = 30 * 60_000L;
+
     /** 귀한 물건을 다루는 상인 — 지역이 쇠퇴하면 떠난다 */
     public static final Set<String> LUXURY = Set.of("jeweler", "antique", "mage_merchant", "auctioneer", "weaponsmith");
 
@@ -56,6 +59,9 @@ public final class NpcWorldService {
     private final Map<String, NpcProfile> profiles = new HashMap<>();
     private final Map<String, Archetype> archetypes;
     private final Map<String, String> nearestMarket = new HashMap<>();
+    private final Map<String, List<io.versaera.domain.npc.NpcSchedule.Point>> wanderStops = new java.util.concurrent.ConcurrentHashMap<>();
+    /** 지금 세계를 떠나 있는 NPC (쇠퇴한 지역의 귀한 물건 상인) — refreshPresence() 가 DB 스레드에서 갈아 끼운다 */
+    private volatile Set<String> absent = Set.of();
 
     NpcWorldService(TxRunner tx, ProgressRepository progress, WorldStateRepository world, GameServices s, Collection<NpcProfile> profiles,
                     Map<String, Archetype> archetypes, GameClock clock, ZoneId zone, EventBus bus) {
@@ -343,6 +349,52 @@ public final class NpcWorldService {
         NpcProfile p = profiles.get(npcId);
         if (p == null || !LUXURY.contains(p.archetype())) return true;
         return tier(s.relations.npc(npcId).region()) != Tier.DECLINE;
+    }
+
+    /** DB 스레드에서: 떠나 있는 NPC 목록을 다시 셈 (지역마다 한 번만 읽는다) */
+    public Set<String> refreshPresence() {
+        Map<String, Tier> tiers = new HashMap<>();
+        Set<String> out = new HashSet<>();
+        for (NpcProfile p : profiles.values()) {
+            if (!LUXURY.contains(p.archetype())) continue;
+            String region = s.relations.npc(p.id()).region();
+            if (tiers.computeIfAbsent(region, this::tier) == Tier.DECLINE) out.add(p.id());
+        }
+        absent = Set.copyOf(out);
+        return absent;
+    }
+
+    /** 어느 스레드에서나: 마지막으로 센 떠나 있는 NPC */
+    public Set<String> absent() {
+        return absent;
+    }
+
+    /** 희귀 NPC 가 지금(게임 시각 hour, 오늘) 나와 있는가. 희귀하지 않으면 늘 true */
+    public boolean rareNow(String npcId, int hour) {
+        NpcProfile p = profiles.get(npcId);
+        return p == null || p.rare() == null || p.rare().present(day(), hour);
+    }
+
+    /** 떠돌이의 지금 자리 (떠돌이가 아니면 null). 도시 광장 옆 큰길에 머문다 */
+    public io.versaera.domain.npc.Wandering.State wanderer(String npcId) {
+        NpcProfile p = profiles.get(npcId);
+        if (p == null || !p.wanderer()) return null;
+        List<io.versaera.domain.npc.NpcSchedule.Point> stops = wanderStops.computeIfAbsent(npcId, id -> {
+            List<io.versaera.domain.npc.NpcSchedule.Point> out = new ArrayList<>();
+            int lane = Math.floorMod(id.hashCode(), 4) * 5;
+            for (String r : p.route()) {
+                int[] g = io.versaera.domain.terrain.SettlementPlanner.townGrid(s.regions.byId(r));
+                out.add(new io.versaera.domain.npc.NpcSchedule.Point(g[0] + 16 + lane + 0.5, g[1] + 1.5));
+            }
+            return List.copyOf(out);
+        });
+        return io.versaera.domain.npc.Wandering.at(stops, p.speed(), WANDER_STAY_MS, clock.nowMillis(), Math.floorMod(npcId.hashCode(), 3_600_000L));
+    }
+
+    /** 떠돌이가 지금 머무는 도시 (길 위면 null) */
+    public String wandererTown(String npcId) {
+        var st = wanderer(npcId);
+        return st == null || st.stop() < 0 ? null : profiles.get(npcId).route().get(st.stop());
     }
 
     /** 필드 보스가 쓰러지면: 그 둥지와 가까운 지역 사람들이 기억하고, 그 지역이 번영한다 */

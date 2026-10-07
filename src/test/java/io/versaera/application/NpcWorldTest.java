@@ -111,6 +111,8 @@ class NpcWorldTest {
             w.s.npcWorld.contribute(region, -800, "attack");
             assertEquals(NpcWorldService.Tier.DECLINE, w.s.npcWorld.tier(region));
             assertFalse(w.s.npcWorld.present(lux.id()), "쇠퇴하면 귀한 상인이 떠난다");
+            assertTrue(w.s.npcWorld.refreshPresence().contains(lux.id()));
+            assertTrue(w.s.npcWorld.absent().contains(lux.id()), "런타임이 읽는 캐시에도");
             // 지역 경제: 생산자가 시장 공급을 늘린다
             assertTrue(w.s.npcWorld.economyTick() > 0);
         }
@@ -130,6 +132,36 @@ class NpcWorldTest {
             w.s.quests.complete(p, "P", q.id(), null, java.util.List.of());
             assertEquals("QUEST", w.s.npcWorld.memories(p, q.giver(), 1).get(0).kind());
             assertTrue(w.s.npcWorld.prosperity(region) > 0, "의뢰가 지역을 번영시킨다");
+        }
+    }
+
+    @Test
+    void wanderersTravelBetweenTownsAndRareNpcsKeepTheirHours() throws Exception {
+        try (TestWorld w = new TestWorld()) {
+            NpcProfile wand = w.s.npcWorld.profiles().stream().filter(NpcProfile::wanderer).findFirst().orElseThrow();
+            java.util.Set<String> towns = new java.util.HashSet<>();
+            boolean onRoad = false;
+            for (int i = 0; i < 48 * 6; i++) {   // 48시간을 10분씩
+                String t = w.s.npcWorld.wandererTown(wand.id());
+                if (t == null) onRoad = true;
+                else towns.add(t);
+                w.now.addAndGet(10 * 60_000L);
+            }
+            assertTrue(towns.size() >= 2, "여러 도시를 돈다: " + towns);
+            assertTrue(onRoad, "도시 사이에선 길 위에 있다");
+            assertTrue(wand.route().containsAll(towns));
+            assertNull(w.s.npcWorld.wanderer(find(w, "blacksmith", false).id()), "주민은 떠돌지 않는다");
+
+            NpcProfile rare = w.s.npcWorld.profiles().stream().filter(x -> x.rare() != null).findFirst().orElseThrow();
+            int inside = rare.rare().hourFrom(), outside = (rare.rare().hourTo() + 3) % 24;
+            int seen = 0;
+            for (int d = 0; d < rare.rare().everyDays() * 2; d++) {
+                if (w.s.npcWorld.rareNow(rare.id(), inside)) seen++;
+                assertFalse(w.s.npcWorld.rareNow(rare.id(), outside), "정해진 시각 밖에는 없다");
+                w.now.addAndGet(86_400_000L);
+            }
+            assertEquals(2, seen, "every_days 마다 한 번");
+            assertTrue(w.s.npcWorld.rareNow(find(w, "blacksmith", false).id(), outside), "보통 주민은 늘 있다");
         }
     }
 }

@@ -31,6 +31,9 @@
 | MAP-01 | 탐험 지도 (안개) | ORIGINAL | **IMPLEMENTED** | MapServiceTest |
 | NPC-01 | NPC 정의 · 관계 | ORIGINAL | **IMPLEMENTED** | GrowthAndWorldTest |
 | NPC-02 | NPC 일과 이동 · 상점 · 의뢰 · 예보 | ORIGINAL | **IMPLEMENTED** | NpcScheduleTest, ContentIntegrityTest |
+| NPC-03 | NPC 인구 생성 (직업 틀 · 문화 · 가족 · 관계 · 의뢰) | ORIGINAL | **IMPLEMENTED** | NpcPopulationTest, ContentIntegrityTest |
+| NPC-04 | NPC 관계 단계 · 기억 · 전파 · NPC 의 일 | ORIGINAL | **IMPLEMENTED** | NpcWorldTest, WanderingTest |
+| NPC-05 | 지역 번영 · NPC 경제 · 대규모 NPC 런타임 | ORIGINAL | **IMPLEMENTED** | NpcWorldTest |
 | QST-01 | 의뢰 (일상 · 숙련 · 험로 · 전설 · 숨은 의뢰) | ORIGINAL | **IMPLEMENTED** | JobQuestDeathTest, SkillBookTest, ContentIntegrityTest |
 | HID-01 | 히든 콘텐츠 엔진 (봉인 · 행동 조합 · 최초 발견 · 소문) | ORIGINAL | **IMPLEMENTED** | HiddenServiceTest |
 | HID-02 | 서버마다 다른 히든 조건 생성 | ORIGINAL | **IMPLEMENTED** | HiddenGeneratorTest, HiddenServiceTest |

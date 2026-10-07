@@ -67,27 +67,28 @@ public final class NpcListener implements Listener {
         Player p = e.getPlayer();
         String uuid = p.getUniqueId().toString();
         async.run("talk", () -> {
-            NpcDefinition n = s.relations.npc(id);
-            int gain = s.relations.talk(uuid, id);
+            var t = s.npcWorld.talk(uuid, id);
             s.quests.record(uuid, io.versaera.domain.quest.QuestDefinition.Type.TALK, id, 1, 0);
             s.exploration.discover(uuid, p.getName(), "npc", id);
-            return new Object[]{n, s.relations.affinity(uuid, id), gain};
-        }, r -> {
-            NpcDefinition n = (NpcDefinition) r[0];
-            int aff = (int) r[1], gain = (int) r[2];
-            p.sendMessage(Ui.c("&f" + n.name() + "&7: " + line(n, aff)));
-            p.sendMessage(Ui.c("&8" + Relation.tierName(aff) + " " + aff + (gain > 0 ? " &a+" + gain : "")));
+            return t;
+        }, t -> {
+            NpcDefinition n = t.npc();
+            p.sendMessage(Ui.c("&f" + n.name() + "&7: " + (t.line() != null ? t.line() : fallback(n, t.stage()))));
+            if (t.memoryLine() != null) p.sendMessage(Ui.c("&7  \"" + t.memoryLine() + "\""));
+            p.sendMessage(Ui.c("&8" + t.stage().label + " " + t.affinity() + (t.gain() > 0 ? " &a+" + t.gain() : "")
+                    + (t.regionTier() != io.versaera.application.NpcWorldService.Tier.NORMAL ? " &8· 마을 " + t.regionTier().label : "")
+                    + (t.unlocked().isEmpty() ? "" : " &8· &e" + String.join(" · ", t.unlocked()))));
             onOpen.accept(p, n.id());
         }, p);
     }
 
-    /** 관계 단계에 따라 다른 한 줄 (짧게) */
-    private static String line(NpcDefinition n, int aff) {
-        return switch (Relation.tier(aff)) {
-            case 0, 1 -> "...볼일 없으면 가 보시오.";
-            case 2 -> "처음 보는 얼굴이군.";
-            case 3 -> "또 왔군. " + n.job() + " 일은 오늘도 바쁘네.";
-            case 4 -> "자네라면 믿고 맡길 만하지.";
+    /** 직업 틀이 없는 NPC (손으로 만든 NPC) 의 짧은 한 줄 */
+    private static String fallback(NpcDefinition n, Relation.Stage st) {
+        return switch (st) {
+            case HOSTILE, COLD -> "...볼일 없으면 가 보시오.";
+            case STRANGER, KNOWN -> "처음 보는 얼굴이군.";
+            case INTEREST, FRIENDLY -> "또 왔군. " + n.job() + " 일은 오늘도 바쁘네.";
+            case TRUST, CLOSE -> "자네라면 믿고 맡길 만하지.";
             default -> "자네 덕에 이 동네가 살아났어.";
         };
     }
