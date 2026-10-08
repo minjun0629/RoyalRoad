@@ -90,7 +90,7 @@ class ContentIntegrityTest {
     @Test
     void masteryCurveIsLongButFinite() {
         long total = Mastery.cumulative(Mastery.MAX_LEVEL);
-        assertTrue(total > 200_000 && total < 400_000, "마스터까지: " + total);
+        assertTrue(total > 3_500_000 && total < 4_500_000, "마스터까지: " + total);   // Progression: 사냥만으로 약 300 시간
         for (int lv = 1; lv < Mastery.MAX_LEVEL; lv++) assertEquals(lv + 1, Mastery.levelOf(Mastery.cumulative(lv + 1)));
         assertEquals("초급 1", Mastery.label(1));
         assertEquals("중급 1", Mastery.label(11));

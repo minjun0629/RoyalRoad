@@ -10,7 +10,8 @@ import io.versaera.domain.common.DomainException;
  * 레벨 21 ~ 30 고급 1 ~ 10
  * 레벨 31      마스터
  * </pre>
- * 다음 레벨까지 필요 경험치 = 100 × 레벨^1.6 → 마스터까지 약 26만. 같은 일만 반복하면 얻는 경험치가 줄어든다.
+ * 다음 레벨까지 필요 경험치 = 100 × 레벨² × 단계 배율(초급 1 · 중급 2.2 · 고급 5.5) → 마스터까지 약 408만.
+ * 사냥만으로 중급 1 약 7 시간 · 고급 1 약 60 시간 · 마스터 약 300 시간 (Progression · docs/BALANCE.md). 쉬운 상대는 경험치가 크게 준다.
  */
 public final class Mastery {
     public static final int MAX_LEVEL = 31;
@@ -33,7 +34,7 @@ public final class Mastery {
     /** lv → lv+1 에 필요한 경험치 */
     public static long need(int lv) {
         DomainException.require(lv >= 1 && lv < MAX_LEVEL, "mastery.bad_level", "레벨 범위 밖: " + lv);
-        return Math.round(100 * Math.pow(lv, 1.6));
+        return Math.round(100.0 * lv * lv * (lv <= 10 ? 1.0 : lv <= 20 ? 2.2 : 5.5));
     }
 
     /** 레벨 lv 에 처음 도달하는 누적 경험치 */
@@ -73,14 +74,15 @@ public final class Mastery {
      * @param actionLevel    그 행동의 권장 레벨 (쉬운 재료 · 약한 몬스터 = 낮음)
      * @param currentLevel   지금 숙련 레벨
      * @param handBonus      손재주 보너스 배율 (1.0 = 없음)
-     * 너무 쉬운 행동(권장 레벨이 지금보다 5 넘게 낮음)은 경험치가 크게 줄고, 어려운 행동은 최대 1.5배.
+     * 쉬운 행동(권장 레벨이 지금보다 3 넘게 낮음)은 경험치가 빠르게 줄고 (8 아래면 5%), 어려운 행동은 최대 1.5배 —
+     * 약한 상대를 빨리 잡아 올리는 것보다 맞는 상대와 싸우는 쪽이 낫게 (Progression).
      */
     public static long gain(long base, int actionLevel, int currentLevel, double handBonus) {
         DomainException.require(base >= 0, "mastery.negative_gain", "경험치는 음수일 수 없습니다");
         if (currentLevel >= MAX_LEVEL) return 0;
         int gap = currentLevel - actionLevel;
         double mult;
-        if (gap > 5) mult = Math.max(0.05, 1 - (gap - 5) * 0.15);
+        if (gap > 3) mult = Math.max(0.05, 1 - (gap - 3) * 0.2);   // 4 레벨 아래 0.8 · 5 → 0.6 · 6 → 0.4 · 7 → 0.2 · 8+ → 0.05
         else if (gap < 0) mult = Math.min(1.5, 1 + (-gap) * 0.1);
         else mult = 1;
         return Math.max(0, Math.round(base * mult * Math.max(1, Math.min(1.5, handBonus))));

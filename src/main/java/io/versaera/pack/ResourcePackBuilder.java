@@ -108,6 +108,13 @@ public final class ResourcePackBuilder {
             all.put(model, id);
             byMaterial.computeIfAbsent(t.material(), k -> new TreeMap<>()).put(model, id);
             b.itemModel(t);
+            if (b.hands.contains(t.id())) {   // 손에 들었을 때의 입체 모델
+                String hm = "item/" + t.id() + "_hand";
+                int hid = PackIds.itemHand(t.id());
+                if (all.containsValue(hid)) throw new IllegalStateException("모델 번호 충돌: " + hm);
+                all.put(hm, hid);
+                byMaterial.get(t.material()).put(hm, hid);
+            }
         }
         for (var e : byMaterial.entrySet()) b.vanillaOverrides(e.getKey(), e.getValue());
         // 입은 갑옷 (장식 무늬)
@@ -165,6 +172,14 @@ public final class ResourcePackBuilder {
     static final Set<String> WIELDED = Set.of("sword", "dagger", "knife", "axe", "spear", "staff", "torch", "hammer", "mace", "pickaxe", "pickaxe_weapon",
             "scythe", "rake", "plow", "bow", "arrow");
 
+    /** 이 아이템은 인벤토리 카드와 손 모델(item/&lt;id&gt;_hand)이 따로 있나 (서버가 손에 든 칸만 손 모델 번호로 바꾼다) */
+    public static boolean hasHandModel(io.versaera.domain.item.ItemType t) {
+        return modeled(t) && t.category().unique() && MmoIcon.handles(PixelArt.kind(t)) && Sculpt.of(t) == null;
+    }
+
+    /** 손 모델(item/<id>_hand)이 따로 있는 아이템 */
+    private final Set<String> hands = new HashSet<>();
+
     private void itemModel(io.versaera.domain.item.ItemType t) {
         String kind = PixelArt.kind(t);
         String parent = switch (t.material()) {
@@ -179,15 +194,19 @@ public final class ResourcePackBuilder {
                 VoxelSmith.Build vox = VoxelSmith.handles(kind) ? VoxelSmith.build(t, kind, d.look()) : null;
                 // 무기 · 도구의 카드 그림은 큐브 모델을 렌더링한 입체 그림 (손에 든 모습과 같다)
                 png("assets/versaera/textures/item/" + t.id() + ".png", MmoCard.card(t, kind, vox == null ? d : new MmoIcon.Drawn(VoxelRender.icon(vox, 52), d.look(), d.grade())));
-                if (vox != null) {   // 무기 · 도구: Armourer's Workshop 식 큐브 모델 (팔레트 텍스처)
-                    VoxelPaint.Painted paint = VoxelPaint.paint(vox.boxes);   // 면마다 칠한 텍스처
+                // 인벤토리 = 납작한 카드 (item/<id>), 손 = 입체 모델 (item/<id>_hand) — 1.20.1 은 둘을 한 모델로 가를 수 없어서,
+                // 손에 든 칸의 아이템만 서버가 CustomModelData 를 손 모델 번호로 바꾼다 (HandModels)
+                text("assets/versaera/models/item/" + t.id() + ".json", "{\"parent\":\"minecraft:item/generated\",\"textures\":{\"layer0\":\"versaera:item/" + t.id() + "\"}}");
+                if (vox != null) {   // 무기 · 도구: Armourer's Workshop 식 큐브 모델 (면마다 칠한 텍스처)
+                    VoxelPaint.Painted paint = VoxelPaint.paint(vox.boxes);
                     png("assets/versaera/textures/item3d/" + t.id() + ".png", paint.atlas());
-                    text("assets/versaera/models/item/" + t.id() + ".json", VoxelSmith.json(vox, paint, "versaera:item3d/" + t.id(), "versaera:item/" + t.id()));
-                    return;
+                    text("assets/versaera/models/item/" + t.id() + "_hand.json", VoxelSmith.json(vox, paint, "versaera:item3d/" + t.id(), "versaera:item/" + t.id(), false));
+                } else {
+                    png("assets/versaera/textures/item3d/" + t.id() + ".png", d.art());
+                    text("assets/versaera/models/item/" + t.id() + "_hand.json", Model3D.json(d.art(), d.look(), WIELDED.contains(kind),
+                            "versaera:item3d/" + t.id(), "versaera:item/" + t.id(), false));
                 }
-                png("assets/versaera/textures/item3d/" + t.id() + ".png", d.art());
-                text("assets/versaera/models/item/" + t.id() + ".json", Model3D.json(d.art(), d.look(), WIELDED.contains(kind),
-                        "versaera:item3d/" + t.id(), "versaera:item/" + t.id()));
+                hands.add(t.id());
                 return;
             }
         }

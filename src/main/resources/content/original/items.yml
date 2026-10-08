@@ -303,7 +303,7 @@ items:
     tags: [blood, regen_mat]
     source: ORIGINAL
   ghost_essence:
-    name: 망령의 정수
+    name: 유령의 정수
     category: MATERIAL
     material: GHAST_TEAR
     weight: 1

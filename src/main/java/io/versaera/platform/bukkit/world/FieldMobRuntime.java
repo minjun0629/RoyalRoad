@@ -41,6 +41,7 @@ public final class FieldMobRuntime implements Listener {
     /** 몸에 근접 공격 행동이 없어서 직접 쫓아가 무는 몸 */
     private static final Set<EntityType> BITERS = EnumSet.of(EntityType.RABBIT, EntityType.FOX, EntityType.GOAT);
 
+    private final Plugin plugin;
     private final GameServices s;
     private final io.versaera.platform.bukkit.binding.ItemCodec codec;
     private final io.versaera.platform.bukkit.Async async;
@@ -56,6 +57,7 @@ public final class FieldMobRuntime implements Listener {
 
     public FieldMobRuntime(Plugin plugin, GameServices s, io.versaera.platform.bukkit.binding.ItemCodec codec, io.versaera.platform.bukkit.Async async,
                            java.util.function.Consumer<Player> deliver) {
+        this.plugin = plugin;
         this.s = s;
         this.codec = codec;
         this.async = async;
@@ -147,13 +149,15 @@ public final class FieldMobRuntime implements Listener {
         kindOf.put(le.getUniqueId(), k);
         le.setCustomName(Ui.c((k.hostile() ? "&c" : "&f") + k.name() + " &7Lv." + lv));
         le.setCustomNameVisible(true);
+        // 난이도 (Progression): 레벨이 맞는 장비로 7 번쯤 쳐야 쓰러지고, 7 ~ 9 번 맞으면 내가 쓰러지는 눈금
+        double hp = io.versaera.domain.balance.Progression.monsterHp(k.hp(), lv, k.minLevel(), k.maxLevel());
         AttributeInstance max = le.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (max != null) {
-            max.setBaseValue(k.hp());
-            le.setHealth(k.hp());
+            max.setBaseValue(hp);
+            le.setHealth(hp);
         }
         AttributeInstance atk = le.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-        if (atk != null) atk.setBaseValue(k.damage());
+        if (atk != null) atk.setBaseValue(io.versaera.domain.balance.Progression.monsterDamage(k.damage(), lv, k.minLevel(), k.maxLevel()));
         if (k.hostile() && le instanceof Wolf wolf) wolf.setAngry(true);
         ours.add(le.getUniqueId());
     }
@@ -217,7 +221,7 @@ public final class FieldMobRuntime implements Listener {
                 bitAt.put(m.getUniqueId(), now);
                 FieldMonster k = kindOf.get(m.getUniqueId());
                 int lv = levels.getOrDefault(m.getUniqueId(), 1);
-                p.damage((k == null ? 1.0 : k.damage()) + lv * 0.15, m);
+                p.damage(k == null ? 1.0 : io.versaera.domain.balance.Progression.monsterDamage(k.damage(), lv, k.minLevel(), k.maxLevel()), m);
                 m.getWorld().playSound(m.getLocation(), fox ? org.bukkit.Sound.ENTITY_FOX_BITE
                         : m.getType() == EntityType.GOAT ? org.bukkit.Sound.ENTITY_GOAT_RAM_IMPACT : org.bukkit.Sound.ENTITY_RABBIT_ATTACK, 1f, 1f);
             } else m.getPathfinder().moveTo(p, fox ? 1.5 : 1.8);
@@ -231,7 +235,11 @@ public final class FieldMobRuntime implements Listener {
         UUID id = e.getEntity().getUniqueId();
         int lv = levels.getOrDefault(id, 1);
         FieldMonster k = kindOf.remove(id);
-        levels.remove(id);
+        Integer gone = levels.remove(id);
+        if (gone != null) {   // 처치 경험치(CombatListener, MONITOR)가 레벨을 읽을 수 있게 잠깐 남긴다
+            justDied.put(id, gone);
+            Bukkit.getScheduler().runTask(plugin, () -> justDied.remove(id));
+        }
         foes.remove(id);
         ours.remove(id);
         e.getDrops().clear();
@@ -268,6 +276,15 @@ public final class FieldMobRuntime implements Listener {
         Location l = e.getLocation();
         Region r = s.regions.at(l.getWorld().getName(), l.getBlockX(), l.getBlockY(), l.getBlockZ());
         if (r != null && inTown(l.getWorld().getName(), l.getBlockX(), l.getBlockZ(), r)) e.setCancelled(true);
+    }
+
+    private final Map<UUID, Integer> justDied = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** 이 엔티티가 우리 들판 몬스터면 그 레벨 (아니면 -1) */
+    public int levelOf(org.bukkit.entity.Entity e) {
+        Integer lv = levels.get(e.getUniqueId());
+        if (lv == null) lv = justDied.get(e.getUniqueId());
+        return lv == null ? -1 : lv;
     }
 
     public void removeAll() {

@@ -1704,3 +1704,63 @@ features:
     tests: []
     server_test: BLOCKED
     status: PARTIAL
+
+  - id: PRG-01
+    feature: 오래 하는 성장 곡선 · 난이도 눈금
+    category: 성장
+    source: 사용자 요청 (2026-10)
+    source_type: 설계 요구
+    classification: ORIGINAL
+    description: "숙련 필요 경험 100·L²·단계배율 (마스터까지 사냥 약 300시간) · 권장 레벨 경험치 · 약한 상대 감쇠 · 몬스터 체력 ×9.5 · 공격 ×1.7 · 필드 보스 35% 피해"
+    player_experience: 레벨이 맞는 상대와 몇 번씩 주고받으며, 숙련 하나가 수십 ~ 수백 시간의 목표가 된다
+    dependencies: [SKL-01]
+    implementation: domain.balance.Progression · Mastery · CombatListener · FieldMobRuntime · FieldBossRuntime · V8__progression_curve.sql
+    data_model: V8 (기존 경험치를 같은 레벨 · 진행 비율로 옮김)
+    ui: 없음
+    resource_pack: 없음
+    performance_risk: 없음
+    security_risk: 없음
+    persistence: DB
+    tests: [ProgressionTest, MigratorTest, ContentIntegrityTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: TUT-01
+    feature: 튜토리얼 (처음 30 ~ 60 분)
+    category: 안내
+    source: 사용자 요청 (2026-10)
+    source_type: 설계 요구
+    classification: ORIGINAL
+    description: "숨은 tutorial.* 의뢰 7단계를 저절로 받고 끝낸다: 허수아비 → 사냥 → 채집 → 제작 → 대화 → 기술 → 졸업. 보스 막대 · 안내 · 필요한 물건 지급"
+    player_experience: 명령어를 몰라도 첫 시간에 전투 · 채집 · 제작 · NPC · 기술을 한 번씩 해 본다
+    dependencies: [QST-01]
+    implementation: application.TutorialService · platform.bukkit.world.TutorialRuntime · content/original/quests.yml
+    data_model: player_quests (기존)
+    ui: 보스 막대 · /튜토리얼
+    resource_pack: 없음
+    performance_risk: 3초마다 접속자별 DB 조회 1회
+    security_risk: 없음
+    persistence: DB
+    tests: [TutorialTest]
+    server_test: BLOCKED
+    status: IMPLEMENTED
+
+  - id: OPS-02
+    feature: 재시작해도 이어지는 진행 상태
+    category: 운영
+    source: 사용자 요청 (2026-10)
+    source_type: 설계 요구
+    classification: ORIGINAL
+    description: "runtime_state 표 (범위 · 키 · 값 · 만료): 공성 · 점령 게이지 · 필드 보스 체력과 피해 기록 · 철인 시련 · 손질 버프 · 비기 재사용 대기"
+    player_experience: 서버가 꺼졌다 켜져도 하던 공성 · 보스 · 시련 · 버프가 사라지지 않는다
+    dependencies: []
+    implementation: application.RuntimeStateService · persistence.JdbcRuntimeStateRepository · RealmRuntime · FieldBossRuntime · IronMenTrial · CombatListener · SecretArtRuntime
+    data_model: V9__runtime_state.sql
+    ui: 없음
+    resource_pack: 없음
+    performance_risk: 진행 중일 때만 10초마다 한 줄 쓰기
+    security_risk: 없음
+    persistence: DB
+    tests: [MigratorTest]
+    server_test: BLOCKED
+    status: PARTIAL

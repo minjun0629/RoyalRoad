@@ -54,11 +54,31 @@ public final class SecretArtRuntime implements Listener {
         combat = c;
     }
 
+    static final String COOLDOWN = "artcd";
+
+    private void saveCooldowns(UUID u) {
+        long now = System.currentTimeMillis(), last = 0;
+        Map<String, String> d = new java.util.LinkedHashMap<>();
+        String prefix = u + ":";
+        for (var e : cooldown.entrySet()) {
+            if (!e.getKey().startsWith(prefix) || e.getValue() <= now) continue;
+            d.put(e.getKey().substring(prefix.length()), Long.toString(e.getValue()));
+            last = Math.max(last, e.getValue());
+        }
+        long until = last;
+        async.fire("art-cooldown-save", () -> { s.state.save(COOLDOWN, u.toString(), d, until); return null; });
+    }
+
     public SecretArtRuntime(Plugin plugin, GameServices s, Async async, ItemCodec codec) {
         this.plugin = plugin;
         this.s = s;
         this.async = async;
         this.codec = codec;
+        // 재사용 대기는 서버를 다시 켜도 이어진다 (껐다 켜서 비기를 다시 쓰지 못하게)
+        async.fire("art-cooldowns", () -> {
+            s.state.loadAll(COOLDOWN).forEach((u, d) -> d.forEach((art, until) -> cooldown.merge(u + ":" + art, Long.parseLong(until), Math::max)));
+            return null;
+        });
         // 시간 여행용: 5초마다 자리 기록 (1분치)
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
@@ -129,6 +149,7 @@ public final class SecretArtRuntime implements Listener {
             if (!p.isOnline()) return;
             SecretArt a = s.arts.art(artId);
             cooldown.put(key, System.currentTimeMillis() + a.cooldownMs());
+            saveCooldowns(p.getUniqueId());
             switch (a.effect()) {
                 case "COMPANION" -> {   // 조각품이 깨어나 펫이 된다 (/펫 으로 부르고 · 이름 짓고 · 함께 자란다)
                     p.getInventory().setItemInMainHand(null);

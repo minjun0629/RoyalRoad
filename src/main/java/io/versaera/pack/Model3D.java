@@ -69,6 +69,11 @@ public final class Model3D {
      * @param weapon 무기 (무기 축으로 뒤집기 · 손에 비스듬히 드는 변환)
      */
     public static String json(BufferedImage img, IconSmith.Look l, boolean weapon, String art, String card) {
+        return json(img, l, weapon, art, card, true);
+    }
+
+    /** @param withCard 앞면 카드 판을 넣을지 (손 모델은 넣지 않는다) */
+    public static String json(BufferedImage img, IconSmith.Look l, boolean weapon, String art, String card, boolean withCard) {
         double[][] t = thickness(img, l, weapon);
         StringBuilder e = new StringBuilder();
         double maxT = 0;
@@ -97,7 +102,7 @@ public final class Model3D {
             }
         }
         double cz = 8 + maxT / 2 + 0.05;   // 카드 판: 앞면만
-        e.append(",{\"from\":[0,0,").append(n(cz)).append("],\"to\":[16,16,").append(n(cz)).append("],\"faces\":{\"south\":{\"uv\":[0,0,16,16],\"texture\":\"#card\"}}}");
+        if (withCard) e.append(",{\"from\":[0,0,").append(n(cz)).append("],\"to\":[16,16,").append(n(cz)).append("],\"faces\":{\"south\":{\"uv\":[0,0,16,16],\"texture\":\"#card\"}}}");
         return "{\"textures\":{\"art\":\"" + art + "\",\"card\":\"" + card + "\",\"particle\":\"" + card + "\"},\"gui_light\":\"front\",\"elements\":[" + e
                 + "],\"display\":" + display(weapon) + "}";
     }

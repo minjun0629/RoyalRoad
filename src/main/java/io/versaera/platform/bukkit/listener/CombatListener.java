@@ -102,14 +102,49 @@ public final class CombatListener implements Listener {
 
     public void buffWeapon(UUID u, double pct, int minutes) {
         whet.put(u, new double[]{System.currentTimeMillis() + minutes * 60_000L, pct});
+        saveBuffs(u);
     }
 
     public void buffArmor(UUID u, double pct, int minutes) {
         polish.put(u, new double[]{System.currentTimeMillis() + minutes * 60_000L, pct});
+        saveBuffs(u);
     }
 
     public void buffDestruction(UUID u, double pct, int minutes) {
         destruction.put(u, new double[]{System.currentTimeMillis() + minutes * 60_000L, pct});
+        saveBuffs(u);
+    }
+
+    static final String BUFF = "buff";
+
+    /** 손질 버프(검 갈기 · 방어구 닦기 · 조각 파괴술)는 접속을 끊거나 서버가 꺼져도 남은 시간만큼 이어진다 */
+    private void saveBuffs(UUID u) {
+        Map<String, String> d = new java.util.LinkedHashMap<>();
+        long until = 0;
+        for (var e : Map.of("whet", whet, "polish", polish, "destruction", destruction).entrySet()) {
+            double[] b = e.getValue().get(u);
+            if (b == null || b[0] < System.currentTimeMillis()) continue;
+            d.put(e.getKey(), (long) b[0] + "," + b[1]);
+            until = Math.max(until, (long) b[0]);
+        }
+        String key = u.toString();
+        long exp = until;
+        if (d.isEmpty()) async.fire("buff-save", () -> { s.state.delete(BUFF, key); return null; });
+        else async.fire("buff-save", () -> { s.state.save(BUFF, key, d, exp); return null; });
+    }
+
+    private void loadBuffs(UUID u) {
+        s.state.load(BUFF, u.toString()).ifPresent(d -> d.forEach((k, v) -> {
+            String[] p = v.split(",");
+            double[] b = {Double.parseDouble(p[0]), Double.parseDouble(p[1])};
+            if (b[0] < System.currentTimeMillis()) return;
+            switch (k) {
+                case "whet" -> whet.put(u, b);
+                case "polish" -> polish.put(u, b);
+                case "destruction" -> destruction.put(u, b);
+                default -> { }
+            }
+        }));
     }
 
     public void twin(UUID u, int seconds) {
@@ -139,6 +174,18 @@ public final class CombatListener implements Listener {
     }
 
     private static boolean raw;
+    /** 스킬 타격의 배율 (0 = 스킬 아님) — 무기 한 방 × 스킬 배율, 휘두르기 쿨다운은 보지 않는다 */
+    private static double skill;
+
+    /** 스킬 타격: 손에 든 무기로 친 피해 × mult (SkillDefinition.damageMult). 메인 스레드 전용 */
+    public static void skillDamage(LivingEntity target, Player source, double mult) {
+        skill = Math.max(0.01, mult);
+        try {
+            target.damage(1, source);
+        } finally {
+            skill = 0;
+        }
+    }
 
     /** 비기 · 생활 스킬처럼 피해를 이미 정한 타격: 무기 계산을 건너뛰고(방어는 그대로) 처치 기록은 남긴다. 메인 스레드 전용 */
     public static void rawDamage(LivingEntity target, double amount, Player source) {
@@ -233,7 +280,21 @@ public final class CombatListener implements Listener {
         if (t.hasTag("sword") || t.hasTag("dagger")) return "swordsmanship";
         if (t.hasTag("spear")) return "spearmanship";
         if (t.hasTag("bow")) return "archery";
+        if (t.hasTag("staff")) return "spellcraft";
+        if (t.hasTag("axe") || t.hasTag("mace") || t.hasTag("scythe") || t.hasTag("whip") || t.hasTag("fan") || t.hasTag("harp")) return "swordsmanship";
         return null;
+    }
+
+    /** 상대의 몬스터 레벨 (들판 몬스터 · 필드 보스가 알려 준다, 모르면 5) → 경험치의 권장 레벨 */
+    private java.util.function.ToIntFunction<org.bukkit.entity.Entity> monsterLevel = e -> 5;
+
+    public void monsterLevel(java.util.function.ToIntFunction<org.bukkit.entity.Entity> f) {
+        this.monsterLevel = f;
+    }
+
+    private int actionLevelOf(org.bukkit.entity.Entity victim, String attacker) {
+        if (victim instanceof Player) return 1 + weaponMastery.values().stream().mapToInt(Integer::intValue).max().orElse(1) / 2;   // 대련: 낮게
+        return io.versaera.domain.balance.Progression.actionLevel(monsterLevel.applyAsInt(victim));
     }
 
     /** 처음 보는 아이템은 이번 타격에는 기본값으로 계산하고, DB 에서 읽어 다음부터 정확히 */
@@ -262,7 +323,7 @@ public final class CombatListener implements Listener {
                 int lv = d == null ? 1 : weaponMastery.getOrDefault(owner + ":" + d, 1);
                 boolean back = victim.getLocation().getDirection().setY(0).normalize()
                         .dot(attacker.getLocation().toVector().subtract(victim.getLocation().toVector()).setY(0).normalize()) < -0.5;
-                double attack = t.stats().getOrDefault("attack", 0) * Math.max(0.2, attacker.getAttackCooldown());
+                double attack = t.stats().getOrDefault("attack", 0) * (skill > 0 ? skill : Math.max(0.2, attacker.getAttackCooldown()));
                 double[] pk = perks.getOrDefault(owner, NO_PERKS);
                 double melee = d != null && !d.equals("archery") && pk.length > 3 ? pk[3] : 0;
                 io.versaera.domain.item.ItemOptions.Hit opt = io.versaera.domain.item.ItemOptions.Hit.NONE;
@@ -298,9 +359,10 @@ public final class CombatListener implements Listener {
                     double extra = damage * 0.5;
                     Bukkit.getScheduler().runTask(plugin, () -> { if (victim.isValid() && !victim.isDead()) victim.damage(extra); });
                 }
-                if (d != null) {
-                    pendingXp.merge(owner + ":" + d, 1L, Long::sum);
-                    pendingXpDiscipline.put(owner + ":" + d, d);
+                if (d != null) {   // 연습 경험치: 맞힌 상대의 권장 레벨로 (약한 상대는 Mastery.gain 이 크게 깎는다)
+                    String key = owner + ":" + d + ":" + actionLevelOf(victim, owner);
+                    pendingXp.merge(key, io.versaera.domain.balance.Progression.HIT_XP, Long::sum);
+                    pendingXpDiscipline.put(key, d);
                 }
                 pendingWear.merge(iid, 1, Integer::sum);
                 wearOwner.put(iid, owner);
@@ -344,7 +406,8 @@ public final class CombatListener implements Listener {
     @EventHandler
     public void onJoin(org.bukkit.event.player.PlayerJoinEvent e) {
         String id = e.getPlayer().getUniqueId().toString();
-        async.fire("warm", () -> { warm(id); return null; });
+        UUID joined = e.getPlayer().getUniqueId();
+        async.fire("warm", () -> { warm(id); loadBuffs(joined); return null; });
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -360,9 +423,15 @@ public final class CombatListener implements Listener {
             if (o != null && o.getWorld().equals(k.getWorld()) && o.getLocation().distance(e.getEntity().getLocation()) <= 40) near.add(m);
         }
         if (!near.contains(id)) near.add(0, id);
-        var maxHp = e.getEntity().getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH);
-        long base = Math.max(4, Math.round(maxHp == null ? 10 : maxHp.getValue()));
-        long share = io.versaera.domain.party.Parties.share(base, near.size());
+        // 처치 경험치: 상대의 권장 레벨로 (Progression.killXp) — 혼자면 다 받고, 파티면 나눈다 (함께하면 조금 더)
+        int action = io.versaera.domain.balance.Progression.actionLevel(monsterLevel.applyAsInt(e.getEntity()));
+        long share = io.versaera.domain.party.Parties.share(io.versaera.domain.balance.Progression.killXp(action), near.size());
+        String killerDisc;
+        {
+            String iid = codec.typeId(k.getInventory().getItemInMainHand());
+            ItemType held = iid == null ? null : codec.types().get(iid);
+            killerDisc = held == null ? null : disciplineOf(held);
+        }
         // 전리품 (PTY-02): 차례 · 무작위면 떨어진 물건에 주인을 정한다 (30초 동안 그 사람만 줍는다 — 바닐라 Item 주인)
         String looter = near.size() > 1 ? s.parties.looter(id, near, rng.nextDouble()) : null;
         if (looter != null) {
@@ -380,15 +449,15 @@ public final class CombatListener implements Listener {
             s.growth.record(id, "kill.monster", 1);
             for (String m : near) {
                 s.quests.record(m, io.versaera.domain.quest.QuestDefinition.Type.KILL, type, 1, 0);
-                if (near.size() > 1) {   // 함께 싸운 몫: 각자 가장 높은 전투 숙련으로
-                    String best = "swordsmanship";
+                String best = m.equals(id) ? killerDisc : null;   // 잡은 사람은 손에 든 무기의 숙련, 함께 싸운 사람은 가장 높은 전투 숙련
+                if (best == null) {
                     int lv = -1;
                     for (String d : io.versaera.application.RaidService.COMBAT) {
                         int l = s.growth.level(m, d);
                         if (l > lv) { lv = l; best = d; }
                     }
-                    s.growth.addXp(m, best, share, 1);
                 }
+                s.growth.addXp(m, best, share, action);
             }
             return null;
         });
@@ -403,10 +472,10 @@ public final class CombatListener implements Listener {
         async.fire("combat-flush", () -> {
             for (var h : hits.entrySet()) s.growth.record(h.getKey(), "hit_taken", h.getValue());
             for (var x : xp.entrySet()) {
-                String uuid = x.getKey().substring(0, x.getKey().indexOf(':'));
-                String d = xpDisc.get(x.getKey());
-                var r = s.growth.addXp(uuid, d, 3 * x.getValue(), 1);
-                weaponMastery.put(x.getKey(), r.after());
+                String[] k = x.getKey().split(":");   // uuid : 분야 : 권장 레벨
+                String uuid = k[0], d = xpDisc.get(x.getKey());
+                var r = s.growth.addXp(uuid, d, x.getValue(), Integer.parseInt(k[2]));
+                weaponMastery.put(uuid + ":" + d, r.after());
             }
             for (var w : wear.entrySet()) {
                 String owner = owners.get(w.getKey());
@@ -466,7 +535,7 @@ public final class CombatListener implements Listener {
     /** 처음 접속 시 무기 숙련 캐시 (DB 스레드에서 부름) */
     public void warm(String uuid) {
         gearCtx.put(uuid, s.gear.context(uuid));
-        for (String d : List.of("swordsmanship", "spearmanship", "archery")) weaponMastery.put(uuid + ":" + d, Mastery.levelOf(s.growth.xp(uuid, d)));
+        for (String d : List.of("swordsmanship", "spearmanship", "archery", "spellcraft")) weaponMastery.put(uuid + ":" + d, Mastery.levelOf(s.growth.xp(uuid, d)));
         Map<String, Double> p = s.jobs.perks(uuid);
         // [3] = 힘 스탯 (수련관 허수아비 치기) → 근접 피해
         perks.put(uuid, new double[]{p.getOrDefault("attack_pct", 0.0), p.getOrDefault("defense_pct", 0.0), p.getOrDefault("crit", 0.0),

@@ -21,6 +21,33 @@ class MigratorTest {
         }
     }
 
+    /** V8: 옛 곡선(100 × L^1.6)의 경험치가 새 곡선의 같은 레벨 · 같은 진행률로 옮겨진다 */
+    @Test
+    void progressionCurveMigrationKeepsLevels() throws Exception {
+        try (Database db = Database.open("jdbc:sqlite::memory:")) {
+            Migrator m = new Migrator(db);
+            List<Migrator.Migration> all = Migrator.fromClasspath(getClass().getClassLoader());
+            m.migrate(all.stream().filter(x -> x.version() < 8).toList());
+            long[] oldCum = new long[32];
+            for (int lv = 1; lv < 31; lv++) oldCum[lv + 1] = oldCum[lv] + Math.round(100 * Math.pow(lv, 1.6));
+            try (var st = db.connection().createStatement()) {
+                for (int lv : new int[]{1, 5, 10, 11, 20, 21, 30})
+                    st.execute("INSERT INTO mastery (uuid, discipline, xp) VALUES ('p" + lv + "', 'swordsmanship', " + (oldCum[lv] + (oldCum[lv + 1] - oldCum[lv]) / 2) + ")");
+                st.execute("INSERT INTO mastery (uuid, discipline, xp) VALUES ('master', 'swordsmanship', " + oldCum[31] + ")");
+            }
+            m.migrate(all);
+            try (var st = db.connection().createStatement(); var rs = st.executeQuery("SELECT uuid, xp FROM mastery")) {
+                while (rs.next()) {
+                    String u = rs.getString(1);
+                    long xp = rs.getLong(2);
+                    int want = u.equals("master") ? 31 : Integer.parseInt(u.substring(1));
+                    assertEquals(want, io.versaera.domain.skill.Mastery.levelOf(xp), u + " xp " + xp);
+                    if (want < 31) assertEquals(0.5, io.versaera.domain.skill.Mastery.progress(xp), 0.02, u + " 진행률");
+                }
+            }
+        }
+    }
+
     @Test
     void refusesWhenAppliedMigrationWasEdited() throws Exception {
         try (Database db = Database.open("jdbc:sqlite::memory:")) {

@@ -92,7 +92,7 @@ public final class TrainingDummies implements Listener {
     private static void dummy(World w, Location l) {
         ArmorStand a = w.spawn(l, ArmorStand.class);
         a.setPersistent(false);
-        a.setInvulnerable(true);
+        // setInvulnerable(true) 를 쓰면 바닐라가 피해 이벤트를 아예 보내지 않아 타격을 셀 수 없다 → 피해는 이벤트에서 모두 취소 (onAnyDamage)
         a.setGravity(false);
         a.setArms(true);
         a.setBasePlate(false);
@@ -119,6 +119,12 @@ public final class TrainingDummies implements Listener {
             int x = cx + o[0], z = cz + o[1];
             dummy(w, new Location(w, x + 0.5, w.getHighestBlockYAt(x, z) + 1, z + 0.5));
         }
+    }
+
+    /** 허수아비는 부서지지 않는다 (불 · 폭발 · 낙하 무엇이든) */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onAnyDamage(org.bukkit.event.entity.EntityDamageEvent e) {
+        if (e.getEntity().getScoreboardTags().contains(TAG)) e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
