@@ -31,6 +31,7 @@ public final class VoxelRender {
     }
 
     static BufferedImage render(List<VoxelSmith.Box> boxes, int size, double ay, double ax) {
+        VoxelPaint.Painted paint = VoxelPaint.paint(boxes);
         // 화면에 꽉 차게 배율
         double minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
         for (VoxelSmith.Box bx : boxes)
@@ -48,7 +49,8 @@ public final class VoxelRender {
         Arrays.fill(zbuf, -1e9);
         double[] light = norm(new double[]{-0.45, 0.7, 0.55});
         double step = 0.5 / scale;
-        for (VoxelSmith.Box bx : boxes) {
+        for (int bi = 0; bi < boxes.size(); bi++) {
+            VoxelSmith.Box bx = boxes.get(bi);
             double[] f = {bx.x0(), bx.y0(), bx.z0()}, t = {bx.x1(), bx.y1(), bx.z1()};
             for (int fi = 0; fi < 6; fi++) {
                 double[] n = NORMALS[fi];
@@ -59,7 +61,6 @@ public final class VoxelRender {
                 double diff = Math.max(0, vn[0] * light[0] + vn[1] * light[1] + vn[2] * light[2]);
                 double lit = 0.66 + 0.55 * diff + (vn[1] > 0.5 ? 0.06 : 0);
                 double spec = Math.pow(Math.max(0, vn[0] * light[0] + vn[1] * light[1] + vn[2] * light[2]), 12) * 0.35;
-                Color col = bx.c();
                 double fixed = (n[axis] > 0 ? t : f)[axis];
                 double l1 = t[a1] - f[a1], l2 = t[a2] - f[a2];
                 double edge = Math.min(l1, l2) > 0.9 ? 0.1 : 0;   // 큰 면만 모서리를 어둡게 (잘게 쌓은 칼날이 줄무늬로 보이지 않게)
@@ -74,8 +75,9 @@ public final class VoxelRender {
                         if (q[2] + 1e-4 < zbuf[k]) continue;
                         zbuf[k] = q[2];
                         boolean rim = p[a1] - f[a1] < edge || t[a1] - p[a1] < edge || p[a2] - f[a2] < edge || t[a2] - p[a2] < edge;
-                        double m = lit * (rim ? 0.86 : 1);
-                        int r = clamp(col.getRed() * m + 255 * spec), g = clamp(col.getGreen() * m + 255 * spec), bl = clamp(col.getBlue() * m + 255 * spec);
+                        double m = lit * (rim ? 0.94 : 1);
+                        int tc = VoxelPaint.sample(paint, bi, fi, bx, p[0], p[1], p[2]);
+                        int r = clamp(((tc >> 16) & 255) * m + 255 * spec), g = clamp(((tc >> 8) & 255) * m + 255 * spec), bl = clamp((tc & 255) * m + 255 * spec);
                         rgb[k] = 0xff000000 | (r << 16) | (g << 8) | bl;
                     }
             }

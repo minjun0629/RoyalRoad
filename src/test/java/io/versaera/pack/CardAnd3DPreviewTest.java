@@ -45,7 +45,7 @@ class CardAnd3DPreviewTest {
                 for (Matcher m = Pattern.compile("\"(from|to)\":\\[([^\\]]*)\\]").matcher(json); m.find(); )
                     for (double v : nums(m.group(2))) assertTrue(v >= -16 && v <= 32, t.id() + " 좌표 " + v);
                 assertTrue(VoxelSmith.colors(vox).size() <= 256);
-                renderBoxes(models, ox, oy, VoxelSmith.fitted(vox));
+                paste(models, VoxelRender.icon(vox, 192), ox, oy);
                 continue;
             }
             String json = Model3D.json(d.art(), d.look(), ResourcePackBuilder.WIELDED.contains(kind), "a", "b");
@@ -61,7 +61,7 @@ class CardAnd3DPreviewTest {
     void weaponsBig() throws Exception {
         ContentBundle c = ContentBundle.fromClasspath(getClass().getClassLoader());
         java.util.LinkedHashMap<String, ItemType> pick = new java.util.LinkedHashMap<>();
-        for (String id : List.of("lu_divine_sword", "red_star", "coldrim_demon_sword", "glacier_sword", "roa_masterpiece", "hellfire_sword", "rusted_famed_sword", "annihilation_sword", "dragon_slaying_axe", "sealed_thunder_spear", "saint_staff", "yerika_bow"))
+        for (String id : List.of("lu_divine_sword", "red_star", "coldrim_demon_sword", "glacier_sword", "roa_masterpiece", "hellfire_sword", "stormcaller", "dawn_oath", "nightfall_edge", "starfall_greatsword", "shadow_kris", "twin_moon_axe", "griffin_lance", "tidecaller_trident", "void_scepter", "obsidian_maul", "templar_mace", "harvest_moon_scythe", "griffin_longbow", "dragon_slaying_axe"))
             pick.put(id, item(c, id));
         for (ItemType t : c.items()) {
             String k = PixelArt.kind(t) + (t.hasTag("trident") ? "/t" : "") + (t.hasTag("crook") ? "/c" : "") + (t.hasTag("stone_head") ? "/s" : "") + (t.hasTag("curved") ? "/cv" : "") + (t.hasTag("jagged") ? "/j" : "");
@@ -75,15 +75,8 @@ class CardAnd3DPreviewTest {
         for (ItemType t : pick.values()) {
             String kind = PixelArt.kind(t);
             VoxelSmith.Build b = VoxelSmith.build(t, kind, MmoIcon.render(t, kind).look());
-            BufferedImage ic = VoxelRender.icon(b, 52);
-            int bx = (i % cols) * cell + 50, by = (i / cols) * cell + 50;
-            for (int y = 0; y < 260; y++) for (int x = 0; x < 260; x++) {
-                int col = ic.getRGB(x / 5, y / 5), a = col >>> 24;
-                if (a == 0) continue;
-                int bg = 0x3c3c46;
-                int r = (((col >> 16) & 255) * a + ((bg >> 16) & 255) * (255 - a)) / 255, gg = (((col >> 8) & 255) * a + ((bg >> 8) & 255) * (255 - a)) / 255, bb = ((col & 255) * a + (bg & 255) * (255 - a)) / 255;
-                out.setRGB(bx + x, by + y, 0xff000000 | (r << 16) | (gg << 8) | bb);
-            }
+            BufferedImage ic = VoxelRender.icon(b, 340);
+            paste(out, ic, (i % cols) * cell + 10, (i / cols) * cell + 10);
             System.out.println(i + " " + t.id() + " " + kind + " boxes=" + b.boxes.size());
             i++;
         }
@@ -169,6 +162,16 @@ class CardAnd3DPreviewTest {
                         }
                     }
             }
+        }
+    }
+
+    static void paste(BufferedImage out, BufferedImage ic, int bx, int by) {
+        for (int y = 0; y < ic.getHeight(); y++) for (int x = 0; x < ic.getWidth(); x++) {
+            int col = ic.getRGB(x, y), a = col >>> 24;
+            if (a == 0) continue;
+            int bg = out.getRGB(bx + x, by + y);
+            int r = (((col >> 16) & 255) * a + ((bg >> 16) & 255) * (255 - a)) / 255, gg = (((col >> 8) & 255) * a + ((bg >> 8) & 255) * (255 - a)) / 255, bb = ((col & 255) * a + (bg & 255) * (255 - a)) / 255;
+            out.setRGB(bx + x, by + y, 0xff000000 | (r << 16) | (gg << 8) | bb);
         }
     }
 

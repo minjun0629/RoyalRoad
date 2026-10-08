@@ -248,13 +248,15 @@ public final class VersaEraPlugin extends JavaPlugin {
         File dir = new File(getDataFolder(), "content"), marks = new File(dir, ".bundled");
         marks.mkdirs();
         File backup = new File(dir, "backup-" + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")));
-        for (String f : ContentBundle.FILES) {
+        List<String> files = new java.util.ArrayList<>(ContentBundle.FILES);
+        for (String f : ContentBundle.FILES) files.add(ContentBundle.ORIGINAL_DIR + f);
+        for (String f : files) {
             byte[] bundled;
             try (InputStream in = getResource("content/" + f)) {
                 if (in == null) continue;
                 bundled = in.readAllBytes();
             }
-            File target = new File(dir, f), mark = new File(marks, f + ".sha1");
+            File target = new File(dir, f), mark = new File(marks, f.replace('/', '_') + ".sha1");
             String want = hex(sha256(bundled));
             if (target.exists()) {
                 String have = hex(sha256(java.nio.file.Files.readAllBytes(target.toPath())));
@@ -262,6 +264,7 @@ public final class VersaEraPlugin extends JavaPlugin {
                 String last = mark.exists() ? java.nio.file.Files.readString(mark.toPath()).strip() : "";
                 if (!have.equals(last)) {   // 관리자가 고친 파일 (또는 표시가 없는 옛 버전) → 백업
                     backup.mkdirs();
+                    new File(backup, f).getParentFile().mkdirs();
                     java.nio.file.Files.copy(target.toPath(), new File(backup, f).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                     getLogger().warning("content/" + f + " 를 새 버전으로 바꿨습니다 — 예전 파일은 " + backup.getName() + "/ 에 있습니다");
                 }

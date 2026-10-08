@@ -180,8 +180,9 @@ public final class ResourcePackBuilder {
                 // 무기 · 도구의 카드 그림은 큐브 모델을 렌더링한 입체 그림 (손에 든 모습과 같다)
                 png("assets/versaera/textures/item/" + t.id() + ".png", MmoCard.card(t, kind, vox == null ? d : new MmoIcon.Drawn(VoxelRender.icon(vox, 52), d.look(), d.grade())));
                 if (vox != null) {   // 무기 · 도구: Armourer's Workshop 식 큐브 모델 (팔레트 텍스처)
-                    png("assets/versaera/textures/item3d/" + t.id() + ".png", VoxelSmith.palette(vox));
-                    text("assets/versaera/models/item/" + t.id() + ".json", VoxelSmith.json(vox, "versaera:item3d/" + t.id(), "versaera:item/" + t.id()));
+                    VoxelPaint.Painted paint = VoxelPaint.paint(vox.boxes);   // 면마다 칠한 텍스처
+                    png("assets/versaera/textures/item3d/" + t.id() + ".png", paint.atlas());
+                    text("assets/versaera/models/item/" + t.id() + ".json", VoxelSmith.json(vox, paint, "versaera:item3d/" + t.id(), "versaera:item/" + t.id()));
                     return;
                 }
                 png("assets/versaera/textures/item3d/" + t.id() + ".png", d.art());

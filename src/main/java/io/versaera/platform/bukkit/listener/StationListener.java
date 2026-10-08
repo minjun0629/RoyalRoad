@@ -29,14 +29,18 @@ import java.util.*;
  * 제작대: 월드의 블록을 우클릭해 그 분야의 제작 창을 연다 (명령어 없이). 고르면 제작대 곁에서 시간을 들여 손으로 만든다 —
  * 모루는 망치질 불똥, 화덕은 지글지글 연기, 베틀은 북 소리, 양조기는 끓는 거품. 떠나면 멈추고 재료는 돌려받는다.
  * 명품 이상이 나오면 큰 제목, 걸작은 서버 전체에 알려진다.
- * 모루=대장 · 베틀=재봉 · 제작대=가죽 · 훈연기=요리 · 양조기=연금 · 석재 절단기=조각 · 화살 작업대=목공 · 대장장이 작업대=수리.
+ * 모루=대장 · 베틀=재봉 · 제작대=가죽 · 훈연기=요리 · 양조기=연금 · 석재 절단기=조각 · 화살 작업대=목공 · 대장장이 작업대=수리
+ * · 숫돌=보석 세공 · 통=양조 · 지도 제작대=지도 제작 · 용광로=기계 공학.
  * 재료는 인벤토리에서 품질이 높은 것부터 골라 <b>먼저 빼고</b> 서버에 제작을 요청한다. 실패하면 재료는 배달함으로 돌아온다.
  */
 public final class StationListener implements Listener {
-    private static final Map<Material, String> STATIONS = Map.of(
-            Material.ANVIL, "smithing", Material.LOOM, "tailoring", Material.CRAFTING_TABLE, "leatherwork",
-            Material.SMOKER, "cooking", Material.BREWING_STAND, "alchemy", Material.STONECUTTER, "sculpting",
-            Material.SMITHING_TABLE, "repair", Material.FLETCHING_TABLE, "woodworking");
+    private static final Map<Material, String> STATIONS = Map.ofEntries(
+            Map.entry(Material.ANVIL, "smithing"), Map.entry(Material.LOOM, "tailoring"), Map.entry(Material.CRAFTING_TABLE, "leatherwork"),
+            Map.entry(Material.SMOKER, "cooking"), Map.entry(Material.BREWING_STAND, "alchemy"), Map.entry(Material.STONECUTTER, "sculpting"),
+            Map.entry(Material.SMITHING_TABLE, "repair"), Map.entry(Material.FLETCHING_TABLE, "woodworking"),
+            // 오리지널 생활 분야: 숫돌=보석 세공 · 통=양조 · 지도 제작대=지도 제작 · 용광로=기계 공학
+            Map.entry(Material.GRINDSTONE, "jewelcraft"), Map.entry(Material.BARREL, "brewing"),
+            Map.entry(Material.CARTOGRAPHY_TABLE, "cartography"), Map.entry(Material.BLAST_FURNACE, "engineering"));
 
     private final GameServices s;
     private final Async async;
@@ -261,6 +265,23 @@ public final class StationListener implements Listener {
             case "sculpting" -> {
                 if (beat) world.playSound(at, org.bukkit.Sound.BLOCK_STONE_HIT, 0.8f, 0.8f + rng.nextFloat() * 0.4f);
                 world.spawnParticle(org.bukkit.Particle.BLOCK_CRACK, at, 6, 0.2, 0.1, 0.2, Material.STONE.createBlockData());
+            }
+            case "jewelcraft" -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.BLOCK_GRINDSTONE_USE, 0.5f, 1.4f + rng.nextFloat() * 0.3f);
+                world.spawnParticle(org.bukkit.Particle.WAX_ON, at, 3, 0.2, 0.1, 0.2, 0.2);
+            }
+            case "brewing" -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.BLOCK_BARREL_OPEN, 0.5f, 0.8f + rng.nextFloat() * 0.2f);
+                world.spawnParticle(org.bukkit.Particle.DRIPPING_HONEY, at, 2, 0.2, 0.05, 0.2, 0);
+            }
+            case "cartography" -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 0.6f, 1f);
+                world.spawnParticle(org.bukkit.Particle.CLOUD, at, 1, 0.2, 0.05, 0.2, 0);
+            }
+            case "engineering" -> {
+                if (beat) world.playSound(at, org.bukkit.Sound.BLOCK_BLASTFURNACE_FIRE_CRACKLE, 0.8f, 1f);
+                world.spawnParticle(org.bukkit.Particle.SMOKE_NORMAL, at, 3, 0.2, 0.05, 0.2, 0.01);
+                world.spawnParticle(org.bukkit.Particle.CRIT, at, 4, 0.2, 0.1, 0.2, 0.2);
             }
             default -> {
                 if (beat) world.playSound(at, org.bukkit.Sound.BLOCK_WOOD_HIT, 0.8f, 1f);

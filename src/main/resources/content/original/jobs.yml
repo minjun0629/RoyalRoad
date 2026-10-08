@@ -1,0 +1,315 @@
+# 오리지널 콘텐츠 (원작 『달빛조각사』에 없는 이 게임의 것) — 같은 이름의 원작 파일 content/jobs.yml 에 합쳐진다.
+# tools/gen_originals/*.py 로 생성. 같은 id 가 원작 파일에 있으면 시작할 때 오류 (원작을 덮어쓰지 않는다).
+jobs:
+  berserker:
+    name: 광전사
+    slot: COMBAT
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: swordsmanship, level: 8}
+      - {counter: kill.monster, at_least: 80}
+      - {counter: hit_taken, at_least: 500}
+    perks: {attack_pct: 0.08, defense_pct: -0.03}
+    skills: [whirlwind, berserk_roar]
+  warlord:
+    name: 전쟁군주
+    slot: COMBAT
+    tier: 2
+    parent: berserker
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: swordsmanship, level: 20}
+      - {counter: kill.monster, at_least: 1500}
+    perks: {attack_pct: 0.12, max_health_pct: 0.08, stamina: 20}
+    skills: [skull_splitter, earthsplitter]
+  paladin:
+    name: 성기사
+    slot: COMBAT
+    tier: 2
+    parent: knight
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: swordsmanship, level: 18}
+      - {mastery: spellcraft, level: 8}
+      - {counter: hit_taken, at_least: 3000}
+    perks: {defense_pct: 0.1, max_health_pct: 0.08, mana: 30}
+    skills: [holy_smite, holy_blade]
+  blademaster:
+    name: 검성
+    slot: COMBAT
+    tier: 2
+    parent: swordsman
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: swordsmanship, level: 24}
+      - {counter: kill.monster, at_least: 2500}
+    perks: {attack_pct: 0.1, crit: 0.06, stamina: 25}
+    skills: [blade_dance, riposte]
+  duelist:
+    name: 결투가
+    slot: COMBAT
+    tier: 2
+    parent: assassin
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: swordsmanship, level: 18}
+      - {counter: kill.backstab, at_least: 300}
+    perks: {crit: 0.1, attack_pct: 0.06}
+    skills: [fan_of_knives, venom_strike]
+  lancer:
+    name: 창병
+    slot: COMBAT
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: spearmanship, level: 5}
+      - {counter: kill.monster, at_least: 30}
+    perks: {attack_pct: 0.04, defense_pct: 0.04}
+    skills: [sweeping_spear, phalanx]
+  dragoon:
+    name: 용기병
+    slot: COMBAT
+    tier: 2
+    parent: lancer
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: spearmanship, level: 18}
+      - {mastery: riding, level: 10}
+    perks: {attack_pct: 0.1, stamina: 20}
+    skills: [dragoon_leap, impale]
+  ranger_job:
+    name: 순찰자
+    slot: COMBAT
+    tier: 2
+    parent: archer
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: archery, level: 15}
+      - {mastery: exploration, level: 10}
+    perks: {crit: 0.05, stamina: 20}
+    skills: [multishot, fire_arrow]
+  beast_hunter:
+    name: 야수 사냥꾼
+    slot: COMBAT
+    tier: 2
+    parent: tracker
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: archery, level: 20}
+      - {counter: kill.monster, at_least: 2000}
+    perks: {attack_pct: 0.08, crit: 0.04}
+    skills: [hunters_mark, rain_of_thorns]
+  priest:
+    name: 사제
+    slot: COMBAT
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: spellcraft, level: 6}
+      - {mastery: bandaging, level: 5}
+    perks: {mana: 40, max_health_pct: 0.05}
+    skills: [healing_light, holy_nova]
+  elementalist:
+    name: 정령술사
+    slot: COMBAT
+    tier: 2
+    parent: mage
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: spellcraft, level: 20}
+      - {counter: kill.monster, at_least: 1000}
+    perks: {mana: 70, attack_pct: 0.08}
+    skills: [chain_lightning, blizzard, meteor]
+  warlock:
+    name: 흑마법사
+    slot: COMBAT
+    tier: 2
+    parent: mage
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: spellcraft, level: 18}
+      - {counter: kill.monster, at_least: 800}
+    perks: {mana: 60, attack_pct: 0.1, max_health_pct: -0.05}
+    skills: [void_bolt]
+  druid:
+    name: 드루이드
+    slot: COMBAT
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: spellcraft, level: 6}
+      - {mastery: herbalism, level: 10}
+    perks: {mana: 30, gather_bonus.herbalism: 1}
+    skills: [entangling_roots]
+  reaper:
+    name: 수확자
+    slot: COMBAT
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: swordsmanship, level: 10}
+      - {counter: kill.monster, at_least: 200}
+    perks: {attack_pct: 0.06, crit: 0.03}
+    skills: [soul_harvest]
+  whip_dancer:
+    name: 채찍 무희
+    slot: COMBAT
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: swordsmanship, level: 8}
+      - {mastery: dexterity, level: 8}
+    perks: {crit: 0.05, stamina: 15}
+    skills: [entangle]
+  jeweler:
+    name: 보석 세공사
+    slot: LIFE
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: jewelcraft, level: 10}
+      - {counter: craft.jewelcraft, at_least: 50}
+    perks: {craft_quality.jewelcraft: 50}
+  brewer:
+    name: 양조가
+    slot: LIFE
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: brewing, level: 10}
+      - {counter: craft.brewing, at_least: 50}
+    perks: {craft_quality.brewing: 50, price_discount: 0.02}
+  cartographer:
+    name: 지도 제작자
+    slot: LIFE
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: cartography, level: 10}
+      - {counter: discover.region, at_least: 15}
+    perks: {craft_quality.cartography: 50, stamina: 10}
+  engineer:
+    name: 기계공
+    slot: LIFE
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: engineering, level: 10}
+      - {counter: craft.engineering, at_least: 50}
+    perks: {craft_quality.engineering: 50, craft_quality.smithing: 10}
+  farmer:
+    name: 농부
+    slot: LIFE
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: herbalism, level: 10}
+      - {counter: gather.herbalism, at_least: 300}
+    perks: {gather_bonus.herbalism: 1}
+  lumberjack:
+    name: 나무꾼
+    slot: LIFE
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: logging, level: 10}
+      - {counter: gather.logging, at_least: 300}
+    perks: {gather_bonus.logging: 1}
+  hunter_life:
+    name: 사냥꾼
+    slot: LIFE
+    tier: 1
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: butchery, level: 8}
+      - {counter: kill.monster, at_least: 200}
+    perks: {gather_bonus.butchery: 1, crit: 0.02}
+  master_chef:
+    name: 궁정 요리장
+    slot: LIFE
+    tier: 2
+    parent: cook
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: cooking, level: 22}
+      - {counter: craft.cooking, at_least: 600}
+    perks: {craft_quality.cooking: 90, craft_quality.brewing: 30}
+  grand_alchemist:
+    name: 대연금술사
+    slot: LIFE
+    tier: 2
+    parent: alchemist
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: alchemy, level: 22}
+      - {counter: craft.alchemy, at_least: 600}
+    perks: {craft_quality.alchemy: 90}
+  couturier:
+    name: 궁정 재단사
+    slot: LIFE
+    tier: 2
+    parent: tailor
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: tailoring, level: 22}
+      - {counter: craft.tailoring, at_least: 600}
+    perks: {craft_quality.tailoring: 80, craft_quality.leatherwork: 40}
+  artificer:
+    name: 명공
+    slot: LIFE
+    tier: 2
+    parent: engineer
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: engineering, level: 22}
+      - {mastery: smithing, level: 15}
+    perks: {craft_quality.engineering: 80, craft_quality.smithing: 30}
+  gem_master:
+    name: 보석 명인
+    slot: LIFE
+    tier: 2
+    parent: jeweler
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: jewelcraft, level: 22}
+      - {counter: craft.jewelcraft, at_least: 500}
+    perks: {craft_quality.jewelcraft: 100}
+  trade_prince:
+    name: 거상
+    slot: LIFE
+    tier: 2
+    parent: merchant
+    source: ORIGINAL
+    requires:
+      all:
+      - {mastery: trading, level: 22}
+      - {counter: trade.completed, at_least: 500}
+    perks: {price_discount: 0.1, auction_fee_cut: 0.8}

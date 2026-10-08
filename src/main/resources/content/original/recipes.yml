@@ -1,0 +1,2511 @@
+# 오리지널 콘텐츠 (원작 『달빛조각사』에 없는 이 게임의 것) — 같은 이름의 원작 파일 content/recipes.yml 에 합쳐진다.
+# tools/gen_originals/*.py 로 생성. 같은 id 가 원작 파일에 있으면 시작할 때 오류 (원작을 덮어쓰지 않는다).
+recipes:
+  smelt_copper:
+    name: 구리 제련
+    discipline: smithing
+    min_level: 1
+    action_level: 3
+    output: copper_ingot
+    xp: 4
+    slots:
+      ore: {accepts: 'type:copper_ore', count: 2}
+    source: ORIGINAL
+  alloy_bronze:
+    name: 청동 합금
+    discipline: smithing
+    min_level: 4
+    action_level: 6
+    output: bronze_ingot
+    xp: 10
+    slots:
+      copper: {accepts: 'type:copper_ingot', count: 3}
+      tin: {accepts: 'type:iron_ore', count: 1}
+    source: ORIGINAL
+  smelt_gold:
+    name: 금 제련
+    discipline: smithing
+    min_level: 9
+    action_level: 11
+    output: gold_ingot
+    xp: 33
+    slots:
+      ore: {accepts: 'type:gold_ore', count: 2}
+      fuel: {accepts: 'tag:fuel', count: 1}
+    source: ORIGINAL
+  smelt_mithril:
+    name: 미스릴 제련
+    discipline: smithing
+    min_level: 18
+    action_level: 20
+    output: mithril_ingot
+    xp: 60
+    slots:
+      ore: {accepts: 'type:mithril_ore', count: 3}
+      fuel: {accepts: 'tag:fuel', count: 2}
+      flux: {accepts: 'tag:powder', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  smelt_darksteel:
+    name: 흑철 제련
+    discipline: smithing
+    min_level: 22
+    action_level: 24
+    output: darksteel_ingot
+    xp: 72
+    discovery: required
+    slots:
+      iron: {accepts: 'type:iron_ingot', count: 3}
+      obsidian: {accepts: 'type:obsidian_shard', count: 2}
+      essence: {accepts: 'type:ghost_essence', count: 1}
+    source: ORIGINAL
+  hammer_gold_leaf:
+    name: 금박 두드리기
+    discipline: smithing
+    min_level: 10
+    action_level: 12
+    output: gold_leaf
+    output_count: 4
+    xp: 36
+    slots:
+      gold: {accepts: 'type:gold_ingot', count: 1}
+    source: ORIGINAL
+  make_gears:
+    name: 톱니 깎기
+    discipline: engineering
+    min_level: 1
+    action_level: 3
+    output: old_gear
+    output_count: 2
+    xp: 5
+    slots:
+      metal: {accepts: 'tag:metal', count: 1}
+    source: ORIGINAL
+  forge_bronze_shortsword:
+    name: 청동 단검(短劍)
+    discipline: smithing
+    min_level: 2
+    action_level: 4
+    output: bronze_shortsword
+    tool: tool_hammer
+    xp: 12
+    time_ticks: 66
+    slots:
+      blade: {accepts: 'type:bronze_ingot', count: 2, weight: 3}
+      grip: {accepts: 'tag:wood', count: 1}
+    source: ORIGINAL
+  forge_militia_sabre:
+    name: 민병대 사브르
+    discipline: smithing
+    min_level: 5
+    action_level: 7
+    output: militia_sabre
+    tool: tool_hammer
+    xp: 21
+    time_ticks: 75
+    slots:
+      blade: {accepts: 'type:iron_ingot', count: 3, weight: 3}
+      grip: {accepts: 'tag:leather', count: 1}
+    source: ORIGINAL
+  forge_mithril_longsword:
+    name: 미스릴 장검
+    discipline: smithing
+    min_level: 14
+    action_level: 16
+    output: mithril_longsword
+    tool: tool_hammer
+    xp: 48
+    time_ticks: 102
+    slots:
+      blade: {accepts: 'type:mithril_ingot', count: 3, weight: 4}
+      grip: {accepts: 'tag:leather', count: 1}
+      gem: {accepts: 'tag:cut_gem', count: 1, optional: true, bonus: 60}
+    source: ORIGINAL
+  forge_ember_brand:
+    name: 불씨의 검
+    discipline: smithing
+    min_level: 12
+    action_level: 14
+    output: ember_brand
+    tool: tool_hammer
+    xp: 42
+    time_ticks: 96
+    slots:
+      blade: {accepts: 'type:iron_ingot', count: 3, weight: 3}
+      core: {accepts: 'type:ember_stone', count: 2, weight: 2}
+      grip: {accepts: 'tag:leather', count: 1}
+    source: ORIGINAL
+  forge_frostbite_blade:
+    name: 동상의 칼날
+    discipline: smithing
+    min_level: 13
+    action_level: 15
+    output: frostbite_blade
+    tool: tool_hammer
+    xp: 45
+    time_ticks: 99
+    slots:
+      blade: {accepts: 'type:iron_ingot', count: 3, weight: 3}
+      core: {accepts: 'type:frost_crystal', count: 2, weight: 2}
+      grip: {accepts: 'tag:leather', count: 1}
+    source: ORIGINAL
+  forge_stormcaller:
+    name: 폭풍을 부르는 검
+    discipline: smithing
+    min_level: 20
+    action_level: 22
+    output: stormcaller
+    tool: tool_hammer
+    xp: 66
+    time_ticks: 120
+    slots:
+      blade: {accepts: 'type:mithril_ingot', count: 3, weight: 4}
+      core: {accepts: 'type:storm_glass', count: 2, weight: 2}
+      essence: {accepts: 'type:storm_essence', count: 1}
+    source: ORIGINAL
+  forge_dawn_oath:
+    name: 새벽의 서약
+    discipline: smithing
+    min_level: 22
+    action_level: 24
+    output: dawn_oath
+    tool: tool_hammer
+    xp: 72
+    time_ticks: 126
+    slots:
+      blade: {accepts: 'type:mithril_ingot', count: 4, weight: 4}
+      gild: {accepts: 'type:gold_leaf', count: 2}
+      essence: {accepts: 'tag:essence', count: 1}
+    source: ORIGINAL
+  forge_nightfall_edge:
+    name: 밤이 내린 칼날
+    discipline: smithing
+    min_level: 22
+    action_level: 24
+    output: nightfall_edge
+    tool: tool_hammer
+    xp: 72
+    time_ticks: 126
+    slots:
+      blade: {accepts: 'type:darksteel_ingot', count: 3, weight: 4}
+      grip: {accepts: 'tag:leather', count: 1}
+      essence: {accepts: 'type:ghost_essence', count: 1}
+    source: ORIGINAL
+  forge_moonsilver_sword:
+    name: 달은 검
+    discipline: smithing
+    min_level: 18
+    action_level: 20
+    output: moonsilver_sword
+    tool: tool_hammer
+    xp: 60
+    time_ticks: 114
+    slots:
+      blade: {accepts: 'type:silver_ingot', count: 3, weight: 3}
+      moon: {accepts: 'type:moonstone', count: 2, weight: 2}
+      grip: {accepts: 'tag:silk', count: 1}
+    source: ORIGINAL
+  forge_starfall_greatsword:
+    name: 별비 대검
+    discipline: smithing
+    min_level: 28
+    action_level: 30
+    output: starfall_greatsword
+    tool: tool_hammer
+    xp: 90
+    time_ticks: 144
+    slots:
+      blade: {accepts: 'type:darksteel_ingot', count: 5, weight: 4}
+      star: {accepts: 'type:star_shard', count: 2, weight: 3}
+      grip: {accepts: 'type:thick_leather', count: 2}
+    source: ORIGINAL
+  forge_rustgear_cleaver:
+    name: 녹슨 톱니 식칼
+    discipline: smithing
+    min_level: 8
+    action_level: 10
+    output: rustgear_cleaver
+    tool: tool_hammer
+    xp: 30
+    time_ticks: 84
+    slots:
+      blade: {accepts: 'type:iron_ingot', count: 2, weight: 2}
+      teeth: {accepts: 'type:old_gear', count: 3}
+    source: ORIGINAL
+  forge_bloodthorn_sword:
+    name: 핏빛가시 검
+    discipline: smithing
+    min_level: 17
+    action_level: 19
+    output: bloodthorn_sword
+    tool: tool_hammer
+    xp: 57
+    time_ticks: 111
+    slots:
+      blade: {accepts: 'type:mithril_ingot', count: 2, weight: 3}
+      vine: {accepts: 'type:bloodthorn_vine', count: 3}
+      venom: {accepts: 'type:venom_sac', count: 1}
+    source: ORIGINAL
+  forge_silk_stiletto:
+    name: 명주 송곳단검
+    discipline: smithing
+    min_level: 8
+    action_level: 10
+    output: silk_stiletto
+    tool: tool_hammer
+    xp: 30
+    time_ticks: 84
+    slots:
+      blade: {accepts: 'type:iron_ingot', count: 1, weight: 2}
+      wrap: {accepts: 'type:spider_silk', count: 2}
+    source: ORIGINAL
+  forge_venom_fang:
+    name: 독니
+    discipline: smithing
+    min_level: 11
+    action_level: 13
+    output: venom_fang
+    tool: tool_hammer
+    xp: 39
+    time_ticks: 93
+    slots:
+      fang: {accepts: 'type:monster_bone', count: 2, weight: 2}
+      venom: {accepts: 'type:venom_sac', count: 2}
+      grip: {accepts: 'tag:leather', count: 1}
+    source: ORIGINAL
+  forge_shadow_kris:
+    name: 그림자 크리스
+    discipline: smithing
+    min_level: 19
+    action_level: 21
+    output: shadow_kris
+    tool: tool_hammer
+    xp: 63
+    time_ticks: 117
+    slots:
+      blade: {accepts: 'type:darksteel_ingot', count: 2, weight: 3}
+      essence: {accepts: 'type:ghost_essence', count: 1}
+    source: ORIGINAL
+  forge_pearl_dirk:
+    name: 진주 단도
+    discipline: smithing
+    min_level: 9
+    action_level: 11
+    output: pearl_dirk
+    tool: tool_hammer
+    xp: 33
+    time_ticks: 87
+    slots:
+      blade: {accepts: 'type:silver_ingot', count: 1, weight: 2}
+      pearl: {accepts: 'type:pearl', count: 1}
+    source: ORIGINAL
+  forge_bronze_hatchet:
+    name: 청동 전투 손도끼
+    discipline: smithing
+    min_level: 4
+    action_level: 6
+    output: bronze_hatchet
+    tool: tool_hammer
+    xp: 18
+    time_ticks: 72
+    slots:
+      head: {accepts: 'type:bronze_ingot', count: 2, weight: 3}
+      haft: {accepts: 'tag:wood', count: 1}
+    source: ORIGINAL
+  forge_frostbeard_axe:
+    name: 서리수염 도끼
+    discipline: smithing
+    min_level: 18
+    action_level: 20
+    output: frostbeard_axe
+    tool: tool_hammer
+    xp: 60
+    time_ticks: 114
+    slots:
+      head: {accepts: 'type:mithril_ingot', count: 3, weight: 3}
+      frost: {accepts: 'type:frost_essence', count: 1}
+      haft: {accepts: 'type:dark_timber', count: 2}
+    source: ORIGINAL
+  forge_emberclaw_axe:
+    name: 불발톱 도끼
+    discipline: smithing
+    min_level: 14
+    action_level: 16
+    output: emberclaw_axe
+    tool: tool_hammer
+    xp: 48
+    time_ticks: 102
+    slots:
+      head: {accepts: 'type:iron_ingot', count: 3, weight: 3}
+      ember: {accepts: 'type:ember_stone', count: 2}
+      haft: {accepts: 'tag:wood', count: 2}
+    source: ORIGINAL
+  forge_twin_moon_axe:
+    name: 쌍달 도끼
+    discipline: smithing
+    min_level: 25
+    action_level: 27
+    output: twin_moon_axe
+    tool: tool_hammer
+    xp: 81
+    time_ticks: 135
+    slots:
+      head: {accepts: 'type:darksteel_ingot', count: 4, weight: 4}
+      moon: {accepts: 'type:moonstone', count: 2}
+      haft: {accepts: 'type:dark_timber', count: 2}
+    source: ORIGINAL
+  forge_woodsman_bane:
+    name: 숲지기의 재앙
+    discipline: smithing
+    min_level: 10
+    action_level: 12
+    output: woodsman_bane
+    tool: tool_hammer
+    xp: 36
+    time_ticks: 90
+    slots:
+      head: {accepts: 'type:iron_ingot', count: 2, weight: 3}
+      haft: {accepts: 'type:hollow_wood', count: 2}
+    source: ORIGINAL
+  forge_iron_flail:
+    name: 철 도리깨
+    discipline: smithing
+    min_level: 6
+    action_level: 8
+    output: iron_flail
+    tool: tool_hammer
+    xp: 24
+    time_ticks: 78
+    slots:
+      head: {accepts: 'type:iron_ingot', count: 3, weight: 3}
+      chain: {accepts: 'type:iron_ingot', count: 1}
+      haft: {accepts: 'tag:wood', count: 1}
+    source: ORIGINAL
+  forge_templar_mace:
+    name: 성당 기사의 철퇴
+    discipline: smithing
+    min_level: 15
+    action_level: 17
+    output: templar_mace
+    tool: tool_hammer
+    xp: 51
+    time_ticks: 105
+    slots:
+      head: {accepts: 'type:silver_ingot', count: 3, weight: 3}
+      gild: {accepts: 'type:gold_leaf', count: 2}
+      haft: {accepts: 'tag:wood', count: 1}
+    source: ORIGINAL
+  forge_obsidian_maul:
+    name: 흑요석 망치
+    discipline: smithing
+    min_level: 24
+    action_level: 26
+    output: obsidian_maul
+    tool: tool_hammer
+    xp: 78
+    time_ticks: 132
+    slots:
+      head: {accepts: 'type:obsidian_shard', count: 5, weight: 4}
+      bind: {accepts: 'type:darksteel_ingot', count: 1}
+      haft: {accepts: 'type:dark_timber', count: 2}
+    source: ORIGINAL
+  forge_bronze_pike:
+    name: 청동 장창
+    discipline: smithing
+    min_level: 4
+    action_level: 6
+    output: bronze_pike
+    tool: tool_hammer
+    xp: 18
+    time_ticks: 72
+    slots:
+      head: {accepts: 'type:bronze_ingot', count: 1, weight: 2}
+      shaft: {accepts: 'tag:wood', count: 3}
+    source: ORIGINAL
+  forge_griffin_lance:
+    name: 그리폰 기창
+    discipline: smithing
+    min_level: 19
+    action_level: 21
+    output: griffin_lance
+    tool: tool_hammer
+    xp: 63
+    time_ticks: 117
+    slots:
+      head: {accepts: 'type:mithril_ingot', count: 2, weight: 3}
+      shaft: {accepts: 'type:dark_timber', count: 3}
+      plume: {accepts: 'type:griffin_feather', count: 2}
+    source: ORIGINAL
+  forge_tidecaller_trident:
+    name: 물결을 부르는 삼지창
+    discipline: smithing
+    min_level: 20
+    action_level: 22
+    output: tidecaller_trident
+    tool: tool_hammer
+    xp: 66
+    time_ticks: 120
+    slots:
+      head: {accepts: 'type:silver_ingot', count: 3, weight: 3}
+      pearl: {accepts: 'type:pearl', count: 2}
+      shaft: {accepts: 'tag:wood', count: 2}
+    source: ORIGINAL
+  forge_emberwing_glaive:
+    name: 불날개 언월도
+    discipline: smithing
+    min_level: 23
+    action_level: 25
+    output: emberwing_glaive
+    tool: tool_hammer
+    xp: 75
+    time_ticks: 129
+    slots:
+      blade: {accepts: 'type:mithril_ingot', count: 3, weight: 3}
+      ember: {accepts: 'type:fire_essence', count: 1}
+      shaft: {accepts: 'type:dark_timber', count: 2}
+    source: ORIGINAL
+  forge_starpiercer:
+    name: 별을 꿰는 창
+    discipline: smithing
+    min_level: 28
+    action_level: 30
+    output: starpiercer
+    tool: tool_hammer
+    xp: 90
+    time_ticks: 144
+    slots:
+      head: {accepts: 'type:star_shard', count: 1, weight: 4}
+      socket: {accepts: 'type:darksteel_ingot', count: 2}
+      shaft: {accepts: 'type:dark_timber', count: 3}
+    source: ORIGINAL
+  forge_reaper_scythe:
+    name: 수확자의 낫
+    discipline: smithing
+    min_level: 17
+    action_level: 19
+    output: reaper_scythe
+    tool: tool_hammer
+    xp: 57
+    time_ticks: 111
+    slots:
+      blade: {accepts: 'type:iron_ingot', count: 3, weight: 3}
+      essence: {accepts: 'type:ghost_essence', count: 1}
+      haft: {accepts: 'tag:wood', count: 2}
+    source: ORIGINAL
+  forge_harvest_moon_scythe:
+    name: 한가위 낫
+    discipline: smithing
+    min_level: 22
+    action_level: 24
+    output: harvest_moon_scythe
+    tool: tool_hammer
+    xp: 72
+    time_ticks: 126
+    slots:
+      blade: {accepts: 'type:silver_ingot', count: 3, weight: 3}
+      moon: {accepts: 'type:moonstone', count: 2}
+      haft: {accepts: 'type:birch_timber', count: 2}
+    source: ORIGINAL
+  forge_chain_whip:
+    name: 쇠사슬 채찍
+    discipline: smithing
+    min_level: 17
+    action_level: 19
+    output: chain_whip
+    tool: tool_hammer
+    xp: 57
+    time_ticks: 111
+    slots:
+      links: {accepts: 'type:iron_ingot', count: 4, weight: 3}
+      grip: {accepts: 'tag:leather', count: 1}
+    source: ORIGINAL
+  forge_mithril_hammer:
+    name: 미스릴 대장 망치
+    discipline: smithing
+    min_level: 18
+    action_level: 20
+    output: mithril_hammer
+    tool: tool_hammer
+    xp: 60
+    time_ticks: 114
+    slots:
+      head: {accepts: 'type:mithril_ingot', count: 2, weight: 3}
+      haft: {accepts: 'tag:wood', count: 1}
+    source: ORIGINAL
+  forge_mithril_pickaxe:
+    name: 미스릴 곡괭이
+    discipline: smithing
+    min_level: 18
+    action_level: 20
+    output: mithril_pickaxe
+    tool: tool_hammer
+    xp: 60
+    time_ticks: 114
+    slots:
+      head: {accepts: 'type:mithril_ingot', count: 3, weight: 3}
+      haft: {accepts: 'tag:wood', count: 2}
+    source: ORIGINAL
+  forge_woodsman_axe:
+    name: 숲지기 도끼
+    discipline: smithing
+    min_level: 12
+    action_level: 14
+    output: woodsman_axe
+    tool: tool_hammer
+    xp: 42
+    time_ticks: 96
+    slots:
+      head: {accepts: 'type:iron_ingot', count: 3, weight: 3}
+      haft: {accepts: 'type:dark_timber', count: 1}
+    source: ORIGINAL
+  forge_bronze_heater:
+    name: 청동 기사 방패
+    discipline: smithing
+    min_level: 5
+    action_level: 7
+    output: bronze_heater
+    tool: tool_hammer
+    xp: 21
+    time_ticks: 75
+    slots:
+      boards: {accepts: 'tag:wood', count: 2, weight: 2}
+      rim: {accepts: 'type:bronze_ingot', count: 2, weight: 2}
+    source: ORIGINAL
+  forge_tower_shield:
+    name: 탑 방패
+    discipline: smithing
+    min_level: 14
+    action_level: 16
+    output: tower_shield
+    tool: tool_hammer
+    xp: 48
+    time_ticks: 102
+    slots:
+      plates: {accepts: 'type:iron_ingot', count: 6, weight: 3}
+      boards: {accepts: 'tag:wood', count: 3}
+    source: ORIGINAL
+  forge_mithril_aegis:
+    name: 미스릴 수호 방패
+    discipline: smithing
+    min_level: 20
+    action_level: 22
+    output: mithril_aegis
+    tool: tool_hammer
+    xp: 66
+    time_ticks: 120
+    slots:
+      plates: {accepts: 'type:mithril_ingot', count: 4, weight: 4}
+      strap: {accepts: 'type:thick_leather', count: 1}
+    source: ORIGINAL
+  forge_dawn_aegis:
+    name: 새벽 방패
+    discipline: smithing
+    min_level: 22
+    action_level: 24
+    output: dawn_aegis
+    tool: tool_hammer
+    xp: 72
+    time_ticks: 126
+    slots:
+      plates: {accepts: 'type:mithril_ingot', count: 4, weight: 4}
+      gild: {accepts: 'type:gold_leaf', count: 3}
+      essence: {accepts: 'tag:essence', count: 1}
+    source: ORIGINAL
+  forge_iron_bracer:
+    name: 철 손목보호대
+    discipline: smithing
+    min_level: 3
+    action_level: 5
+    output: iron_bracer
+    tool: tool_hammer
+    xp: 15
+    time_ticks: 69
+    slots:
+      plate: {accepts: 'type:iron_ingot', count: 1, weight: 2}
+      strap: {accepts: 'tag:leather', count: 1}
+    source: ORIGINAL
+  forge_bronze_guard_helmet:
+    name: 청동 경비대 투구
+    discipline: smithing
+    min_level: 6
+    action_level: 8
+    output: bronze_guard_helmet
+    tool: tool_hammer
+    xp: 24
+    time_ticks: 78
+    slots:
+      plates: {accepts: 'type:bronze_ingot', count: 3, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+    source: ORIGINAL
+  forge_bronze_guard_chest:
+    name: 청동 경비대 갑옷
+    discipline: smithing
+    min_level: 6
+    action_level: 8
+    output: bronze_guard_chest
+    tool: tool_hammer
+    xp: 24
+    time_ticks: 78
+    slots:
+      plates: {accepts: 'type:bronze_ingot', count: 5, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+    source: ORIGINAL
+  forge_bronze_guard_legs:
+    name: 청동 경비대 각반
+    discipline: smithing
+    min_level: 6
+    action_level: 8
+    output: bronze_guard_legs
+    tool: tool_hammer
+    xp: 24
+    time_ticks: 78
+    slots:
+      plates: {accepts: 'type:bronze_ingot', count: 4, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+    source: ORIGINAL
+  forge_bronze_guard_boots:
+    name: 청동 경비대 장화
+    discipline: smithing
+    min_level: 6
+    action_level: 8
+    output: bronze_guard_boots
+    tool: tool_hammer
+    xp: 24
+    time_ticks: 78
+    slots:
+      plates: {accepts: 'type:bronze_ingot', count: 2, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+    source: ORIGINAL
+  forge_mithril_knight_helmet:
+    name: 미스릴 기사 투구
+    discipline: smithing
+    min_level: 18
+    action_level: 20
+    output: mithril_knight_helmet
+    tool: tool_hammer
+    xp: 60
+    time_ticks: 114
+    slots:
+      plates: {accepts: 'type:mithril_ingot', count: 3, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      gem: {accepts: 'tag:cut_gem', count: 1, optional: true, bonus: 50}
+    source: ORIGINAL
+  forge_mithril_knight_chest:
+    name: 미스릴 기사 갑옷
+    discipline: smithing
+    min_level: 18
+    action_level: 20
+    output: mithril_knight_chest
+    tool: tool_hammer
+    xp: 60
+    time_ticks: 114
+    slots:
+      plates: {accepts: 'type:mithril_ingot', count: 5, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      gem: {accepts: 'tag:cut_gem', count: 1, optional: true, bonus: 50}
+    source: ORIGINAL
+  forge_mithril_knight_legs:
+    name: 미스릴 기사 각반
+    discipline: smithing
+    min_level: 18
+    action_level: 20
+    output: mithril_knight_legs
+    tool: tool_hammer
+    xp: 60
+    time_ticks: 114
+    slots:
+      plates: {accepts: 'type:mithril_ingot', count: 4, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      gem: {accepts: 'tag:cut_gem', count: 1, optional: true, bonus: 50}
+    source: ORIGINAL
+  forge_mithril_knight_boots:
+    name: 미스릴 기사 장화
+    discipline: smithing
+    min_level: 18
+    action_level: 20
+    output: mithril_knight_boots
+    tool: tool_hammer
+    xp: 60
+    time_ticks: 114
+    slots:
+      plates: {accepts: 'type:mithril_ingot', count: 2, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      gem: {accepts: 'tag:cut_gem', count: 1, optional: true, bonus: 50}
+    source: ORIGINAL
+  forge_emberforged_helmet:
+    name: 불씨 단조 투구
+    discipline: smithing
+    min_level: 15
+    action_level: 17
+    output: emberforged_helmet
+    tool: tool_hammer
+    xp: 51
+    time_ticks: 105
+    slots:
+      plates: {accepts: 'type:iron_ingot', count: 3, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      temper: {accepts: 'type:ember_stone', count: 1}
+    source: ORIGINAL
+  forge_emberforged_chest:
+    name: 불씨 단조 갑옷
+    discipline: smithing
+    min_level: 15
+    action_level: 17
+    output: emberforged_chest
+    tool: tool_hammer
+    xp: 51
+    time_ticks: 105
+    slots:
+      plates: {accepts: 'type:iron_ingot', count: 5, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      temper: {accepts: 'type:ember_stone', count: 1}
+    source: ORIGINAL
+  forge_emberforged_legs:
+    name: 불씨 단조 각반
+    discipline: smithing
+    min_level: 15
+    action_level: 17
+    output: emberforged_legs
+    tool: tool_hammer
+    xp: 51
+    time_ticks: 105
+    slots:
+      plates: {accepts: 'type:iron_ingot', count: 4, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      temper: {accepts: 'type:ember_stone', count: 1}
+    source: ORIGINAL
+  forge_emberforged_boots:
+    name: 불씨 단조 장화
+    discipline: smithing
+    min_level: 15
+    action_level: 17
+    output: emberforged_boots
+    tool: tool_hammer
+    xp: 51
+    time_ticks: 105
+    slots:
+      plates: {accepts: 'type:iron_ingot', count: 2, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      temper: {accepts: 'type:ember_stone', count: 1}
+    source: ORIGINAL
+  forge_frostwarden_helmet:
+    name: 서리 파수꾼 투구
+    discipline: smithing
+    min_level: 16
+    action_level: 18
+    output: frostwarden_helmet
+    tool: tool_hammer
+    xp: 54
+    time_ticks: 108
+    slots:
+      plates: {accepts: 'type:iron_ingot', count: 3, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      fur: {accepts: 'type:wolf_pelt', count: 1}
+    source: ORIGINAL
+  forge_frostwarden_chest:
+    name: 서리 파수꾼 갑옷
+    discipline: smithing
+    min_level: 16
+    action_level: 18
+    output: frostwarden_chest
+    tool: tool_hammer
+    xp: 54
+    time_ticks: 108
+    slots:
+      plates: {accepts: 'type:iron_ingot', count: 5, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      fur: {accepts: 'type:wolf_pelt', count: 1}
+    source: ORIGINAL
+  forge_frostwarden_legs:
+    name: 서리 파수꾼 각반
+    discipline: smithing
+    min_level: 16
+    action_level: 18
+    output: frostwarden_legs
+    tool: tool_hammer
+    xp: 54
+    time_ticks: 108
+    slots:
+      plates: {accepts: 'type:iron_ingot', count: 4, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      fur: {accepts: 'type:wolf_pelt', count: 1}
+    source: ORIGINAL
+  forge_frostwarden_boots:
+    name: 서리 파수꾼 장화
+    discipline: smithing
+    min_level: 16
+    action_level: 18
+    output: frostwarden_boots
+    tool: tool_hammer
+    xp: 54
+    time_ticks: 108
+    slots:
+      plates: {accepts: 'type:iron_ingot', count: 2, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      fur: {accepts: 'type:wolf_pelt', count: 1}
+    source: ORIGINAL
+  forge_dragonscale_helmet:
+    name: 비룡 비늘 투구
+    discipline: smithing
+    min_level: 26
+    action_level: 28
+    output: dragonscale_helmet
+    tool: tool_hammer
+    xp: 84
+    time_ticks: 138
+    slots:
+      plates: {accepts: 'type:darksteel_ingot', count: 3, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      scales: {accepts: 'type:drake_scale', count: 2, weight: 2}
+    source: ORIGINAL
+  forge_dragonscale_chest:
+    name: 비룡 비늘 갑옷
+    discipline: smithing
+    min_level: 26
+    action_level: 28
+    output: dragonscale_chest
+    tool: tool_hammer
+    xp: 84
+    time_ticks: 138
+    slots:
+      plates: {accepts: 'type:darksteel_ingot', count: 5, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      scales: {accepts: 'type:drake_scale', count: 4, weight: 2}
+    source: ORIGINAL
+  forge_dragonscale_legs:
+    name: 비룡 비늘 각반
+    discipline: smithing
+    min_level: 26
+    action_level: 28
+    output: dragonscale_legs
+    tool: tool_hammer
+    xp: 84
+    time_ticks: 138
+    slots:
+      plates: {accepts: 'type:darksteel_ingot', count: 4, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      scales: {accepts: 'type:drake_scale', count: 3, weight: 2}
+    source: ORIGINAL
+  forge_dragonscale_boots:
+    name: 비룡 비늘 장화
+    discipline: smithing
+    min_level: 26
+    action_level: 28
+    output: dragonscale_boots
+    tool: tool_hammer
+    xp: 84
+    time_ticks: 138
+    slots:
+      plates: {accepts: 'type:darksteel_ingot', count: 2, weight: 3}
+      lining: {accepts: 'tag:cloth', count: 1}
+      scales: {accepts: 'type:drake_scale', count: 1, weight: 2}
+    source: ORIGINAL
+  sew_militia_helmet:
+    name: 민병대 투구
+    discipline: leatherwork
+    min_level: 2
+    action_level: 4
+    output: militia_helmet
+    tool: tool_sewing
+    xp: 12
+    time_ticks: 56
+    slots:
+      main: {accepts: 'type:leather', count: 2, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+    source: ORIGINAL
+  sew_militia_chest:
+    name: 민병대 갑옷
+    discipline: leatherwork
+    min_level: 2
+    action_level: 4
+    output: militia_chest
+    tool: tool_sewing
+    xp: 12
+    time_ticks: 56
+    slots:
+      main: {accepts: 'type:leather', count: 4, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+    source: ORIGINAL
+  sew_militia_legs:
+    name: 민병대 각반
+    discipline: leatherwork
+    min_level: 2
+    action_level: 4
+    output: militia_legs
+    tool: tool_sewing
+    xp: 12
+    time_ticks: 56
+    slots:
+      main: {accepts: 'type:leather', count: 3, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+    source: ORIGINAL
+  sew_militia_boots:
+    name: 민병대 장화
+    discipline: leatherwork
+    min_level: 2
+    action_level: 4
+    output: militia_boots
+    tool: tool_sewing
+    xp: 12
+    time_ticks: 56
+    slots:
+      main: {accepts: 'type:leather', count: 2, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+    source: ORIGINAL
+  sew_ranger_helmet:
+    name: 순찰자 투구
+    discipline: leatherwork
+    min_level: 10
+    action_level: 12
+    output: ranger_helmet
+    tool: tool_sewing
+    xp: 36
+    time_ticks: 80
+    slots:
+      main: {accepts: 'type:thick_leather', count: 2, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      fur: {accepts: 'type:wolf_pelt', count: 1, optional: true, bonus: 30}
+    source: ORIGINAL
+  sew_ranger_chest:
+    name: 순찰자 갑옷
+    discipline: leatherwork
+    min_level: 10
+    action_level: 12
+    output: ranger_chest
+    tool: tool_sewing
+    xp: 36
+    time_ticks: 80
+    slots:
+      main: {accepts: 'type:thick_leather', count: 4, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      fur: {accepts: 'type:wolf_pelt', count: 1, optional: true, bonus: 30}
+    source: ORIGINAL
+  sew_ranger_legs:
+    name: 순찰자 각반
+    discipline: leatherwork
+    min_level: 10
+    action_level: 12
+    output: ranger_legs
+    tool: tool_sewing
+    xp: 36
+    time_ticks: 80
+    slots:
+      main: {accepts: 'type:thick_leather', count: 3, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      fur: {accepts: 'type:wolf_pelt', count: 1, optional: true, bonus: 30}
+    source: ORIGINAL
+  sew_ranger_boots:
+    name: 순찰자 장화
+    discipline: leatherwork
+    min_level: 10
+    action_level: 12
+    output: ranger_boots
+    tool: tool_sewing
+    xp: 36
+    time_ticks: 80
+    slots:
+      main: {accepts: 'type:thick_leather', count: 2, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      fur: {accepts: 'type:wolf_pelt', count: 1, optional: true, bonus: 30}
+    source: ORIGINAL
+  sew_shadowstalker_helmet:
+    name: 그림자 추적자 투구
+    discipline: leatherwork
+    min_level: 16
+    action_level: 18
+    output: shadowstalker_helmet
+    tool: tool_sewing
+    xp: 54
+    time_ticks: 98
+    slots:
+      main: {accepts: 'type:thick_leather', count: 2, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      shadow: {accepts: 'type:ghost_essence', count: 1}
+    source: ORIGINAL
+  sew_shadowstalker_chest:
+    name: 그림자 추적자 갑옷
+    discipline: leatherwork
+    min_level: 16
+    action_level: 18
+    output: shadowstalker_chest
+    tool: tool_sewing
+    xp: 54
+    time_ticks: 98
+    slots:
+      main: {accepts: 'type:thick_leather', count: 4, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      shadow: {accepts: 'type:ghost_essence', count: 1}
+    source: ORIGINAL
+  sew_shadowstalker_legs:
+    name: 그림자 추적자 각반
+    discipline: leatherwork
+    min_level: 16
+    action_level: 18
+    output: shadowstalker_legs
+    tool: tool_sewing
+    xp: 54
+    time_ticks: 98
+    slots:
+      main: {accepts: 'type:thick_leather', count: 3, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      shadow: {accepts: 'type:ghost_essence', count: 1}
+    source: ORIGINAL
+  sew_shadowstalker_boots:
+    name: 그림자 추적자 장화
+    discipline: leatherwork
+    min_level: 16
+    action_level: 18
+    output: shadowstalker_boots
+    tool: tool_sewing
+    xp: 54
+    time_ticks: 98
+    slots:
+      main: {accepts: 'type:thick_leather', count: 2, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      shadow: {accepts: 'type:ghost_essence', count: 1}
+    source: ORIGINAL
+  sew_archmage_helmet:
+    name: 대마법사의 투구
+    discipline: tailoring
+    min_level: 18
+    action_level: 20
+    output: archmage_helmet
+    tool: tool_sewing
+    xp: 60
+    time_ticks: 104
+    slots:
+      main: {accepts: 'type:silk_cloth', count: 2, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      mana: {accepts: 'type:mana_dust', count: 2}
+      dye: {accepts: 'tag:dye', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  sew_archmage_chest:
+    name: 대마법사의 갑옷
+    discipline: tailoring
+    min_level: 18
+    action_level: 20
+    output: archmage_chest
+    tool: tool_sewing
+    xp: 60
+    time_ticks: 104
+    slots:
+      main: {accepts: 'type:silk_cloth', count: 4, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      mana: {accepts: 'type:mana_dust', count: 2}
+      dye: {accepts: 'tag:dye', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  sew_archmage_legs:
+    name: 대마법사의 각반
+    discipline: tailoring
+    min_level: 18
+    action_level: 20
+    output: archmage_legs
+    tool: tool_sewing
+    xp: 60
+    time_ticks: 104
+    slots:
+      main: {accepts: 'type:silk_cloth', count: 3, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      mana: {accepts: 'type:mana_dust', count: 2}
+      dye: {accepts: 'tag:dye', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  sew_archmage_boots:
+    name: 대마법사의 장화
+    discipline: tailoring
+    min_level: 18
+    action_level: 20
+    output: archmage_boots
+    tool: tool_sewing
+    xp: 60
+    time_ticks: 104
+    slots:
+      main: {accepts: 'type:silk_cloth', count: 2, weight: 3}
+      thread: {accepts: 'tag:fiber', count: 1}
+      mana: {accepts: 'type:mana_dust', count: 2}
+      dye: {accepts: 'tag:dye', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  tan_thick_leather:
+    name: 두꺼운 가죽 무두질
+    discipline: leatherwork
+    min_level: 8
+    action_level: 10
+    output: thick_leather
+    xp: 30
+    slots:
+      pelt: {accepts: 'tag:fur', count: 2, weight: 2}
+      salt: {accepts: 'tag:seasoning', count: 1}
+      oil: {accepts: 'type:lantern_oil', count: 1, optional: true, bonus: 30}
+    source: ORIGINAL
+  weave_silk:
+    name: 비단 짜기
+    discipline: tailoring
+    min_level: 10
+    action_level: 12
+    output: silk_cloth
+    xp: 36
+    slots:
+      silk: {accepts: 'type:spider_silk', count: 4, weight: 3}
+    source: ORIGINAL
+  weave_wool:
+    name: 모직 짜기
+    discipline: tailoring
+    min_level: 3
+    action_level: 5
+    output: wool_cloth
+    xp: 15
+    slots:
+      fiber: {accepts: 'tag:fiber', count: 3}
+    source: ORIGINAL
+  sew_silk_gloves:
+    name: 명주 장갑
+    discipline: tailoring
+    min_level: 12
+    action_level: 14
+    output: silk_gloves
+    tool: tool_sewing
+    xp: 42
+    slots:
+      silk: {accepts: 'type:silk_cloth', count: 2, weight: 3}
+      thread: {accepts: 'type:spider_silk', count: 1}
+    source: ORIGINAL
+  sew_wanderer_cloak:
+    name: 나그네 망토
+    discipline: tailoring
+    min_level: 6
+    action_level: 8
+    output: wanderer_cloak
+    tool: tool_sewing
+    xp: 24
+    slots:
+      cloth: {accepts: 'type:wool_cloth', count: 3, weight: 3}
+      dye: {accepts: 'tag:dye', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  sew_mistveil_cloak:
+    name: 안개 장막 망토
+    discipline: tailoring
+    min_level: 17
+    action_level: 19
+    output: mistveil_cloak
+    tool: tool_sewing
+    xp: 57
+    slots:
+      cloth: {accepts: 'type:silk_cloth', count: 3, weight: 3}
+      essence: {accepts: 'type:ghost_essence', count: 1}
+    source: ORIGINAL
+  stitch_adventurer_belt:
+    name: 모험가의 허리띠
+    discipline: leatherwork
+    min_level: 4
+    action_level: 6
+    output: adventurer_belt
+    tool: tool_sewing
+    xp: 18
+    slots:
+      leather: {accepts: 'tag:leather', count: 2, weight: 3}
+      buckle: {accepts: 'tag:metal', count: 1}
+    source: ORIGINAL
+  stitch_champion_belt:
+    name: 투사의 허리띠
+    discipline: leatherwork
+    min_level: 15
+    action_level: 17
+    output: champion_belt
+    tool: tool_sewing
+    xp: 51
+    slots:
+      leather: {accepts: 'type:thick_leather', count: 2, weight: 3}
+      gild: {accepts: 'type:gold_leaf', count: 2}
+    source: ORIGINAL
+  stitch_bear_gauntlets:
+    name: 곰가죽 건틀릿
+    discipline: leatherwork
+    min_level: 12
+    action_level: 14
+    output: bear_gauntlets
+    tool: tool_sewing
+    xp: 42
+    slots:
+      pelt: {accepts: 'type:bear_pelt', count: 2, weight: 3}
+      plate: {accepts: 'type:iron_ingot', count: 1}
+    source: ORIGINAL
+  braid_thorn_whip:
+    name: 가시 채찍
+    discipline: leatherwork
+    min_level: 10
+    action_level: 12
+    output: thorn_whip
+    tool: tool_sewing
+    xp: 36
+    slots:
+      vine: {accepts: 'type:bloodthorn_vine', count: 4, weight: 3}
+      grip: {accepts: 'tag:leather', count: 1}
+    source: ORIGINAL
+  carve_birch_wand:
+    name: 자작나무 지팡이
+    discipline: woodworking
+    min_level: 4
+    action_level: 6
+    output: birch_wand
+    xp: 18
+    time_ticks: 62
+    slots:
+      shaft: {accepts: 'type:birch_timber', count: 2, weight: 3}
+      focus: {accepts: 'tag:gem', count: 1, optional: true, bonus: 60}
+    source: ORIGINAL
+  carve_ember_scepter:
+    name: 불씨의 홀
+    discipline: woodworking
+    min_level: 13
+    action_level: 15
+    output: ember_scepter
+    xp: 45
+    time_ticks: 89
+    slots:
+      shaft: {accepts: 'type:dark_timber', count: 2, weight: 3}
+      focus: {accepts: 'type:ember_stone', count: 2, weight: 2}
+      essence: {accepts: 'type:fire_essence', count: 1}
+    source: ORIGINAL
+  carve_frostweave_staff:
+    name: 서리 엮은 지팡이
+    discipline: woodworking
+    min_level: 14
+    action_level: 16
+    output: frostweave_staff
+    xp: 48
+    time_ticks: 92
+    slots:
+      shaft: {accepts: 'type:birch_timber', count: 2, weight: 3}
+      focus: {accepts: 'type:frost_crystal', count: 2, weight: 2}
+      essence: {accepts: 'type:frost_essence', count: 1}
+    source: ORIGINAL
+  carve_storm_rod:
+    name: 폭풍의 막대
+    discipline: woodworking
+    min_level: 18
+    action_level: 20
+    output: storm_rod
+    xp: 60
+    time_ticks: 104
+    slots:
+      shaft: {accepts: 'type:dark_timber', count: 2, weight: 3}
+      focus: {accepts: 'type:storm_glass', count: 2, weight: 2}
+      essence: {accepts: 'type:storm_essence', count: 1}
+    source: ORIGINAL
+  carve_archivist_staff:
+    name: 서고지기의 지팡이
+    discipline: woodworking
+    min_level: 16
+    action_level: 18
+    output: archivist_staff
+    xp: 54
+    time_ticks: 98
+    slots:
+      shaft: {accepts: 'type:dark_timber', count: 3, weight: 3}
+      ink: {accepts: 'type:fine_ink', count: 2}
+      focus: {accepts: 'tag:gem', count: 1}
+    source: ORIGINAL
+  carve_moonwell_staff:
+    name: 달샘 지팡이
+    discipline: woodworking
+    min_level: 24
+    action_level: 26
+    output: moonwell_staff
+    xp: 78
+    time_ticks: 122
+    slots:
+      shaft: {accepts: 'type:birch_timber', count: 3, weight: 3}
+      focus: {accepts: 'type:moonstone', count: 3, weight: 3}
+      sap: {accepts: 'type:spirit_sap', count: 2}
+    source: ORIGINAL
+  carve_void_scepter:
+    name: 공허의 홀
+    discipline: woodworking
+    min_level: 27
+    action_level: 29
+    output: void_scepter
+    xp: 87
+    time_ticks: 131
+    slots:
+      shaft: {accepts: 'type:dark_timber', count: 2, weight: 3}
+      focus: {accepts: 'type:obsidian_shard', count: 2, weight: 2}
+      essence: {accepts: 'type:ghost_essence', count: 2}
+    source: ORIGINAL
+  carve_birch_shortbow:
+    name: 자작나무 단궁
+    discipline: woodworking
+    min_level: 3
+    action_level: 5
+    output: birch_shortbow
+    xp: 15
+    time_ticks: 59
+    slots:
+      limb: {accepts: 'type:birch_timber', count: 2, weight: 3}
+      string: {accepts: 'tag:fiber', count: 2}
+    source: ORIGINAL
+  carve_hunter_recurve:
+    name: 사냥꾼의 리커브
+    discipline: woodworking
+    min_level: 10
+    action_level: 12
+    output: hunter_recurve
+    xp: 36
+    time_ticks: 80
+    slots:
+      limb: {accepts: 'tag:wood', count: 3, weight: 3}
+      horn: {accepts: 'type:monster_bone', count: 2}
+      string: {accepts: 'tag:fiber', count: 2}
+    source: ORIGINAL
+  carve_griffin_longbow:
+    name: 그리폰 장궁
+    discipline: woodworking
+    min_level: 20
+    action_level: 22
+    output: griffin_longbow
+    xp: 66
+    time_ticks: 110
+    slots:
+      limb: {accepts: 'type:jungle_timber', count: 3, weight: 3}
+      string: {accepts: 'type:spider_silk', count: 2}
+      fletch: {accepts: 'type:griffin_feather', count: 2}
+    source: ORIGINAL
+  carve_thornwood_bow:
+    name: 가시나무 활
+    discipline: woodworking
+    min_level: 14
+    action_level: 16
+    output: thornwood_bow
+    xp: 48
+    time_ticks: 92
+    slots:
+      limb: {accepts: 'type:hollow_wood', count: 3, weight: 3}
+      vine: {accepts: 'type:bloodthorn_vine', count: 2}
+      string: {accepts: 'tag:fiber', count: 2}
+    source: ORIGINAL
+  carve_quill_set:
+    name: 깃펜 세트
+    discipline: woodworking
+    min_level: 2
+    action_level: 4
+    output: quill_set
+    xp: 12
+    time_ticks: 56
+    slots:
+      feather: {accepts: 'type:griffin_feather', count: 1}
+      nib: {accepts: 'tag:metal', count: 1}
+    source: ORIGINAL
+  carve_brew_paddle:
+    name: 양조 주걱
+    discipline: woodworking
+    min_level: 1
+    action_level: 3
+    output: brew_paddle
+    xp: 9
+    time_ticks: 53
+    slots:
+      wood: {accepts: 'tag:wood', count: 2}
+    source: ORIGINAL
+  cook_apple_pie:
+    name: 사과 파이
+    discipline: cooking
+    min_level: 5
+    action_level: 7
+    output: apple_pie
+    output_count: 2
+    tool: tool_cook
+    xp: 21
+    slots:
+      fruit: {accepts: 'type:apple', count: 2, weight: 2}
+      flour: {accepts: 'type:flour', count: 2}
+      sweet: {accepts: 'tag:sweet', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  cook_mushroom_soup:
+    name: 버섯 수프
+    discipline: cooking
+    min_level: 2
+    action_level: 4
+    output: mushroom_soup
+    output_count: 2
+    xp: 12
+    slots:
+      mushroom: {accepts: 'tag:mushroom', count: 2, weight: 2}
+      base: {accepts: 'tag:vegetable', count: 1}
+    source: ORIGINAL
+  cook_roast_fowl:
+    name: 통새 구이
+    discipline: cooking
+    min_level: 3
+    action_level: 5
+    output: roast_fowl
+    xp: 15
+    slots:
+      meat: {accepts: 'type:raw_fowl', count: 1, weight: 2}
+      herb: {accepts: 'tag:herb', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  cook_herb_bread:
+    name: 허브 빵
+    discipline: cooking
+    min_level: 3
+    action_level: 5
+    output: herb_bread
+    output_count: 2
+    xp: 15
+    slots:
+      flour: {accepts: 'type:flour', count: 2, weight: 2}
+      herb: {accepts: 'tag:herb', count: 1}
+    source: ORIGINAL
+  cook_cheese_bread:
+    name: 치즈 빵
+    discipline: cooking
+    min_level: 8
+    action_level: 10
+    output: cheese_bread
+    output_count: 2
+    tool: tool_cook
+    xp: 30
+    slots:
+      flour: {accepts: 'type:flour', count: 2, weight: 2}
+      cheese: {accepts: 'type:cheese', count: 1}
+    source: ORIGINAL
+  cook_veg_stew:
+    name: 채소 스튜
+    discipline: cooking
+    min_level: 4
+    action_level: 6
+    output: veg_stew
+    output_count: 2
+    tool: tool_cook
+    xp: 18
+    slots:
+      veg: {accepts: 'tag:vegetable', count: 3, weight: 2}
+      spice: {accepts: 'tag:spice', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  cook_fish_pie:
+    name: 생선 파이
+    discipline: cooking
+    min_level: 9
+    action_level: 11
+    output: fish_pie
+    output_count: 2
+    tool: tool_cook
+    xp: 33
+    slots:
+      fish: {accepts: 'tag:fish', count: 2, weight: 2}
+      flour: {accepts: 'type:flour', count: 2}
+      egg: {accepts: 'type:egg', count: 1}
+    source: ORIGINAL
+  cook_spicy_stew:
+    name: 불고추 스튜
+    discipline: cooking
+    min_level: 12
+    action_level: 14
+    output: spicy_stew
+    output_count: 2
+    tool: tool_cook
+    xp: 42
+    slots:
+      meat: {accepts: 'tag:meat', count: 2, weight: 2}
+      pepper: {accepts: 'type:pepper', count: 2}
+      veg: {accepts: 'tag:vegetable', count: 1}
+    source: ORIGINAL
+  cook_honey_cake:
+    name: 꿀 케이크
+    discipline: cooking
+    min_level: 14
+    action_level: 16
+    output: honey_cake
+    tool: tool_cook
+    xp: 48
+    slots:
+      flour: {accepts: 'type:flour', count: 3, weight: 2}
+      honey: {accepts: 'type:honey_comb', count: 2}
+      egg: {accepts: 'type:egg', count: 2}
+      milk: {accepts: 'type:milk_jug', count: 1}
+    source: ORIGINAL
+  cook_trail_ration:
+    name: 행군 식량
+    discipline: cooking
+    min_level: 2
+    action_level: 4
+    output: trail_ration
+    output_count: 3
+    xp: 12
+    slots:
+      grain: {accepts: 'tag:grain', count: 2}
+      fruit: {accepts: 'tag:fruit', count: 1}
+    source: ORIGINAL
+  cook_crab_bisque:
+    name: 게살 수프
+    discipline: cooking
+    min_level: 13
+    action_level: 15
+    output: crab_bisque
+    output_count: 2
+    tool: tool_cook
+    xp: 45
+    slots:
+      crab: {accepts: 'type:lake_crab', count: 2, weight: 2}
+      milk: {accepts: 'type:milk_jug', count: 1}
+      onion: {accepts: 'type:onion', count: 1}
+    source: ORIGINAL
+  cook_grilled_trout:
+    name: 송어 구이
+    discipline: cooking
+    min_level: 2
+    action_level: 4
+    output: grilled_trout
+    xp: 12
+    slots:
+      fish: {accepts: 'type:trout', count: 1, weight: 2}
+      salt: {accepts: 'tag:seasoning', count: 1, optional: true, bonus: 50}
+    source: ORIGINAL
+  cook_baked_potato:
+    name: 구운 감자
+    discipline: cooking
+    min_level: 1
+    action_level: 3
+    output: baked_potato
+    xp: 9
+    slots:
+      potato: {accepts: 'type:potato', count: 1}
+    source: ORIGINAL
+  cook_cookie:
+    name: 쿠키
+    discipline: cooking
+    min_level: 3
+    action_level: 5
+    output: cookie
+    output_count: 4
+    xp: 15
+    slots:
+      flour: {accepts: 'type:flour', count: 1}
+      sweet: {accepts: 'tag:sweet', count: 1}
+    source: ORIGINAL
+  cook_chocolate:
+    name: 초콜릿
+    discipline: cooking
+    min_level: 11
+    action_level: 13
+    output: chocolate
+    output_count: 2
+    tool: tool_cook
+    xp: 39
+    slots:
+      cocoa: {accepts: 'type:cocoa', count: 2, weight: 2}
+      sweet: {accepts: 'type:sugar_cane', count: 1}
+      milk: {accepts: 'type:milk_jug', count: 1}
+    source: ORIGINAL
+  cook_pufferfish_sashimi:
+    name: 복어회
+    discipline: cooking
+    min_level: 20
+    action_level: 22
+    output: pufferfish_sashimi
+    tool: tool_cook
+    xp: 66
+    slots:
+      fish: {accepts: 'type:pufferfish', count: 1, weight: 3}
+      knife: {accepts: 'tag:seasoning', count: 1}
+    source: ORIGINAL
+  cook_royal_feast:
+    name: 왕의 만찬
+    discipline: cooking
+    min_level: 26
+    action_level: 28
+    output: royal_feast
+    tool: tool_cook
+    xp: 84
+    slots:
+      meat: {accepts: 'tag:meat', count: 3, weight: 2}
+      fish: {accepts: 'tag:fish', count: 2, weight: 2}
+      cake: {accepts: 'type:honey_cake', count: 1}
+      wine: {accepts: 'type:grape_wine', count: 1}
+      gold: {accepts: 'type:gold_leaf', count: 1, optional: true, bonus: 80}
+    source: ORIGINAL
+  cook_cheese:
+    name: 치즈
+    discipline: cooking
+    min_level: 6
+    action_level: 8
+    output: cheese
+    tool: tool_cook
+    xp: 24
+    slots:
+      milk: {accepts: 'type:milk_jug', count: 2, weight: 2}
+      salt: {accepts: 'tag:seasoning', count: 1}
+    source: ORIGINAL
+  cook_flour:
+    name: 밀가루
+    discipline: cooking
+    min_level: 1
+    action_level: 3
+    output: flour
+    output_count: 2
+    xp: 9
+    slots:
+      grain: {accepts: 'tag:grain', count: 2}
+    source: ORIGINAL
+  brew_antidote:
+    name: 해독제
+    discipline: alchemy
+    min_level: 3
+    action_level: 5
+    output: antidote
+    output_count: 2
+    tool: tool_alchemy
+    xp: 15
+    slots:
+      herb: {accepts: 'tag:herb', count: 2, weight: 2}
+      base: {accepts: 'type:glass_sand', count: 1}
+      moss: {accepts: 'type:bog_moss', count: 1}
+    source: ORIGINAL
+  brew_stamina_tonic:
+    name: 기력 강장제
+    discipline: alchemy
+    min_level: 8
+    action_level: 10
+    output: stamina_tonic
+    tool: tool_alchemy
+    xp: 30
+    slots:
+      herb: {accepts: 'tag:herb', count: 2, weight: 2}
+      sweet: {accepts: 'tag:sweet', count: 1}
+      base: {accepts: 'type:minor_tonic', count: 1}
+    source: ORIGINAL
+  brew_supreme_draught:
+    name: 최상급 회복 물약
+    discipline: alchemy
+    min_level: 26
+    action_level: 28
+    output: supreme_draught
+    tool: tool_alchemy
+    xp: 84
+    slots:
+      base: {accepts: 'type:greater_draught', count: 1}
+      blood: {accepts: 'type:troll_blood', count: 1}
+      sap: {accepts: 'type:spirit_sap', count: 1}
+    source: ORIGINAL
+  brew_elixir_of_life:
+    name: 생명의 영약
+    discipline: alchemy
+    min_level: 30
+    action_level: 32
+    output: elixir_of_life
+    tool: tool_alchemy
+    xp: 96
+    slots:
+      base: {accepts: 'type:supreme_draught', count: 2}
+      star: {accepts: 'type:star_shard', count: 1}
+      sap: {accepts: 'type:spirit_sap', count: 2}
+    source: ORIGINAL
+  brew_fire_resist_potion:
+    name: 화염 저항 물약
+    discipline: alchemy
+    min_level: 12
+    action_level: 14
+    output: fire_resist_potion
+    tool: tool_alchemy
+    xp: 42
+    slots:
+      herb: {accepts: 'tag:herb', count: 2}
+      frost: {accepts: 'type:frost_essence', count: 1}
+      base: {accepts: 'type:minor_tonic', count: 1}
+    source: ORIGINAL
+  brew_frost_resist_potion:
+    name: 냉기 저항 물약
+    discipline: alchemy
+    min_level: 12
+    action_level: 14
+    output: frost_resist_potion
+    tool: tool_alchemy
+    xp: 42
+    slots:
+      herb: {accepts: 'tag:herb', count: 2}
+      fire: {accepts: 'type:fire_essence', count: 1}
+      base: {accepts: 'type:minor_tonic', count: 1}
+    source: ORIGINAL
+  brew_mana_potion:
+    name: 마나 물약
+    discipline: alchemy
+    min_level: 10
+    action_level: 12
+    output: mana_potion
+    tool: tool_alchemy
+    xp: 36
+    slots:
+      dust: {accepts: 'type:mana_dust', count: 2, weight: 2}
+      herb: {accepts: 'tag:herb', count: 1}
+      base: {accepts: 'type:glass_sand', count: 1}
+    source: ORIGINAL
+  brew_greater_mana_potion:
+    name: 상급 마나 물약
+    discipline: alchemy
+    min_level: 20
+    action_level: 22
+    output: greater_mana_potion
+    tool: tool_alchemy
+    xp: 66
+    slots:
+      dust: {accepts: 'type:mana_dust', count: 3, weight: 2}
+      glow: {accepts: 'type:glowcap', count: 2}
+      base: {accepts: 'type:mana_potion', count: 1}
+    source: ORIGINAL
+  brew_mana_dust:
+    name: 마나 가루
+    discipline: alchemy
+    min_level: 8
+    action_level: 10
+    output: mana_dust
+    output_count: 3
+    tool: tool_alchemy
+    xp: 30
+    slots:
+      gem: {accepts: 'tag:gem', count: 1, weight: 2}
+      glow: {accepts: 'type:glowcap', count: 1}
+    source: ORIGINAL
+  brew_lantern_oil:
+    name: 등잔 기름
+    discipline: alchemy
+    min_level: 2
+    action_level: 4
+    output: lantern_oil
+    output_count: 3
+    xp: 12
+    slots:
+      fat: {accepts: 'tag:meat', count: 1}
+      wax: {accepts: 'tag:wax', count: 1, optional: true, bonus: 30}
+    source: ORIGINAL
+  brew_bone_dust:
+    name: 뼛가루
+    discipline: alchemy
+    min_level: 1
+    action_level: 3
+    output: bone_dust
+    output_count: 2
+    xp: 9
+    slots:
+      bone: {accepts: 'tag:bone', count: 1}
+    source: ORIGINAL
+  brew_fine_ink:
+    name: 고운 잉크
+    discipline: alchemy
+    min_level: 5
+    action_level: 7
+    output: fine_ink
+    output_count: 2
+    tool: tool_alchemy
+    xp: 21
+    slots:
+      ink: {accepts: 'type:ink_sac', count: 2}
+      dust: {accepts: 'type:bone_dust', count: 1}
+    source: ORIGINAL
+  brew_fire_essence:
+    name: 화염 정수
+    discipline: alchemy
+    min_level: 16
+    action_level: 18
+    output: fire_essence
+    tool: tool_alchemy
+    xp: 54
+    slots:
+      ember: {accepts: 'type:ember_stone', count: 2, weight: 2}
+      sulfur: {accepts: 'type:sulfur', count: 1}
+    source: ORIGINAL
+  brew_frost_essence:
+    name: 서리 정수
+    discipline: alchemy
+    min_level: 16
+    action_level: 18
+    output: frost_essence
+    tool: tool_alchemy
+    xp: 54
+    slots:
+      frost: {accepts: 'type:frost_crystal', count: 2, weight: 2}
+      salt: {accepts: 'tag:seasoning', count: 1}
+    source: ORIGINAL
+  brew_storm_essence:
+    name: 폭풍 정수
+    discipline: alchemy
+    min_level: 18
+    action_level: 20
+    output: storm_essence
+    tool: tool_alchemy
+    xp: 60
+    slots:
+      glass: {accepts: 'type:storm_glass', count: 2, weight: 2}
+      copper: {accepts: 'type:copper_ingot', count: 1}
+    source: ORIGINAL
+  brew_herbal_tea:
+    name: 약초차
+    discipline: alchemy
+    min_level: 2
+    action_level: 4
+    output: herbal_tea
+    output_count: 2
+    xp: 12
+    slots:
+      herb: {accepts: 'tag:herb', count: 2}
+    source: ORIGINAL
+  brew_barley_ale:
+    name: 보리 에일
+    discipline: brewing
+    min_level: 1
+    action_level: 3
+    output: barley_ale
+    output_count: 2
+    xp: 9
+    time_ticks: 84
+    slots:
+      barley: {accepts: 'type:barley', count: 3, weight: 2}
+      hops: {accepts: 'type:hops', count: 1, optional: true, bonus: 50}
+    source: ORIGINAL
+  brew_dark_stout:
+    name: 흑맥주
+    discipline: brewing
+    min_level: 8
+    action_level: 10
+    output: dark_stout
+    output_count: 2
+    tool: tool_brew
+    xp: 30
+    time_ticks: 112
+    slots:
+      barley: {accepts: 'type:barley', count: 4, weight: 2}
+      hops: {accepts: 'type:hops', count: 2}
+      roast: {accepts: 'type:coal_lump', count: 1}
+    source: ORIGINAL
+  brew_grape_wine:
+    name: 포도주
+    discipline: brewing
+    min_level: 10
+    action_level: 12
+    output: grape_wine
+    output_count: 2
+    tool: tool_brew
+    xp: 36
+    time_ticks: 120
+    slots:
+      grapes: {accepts: 'type:grapes', count: 5, weight: 3}
+      sweet: {accepts: 'tag:sweet', count: 1, optional: true, bonus: 30}
+    source: ORIGINAL
+  brew_honey_mead:
+    name: 꿀술
+    discipline: brewing
+    min_level: 9
+    action_level: 11
+    output: honey_mead
+    output_count: 2
+    tool: tool_brew
+    xp: 33
+    time_ticks: 116
+    slots:
+      honey: {accepts: 'type:honey_comb', count: 3, weight: 3}
+      spice: {accepts: 'tag:spice', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  brew_fire_brandy:
+    name: 불꽃 브랜디
+    discipline: brewing
+    min_level: 18
+    action_level: 20
+    output: fire_brandy
+    output_count: 2
+    tool: tool_brew
+    xp: 60
+    time_ticks: 152
+    slots:
+      wine: {accepts: 'type:grape_wine', count: 2, weight: 2}
+      pepper: {accepts: 'type:pepper', count: 2}
+      ember: {accepts: 'type:ember_stone', count: 1}
+    source: ORIGINAL
+  brew_dwarf_spirit:
+    name: 드워프 화주
+    discipline: brewing
+    min_level: 24
+    action_level: 26
+    output: dwarf_spirit
+    output_count: 2
+    tool: tool_brew
+    xp: 78
+    time_ticks: 176
+    slots:
+      stout: {accepts: 'type:dark_stout', count: 2, weight: 2}
+      glow: {accepts: 'type:glowcap', count: 1}
+      ember: {accepts: 'type:fire_essence', count: 1}
+    source: ORIGINAL
+  brew_cider:
+    name: 사과주
+    discipline: brewing
+    min_level: 3
+    action_level: 5
+    output: cider
+    output_count: 2
+    xp: 15
+    time_ticks: 92
+    slots:
+      apple: {accepts: 'type:apple', count: 4, weight: 2}
+    source: ORIGINAL
+  cut_ruby:
+    name: 루비 연마
+    discipline: jewelcraft
+    min_level: 6
+    action_level: 8
+    output: ruby
+    xp: 12
+    slots:
+      rough: {accepts: 'type:raw_gem', count: 2, weight: 2}
+    source: ORIGINAL
+  cut_sapphire:
+    name: 사파이어 연마
+    discipline: jewelcraft
+    min_level: 6
+    action_level: 8
+    output: sapphire
+    xp: 12
+    slots:
+      rough: {accepts: 'type:raw_gem', count: 2, weight: 2}
+      frost: {accepts: 'type:frost_crystal', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  cut_emerald:
+    name: 에메랄드 연마
+    discipline: jewelcraft
+    min_level: 8
+    action_level: 10
+    output: emerald_gem
+    xp: 14
+    slots:
+      rough: {accepts: 'type:raw_gem', count: 2, weight: 2}
+      moss: {accepts: 'type:bog_moss', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  polish_moonstone:
+    name: 월석 다듬기
+    discipline: jewelcraft
+    min_level: 12
+    action_level: 14
+    output: moonstone
+    xp: 42
+    slots:
+      rough: {accepts: 'type:raw_gem', count: 2, weight: 2}
+      silver: {accepts: 'type:silver_ingot', count: 1}
+    source: ORIGINAL
+  press_amber:
+    name: 호박 굳히기
+    discipline: jewelcraft
+    min_level: 4
+    action_level: 6
+    output: amber
+    xp: 18
+    slots:
+      sap: {accepts: 'tag:sap', count: 1}
+      resin: {accepts: 'type:honey_comb', count: 2}
+    source: ORIGINAL
+  jewel_copper_ring:
+    name: 구리 반지
+    discipline: jewelcraft
+    min_level: 1
+    action_level: 3
+    output: copper_ring
+    xp: 9
+    time_ticks: 63
+    slots:
+      band: {accepts: 'type:copper_ingot', count: 1, weight: 2}
+    source: ORIGINAL
+  jewel_ruby_ring:
+    name: 루비 반지
+    discipline: jewelcraft
+    min_level: 9
+    action_level: 11
+    output: ruby_ring
+    tool: tool_jewel
+    xp: 33
+    time_ticks: 87
+    slots:
+      band: {accepts: 'type:gold_ingot', count: 1, weight: 2}
+      gem: {accepts: 'type:ruby', count: 1, weight: 3}
+    source: ORIGINAL
+  jewel_sapphire_ring:
+    name: 사파이어 반지
+    discipline: jewelcraft
+    min_level: 9
+    action_level: 11
+    output: sapphire_ring
+    tool: tool_jewel
+    xp: 33
+    time_ticks: 87
+    slots:
+      band: {accepts: 'type:gold_ingot', count: 1, weight: 2}
+      gem: {accepts: 'type:sapphire', count: 1, weight: 3}
+    source: ORIGINAL
+  jewel_emerald_ring:
+    name: 에메랄드 반지
+    discipline: jewelcraft
+    min_level: 10
+    action_level: 12
+    output: emerald_ring
+    tool: tool_jewel
+    xp: 36
+    time_ticks: 90
+    slots:
+      band: {accepts: 'type:gold_ingot', count: 1, weight: 2}
+      gem: {accepts: 'type:emerald_gem', count: 1, weight: 3}
+    source: ORIGINAL
+  jewel_moonstone_ring:
+    name: 월석 반지
+    discipline: jewelcraft
+    min_level: 13
+    action_level: 15
+    output: moonstone_ring
+    tool: tool_jewel
+    xp: 45
+    time_ticks: 99
+    slots:
+      band: {accepts: 'type:silver_ingot', count: 1, weight: 2}
+      gem: {accepts: 'type:moonstone', count: 1, weight: 3}
+    source: ORIGINAL
+  jewel_star_signet:
+    name: 별의 인장 반지
+    discipline: jewelcraft
+    min_level: 26
+    action_level: 28
+    output: star_signet
+    tool: tool_jewel
+    xp: 84
+    time_ticks: 138
+    slots:
+      band: {accepts: 'type:gold_ingot', count: 2, weight: 2}
+      gem: {accepts: 'type:star_shard', count: 1, weight: 4}
+      inlay: {accepts: 'type:mithril_ingot', count: 1}
+    source: ORIGINAL
+  jewel_pearl_necklace:
+    name: 진주 목걸이
+    discipline: jewelcraft
+    min_level: 12
+    action_level: 14
+    output: pearl_necklace
+    tool: tool_jewel
+    xp: 42
+    time_ticks: 96
+    slots:
+      chain: {accepts: 'type:gold_ingot', count: 1, weight: 2}
+      pearls: {accepts: 'type:pearl', count: 3, weight: 3}
+    source: ORIGINAL
+  jewel_amber_pendant:
+    name: 호박 펜던트
+    discipline: jewelcraft
+    min_level: 6
+    action_level: 8
+    output: amber_pendant
+    tool: tool_jewel
+    xp: 24
+    time_ticks: 78
+    slots:
+      chain: {accepts: 'type:silver_ingot', count: 1, weight: 2}
+      gem: {accepts: 'type:amber', count: 1, weight: 3}
+    source: ORIGINAL
+  jewel_ember_heart:
+    name: 불씨 심장 목걸이
+    discipline: jewelcraft
+    min_level: 16
+    action_level: 18
+    output: ember_heart
+    tool: tool_jewel
+    xp: 54
+    time_ticks: 108
+    slots:
+      chain: {accepts: 'type:gold_ingot', count: 1, weight: 2}
+      gem: {accepts: 'type:ember_stone', count: 2, weight: 3}
+      essence: {accepts: 'type:fire_essence', count: 1}
+    source: ORIGINAL
+  jewel_frost_tear:
+    name: 서리 눈물 목걸이
+    discipline: jewelcraft
+    min_level: 16
+    action_level: 18
+    output: frost_tear
+    tool: tool_jewel
+    xp: 54
+    time_ticks: 108
+    slots:
+      chain: {accepts: 'type:silver_ingot', count: 1, weight: 2}
+      gem: {accepts: 'type:frost_crystal', count: 2, weight: 3}
+      essence: {accepts: 'type:frost_essence', count: 1}
+    source: ORIGINAL
+  jewel_griffin_bracer:
+    name: 그리폰 팔찌
+    discipline: jewelcraft
+    min_level: 18
+    action_level: 20
+    output: griffin_bracer
+    tool: tool_jewel
+    xp: 60
+    time_ticks: 114
+    slots:
+      band: {accepts: 'type:gold_ingot', count: 1, weight: 2}
+      feather: {accepts: 'type:griffin_feather', count: 2, weight: 3}
+    source: ORIGINAL
+  jewel_mana_orb:
+    name: 마나 구슬
+    discipline: jewelcraft
+    min_level: 14
+    action_level: 16
+    output: mana_orb
+    tool: tool_jewel
+    xp: 48
+    time_ticks: 102
+    slots:
+      dust: {accepts: 'type:mana_dust', count: 3, weight: 3}
+      glass: {accepts: 'tag:glass', count: 1}
+    source: ORIGINAL
+  jewel_storm_orb:
+    name: 폭풍 구슬
+    discipline: jewelcraft
+    min_level: 20
+    action_level: 22
+    output: storm_orb
+    tool: tool_jewel
+    xp: 66
+    time_ticks: 120
+    slots:
+      glass: {accepts: 'type:storm_glass', count: 2, weight: 3}
+      essence: {accepts: 'type:storm_essence', count: 1}
+    source: ORIGINAL
+  jewel_lucky_feather:
+    name: 행운의 깃털
+    discipline: jewelcraft
+    min_level: 8
+    action_level: 10
+    output: lucky_feather
+    tool: tool_jewel
+    xp: 30
+    time_ticks: 84
+    slots:
+      feather: {accepts: 'type:griffin_feather', count: 1, weight: 2}
+      gild: {accepts: 'type:gold_leaf', count: 1}
+    source: ORIGINAL
+  grind_jeweler_loupe:
+    name: 보석 세공 돋보기
+    discipline: jewelcraft
+    min_level: 3
+    action_level: 5
+    output: jeweler_loupe
+    xp: 15
+    slots:
+      lens: {accepts: 'tag:glass', count: 1, weight: 2}
+      frame: {accepts: 'type:copper_ingot', count: 1}
+    source: ORIGINAL
+  grind_whetstone_fine:
+    name: 고운 숫돌
+    discipline: jewelcraft
+    min_level: 5
+    action_level: 7
+    output: whetstone_fine
+    output_count: 2
+    xp: 21
+    slots:
+      stone: {accepts: 'type:obsidian_shard', count: 1, weight: 2}
+      sand: {accepts: 'type:glass_sand', count: 1}
+    source: ORIGINAL
+  press_parchment:
+    name: 양피지 만들기
+    discipline: cartography
+    min_level: 1
+    action_level: 3
+    output: parchment
+    output_count: 3
+    xp: 4
+    slots:
+      hide: {accepts: 'tag:hide', count: 1}
+    source: ORIGINAL
+  draw_region_map:
+    name: 지역 지도
+    discipline: cartography
+    min_level: 3
+    action_level: 5
+    output: region_map
+    tool: tool_quill
+    xp: 15
+    slots:
+      paper: {accepts: 'type:parchment', count: 2, weight: 2}
+      ink: {accepts: 'tag:ink', count: 1}
+    source: ORIGINAL
+  draw_treasure_map:
+    name: 보물 지도
+    discipline: cartography
+    min_level: 15
+    action_level: 17
+    output: treasure_map
+    tool: tool_quill
+    xp: 51
+    discovery: required
+    slots:
+      paper: {accepts: 'type:parchment', count: 3, weight: 2}
+      ink: {accepts: 'type:fine_ink', count: 2}
+      gild: {accepts: 'type:gold_leaf', count: 1}
+    source: ORIGINAL
+  draw_star_chart:
+    name: 별자리 해도
+    discipline: cartography
+    min_level: 20
+    action_level: 22
+    output: star_chart
+    tool: tool_quill
+    xp: 66
+    slots:
+      paper: {accepts: 'type:parchment', count: 3, weight: 2}
+      ink: {accepts: 'type:fine_ink', count: 2}
+      star: {accepts: 'type:star_shard', count: 1}
+    source: ORIGINAL
+  scribe_return_scroll:
+    name: 귀환 두루마리
+    discipline: cartography
+    min_level: 10
+    action_level: 12
+    output: scroll_of_return
+    tool: tool_quill
+    xp: 36
+    slots:
+      paper: {accepts: 'type:parchment', count: 1, weight: 2}
+      ink: {accepts: 'type:fine_ink', count: 1}
+      dust: {accepts: 'type:mana_dust', count: 1}
+    source: ORIGINAL
+  assemble_compass:
+    name: 길잡이 나침반
+    discipline: cartography
+    min_level: 12
+    action_level: 14
+    output: compass_of_ways
+    tool: tool_quill
+    xp: 42
+    slots:
+      needle: {accepts: 'type:iron_ingot', count: 1, weight: 2}
+      stone: {accepts: 'type:moonstone', count: 1}
+      case: {accepts: 'type:copper_ingot', count: 1}
+    source: ORIGINAL
+  forge_engineer_wrench:
+    name: 기계공 렌치
+    discipline: engineering
+    min_level: 1
+    action_level: 3
+    output: engineer_wrench
+    xp: 6
+    slots:
+      metal: {accepts: 'type:iron_ingot', count: 2, weight: 2}
+    source: ORIGINAL
+  wind_spring_coil:
+    name: 태엽 용수철
+    discipline: engineering
+    min_level: 4
+    action_level: 6
+    output: spring_coil
+    output_count: 2
+    tool: tool_wrench
+    xp: 18
+    slots:
+      metal: {accepts: 'type:iron_ingot', count: 1, weight: 2}
+    source: ORIGINAL
+  build_clockwork_core:
+    name: 태엽 심장
+    discipline: engineering
+    min_level: 18
+    action_level: 20
+    output: clockwork_core
+    tool: tool_wrench
+    xp: 60
+    slots:
+      gears: {accepts: 'type:old_gear', count: 4, weight: 2}
+      springs: {accepts: 'type:spring_coil', count: 3, weight: 2}
+      gem: {accepts: 'tag:cut_gem', count: 1}
+    source: ORIGINAL
+  build_clockwork_hammer:
+    name: 태엽 해머
+    discipline: engineering
+    min_level: 15
+    action_level: 17
+    output: clockwork_hammer
+    tool: tool_wrench
+    xp: 51
+    slots:
+      head: {accepts: 'type:iron_ingot', count: 4, weight: 3}
+      core: {accepts: 'type:spring_coil', count: 2}
+      haft: {accepts: 'tag:wood', count: 1}
+    source: ORIGINAL
+  build_clockwork_crossbow:
+    name: 태엽 석궁
+    discipline: engineering
+    min_level: 18
+    action_level: 20
+    output: clockwork_crossbow
+    tool: tool_wrench
+    xp: 60
+    slots:
+      frame: {accepts: 'tag:wood', count: 2, weight: 2}
+      springs: {accepts: 'type:spring_coil', count: 3, weight: 2}
+      core: {accepts: 'type:clockwork_core', count: 1, optional: true, bonus: 80}
+    source: ORIGINAL
+  pack_fire_bomb:
+    name: 화염 폭탄
+    discipline: engineering
+    min_level: 8
+    action_level: 10
+    output: fire_bomb
+    output_count: 2
+    tool: tool_wrench
+    xp: 30
+    slots:
+      powder: {accepts: 'type:sulfur', count: 2, weight: 2}
+      niter: {accepts: 'type:saltpeter', count: 1}
+      shell: {accepts: 'tag:glass', count: 1}
+    source: ORIGINAL
+  pack_smoke_bomb:
+    name: 연막탄
+    discipline: engineering
+    min_level: 4
+    action_level: 6
+    output: smoke_bomb
+    output_count: 2
+    xp: 18
+    slots:
+      powder: {accepts: 'type:saltpeter', count: 1}
+      ash: {accepts: 'type:bone_dust', count: 1}
+    source: ORIGINAL
+  pack_frost_bomb:
+    name: 서리 폭탄
+    discipline: engineering
+    min_level: 12
+    action_level: 14
+    output: frost_bomb
+    output_count: 2
+    tool: tool_wrench
+    xp: 42
+    slots:
+      essence: {accepts: 'type:frost_essence', count: 1, weight: 2}
+      shell: {accepts: 'tag:glass', count: 1}
+    source: ORIGINAL
+  build_bear_trap:
+    name: 곰 덫
+    discipline: engineering
+    min_level: 6
+    action_level: 8
+    output: bear_trap
+    tool: tool_wrench
+    xp: 24
+    slots:
+      jaws: {accepts: 'type:iron_ingot', count: 2, weight: 2}
+      spring: {accepts: 'type:spring_coil', count: 1}
+    source: ORIGINAL
+  build_repair_kit:
+    name: 수리 도구
+    discipline: engineering
+    min_level: 10
+    action_level: 12
+    output: repair_kit
+    tool: tool_wrench
+    xp: 36
+    slots:
+      metal: {accepts: 'tag:metal', count: 2}
+      oil: {accepts: 'type:lantern_oil', count: 1}
+      whet: {accepts: 'tag:whetstone', count: 1}
+    source: ORIGINAL
+  blow_glass_pane:
+    name: 유리판 불기
+    discipline: engineering
+    min_level: 2
+    action_level: 4
+    output: glass_pane
+    output_count: 4
+    xp: 12
+    slots:
+      sand: {accepts: 'type:glass_sand', count: 2}
+      fuel: {accepts: 'tag:fuel', count: 1}
+    source: ORIGINAL
+  blow_storm_glass:
+    name: 폭풍 유리 불기
+    discipline: engineering
+    min_level: 14
+    action_level: 16
+    output: storm_glass
+    xp: 48
+    slots:
+      sand: {accepts: 'type:glass_sand', count: 3, weight: 2}
+      essence: {accepts: 'type:storm_essence', count: 1, optional: true, bonus: 60}
+      fuel: {accepts: 'tag:fuel', count: 2}
+    source: ORIGINAL
+  build_firework:
+    name: 축포
+    discipline: engineering
+    min_level: 6
+    action_level: 8
+    output: firework_rocket
+    output_count: 3
+    xp: 24
+    slots:
+      powder: {accepts: 'type:saltpeter', count: 1}
+      paper: {accepts: 'type:parchment', count: 1}
+      color: {accepts: 'tag:dye', count: 1, optional: true, bonus: 40}
+    source: ORIGINAL
+  forge_crystal_alembic:
+    name: 수정 증류기
+    discipline: engineering
+    min_level: 16
+    action_level: 18
+    output: crystal_alembic
+    tool: tool_wrench
+    xp: 54
+    slots:
+      glass: {accepts: 'type:storm_glass', count: 2, weight: 3}
+      frame: {accepts: 'type:copper_ingot', count: 2}
+    source: ORIGINAL
+  forge_silk_needle:
+    name: 비단 바늘
+    discipline: engineering
+    min_level: 8
+    action_level: 10
+    output: silk_needle
+    tool: tool_wrench
+    xp: 30
+    slots:
+      metal: {accepts: 'type:silver_ingot', count: 1, weight: 2}
+    source: ORIGINAL
+  forge_silver_rod:
+    name: 은빛 낚싯대
+    discipline: engineering
+    min_level: 10
+    action_level: 12
+    output: silver_rod
+    tool: tool_wrench
+    xp: 36
+    slots:
+      reel: {accepts: 'type:silver_ingot', count: 1, weight: 2}
+      pole: {accepts: 'type:birch_timber', count: 2}
+      line: {accepts: 'type:spider_silk', count: 1}
+    source: ORIGINAL
+  forge_master_carving_set:
+    name: 명장의 조각 도구
+    discipline: engineering
+    min_level: 20
+    action_level: 22
+    output: master_carving_set
+    tool: tool_wrench
+    xp: 66
+    slots:
+      blades: {accepts: 'type:mithril_ingot', count: 2, weight: 3}
+      grip: {accepts: 'type:dark_timber', count: 1}
+    source: ORIGINAL
+  carve_candle:
+    name: 초 빚기
+    discipline: sculpting
+    min_level: 1
+    action_level: 3
+    output: candle_wax
+    output_count: 2
+    xp: 4
+    slots:
+      wax: {accepts: 'tag:wax', count: 1}
+    source: ORIGINAL
+  render_beeswax:
+    name: 밀랍 녹이기
+    discipline: cooking
+    min_level: 2
+    action_level: 4
+    output: beeswax
+    xp: 12
+    slots:
+      comb: {accepts: 'type:honey_comb', count: 2}
+    source: ORIGINAL

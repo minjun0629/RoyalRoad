@@ -35,7 +35,7 @@ public final class SkillBook {
         return Collections.unmodifiableCollection(skills.values());
     }
 
-    /** @param weaponTag 손에 든 무기 태그 (sword · dagger · bow · staff · spear, 없으면 null) — DB 스레드 */
+    /** @param weaponTag 손에 든 무기 태그 (sword · dagger · bow · staff · spear · axe · mace · scythe · whip · fan · harp, 없으면 null) — DB 스레드 */
     public List<SkillDefinition> loadout(String uuid, String weaponTag) {
         Set<String> jobSkills = s.jobs.skills(uuid);
         List<SkillDefinition> basic = new ArrayList<>(), job = new ArrayList<>();

@@ -1,0 +1,219 @@
+# 오리지널 콘텐츠 (원작 『달빛조각사』에 없는 이 게임의 것) — 같은 이름의 원작 파일 content/regions.yml 에 합쳐진다.
+# tools/gen_originals/*.py 로 생성. 같은 id 가 원작 파일에 있으면 시작할 때 오류 (원작을 덮어쓰지 않는다).
+regions:
+  glass_bloom_canyon:
+    name: 유리꽃 협곡
+    source: ORIGINAL
+    danger: 5
+    min: [-12887, -64, -7326]
+    max: [-11987, 320, -6426]
+    priority: 20
+    parent: lost_road_badlands
+    tags: [canyon, badlands]
+    purpose: 번개 맞은 모래가 유리꽃으로 굳은 협곡. 유리 공예 재료와 번개 정령
+    changed: 원작에 없는 이 게임의 땅
+    resources: [glass_sand, storm_glass]
+  hollowroot_marsh:
+    name: 속빈뿌리 늪
+    source: ORIGINAL
+    danger: 4
+    min: [-8663, -64, -7063]
+    max: [-7563, 320, -5963]
+    priority: 20
+    parent: west_frontier
+    tags: [swamp, forest]
+    purpose: 뿌리가 텅 빈 거목들이 물에 잠긴 늪. 독초 · 늪 괴물 · 이끼 군락
+    changed: 원작에 없는 이 게임의 땅
+    resources: [bog_moss, hollow_wood]
+  ember_vale:
+    name: 불씨 골짜기
+    source: ORIGINAL
+    danger: 4
+    min: [-17671, -64, -9183]
+    max: [-16871, 320, -8383]
+    priority: 20
+    parent: west_tribes
+    tags: [volcano, valley]
+    purpose: 식지 않는 땅불이 새어 나오는 골짜기. 화염석 · 불도마뱀 무리
+    changed: 원작에 없는 이 게임의 땅
+    resources: [ember_stone]
+  whispering_birchwood:
+    name: 속삭이는 자작숲
+    source: ORIGINAL
+    danger: 3
+    min: [-2973, -64, -15139]
+    max: [-1573, 320, -13739]
+    priority: 20
+    parent: north_reach
+    tags: [forest, mist]
+    purpose: 바람이 불면 나무껍질이 말소리처럼 운다는 흰 숲. 길을 잃기 쉽다
+    changed: 원작에 없는 이 게임의 땅
+    resources: [birch_timber, spirit_sap]
+  shattered_moon_crater:
+    name: 부서진 달 분지
+    source: ORIGINAL
+    danger: 4
+    min: [-11614, -64, 8731]
+    max: [-10614, 320, 9731]
+    priority: 20
+    parent: central_plains
+    tags: [crater, ruins]
+    purpose: 하늘에서 떨어진 달조각이 파놓은 둥근 분지. 월석 · 별빛 유물 · 낙하물 수호자
+    changed: 원작에 없는 이 게임의 땅
+    resources: [moonstone, sky_metal]
+  saltglass_flats:
+    name: 소금유리 평원
+    source: ORIGINAL
+    danger: 4
+    min: [16336, -64, 13862]
+    max: [17936, 320, 15462]
+    priority: 20
+    parent: sand_sea
+    tags: [salt, desert]
+    purpose: 마른 바다가 남긴 하얀 소금 평원. 신기루 · 소금 정령 · 대상단의 무덤
+    changed: 원작에 없는 이 게임의 땅
+    resources: [sea_salt, glass_sand]
+  thornwall_heath:
+    name: 가시담 황야
+    source: ORIGINAL
+    danger: 3
+    min: [-7164, -64, 678]
+    max: [-6264, 320, 1578]
+    priority: 20
+    parent: kallamore_lands
+    tags: [highland, frontier]
+    purpose: 가시덤불이 성벽처럼 자라 길을 막는 황야. 가시 짐승 · 떠돌이 도적
+    changed: 원작에 없는 이 게임의 땅
+    resources: [thorn_berry, hide]
+  drowned_bell_lake:
+    name: 가라앉은 종 호수
+    source: ORIGINAL
+    danger: 3
+    min: [5488, -64, -1081]
+    max: [6388, 320, -181]
+    priority: 20
+    parent: britten_alliance
+    tags: [lake, ruins]
+    purpose: 물속 종탑의 종이 안개 낀 밤마다 울리는 호수. 물귀신 · 진주조개
+    changed: 원작에 없는 이 게임의 땅
+    resources: [pearl, salmon]
+  cinder_ash_wastes:
+    name: 잿가루 황무지
+    source: ORIGINAL
+    danger: 6
+    min: [15758, -64, -2476]
+    max: [16558, 320, -1676]
+    priority: 20
+    parent: plains_of_despair
+    tags: [badlands, volcano]
+    purpose: 옛 전쟁의 불길이 땅을 태운 잿빛 황무지. 잿불 망령 · 화약 원석
+    changed: 원작에 없는 이 게임의 땅
+    resources: [sulfur, ember_stone]
+  verdant_hollow:
+    name: 푸른 우묵땅
+    source: ORIGINAL
+    danger: 2
+    min: [-4064, -64, 7697]
+    max: [-3164, 320, 8597]
+    priority: 20
+    parent: aidern_lands
+    tags: [forest, valley, farmland]
+    purpose: 샘물이 모여 사계절 푸른 우묵한 골짜기. 약초꾼과 양봉꾼이 산다
+    changed: 원작에 없는 이 게임의 땅
+    resources: [honey_comb, moonleaf]
+  frostfang_pass:
+    name: 서리송곳니 고개
+    source: ORIGINAL
+    danger: 5
+    min: [12160, -64, -511]
+    max: [13060, 320, 389]
+    priority: 20
+    parent: brent_highlands
+    tags: [mountain, frozen]
+    purpose: 고드름이 송곳니처럼 늘어진 높은 고개. 눈사태 · 서리 늑대 무리
+    changed: 원작에 없는 이 게임의 땅
+    resources: [frost_crystal, highland_timber]
+  sunken_archive:
+    name: 가라앉은 서고
+    source: ORIGINAL
+    danger: 4
+    min: [-8076, -64, 12306]
+    max: [-7376, 320, 13006]
+    priority: 20
+    parent: southern_duchies
+    tags: [ruins, scholar, underground]
+    purpose: 학자 도시의 옛 서고가 땅 밑으로 꺼진 곳. 살아 있는 책 · 잉크 괴물
+    changed: 원작에 없는 이 게임의 땅
+    resources: [ink_sac, parchment]
+  starfall_steppe:
+    name: 별비 초원
+    source: ORIGINAL
+    danger: 3
+    min: [-13887, -64, 9914]
+    max: [-12687, 320, 11114]
+    priority: 20
+    parent: gradian_lands
+    tags: [plains, highland]
+    purpose: 유성이 자주 떨어지는 초원. 떨어진 별조각을 찾는 유목민
+    changed: 원작에 없는 이 게임의 땅
+    resources: [star_shard, hide]
+  rust_gear_ruins:
+    name: 녹슨 톱니 유적
+    source: ORIGINAL
+    danger: 4
+    min: [-1870, -64, -242]
+    max: [-1170, 320, 458]
+    priority: 20
+    parent: haven_lands
+    tags: [ruins, underground]
+    purpose: 이름 모를 장인들이 남긴 거대한 톱니 장치의 폐허. 태엽 인형이 아직 돌아다닌다
+    changed: 원작에 없는 이 게임의 땅
+    resources: [old_gear, copper_ore]
+  mistveil_isles:
+    name: 안개 장막 군도
+    source: ORIGINAL
+    danger: 4
+    min: [16105, -64, -7158]
+    max: [17205, 320, -6058]
+    priority: 20
+    parent: east_coast_waters
+    tags: [sea, mist, coast]
+    purpose: 늘 안개에 싸인 작은 섬들. 해적 은신처 · 바다 괴물
+    changed: 원작에 없는 이 게임의 땅
+    resources: [pearl, deep_eel]
+  bloodthorn_jungle:
+    name: 핏빛가시 밀림
+    source: ORIGINAL
+    danger: 5
+    min: [-9113, -64, 20690]
+    max: [-7613, 320, 22190]
+    priority: 20
+    parent: south_continent
+    tags: [forest, swamp, frontier]
+    purpose: 남쪽 대륙의 붉은 덩굴 밀림. 식인 식물 · 거대 벌레
+    changed: 원작에 없는 이 게임의 땅
+    resources: [bloodthorn_vine, jungle_timber]
+  skyreach_spires:
+    name: 하늘닿는 첨탑
+    source: ORIGINAL
+    danger: 6
+    min: [22162, -64, 5518]
+    max: [23062, 320, 6418]
+    priority: 20
+    parent: east_peaks
+    tags: [mountain, sky]
+    purpose: 구름 위로 솟은 바위 첨탑들. 바람 정령 · 그리폰 둥지
+    changed: 원작에 없는 이 게임의 땅
+    resources: [sky_metal, griffin_feather]
+  obsidian_teeth:
+    name: 흑요석 이빨
+    source: ORIGINAL
+    danger: 6
+    min: [-23515, -64, -6809]
+    max: [-22315, 320, -5609]
+    priority: 20
+    parent: west_new_continent
+    tags: [volcano, canyon]
+    purpose: 서쪽 신대륙의 검은 유리 바위 지대. 용암 거인 · 흑요석
+    changed: 원작에 없는 이 게임의 땅
+    resources: [obsidian_shard, ember_stone]

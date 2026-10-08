@@ -70,7 +70,7 @@ public final class SkillListener implements Listener {
     private String weaponTag(Player p) {
         String t = codec.typeId(p.getInventory().getItemInMainHand());
         if (t == null) return null;
-        for (String tag : List.of("sword", "dagger", "bow", "staff", "spear")) if (codec.types().get(t).hasTag(tag)) return tag;
+        for (String tag : List.of("sword", "dagger", "bow", "staff", "spear", "axe", "mace", "scythe", "whip", "fan", "harp")) if (codec.types().get(t).hasTag(tag)) return tag;
         return null;
     }
 

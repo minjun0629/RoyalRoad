@@ -159,7 +159,7 @@ public final class VoxelSmith {
         b.box(8 - hw * 0.3, y + 0.9, 7.35, 8 + hw * 0.3, y + 1.4, 8.65, g[3]);
         // 칼날: 반 칸씩 단면 — 능선 · 비탈(베벨) · 날 세 겹, 홈(풀러)은 앞뒤로 파인 어두운 줄
         double len = top - y;
-        boolean wavy = b.item != null && b.item.id().equals("hellfire_sword"), rust = b.item != null && b.item.hasTag("rust");
+        boolean wavy = b.item != null && (b.item.id().equals("hellfire_sword") || b.item.hasTag("wavy")), rust = b.item != null && b.item.hasTag("rust");
         Color rune = b.item != null && (b.item.hasTag("cursed") || "spikes".equals(guardStyle(b.item))) ? new Color(0xff4030) : a[4];
         for (double yy = y; yy < top - 0.01; yy += 0.5) {
             double y1 = Math.min(top, yy + 0.5), tt = (yy - y) / len;
@@ -208,7 +208,8 @@ public final class VoxelSmith {
             case "agatha_holy_sword", "lu_divine_sword", "royal_treasure_sword", "thor_war_god_sword", "patia_sword", "sunset_soul_sword" -> "wings";
             case "coldrim_demon_sword", "darkness_sword", "black_knight_sword", "hellfire_sword", "annihilation_sword" -> "spikes";
             case "glacier_sword", "cold_lot_sword", "isren_magic_arms" -> "crystal";
-            default -> t.hasTag("elven") ? "leaf" : t.hasTag("cursed") ? "spikes" : "cross";
+            default -> t.hasTag("elven") ? "leaf" : t.hasTag("cursed") || t.hasTag("demonic") ? "spikes" : t.hasTag("winged") ? "wings"
+                    : t.hasTag("frost") ? "crystal" : "cross";
         };
     }
 
@@ -609,22 +610,26 @@ public final class VoxelSmith {
     }
 
     public static String json(Build b, String art, String card) {
-        Map<Color, Integer> idx = colors(b);
+        return json(b, VoxelPaint.paint(b.boxes), art, card);
+    }
+
+    /** 상자마다 여섯 면이 칠한 텍스처(아틀라스)의 제자리를 가리킨다 */
+    public static String json(Build b, VoxelPaint.Painted paint, String art, String card) {
         StringBuilder e = new StringBuilder();
-        double maxZ = 9;
-        for (Box x : fitted(b)) {
-            int i = idx.getOrDefault(x.c(), 0);
-            double u = i % 16, v = i / 16;
-            String uv = "[" + n(u + 0.2) + "," + n(v + 0.2) + "," + n(u + 0.8) + "," + n(v + 0.8) + "]";
+        double maxZ = 9, k = 16.0 / paint.size();
+        List<Box> boxes = fitted(b);
+        for (int i = 0; i < boxes.size(); i++) {
+            Box x = boxes.get(i);
             maxZ = Math.max(maxZ, x.z1());
             if (e.length() > 0) e.append(',');
             e.append("{\"from\":[").append(n(x.x0())).append(',').append(n(x.y0())).append(',').append(n(x.z0())).append("],\"to\":[")
                     .append(n(x.x1())).append(',').append(n(x.y1())).append(',').append(n(x.z1()))
                     .append("],\"rotation\":{\"angle\":-45,\"axis\":\"z\",\"origin\":[8,8,8]},\"faces\":{");
-            String[] faces = {"north", "south", "east", "west", "up", "down"};
-            for (int f = 0; f < faces.length; f++) {
+            for (int f = 0; f < 6; f++) {
+                int[] r = paint.rects()[i][f];
                 if (f > 0) e.append(',');
-                e.append('"').append(faces[f]).append("\":{\"uv\":").append(uv).append(",\"texture\":\"#art\"}");
+                e.append('"').append(VoxelPaint.FACES[f]).append("\":{\"uv\":[").append(n(r[0] * k)).append(',').append(n(r[1] * k)).append(',')
+                        .append(n((r[0] + r[2]) * k)).append(',').append(n((r[1] + r[3]) * k)).append("],\"texture\":\"#art\"}");
             }
             e.append("}}");
         }
