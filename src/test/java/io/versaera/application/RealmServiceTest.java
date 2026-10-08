@@ -22,13 +22,13 @@ class RealmServiceTest {
     void landIsBoughtOnceProtectedAndSoldForHalf() throws Exception {
         try (TestWorld w = new TestWorld()) {
             String a = TestWorld.player(), b = TestWorld.player();
-            w.s.economy.deposit(a, 100_000, "test", "a");
-            w.s.economy.deposit(b, 100_000, "test", "b");
+            w.s.economy.deposit(a, 100_000 * io.versaera.domain.economy.Money.SILVER, "test", "a");
+            w.s.economy.deposit(b, 100_000 * io.versaera.domain.economy.Money.SILVER, "test", "b");
             int[] c = chunkOf(w, "rosenheim_frontier", 0);
             long price = w.s.realm.plotPrice("world", c[0], c[1]);
             assertTrue(price > 0);
             w.s.realm.buyPlot(a, "world", c[0], c[1], "k1");
-            assertEquals(100_000 - price, w.s.economy.balance(a));
+            assertEquals(100_000 * io.versaera.domain.economy.Money.SILVER - price, w.s.economy.balance(a));
             assertThrows(DomainException.class, () -> w.s.realm.buyPlot(b, "world", c[0], c[1], "k2"), "주인 있는 땅");
             int[] hole = chunkOf(w, "embinyu_sanctum", 3);
             assertThrows(DomainException.class, () -> w.s.realm.buyPlot(a, "world", hole[0], hole[1], "k3"), "금역은 못 산다");
@@ -44,8 +44,8 @@ class RealmServiceTest {
     void shopHoldsGoodsOnServerAndPaysOwnerAndCastleTax() throws Exception {
         try (TestWorld w = new TestWorld()) {
             String seller = TestWorld.player(), buyer = TestWorld.player();
-            w.s.economy.deposit(seller, 100_000, "test", "s");
-            w.s.economy.deposit(buyer, 100_000, "test", "b");
+            w.s.economy.deposit(seller, 100_000 * io.versaera.domain.economy.Money.SILVER, "test", "s");
+            w.s.economy.deposit(buyer, 100_000 * io.versaera.domain.economy.Money.SILVER, "test", "b");
             int[] c = chunkOf(w, "harden", 4);
             w.s.realm.buyPlot(seller, "world", c[0], c[1], "p");
             int x = c[0] * 16 + 3, z = c[1] * 16 + 3;
@@ -59,16 +59,16 @@ class RealmServiceTest {
             var bread = w.s.realm.stockBulk(seller, shop.id(), "barley_bread", 400, 10, 5);
             // 성 세금: 하르덴 성을 길드가 가지고 세율 10%
             String lord = TestWorld.player();
-            w.s.economy.deposit(lord, 10_000, "test", "l");
+            w.s.economy.deposit(lord, 10_000 * io.versaera.domain.economy.Money.SILVER, "test", "l");
             var g = w.s.guilds.create(lord, "하르덴가", "HRD", "g1");
-            w.s.economy.deposit(GuildService.wallet(g.id()), 200_000, "test", "gw");
+            w.s.economy.deposit(GuildService.wallet(g.id()), 200_000 * io.versaera.domain.economy.Money.SILVER, "test", "gw");
             w.s.realm.buyCastle(lord, "harden", "c1");
             w.s.realm.setTax(lord, "harden", 10);
             long before = w.s.economy.balance(seller);
             w.s.realm.buy(buyer, st.id(), 1, "buy1");
             assertEquals(Custody.delivery(buyer), w.s.items.find(sword.id()).orElseThrow().custody(), "산 물건은 배달함으로");
             assertEquals(before + 900, w.s.economy.balance(seller));
-            assertEquals(100_000 - 1000, w.s.economy.balance(buyer));
+            assertEquals(100_000 * io.versaera.domain.economy.Money.SILVER - 1000, w.s.economy.balance(buyer));
             assertThrows(DomainException.class, () -> w.s.realm.buy(buyer, st.id(), 1, "buy2"), "한 번 팔린 건 끝");
             w.s.realm.buy(buyer, bread.id(), 4, "buy3");
             assertEquals(6, w.s.realm.stock(shop.id()).get(0).amount());
@@ -83,12 +83,12 @@ class RealmServiceTest {
     void castlesIncomeSiegeNationsAndTheFirstEmperor() throws Exception {
         try (TestWorld w = new TestWorld()) {
             String a = TestWorld.player(), b = TestWorld.player();
-            w.s.economy.deposit(a, 10_000, "test", "da");
-            w.s.economy.deposit(b, 10_000, "test", "db");
+            w.s.economy.deposit(a, 10_000 * io.versaera.domain.economy.Money.SILVER, "test", "da");
+            w.s.economy.deposit(b, 10_000 * io.versaera.domain.economy.Money.SILVER, "test", "db");
             var ga = w.s.guilds.create(a, "아르펜", "ARP", "ga");
             var gb = w.s.guilds.create(b, "하벤", "HVN", "gb");
-            w.s.economy.deposit(GuildService.wallet(ga.id()), 2_000_000, "test", "wa");
-            w.s.economy.deposit(GuildService.wallet(gb.id()), 2_000_000, "test", "wb");
+            w.s.economy.deposit(GuildService.wallet(ga.id()), 2_000_000 * io.versaera.domain.economy.Money.SILVER, "test", "wa");
+            w.s.economy.deposit(GuildService.wallet(gb.id()), 2_000_000 * io.versaera.domain.economy.Money.SILVER, "test", "wb");
             assertThrows(DomainException.class, () -> w.s.realm.foundNation(a, "아르펜 왕국"), "성이 없으면 나라를 못 세운다");
             w.s.realm.buyCastle(a, "serabourg", "c1");
             assertThrows(DomainException.class, () -> w.s.realm.buyCastle(b, "serabourg", "c2"), "주인 있는 성은 공성으로");
@@ -96,9 +96,9 @@ class RealmServiceTest {
             // 수입: 하루가 지나면 성 값의 1%
             long wallet = w.s.economy.balance(GuildService.wallet(ga.id()));
             w.now.addAndGet(86_400_000L + 1);
-            assertEquals(RealmRules.dailyIncome(100_000), w.s.realm.collectIncome());
+            assertEquals(RealmRules.dailyIncome(100_000 * io.versaera.domain.economy.Money.SILVER), w.s.realm.collectIncome());
             assertEquals(0, w.s.realm.collectIncome(), "같은 날 두 번 주지 않는다");
-            assertEquals(wallet + 1000, w.s.economy.balance(GuildService.wallet(ga.id())));
+            assertEquals(wallet + 1000 * io.versaera.domain.economy.Money.SILVER, w.s.economy.balance(GuildService.wallet(ga.id())));
             // 공성: 하벤이 선포 → 전쟁 중엔 악명 없음 → 점령
             var sg = w.s.realm.declareSiege(b, "serabourg", "s1");
             assertTrue(w.s.realm.atWar(ga.id(), gb.id(), "basic_training_hall"), "성 안(하위 지역)은 전쟁터");

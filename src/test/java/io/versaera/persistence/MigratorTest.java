@@ -49,6 +49,23 @@ class MigratorTest {
     }
 
     @Test
+    void moneyUnitsMigrationKeepsValue() throws Exception {
+        try (Database db = Database.open("jdbc:sqlite::memory:")) {
+            Migrator m = new Migrator(db);
+            List<Migrator.Migration> all = Migrator.fromClasspath(getClass().getClassLoader());
+            m.migrate(all.stream().filter(x -> x.version() < 10).toList());
+            try (var st = db.connection().createStatement()) {
+                st.execute("INSERT INTO wallet (uuid, balance) VALUES ('p', 123)");
+            }
+            m.migrate(all);
+            try (var st = db.connection().createStatement(); var rs = st.executeQuery("SELECT balance FROM wallet WHERE uuid = 'p'")) {
+                assertTrue(rs.next());
+                assertEquals(123 * io.versaera.domain.economy.Money.SILVER, rs.getLong(1), "예전 123 = 123 실버");
+            }
+        }
+    }
+
+    @Test
     void refusesWhenAppliedMigrationWasEdited() throws Exception {
         try (Database db = Database.open("jdbc:sqlite::memory:")) {
             Migrator m = new Migrator(db);

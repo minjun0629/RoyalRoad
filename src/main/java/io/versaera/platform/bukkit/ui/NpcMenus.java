@@ -174,7 +174,7 @@ public final class NpcMenus {
         String id = p.getUniqueId().toString();
         async.run("npc-train", () -> s.npcWorld.train(id, npcId), l -> {
             p.closeInventory();
-            p.sendMessage(Ui.c("&e지도 &7" + s.growth.discipline(l.discipline()).name() + " &a+" + l.xp() + " &8(-" + l.cost() + " 골드)"));
+            p.sendMessage(Ui.c("&e지도 &7" + s.growth.discipline(l.discipline()).name() + " &a+" + l.xp() + " &8(-" + io.versaera.domain.economy.Money.format(l.cost()) + ")"));
         }, p);
     }
 
@@ -194,7 +194,7 @@ public final class NpcMenus {
                         org.bukkit.potion.PotionEffectType.HUNGER, org.bukkit.potion.PotionEffectType.CONFUSION))
                     p.removePotionEffect(t);
             }
-            p.sendMessage(Ui.info((service.equals("INN") ? "푹 쉬었다" : "상처가 아물었다") + " (-" + cost + " 골드)"));
+            p.sendMessage(Ui.info((service.equals("INN") ? "푹 쉬었다" : "상처가 아물었다") + " (-" + io.versaera.domain.economy.Money.format(cost) + ")"));
         }, p);
     }
 
@@ -239,7 +239,7 @@ public final class NpcMenus {
             String prog = a == null ? "" : o.type() == QuestDefinition.Type.DELIVER ? "" : " &f" + Math.min(o.amount(), a.progress().get(i)) + "/" + o.amount();
             lines.add("&8· &7" + o.label() + prog);
         }
-        if (q.reward().money() > 0) lines.add("&e" + q.reward().money() + " 골드");
+        if (q.reward().money() > 0) lines.add("&e" + io.versaera.domain.economy.Money.format(q.reward().money()));
         return Menu.ui(a == null ? "quest" : "quest_active", a == null ? Material.BOOK : Material.WRITABLE_BOOK, (a == null ? "&f" : "&a") + q.title(), lines);
     }
 
@@ -311,14 +311,14 @@ public final class NpcMenus {
             MarketCatalog.Shop sh = (MarketCatalog.Shop) r[0];
             @SuppressWarnings("unchecked") List<long[]> prices = (List<long[]>) r[1];
             Menu m = new Menu(3, "&8" + s.market.catalog().market(sh.market()).name());
-            m.set(4, Menu.ui("money", Material.GOLD_INGOT, "&e" + r[2], List.of()), null);
+            m.set(4, Menu.ui("money", Material.GOLD_INGOT, "&e" + io.versaera.domain.economy.Money.format((long) r[2]), List.of()), null);
             for (int i = 0; i < sh.sells().size() && i < 9; i++) {
                 MarketCatalog.Offer o = sh.sells().get(i);
                 int idx = i;
                 boolean unique = codec.types().get(o.typeId()).category().unique();
                 ItemStack icon = codec.bulk(o.typeId(), o.quality(), 1);
                 var meta = icon.getItemMeta();
-                meta.setLore(List.of(Ui.c("&e" + prices.get(i)[0]), Ui.c(unique ? "&8클릭: 1개" : "&8클릭: 1개 · 쉬프트: 16개")));
+                meta.setLore(List.of(Ui.c("&e" + io.versaera.domain.economy.Money.format(prices.get(i)[0])), Ui.c(unique ? "&8클릭: 1개" : "&8클릭: 1개 · 쉬프트: 16개")));
                 icon.setItemMeta(meta);
                 m.set(9 + i, icon, e -> buy(p, npcId, idx, !unique && e.isShiftClick() ? 16 : 1));
             }
@@ -340,7 +340,7 @@ public final class NpcMenus {
     private void buy(Player p, String npcId, int idx, int amount) {
         String id = p.getUniqueId().toString(), req = UUID.randomUUID().toString();
         async.run("shop-buy", () -> traded(id, npcId, s.market.buy(id, npcId, idx, amount, req), req), paid -> {
-            p.sendMessage(Ui.info("-" + paid + " 골드"));
+            p.sendMessage(Ui.info("-" + io.versaera.domain.economy.Money.format(paid)));
             deliver.accept(p);
             shop(p, npcId);
         }, p);
@@ -353,7 +353,7 @@ public final class NpcMenus {
         if (unique != null) {
             p.getInventory().setItemInMainHand(null);
             async.run("shop-sell-u", () -> traded(id, npcId, s.market.sellUnique(id, npcId, unique, req), req), got -> {
-                p.sendMessage(Ui.info("+" + got + " 골드"));
+                p.sendMessage(Ui.info("+" + io.versaera.domain.economy.Money.format(got)));
                 shop(p, npcId);
             }, err -> p.getInventory().addItem(hand), p);   // 실패: 서버 상태는 그대로(PLAYER) → 그 아이템을 다시 쥐여 준다
             return;
@@ -363,7 +363,7 @@ public final class NpcMenus {
         int q = codec.bulkQuality(hand), n = hand.getAmount();
         p.getInventory().setItemInMainHand(null);
         async.run("shop-sell", () -> traded(id, npcId, s.market.sellBulk(id, npcId, type, q, n, req), req), got -> {
-            p.sendMessage(Ui.info("+" + got + " 골드"));
+            p.sendMessage(Ui.info("+" + io.versaera.domain.economy.Money.format(got)));
             shop(p, npcId);
         }, err -> deliver.accept(p), p);   // 실패하면 서비스가 배달함으로 돌려준다
     }

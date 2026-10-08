@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MarketAuctionTest {
     private static String rich(TestWorld w, long amount) {
         String p = TestWorld.player();
-        w.s.economy.deposit(p, amount, "test", "seed:" + p);
+        w.s.economy.deposit(p, amount * io.versaera.domain.economy.Money.SILVER, "test", "seed:" + p);
         return p;
     }
 
@@ -39,7 +39,7 @@ class MarketAuctionTest {
             long paid = w.s.market.buy(p, "kael_trader", 0, 10, "b1");
             assertTrue(paid > 0);
             assertEquals(0, w.s.market.buy(p, "kael_trader", 0, 10, "b1"), "같은 요청은 한 번만");
-            assertEquals(10_000 - paid, w.s.economy.balance(p));
+            assertEquals(10_000 * io.versaera.domain.economy.Money.SILVER - paid, w.s.economy.balance(p));
             assertEquals(10, w.s.items.pendingBulk(p).get(0).amount());
             assertEquals(-10, w.s.market.supply("harden", "wheat_sheaf"));
             // 장비는 고유 아이템으로
@@ -83,8 +83,8 @@ class MarketAuctionTest {
             assertEquals("auction.self", assertThrows(DomainException.class, () -> w.s.auctions.buy(seller, l.id())).code());
             w.s.auctions.buy(buyer, l.id());
             assertEquals("auction.closed", assertThrows(DomainException.class, () -> w.s.auctions.buy(other, l.id())).code());
-            assertEquals(4000, w.s.economy.balance(buyer));
-            assertEquals(5000, w.s.economy.balance(other));
+            assertEquals(5000 * io.versaera.domain.economy.Money.SILVER - 1000, w.s.economy.balance(buyer));
+            assertEquals(5000 * io.versaera.domain.economy.Money.SILVER, w.s.economy.balance(other));
             assertEquals(1000 - 50, w.s.economy.balance(seller), "5% 수수료");
             assertEquals(ItemService.Verdict.AWAITING_DELIVERY, w.s.items.validate(it.id(), buyer));
         }
@@ -94,7 +94,7 @@ class MarketAuctionTest {
     void failedPurchaseRollsBackEverything() throws Exception {
         try (TestWorld w = new TestWorld()) {
             String seller = TestWorld.player(), poor = rich(w, 10);
-            var l = w.s.auctions.listBulk(seller, "rosaim", "salmon", 500, 20, 400);
+            var l = w.s.auctions.listBulk(seller, "rosaim", "salmon", 500, 20, 400 * io.versaera.domain.economy.Money.SILVER);
             assertEquals("money.insufficient", assertThrows(DomainException.class, () -> w.s.auctions.buy(poor, l.id())).code());
             assertEquals(1, w.s.auctions.browse("rosaim", "salmon", 10).size(), "실패하면 매물은 그대로");
             assertTrue(w.s.items.pendingBulk(poor).isEmpty());

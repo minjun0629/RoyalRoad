@@ -169,8 +169,8 @@ public final class GameCommands implements CommandExecutor {
             case "위임", "leader" -> target(p, a, tid -> async.run("guild-leader", () -> { s.guilds.transferLeader(id, tid); return null; },
                     v -> p.sendMessage(Ui.info("길드장 위임")), p));
             case "해산", "disband" -> async.run("guild-disband", () -> { s.guilds.disband(id); return null; }, v -> p.sendMessage(Ui.info("해산")), p);
-            case "입금", "deposit" -> amount(p, a, n -> async.run("guild-dep", () -> s.guilds.deposit(id, n, req), b -> p.sendMessage(Ui.info("금고 " + b)), p));
-            case "출금", "withdraw" -> amount(p, a, n -> async.run("guild-wd", () -> s.guilds.withdraw(id, n, req), b -> p.sendMessage(Ui.info("금고 " + b)), p));
+            case "입금", "deposit" -> amount(p, a, n -> async.run("guild-dep", () -> s.guilds.deposit(id, n, req), b -> p.sendMessage(Ui.info("금고 " + io.versaera.domain.economy.Money.format(b))), p));
+            case "출금", "withdraw" -> amount(p, a, n -> async.run("guild-wd", () -> s.guilds.withdraw(id, n, req), b -> p.sendMessage(Ui.info("금고 " + io.versaera.domain.economy.Money.format(b))), p));
             case "채팅", "c" -> {
                 String msg = String.join(" ", Arrays.copyOfRange(a, 1, a.length));
                 if (msg.isBlank()) return;
@@ -213,11 +213,11 @@ public final class GameCommands implements CommandExecutor {
 
     private static void amount(Player p, String[] a, Consumer<Long> then) {
         try {
-            long n = Long.parseLong(a[1]);
+            long n = io.versaera.domain.economy.Money.parse(a[1]);
             if (n <= 0) throw new NumberFormatException();
             then.accept(n);
         } catch (RuntimeException e) {
-            p.sendMessage(Ui.error("금액을 숫자로 적으세요"));
+            p.sendMessage(Ui.error("금액: 3골드20실버 · 50실버 · 30쿠퍼 (숫자만 쓰면 실버)"));
         }
     }
 
@@ -242,12 +242,13 @@ public final class GameCommands implements CommandExecutor {
         if (market == null) { p.sendMessage(Ui.error("시장이 있는 도시에서만 쓸 수 있습니다")); return; }
         if (a.length >= 2 && (a[0].equals("등록") || a[0].equals("sell"))) {
             long price;
-            try { price = Long.parseLong(a[1].replace(",", "")); } catch (NumberFormatException e) { p.sendMessage(Ui.error("/경매 등록 <가격>")); return; }
+            price = io.versaera.domain.economy.Money.parse(a[1]);
+            if (price <= 0) { p.sendMessage(Ui.error("/경매 등록 <가격> (예: 3골드20실버 · 50실버 · 숫자만 쓰면 실버)")); return; }
             ItemStack hand = p.getInventory().getItemInMainHand();
             String unique = codec.instanceId(hand);
             if (unique != null) {
                 p.getInventory().setItemInMainHand(null);
-                async.run("auction-list", () -> s.auctions.listUnique(id, market, unique, price), l -> p.sendMessage(Ui.info("등록 · " + price)),
+                async.run("auction-list", () -> s.auctions.listUnique(id, market, unique, price), l -> p.sendMessage(Ui.info("등록 · " + io.versaera.domain.economy.Money.format(price))),
                         err -> p.getInventory().addItem(hand), p);   // 실패: 서버에선 그대로 내 것 → 돌려줌
                 return;
             }
@@ -256,7 +257,7 @@ public final class GameCommands implements CommandExecutor {
             int q = codec.bulkQuality(hand), n = hand.getAmount();
             List<MaterialInput> taken = InventoryOps.take(p, codec, type, n, q);
             if (taken == null) return;
-            async.run("auction-list", () -> s.auctions.listBulk(id, market, type, q, n, price), l -> p.sendMessage(Ui.info("등록 · " + price)),
+            async.run("auction-list", () -> s.auctions.listBulk(id, market, type, q, n, price), l -> p.sendMessage(Ui.info("등록 · " + io.versaera.domain.economy.Money.format(price))),
                     err -> deliver.accept(p), p);   // 실패하면 서비스가 배달함으로 돌려준다
             return;
         }
@@ -288,7 +289,7 @@ public final class GameCommands implements CommandExecutor {
         for (int i = 0; i < 45 && pg * 45 + i < list.size(); i++) {
             var l = list.get(pg * 45 + i);
             boolean own = l.seller().equals(id);
-            ItemStack icon = listingIcon(l, List.of("&e" + l.price() + " &7(개당 " + Math.max(1, l.price() / Math.max(1, l.amount())) + ")", "&7x" + l.amount(),
+            ItemStack icon = listingIcon(l, List.of("&e" + io.versaera.domain.economy.Money.format(l.price()) + " &7(개당 " + io.versaera.domain.economy.Money.format(Math.max(1, l.price() / Math.max(1, l.amount()))) + ")", "&7x" + l.amount(),
                     "&8" + left(l.expiresAt() - now), own ? "&8내 물건 · 클릭: 내리기" : "&8클릭: 사기"));
             m.set(i, icon, e -> {
                 if (own) async.run("auction-cancel", () -> { s.auctions.cancel(id, l.id()); return null; }, v -> { deliver.accept(p); auction(p, a); }, p);
@@ -323,9 +324,9 @@ public final class GameCommands implements CommandExecutor {
     private void confirmBuy(Player p, String[] a, MarketRepository.Listing l, long balance) {
         String id = p.getUniqueId().toString();
         Menu m = new Menu(3, "&8사시겠습니까?");
-        m.set(13, listingIcon(l, List.of("&e" + l.price(), "&7x" + l.amount(), "&7남는 돈 " + (balance - l.price()))), null);
-        m.set(11, Menu.icon(Material.LIME_WOOL, "&a사기", List.of("&e-" + l.price())),
-                e -> async.run("auction-buy", () -> s.auctions.buy(id, l.id()), v -> { p.sendMessage(Ui.info("-" + l.price())); deliver.accept(p); auction(p, a); }, p));
+        m.set(13, listingIcon(l, List.of("&e" + io.versaera.domain.economy.Money.format(l.price()), "&7x" + l.amount(), "&7남는 돈 " + io.versaera.domain.economy.Money.format(balance - l.price()))), null);
+        m.set(11, Menu.icon(Material.LIME_WOOL, "&a사기", List.of("&e-" + io.versaera.domain.economy.Money.format(l.price()))),
+                e -> async.run("auction-buy", () -> s.auctions.buy(id, l.id()), v -> { p.sendMessage(Ui.info("-" + io.versaera.domain.economy.Money.format(l.price()))); deliver.accept(p); auction(p, a); }, p));
         m.set(15, Menu.icon(Material.RED_WOOL, "&c그만두기", List.of()), e -> auction(p, a));
         m.open(p);
     }
@@ -340,7 +341,7 @@ public final class GameCommands implements CommandExecutor {
             for (var l : mine) {
                 if (slot > 17) break;
                 String mk = s.market.catalog().markets().containsKey(l.market()) ? s.market.catalog().market(l.market()).name() : l.market();
-                m.set(slot++, listingIcon(l, List.of("&e" + l.price(), "&7x" + l.amount(), "&7" + mk, "&8" + left(l.expiresAt() - now), "&8클릭: 내리기")),
+                m.set(slot++, listingIcon(l, List.of("&e" + io.versaera.domain.economy.Money.format(l.price()), "&7x" + l.amount(), "&7" + mk, "&8" + left(l.expiresAt() - now), "&8클릭: 내리기")),
                         e -> async.run("auction-cancel", () -> { s.auctions.cancel(id, l.id()); return null; }, v -> { deliver.accept(p); myListings(p); }, p));
             }
             if (!mine.isEmpty())

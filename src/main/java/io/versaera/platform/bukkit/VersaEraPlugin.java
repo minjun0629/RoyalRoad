@@ -374,7 +374,11 @@ public final class VersaEraPlugin extends JavaPlugin {
         codec.requirementNames(k -> k.startsWith("mastery.") ? services.growth.discipline(k.substring(8)).name()
                 : k.startsWith("stat.") ? services.growth.stats().stream().filter(st -> st.id().equals(k.substring(5))).map(st -> st.name()).findFirst().orElse(k)
                 : k.equals("fame") ? "명성" : k);
-        services.realm.emperorReward(getConfig().getLong("emperor.reward_gold", 1_000_000));
+        if (getConfig().getLong("emperor.reward_gold", 10_000) == 1_000_000) {   // 0.9 이전: 단위가 하나(지금의 실버)였다 → 같은 가치의 골드
+            getConfig().set("emperor.reward_gold", 10_000);
+            saveConfig();
+        }
+        services.realm.emperorReward(getConfig().getLong("emperor.reward_gold", 10_000));
         io.versaera.platform.bukkit.world.RealmRuntime realmR = new io.versaera.platform.bukkit.world.RealmRuntime(this, services, async, exec);
         io.versaera.platform.bukkit.command.RealmCommands realmCmd = new io.versaera.platform.bukkit.command.RealmCommands(services, async, codec, realmR);
         for (String c : List.of("land", "pshop", "castle", "nation", "emperor")) getCommand(c).setExecutor(realmCmd);

@@ -221,3 +221,7 @@
 - [Legendary Moonlight Sculptor Wiki — Category:Monster](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Category:Monster)
 - [Legendary Moonlight Sculptor Wiki — Minotaur](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Minotaur)
 - [Legendary Moonlight Sculptor Wiki — Hunter of Plains](https://the-legendary-moonlight-sculptor.fandom.com/wiki/Hunter_of_Plains)
+
+### 화폐 단위 (2026-10 재조사)
+
+원작의 화폐는 골드 · 실버 · 쿠퍼로 기억되지만, 검색으로 환율을 확인할 수 있는 출처를 찾지 못했다 (나무위키 본문 직접 열람 불가). 이 게임은 1골드 = 100실버 = 10000쿠퍼로 정했다 — **SOURCE-BASED(단위 이름) + ORIGINAL(환율 · 물가)**.

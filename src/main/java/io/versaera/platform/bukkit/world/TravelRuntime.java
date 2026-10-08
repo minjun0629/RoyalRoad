@@ -155,7 +155,7 @@ public final class TravelRuntime implements Listener {
         String uuid = p.getUniqueId().toString(), req = UUID.randomUUID().toString();
         async.run("travel-depart", () -> s.travel.depart(uuid, npcId, r.id(), here, req), j -> {
             begin(p, j, r);
-            p.sendMessage(Ui.info(r.kind().label + "에 올랐다 → " + s.regions.byId(r.to()).name() + " &7(" + Math.max(1, (j.arriveAt() - j.departAt()) / 1000) + "초 · -" + r.fare() + " 골드)"));
+            p.sendMessage(Ui.info(r.kind().label + "에 올랐다 → " + s.regions.byId(r.to()).name() + " &7(" + Math.max(1, (j.arriveAt() - j.departAt()) / 1000) + "초 · -" + io.versaera.domain.economy.Money.format(r.fare()) + ")"));
         }, p);
     }
 

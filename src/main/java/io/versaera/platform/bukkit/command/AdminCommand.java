@@ -160,7 +160,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             case "inspect" -> {
                 String id = a.length > 1 ? uuidOf(a[1]) : null;
                 if (id == null) { sender.sendMessage(Ui.error("/va inspect <이름>")); return; }
-                async.run("inspect", () -> List.of("돈 " + s.economy.balance(id), "숙련 " + s.progress.allMastery(id), "스탯 " + s.growth.statPoints(id),
+                async.run("inspect", () -> List.of("돈 " + io.versaera.domain.economy.Money.format(s.economy.balance(id)), "숙련 " + s.progress.allMastery(id), "스탯 " + s.growth.statPoints(id),
                         "기록 " + s.progress.allCounters(id).size() + "개", "보유 아이템 " + s.itemRepo.byCustody(io.versaera.domain.item.Custody.player(id)).size()),
                         lines -> lines.forEach(l -> sender.sendMessage(Ui.info(l))), sender);
             }
@@ -197,12 +197,15 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 }, sender);
             }
             case "money" -> {   // /va money <이름> <+금액|-금액>
-                if (a.length < 3) { sender.sendMessage(Ui.error("/va money <이름> <+금액|-금액>")); return; }
+                if (a.length < 3) { sender.sendMessage(Ui.error("/va 돈 <플레이어> <+금액|-금액> (예: +3골드 · -50실버 · 20 = 20실버)")); return; }
                 String id = uuidOf(a[1]);
-                long v = Long.parseLong(a[2]);
+                // "+3골드" · "-50" (단위 없으면 실버) · "20실버5쿠퍼"
+                boolean minus = a[2].startsWith("-");
+                long parsed = io.versaera.domain.economy.Money.parse(a[2].replaceFirst("^[+-]", ""));
+                long v = parsed < 0 ? 0 : minus ? -parsed : parsed;
                 if (id == null || v == 0) { sender.sendMessage(Ui.error("이름 또는 금액이 잘못되었습니다")); return; }
                 async.run("admin-money", () -> v > 0 ? s.economy.deposit(id, v, "admin", req) : s.economy.withdraw(id, -v, "admin", req),
-                        ok -> sender.sendMessage(Ui.info("잔액 반영")), sender);
+                        ok -> sender.sendMessage(Ui.info("잔액 반영 (" + (v > 0 ? "+" : "") + io.versaera.domain.economy.Money.format(v) + ")")), sender);
             }
             case "npc" -> {
                 String npc = a.length >= 3 ? resolve(s.relations.all(), n -> n.id(), n -> n.name(), a[2]) : null;

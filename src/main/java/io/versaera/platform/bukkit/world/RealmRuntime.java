@@ -172,7 +172,7 @@ public final class RealmRuntime implements Listener {
                 RealmRepository.Stock st = stock.get(i);
                 var type = s.items.types().get(st.typeId());
                 Material mat = Material.matchMaterial(type.material());
-                List<String> lore = new ArrayList<>(List.of("&e" + st.price() + " 골드" + (st.itemId() == null ? " / 개" : ""), "&7품질 " + st.quality() + " · 남은 " + st.amount() + "개"));
+                List<String> lore = new ArrayList<>(List.of("&e" + io.versaera.domain.economy.Money.format(st.price()) + (st.itemId() == null ? " / 개" : ""), "&7품질 " + st.quality() + " · 남은 " + st.amount() + "개"));
                 lore.add(owner ? "&8클릭: 내리기 (배달함으로)" : st.itemId() == null ? "&8클릭 1개 · 쉬프트 16개" : "&8클릭: 사기");
                 m.set(i, Menu.icon(mat == null ? Material.PAPER : mat, "&f" + type.name(), lore), ev -> {
                     if (owner) {
@@ -184,7 +184,7 @@ public final class RealmRuntime implements Listener {
                         int n = st.itemId() == null && ev.isShiftClick() ? Math.min(16, st.amount()) : 1;
                         String key = "shop-buy:" + me + ":" + st.id() + ":" + System.nanoTime();
                         async.run("shop-buy", () -> s.realm.buy(me, st.id(), n, key), ok -> {
-                            p.sendMessage(Ui.info(type.name() + " " + n + "개를 샀다 (" + st.price() * n + " 골드) — 배달함"));
+                            p.sendMessage(Ui.info(type.name() + " " + n + "개를 샀다 (" + io.versaera.domain.economy.Money.format(st.price() * n) + ") — 배달함"));
                             openShop(p, shopId);
                         }, p);
                     }

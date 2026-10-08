@@ -94,16 +94,16 @@ class CanonRulesTest {
             w.s.reputation.monsterKilled(a);
             assertEquals(99, w.s.reputation.standing(a).notoriety());
             // 신전 기부: 신전 밖에선 안 되고, 안에서는 악명을 씻고 0 이 되면 살인자도 풀린다
-            w.s.economy.deposit(a, 100_000, "test", "t1");
-            assertThrows(DomainException.class, () -> w.s.reputation.donate(a, "rosenheim", 1000, "d0"));
-            var d = w.s.reputation.donate(a, "basic_training_hall", 5000, "d1");
+            w.s.economy.deposit(a, 100_000 * io.versaera.domain.economy.Money.SILVER, "test", "t1");
+            assertThrows(DomainException.class, () -> w.s.reputation.donate(a, "rosenheim", 1000 * io.versaera.domain.economy.Money.SILVER, "d0"));
+            var d = w.s.reputation.donate(a, "basic_training_hall", 5000 * io.versaera.domain.economy.Money.SILVER, "d1");
             assertEquals("가이아", d.god().name(), "세라보그 성의 주신 신전 (하위 지역에서도)");
             assertEquals(99, d.cleansed());
             var after = w.s.reputation.standing(a);
             assertEquals(0, after.notoriety());
             assertFalse(after.murderer());
             assertTrue(d.blessingSeconds() > 0, "남은 돈은 축복으로");
-            assertThrows(DomainException.class, () -> w.s.reputation.donate(a, "serabourg", 5000, "d1"), "같은 기부는 한 번만");
+            assertThrows(DomainException.class, () -> w.s.reputation.donate(a, "serabourg", 5000 * io.versaera.domain.economy.Money.SILVER, "d1"), "같은 기부는 한 번만");
         }
     }
 

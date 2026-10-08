@@ -79,11 +79,11 @@ public final class RealmCommands implements CommandExecutor {
         switch (sub) {
             case "구입", "buy" -> async.run("land-buy", () -> s.realm.buyPlot(id, world, cx, cz, key("land", p)), plot -> {
                 realm.plotChanged(world, cx, cz);
-                p.sendMessage(Ui.info("땅을 샀다 (" + plot.price() + " 골드) — 이 청크(16×16)는 이제 당신과 허가받은 사람만 고칠 수 있다"));
+                p.sendMessage(Ui.info("땅을 샀다 (" + io.versaera.domain.economy.Money.format(plot.price()) + ") — 이 청크(16×16)는 이제 당신과 허가받은 사람만 고칠 수 있다"));
             }, p);
             case "팔기", "sell" -> async.run("land-sell", () -> s.realm.sellPlot(id, world, cx, cz, key("land-sell", p)), refund -> {
                 realm.plotChanged(world, cx, cz);
-                p.sendMessage(Ui.info("땅을 팔았다 (+" + refund + " 골드)"));
+                p.sendMessage(Ui.info("땅을 팔았다 (+" + io.versaera.domain.economy.Money.format(refund) + ")"));
             }, p);
             case "허가", "trust", "금지", "untrust" -> {
                 Player t = a.length > 1 ? Bukkit.getPlayerExact(a[1]) : null;
@@ -106,7 +106,7 @@ public final class RealmCommands implements CommandExecutor {
                     OfflinePlayer o = Bukkit.getOfflinePlayer(java.util.UUID.fromString(plot.get().owner()));
                     p.sendMessage(Ui.c("&6이 땅의 주인: &f" + (o.getName() == null ? "?" : o.getName())));
                 } else if (price < 0) p.sendMessage(Ui.c("&7여기는 살 수 없는 땅입니다"));
-                else p.sendMessage(Ui.c("&7주인 없는 땅 — &e" + price + " 골드&7 · /땅 구입 · 팔기 · 허가 <이름> · 금지 <이름> · 목록"));
+                else p.sendMessage(Ui.c("&7주인 없는 땅 — &e" + io.versaera.domain.economy.Money.format(price) + "&7 · /땅 구입 · 팔기 · 허가 <이름> · 금지 <이름> · 목록"));
             }, p);
         }
     }
@@ -130,14 +130,15 @@ public final class RealmCommands implements CommandExecutor {
                 Optional<String> shop = b == null ? Optional.empty() : realm.shopAt(b);
                 if (shop.isEmpty() || a.length < 2) { p.sendMessage(Ui.error("내 상점 블록을 보며 /상점 등록 <가격> [수량]")); return; }
                 long price;
-                try { price = Long.parseLong(a[1]); } catch (NumberFormatException e) { p.sendMessage(Ui.error("가격은 숫자")); return; }
+                price = io.versaera.domain.economy.Money.parse(a[1]);
+                if (price <= 0) { p.sendMessage(Ui.error("가격: 3골드20실버 · 50실버 · 30쿠퍼 (숫자만 쓰면 실버, 띄어 쓰지 말 것)")); return; }
                 ItemStack hand = p.getInventory().getItemInMainHand();
                 String iid = codec.instanceId(hand), type = codec.typeId(hand);
                 if (type == null) { p.sendMessage(Ui.error("이 게임의 아이템만 팔 수 있습니다")); return; }
                 if (iid != null) {
                     async.run("shop-stock", () -> s.realm.stockUnique(id, shop.get(), iid, price), st -> {
                         if (iid.equals(codec.instanceId(p.getInventory().getItemInMainHand()))) p.getInventory().setItemInMainHand(null);
-                        p.sendMessage(Ui.info("올렸다 — " + price + " 골드"));
+                        p.sendMessage(Ui.info("올렸다 — " + io.versaera.domain.economy.Money.format(price)));
                     }, p);
                     return;
                 }
@@ -153,7 +154,7 @@ public final class RealmCommands implements CommandExecutor {
                         s.items.deliverBulk(id, type, quality, amount, "shop_refund");
                         throw e;
                     }
-                }, st -> p.sendMessage(Ui.info(amount + "개를 올렸다 — 개당 " + price + " 골드")), p);
+                }, st -> p.sendMessage(Ui.info(amount + "개를 올렸다 — 개당 " + io.versaera.domain.economy.Money.format(price))), p);
             }
             case "닫기", "close" -> {
                 Optional<String> shop = b == null ? Optional.empty() : realm.shopAt(b);
@@ -210,7 +211,7 @@ public final class RealmCommands implements CommandExecutor {
                 async.run("castle-info", () -> new Object[]{s.realm.castle(c), s.realm.castlePrice(c)}, res -> {
                     @SuppressWarnings("unchecked") var own = (Optional<RealmRepository.Castle>) res[0];
                     String name = s.regions.byId(c).name() + (s.realm.capitals().contains(c) ? " &e(수도)" : "");
-                    if (own.isEmpty()) p.sendMessage(Ui.c("&6" + name + " &7— 주인 없음 · 길드 금고 " + res[1] + " 골드로 /성 구입"));
+                    if (own.isEmpty()) p.sendMessage(Ui.c("&6" + name + " &7— 주인 없음 · 길드 금고 " + io.versaera.domain.economy.Money.format((long) res[1]) + "로 /성 구입"));
                     else async.run("castle-owner", () -> s.guilds.find(own.get().guildId()).map(g -> g.name()).orElse("?"),
                             g -> p.sendMessage(Ui.c("&6" + name + " &7— " + g + " 길드 · 세금 " + own.get().taxPct() + "% · /성 공성 으로 도전")), p);
                 }, p);
@@ -237,7 +238,7 @@ public final class RealmCommands implements CommandExecutor {
                     long castles = s.realm.ownedCastles().stream().filter(c -> c.guildId().equals(n.guildId())).count();
                     long capitals = s.realm.ownedCastles().stream().filter(c -> c.guildId().equals(n.guildId()) && s.realm.capitals().contains(c.region())).count();
                     lines.add("&f" + n.name() + " &7— 성 " + castles + " · 수도 " + capitals + "/" + s.realm.capitals().size() + " · 금고 "
-                            + s.economy.balance(GuildService.wallet(n.guildId())));
+                            + io.versaera.domain.economy.Money.format(s.economy.balance(GuildService.wallet(n.guildId()))));
                 }
                 return lines;
             }, lines -> {

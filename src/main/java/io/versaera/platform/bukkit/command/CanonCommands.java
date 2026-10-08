@@ -56,7 +56,7 @@ public final class CanonCommands implements CommandExecutor {
                     for (var t : s.content.temples()) if (t.god().equals(g.id())) where.append(where.length() == 0 ? "" : ", ").append(s.regions.byId(t.region()).name());
                     sender.sendMessage(Ui.c((g.evil() ? "&c" : "&e") + g.name() + " &7— " + g.domain() + (where.length() > 0 ? " &8· 신전: " + where : "")));
                 }
-                sender.sendMessage(Ui.c("&7신전 안에서 &f/기부 <골드>&7: 악명을 씻고, 남은 돈만큼 축복을 받는다"));
+                sender.sendMessage(Ui.c("&7신전 안에서 &f/기부 <금액>&7: 악명을 씻고, 남은 돈만큼 축복을 받는다"));
                 return true;
             }
         }
@@ -77,20 +77,18 @@ public final class CanonCommands implements CommandExecutor {
             }, p);
             case "donate" -> {
                 if (a.length < 1) {
-                    p.sendMessage(Ui.error("/기부 <골드>"));
+                    p.sendMessage(Ui.error("/기부 <금액> (예: 50실버 · 2골드)"));
                     return true;
                 }
-                long amount;
-                try {
-                    amount = Long.parseLong(a[0]);
-                } catch (NumberFormatException ex) {
-                    p.sendMessage(Ui.error("숫자를 적으세요"));
+                long amount = io.versaera.domain.economy.Money.parse(String.join("", a));
+                if (amount <= 0) {
+                    p.sendMessage(Ui.error("금액을 적으세요 (예: 50실버 · 2골드 · 숫자만 쓰면 실버)"));
                     return true;
                 }
                 Region r = s.regions.at(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ());
                 String region = r == null ? null : r.id(), key = "donate:" + id + ":" + System.currentTimeMillis();
                 async.run("donate", () -> s.reputation.donate(id, region, amount, key), d -> {
-                    p.sendMessage(Ui.info(d.god().name() + "에게 " + d.paid() + " 골드를 바쳤다" + (d.cleansed() > 0 ? " — 악명 -" + d.cleansed() : "")));
+                    p.sendMessage(Ui.info(d.god().name() + "에게 " + io.versaera.domain.economy.Money.format(d.paid()) + "를 바쳤다" + (d.cleansed() > 0 ? " — 악명 -" + d.cleansed() : "")));
                     PotionEffectType t = PotionEffectType.getByName(d.god().blessing());
                     if (t != null && d.blessingSeconds() > 0) {
                         p.addPotionEffect(new PotionEffect(t, d.blessingSeconds() * 20, 0));
