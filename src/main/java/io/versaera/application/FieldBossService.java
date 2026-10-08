@@ -69,6 +69,14 @@ public final class FieldBossService {
      *
      * @param damage 사람 → 준 피해 (서버가 센 값)
      */
+    /** 보스 보상: 숙련 경험은 Progression.BOSS_XP 배 (레벨이 맞으면 한 마리가 사냥 30 ~ 60 분어치) */
+    static QuestDefinition.Reward reward(FieldBoss b) {
+        QuestDefinition.Reward r = b.reward();
+        Map<String, Integer> xp = new java.util.LinkedHashMap<>();
+        r.xp().forEach((d, v) -> xp.put(d, (int) Math.round(v * io.versaera.domain.balance.Progression.BOSS_XP)));
+        return new QuestDefinition.Reward(r.money(), r.items(), xp, r.affinity(), r.reputation(), r.fame(), r.unlocks());
+    }
+
     public Defeat defeated(String id, long generation, Map<String, Double> damage, Map<String, String> names, RandomGenerator rng) {
         FieldBoss b = boss(id);
         DomainException.require(!damage.isEmpty(), "fboss.no_one", "보상 받을 사람이 없습니다");
@@ -87,7 +95,7 @@ public final class FieldBossService {
             progress.addCounter(WORLD, "fboss." + id + ".gen", 1);
             progress.addCounter(WORLD, "fboss." + id + ".next", next - progress.counter(WORLD, "fboss." + id + ".next"));
             String key = "fboss:" + id + ":" + generation;
-            for (String u : rewarded) s.quests.pay(u, names.getOrDefault(u, "?"), b.reward(), key + ":" + u, after);
+            for (String u : rewarded) s.quests.pay(u, names.getOrDefault(u, "?"), reward(b), key + ":" + u, after);
             if (!dropped.isEmpty())
                 s.quests.pay(top, names.getOrDefault(top, "?"), new QuestDefinition.Reward(0, dropped, null, null, null, 0, null), key + ":drop", after);
             first[0] = progress.claimWorldFirst("field_boss", id, top, names.getOrDefault(top, "?"), now);
@@ -96,7 +104,7 @@ public final class FieldBossService {
         });
         after.publish(s.bus);
         for (String u : rewarded) {
-            s.quests.grantAfterCommit(u, b.reward());
+            s.quests.grantAfterCommit(u, reward(b));
             s.growth.record(u, "boss.field", 1);
             s.quests.record(u, QuestDefinition.Type.BOSS, id, 1, 0);
         }

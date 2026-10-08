@@ -46,6 +46,25 @@ public final class RealmService {
         this.clock = clock;
         this.npcSpots = List.copyOf(npcSpots);
         for (var c : s.content.origins().cities()) capitals.add(c.region());
+        // 서버가 꺼졌다 켜져도 공성은 이어진다 (끝나는 시각은 실제 시각 — 꺼진 동안에도 흐른다)
+        s.state.loadAll(SIEGE).forEach((region, d) -> sieges.put(region, new Siege(region, d.get("attacker"), d.get("defender"), Long.parseLong(d.get("ends")))));
+    }
+
+    static final String SIEGE = "siege";
+
+    private void saveSiege(Siege sg, int held) {
+        s.state.save(SIEGE, sg.region(), Map.of("attacker", sg.attacker(), "defender", sg.defender(), "ends", Long.toString(sg.endsAt()),
+                "held", Integer.toString(held)), sg.endsAt());
+    }
+
+    /** 공격 측이 성 한가운데를 지킨 초 (런타임이 몇 초마다 저장 · 켤 때 읽는다) */
+    public void saveCaptureProgress(String region, int seconds) {
+        Siege sg = sieges.get(region);
+        if (sg != null) saveSiege(sg, seconds);
+    }
+
+    public int captureProgress(String region) {
+        return s.state.load(SIEGE, region).map(d -> Integer.parseInt(d.getOrDefault("held", "0"))).orElse(0);
     }
 
     public void emperorReward(long gold) {
@@ -329,7 +348,7 @@ public final class RealmService {
 
     // ================================================================== 공성
     public Collection<Siege> sieges() {
-        sieges.values().removeIf(x -> x.endsAt() <= clock.nowMillis());
+        sieges.values().removeIf(x -> x.endsAt() <= clock.nowMillis());   // 저장된 줄은 만료 시각에 runtime_state 가 버린다
         return Collections.unmodifiableCollection(sieges.values());
     }
 
@@ -343,6 +362,7 @@ public final class RealmService {
             throw DomainException.of("siege.duplicate", "이미 처리했습니다");
         Siege sg = new Siege(region, g.id(), c.guildId(), clock.nowMillis() + RealmRules.SIEGE_MS);
         sieges.put(region, sg);
+        saveSiege(sg, 0);
         s.audit.record("SIEGE_DECLARED", uuid, region, g.id() + " vs " + c.guildId(), key);
         return sg;
     }
@@ -360,6 +380,7 @@ public final class RealmService {
     public Optional<Crowning> capture(String region) {
         Siege sg = sieges.remove(region);
         DomainException.require(sg != null, "siege.none", "공성 중이 아닙니다");
+        s.state.delete(SIEGE, region);
         tx.inTx(() -> {
             long now = clock.nowMillis();
             Castle c = repo.castle(region).orElseThrow();
@@ -372,6 +393,7 @@ public final class RealmService {
 
     public void endSiege(String region) {
         sieges.remove(region);
+        s.state.delete(SIEGE, region);
     }
 
     // ================================================================== 국가 · 황제

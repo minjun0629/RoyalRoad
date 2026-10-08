@@ -62,6 +62,7 @@ public final class VersaEraPlugin extends JavaPlugin {
     private final java.util.Map<String, VersaChunkGenerator> generators = new java.util.concurrent.ConcurrentHashMap<>();
     private BossRuntime bosses;
     private io.versaera.platform.bukkit.world.FieldBossRuntime fieldBosses;
+    private io.versaera.platform.bukkit.world.IronMenTrial trial;
     /** 게임 시각(0 ~ 23). 메인 스레드가 5초마다 갱신하고, DB 스레드의 히든 판정은 이 값만 읽는다 */
     private volatile int gameHour = 12;
     public static final String REALMS = "versa_realms";
@@ -355,12 +356,18 @@ public final class VersaEraPlugin extends JavaPlugin {
         io.versaera.platform.bukkit.command.CanonCommands canonCmd = new io.versaera.platform.bukkit.command.CanonCommands(services, async, originL, repL);
         io.versaera.platform.bukkit.combat.SecretArtRuntime artsR = new io.versaera.platform.bukkit.combat.SecretArtRuntime(this, services, async, codec);
         io.versaera.platform.bukkit.world.IronMenTrial trialR = new io.versaera.platform.bukkit.world.IronMenTrial(this, services, async);
+        trial = trialR;
         canonCmd.attach(artsR, trialR);
         artsR.combat(combat);
         // 필드 보스 · 생활 스킬 · 감정 (BOS-02 · SKL-05 · ITM-02)
         fieldBosses = new io.versaera.platform.bukkit.world.FieldBossRuntime(this, services, async, sessions::deliver);
         io.versaera.platform.bukkit.command.LifeCommands lifeCmd = new io.versaera.platform.bukkit.command.LifeCommands(services, async, codec, combat, fieldBosses, sessions::deliver);
         getCommand("menu").setExecutor(new io.versaera.platform.bukkit.ui.MainMenu());
+        // 튜토리얼 (처음 30 ~ 60 분): 위쪽 막대 · 단계 안내 · 필요한 물건
+        io.versaera.platform.bukkit.world.TutorialRuntime tutorialR = new io.versaera.platform.bukkit.world.TutorialRuntime(this, services, async, sessions::deliver);
+        Bukkit.getPluginManager().registerEvents(tutorialR, this);
+        getCommand("tutorial").setExecutor(tutorialR);
+        Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.HandModels(this, codec), this);   // 손에 든 장비 = 입체 모델
         for (String c : List.of("appraise", "bandage", "whet", "polish", "iron", "roar", "shatter", "fieldboss")) getCommand(c).setExecutor(lifeCmd);
         codec.requirementNames(k -> k.startsWith("mastery.") ? services.growth.discipline(k.substring(8)).name()
                 : k.startsWith("stat.") ? services.growth.stats().stream().filter(st -> st.id().equals(k.substring(5))).map(st -> st.name()).findFirst().orElse(k)
@@ -410,6 +417,16 @@ public final class VersaEraPlugin extends JavaPlugin {
             fieldMobs = new io.versaera.platform.bukkit.world.FieldMobRuntime(this, services, codec, async, sessions::deliver);
             Bukkit.getPluginManager().registerEvents(fieldMobs, this);
         }
+        // 경험치의 권장 레벨: 들판 몬스터 레벨 · 필드 보스 · 그 밖의 몹은 그 지역 위험도의 몬스터 레벨 (Progression)
+        combat.monsterLevel(ent -> {
+            int lv = fieldMobs == null ? -1 : fieldMobs.levelOf(ent);
+            if (lv < 0) lv = fieldBosses.levelOf(ent);
+            if (lv < 0) {
+                var r = services.regions.at(ent.getWorld().getName(), ent.getLocation().getBlockX(), ent.getLocation().getBlockY(), ent.getLocation().getBlockZ());
+                lv = (int) Math.round(io.versaera.domain.balance.Progression.monsterLevelFor(1 + (r == null ? 1 : r.danger()) * 4.5));
+            }
+            return lv;
+        });
                 InventoryGuard guard = new InventoryGuard(this, services, async, codec);
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
                 deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.HeadGear(codec), new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec).refill((pl, x) -> skills.refill(pl, x[0], x[1])),
@@ -625,7 +642,8 @@ public final class VersaEraPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (bosses != null) bosses.stopAll(false);
-        if (fieldBosses != null) fieldBosses.shutdown();
+        if (fieldBosses != null) fieldBosses.shutdown();   // 싸우던 보스는 저장 (다음에 켜면 이어짐)
+        if (trial != null) trial.shutdown();               // 시련 진행 저장
         if (dungeons != null) dungeons.stopAll();
         if (events != null) events.stop();
         if (npcRuntime != null) npcRuntime.removeAll();

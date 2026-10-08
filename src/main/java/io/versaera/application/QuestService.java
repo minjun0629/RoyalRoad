@@ -126,6 +126,17 @@ public final class QuestService {
         refreshStatic(uuid, q);
     }
 
+    /** 의뢰 상태: "ACTIVE" · "COMPLETED" · null (받은 적 없음) */
+    public String state(String uuid, String questId) {
+        return repo.find(uuid, questId).map(QuestRepository.Row::state).orElse(null);
+    }
+
+    /** 숨은 의뢰를 열고 바로 받는다 (튜토리얼처럼 NPC 없이 시스템이 맡기는 일) */
+    public void unlockAndAccept(String uuid, String questId, PlayerFacts f) {
+        progressRepo.discover(uuid, "quest", questId, clock.nowMillis());
+        accept(uuid, questId, f);
+    }
+
     public List<Active> active(String uuid) {
         List<Active> out = new ArrayList<>();
         for (QuestRepository.Row r : repo.all(uuid)) {

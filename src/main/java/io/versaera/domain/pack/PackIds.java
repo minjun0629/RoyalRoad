@@ -16,6 +16,11 @@ public final class PackIds {
         return modelData("item/" + typeId);
     }
 
+    /** 손에 들었을 때의 입체 모델 ("item/&lt;id&gt;_hand") — 인벤토리 카드와 따로 */
+    public static int itemHand(String typeId) {
+        return modelData("item/" + typeId + "_hand");
+    }
+
     /** 필드 보스 모델 ("fboss/&lt;id&gt;") */
     public static int fieldBoss(String id) {
         return modelData("fboss/" + id);

@@ -82,8 +82,59 @@ public final class FieldBossRuntime implements Listener {
             for (FieldBoss b : s.fieldBosses.all()) m.put(b.id(), new long[]{s.fieldBosses.nextSpawnAt(b.id()), s.fieldBosses.generation(b.id())});
             return m;
         }, schedule::putAll, null);
+        // 서버가 꺼질 때 싸우던 보스: 같은 자리 · 같은 체력 · 같은 피해 기록으로 다시 나타난다 (30분 안에 켜면)
+        async.run("fboss-restore", () -> s.state.loadAll(STATE), restored::putAll, null);
         Bukkit.getScheduler().runTaskTimer(plugin, this::second, 20L, 20L);
         Bukkit.getScheduler().runTaskTimer(plugin, this::turn, 1L, 1L);
+    }
+
+    static final String STATE = "fboss";
+    private final Map<String, Map<String, String>> restored = new ConcurrentHashMap<>();
+
+    private Map<String, String> snapshot(Live l) {
+        Map<String, String> d = new java.util.LinkedHashMap<>();
+        Location at = l.body.getLocation();
+        d.put("gen", Long.toString(l.gen));
+        d.put("hp", Double.toString(l.body.getHealth()));
+        d.put("at", at.getWorld().getName() + "," + at.getX() + "," + at.getY() + "," + at.getZ());
+        StringBuilder dmg = new StringBuilder();
+        l.damage.forEach((u, v) -> { if (dmg.length() > 0) dmg.append(','); dmg.append(u).append(':').append(v); });
+        d.put("damage", dmg.toString());
+        d.put("vessel", l.vessel == null ? "gone" : Integer.toString(l.vesselHits));
+        d.put("revived", Boolean.toString(l.revived));
+        d.put("enraged", Boolean.toString(l.enraged));
+        return d;
+    }
+
+    private void saveState(Live l) {
+        Map<String, String> d = snapshot(l);
+        String id = l.def.id();
+        async.fire("fboss-save", () -> { s.state.save(STATE, id, d, System.currentTimeMillis() + 30 * 60_000L); return null; });
+    }
+
+    private void dropState(String id) {
+        restored.remove(id);
+        async.fire("fboss-drop", () -> { s.state.delete(STATE, id); return null; });
+    }
+
+    /** 저장된 싸움을 이어 붙인다 (spawn 바로 뒤) */
+    private void resume(Live l, Map<String, String> d) {
+        try {
+            double hp = Double.parseDouble(d.get("hp"));
+            l.body.setHealth(Math.max(1, Math.min(l.body.getHealth(), hp)));
+            for (String part : d.getOrDefault("damage", "").split(",")) {
+                int c = part.lastIndexOf(':');
+                if (c > 0) l.damage.put(UUID.fromString(part.substring(0, c)), Double.parseDouble(part.substring(c + 1)));
+            }
+            l.revived = Boolean.parseBoolean(d.get("revived"));
+            l.enraged = Boolean.parseBoolean(d.get("enraged"));
+            if ("gone".equals(d.get("vessel"))) {
+                if (l.vessel != null) l.vessel.remove();
+                l.vessel = null;
+            } else if (d.get("vessel") != null) l.vesselHits = Integer.parseInt(d.get("vessel"));
+        } catch (RuntimeException ex) {
+            plugin.getLogger().warning("필드 보스 " + l.def.id() + " 이어 붙이기 실패: " + ex.getMessage());
+        }
     }
 
     private int frame;
@@ -188,6 +239,7 @@ public final class FieldBossRuntime implements Listener {
         for (Live l : new ArrayList<>(live.values())) {
             if (!l.body.isValid() || l.body.isDead()) {   // 죽음 이벤트 없이 사라짐 (청크 내려감 등) → 보상 없이 정리
                 cleanup(l, true);
+                dropState(l.def.id());
                 continue;
             }
             boolean near = false;
@@ -205,18 +257,25 @@ public final class FieldBossRuntime implements Listener {
                 for (Player p : l.body.getWorld().getPlayers())
                     if (p.getLocation().distanceSquared(l.body.getLocation()) <= 48 * 48 && !l.bar.getPlayers().contains(p)) l.bar.addPlayer(p);
             }
-            else if (now - l.sinceSeen > 60_000) { cleanup(l, true); continue; }
+            else if (now - l.sinceSeen > 60_000) { cleanup(l, true); dropState(l.def.id()); continue; }
             mechanics(l);
         }
         if (tick % 10 != 0 || schedule.isEmpty()) return;
+        for (Live l : live.values()) if (!l.damage.isEmpty()) saveState(l);   // 싸우는 중 → 10초마다 저장
         for (FieldBoss b : s.fieldBosses.all()) {
             if (live.containsKey(b.id())) continue;
             long[] sc = schedule.get(b.id());
-            if (sc == null || sc[0] > now) continue;
+            Map<String, String> saved = restored.get(b.id());
+            if (saved != null && sc != null && !Long.toString(sc[1]).equals(saved.get("gen"))) { dropState(b.id()); saved = null; }
+            if (saved == null && (sc == null || sc[0] > now)) continue;
             Region r = s.regions.byId(b.region());
             World w = r == null ? null : Bukkit.getWorld(r.world());
             if (w == null) continue;
             int cx = (r.minX() + r.maxX()) / 2, cz = (r.minZ() + r.maxZ()) / 2;
+            if (saved != null) {   // 꺼지기 전 자리
+                String[] at = saved.getOrDefault("at", "").split(",");
+                if (at.length == 4 && at[0].equals(w.getName())) { cx = (int) Math.floor(Double.parseDouble(at[1])); cz = (int) Math.floor(Double.parseDouble(at[3])); }
+            }
             if (!w.isChunkLoaded(cx >> 4, cz >> 4)) continue;
             Player seen = null;
             for (Player p : w.getPlayers()) {
@@ -225,7 +284,15 @@ public final class FieldBossRuntime implements Listener {
             }
             if (seen == null) continue;
             Location at = ground(w, cx, cz, r);
-            if (at != null) spawn(b, at, sc[1]);
+            if (at == null || sc == null) continue;
+            spawn(b, at, sc[1]);
+            Live l = live.get(b.id());
+            if (saved != null && l != null) {
+                resume(l, saved);
+                restored.remove(b.id());
+                for (Player p : w.getPlayers()) if (p.getLocation().distanceSquared(at) < 64 * 64)
+                    p.sendMessage(Ui.c("&4" + b.name() + "&7 이(가) 싸움을 이어 간다 — 앞서 넣은 피해는 그대로 기억한다"));
+            }
         }
     }
 
@@ -351,7 +418,7 @@ public final class FieldBossRuntime implements Listener {
             for (Player p : near) {
                 Vector to = p.getLocation().toVector().subtract(b.getLocation().toVector()).setY(0);
                 if (to.length() > 8.5 || to.length() < 0.1 || to.normalize().dot(dir) < 0.5) continue;
-                p.damage(l.def.damage() * 1.2, b);
+                p.damage(l.def.damage() * 1.2 * io.versaera.domain.balance.Progression.BOSS_DAMAGE, b);
                 p.setFireTicks(60);
             }
         }
@@ -365,6 +432,9 @@ public final class FieldBossRuntime implements Listener {
     private void cleanup(Live l, boolean remove) {
         live.remove(l.def.id());
         byBody.remove(l.body.getUniqueId());
+        lastBody.put(l.body.getUniqueId(), l.def);   // 처치 경험치(CombatListener, MONITOR)가 읽고 나면 지운다
+        UUID gone = l.body.getUniqueId();
+        Bukkit.getScheduler().runTask(plugin, () -> lastBody.remove(gone));
         for (Entity x : l.minions) if (x.isValid()) x.remove();
         if (l.vessel != null && l.vessel.isValid()) l.vessel.remove();
         for (PartView pv : l.parts) if (pv.display().isValid()) pv.display().remove();
@@ -383,7 +453,7 @@ public final class FieldBossRuntime implements Listener {
     public void onBossHits(EntityDamageByEntityEvent e) {
         Live l = byBody.get(e.getDamager().getUniqueId());
         if (l != null && e.getEntity() instanceof Player) {
-            e.setDamage(l.def.damage());
+            e.setDamage(l.def.damage() * io.versaera.domain.balance.Progression.BOSS_DAMAGE);
             l.attackT = 10;   // 휘두르는 몸짓
         }
         if (e.getEntity() instanceof ArmorStand st && st.getScoreboardTags().contains(VESSEL)) {   // 생명의 그릇: 여러 번 쳐야 부서진다
@@ -405,6 +475,24 @@ public final class FieldBossRuntime implements Listener {
         Player p = l == null ? null : playerOf(e.getDamager());
         if (p != null) l.damage.merge(p.getUniqueId(), e.getFinalDamage(), Double::sum);
     }
+
+    /** 필드 보스는 사람의 공격을 35% 만 받는다 (체력 상한 2048 대신 단단함 — Progression.BOSS_TAKEN). 방어 계산(CombatListener, HIGH) 뒤 */
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onBossTakes(EntityDamageByEntityEvent e) {
+        if (byBody.containsKey(e.getEntity().getUniqueId()) && playerOf(e.getDamager()) != null)
+            e.setDamage(e.getDamage() * io.versaera.domain.balance.Progression.BOSS_TAKEN);
+    }
+
+    /** 처치 경험치의 권장 레벨: 보스 체력 600 ~ 2048 → 숙련 8 ~ 28 에 맞는 몬스터 레벨 (-1 = 보스 아님) */
+    public int levelOf(Entity e) {
+        Live l = byBody.get(e.getUniqueId());
+        FieldBoss def = l != null ? l.def : lastBody.get(e.getUniqueId());
+        if (def == null) return -1;
+        double mastery = 8 + (Math.min(2048, def.maxHp()) - 600) / 1448.0 * 20;
+        return (int) Math.round(io.versaera.domain.balance.Progression.monsterLevelFor(mastery));
+    }
+
+    private final Map<UUID, FieldBoss> lastBody = new ConcurrentHashMap<>();
 
     /** 생명의 그릇이 남아 있으면 한 번 되살아난다 */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -437,6 +525,7 @@ public final class FieldBossRuntime implements Listener {
         e.getDrops().clear();
         e.setDroppedExp(200);
         cleanup(l, false);
+        dropState(l.def.id());
         if (l.damage.isEmpty()) return;   // 사람이 때리지 않음 → 보상 없이 다음 출현
         Map<String, Double> dmg = new HashMap<>();
         Map<String, String> names = new HashMap<>();
@@ -457,7 +546,11 @@ public final class FieldBossRuntime implements Listener {
         }, null);
     }
 
+    /** 끌 때: 싸우던 보스는 저장해 두고(다음에 켜면 이어진다) 몸을 치운다 */
     public void shutdown() {
-        for (Live l : new ArrayList<>(live.values())) cleanup(l, true);
+        for (Live l : new ArrayList<>(live.values())) {
+            if (!l.damage.isEmpty() && l.body.isValid()) saveState(l);
+            cleanup(l, true);
+        }
     }
 }

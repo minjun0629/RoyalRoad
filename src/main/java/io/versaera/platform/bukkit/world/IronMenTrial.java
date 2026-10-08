@@ -26,7 +26,7 @@ import java.util.*;
 /**
  * 초급 수련관의 시련 (TRN-02): 철인 100명과 차례로 싸운다. 한 번에 셋까지 나오고, 도전자가 쓰러뜨린 철인만 센다.
  * 죽거나 · 나가거나 · 수련관에서 멀어지거나(24 블록) · 30분이 지나면 실패. 철인은 저장하지 않고 아무것도 떨어뜨리지 않는다.
- * 한 수련관에 한 사람씩.
+ * 한 수련관에 한 사람씩. 서버가 꺼지면 쓰러뜨린 수 · 남은 시간을 저장하고, 도전자가 10분 안에 다시 들어오면 이어 간다.
  */
 public final class IronMenTrial implements Listener {
     public static final String TAG = "versa_ironman";
@@ -39,13 +39,18 @@ public final class IronMenTrial implements Listener {
     private static final class Run {
         final UUID who;
         final Location center;
-        final long started = System.currentTimeMillis();
+        final long started;
         int killed, spawned;
         final List<LivingEntity> alive = new ArrayList<>();
 
         Run(UUID who, Location center) {
+            this(who, center, System.currentTimeMillis());
+        }
+
+        Run(UUID who, Location center, long started) {
             this.who = who;
             this.center = center;
+            this.started = started;
         }
     }
 
@@ -53,6 +58,58 @@ public final class IronMenTrial implements Listener {
         this.s = s;
         this.async = async;
         Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20L, 20L);
+    }
+
+    static final String STATE = "trial";
+    private boolean stopping;
+    private int beat;
+
+    private void save(Run r) {
+        String key = r.who.toString();
+        Map<String, String> d = Map.of("killed", Integer.toString(r.killed), "used", Long.toString(System.currentTimeMillis() - r.started));
+        async.fire("trial-save", () -> { s.state.save(STATE, key, d, System.currentTimeMillis() + 10 * 60_000L); return null; });
+    }
+
+    private void forget(UUID who) {
+        String key = who.toString();
+        async.fire("trial-forget", () -> { s.state.delete(STATE, key); return null; });
+    }
+
+    /** 서버를 끌 때: 진행을 저장하고 철인만 치운다 (실패로 치지 않는다) */
+    public void shutdown() {
+        stopping = true;
+        Run r = run;
+        if (r == null) return;
+        save(r);
+        run = null;
+        for (LivingEntity e : r.alive) e.remove();
+    }
+
+    /** 다시 들어온 도전자: 저장된 시련이 있으면 이어 간다 */
+    @EventHandler
+    public void onJoin(org.bukkit.event.player.PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        String key = p.getUniqueId().toString();
+        async.run("trial-resume", () -> s.state.load(STATE, key).orElse(null), d -> {
+            if (d == null || !p.isOnline()) return;
+            forget(p.getUniqueId());
+            Region hall = s.regions.byId(HALL);
+            if (hall == null || run != null) {
+                p.sendMessage(Ui.error("시련을 이어 갈 수 없습니다 — 다른 사람이 수련관을 쓰고 있습니다"));
+                return;
+            }
+            World w = p.getWorld();
+            int cx = (hall.minX() + hall.maxX()) / 2, cz = (hall.minZ() + hall.maxZ()) / 2;
+            Location center = new Location(w, cx + 0.5, w.getHighestBlockYAt(cx, cz) + 1, cz + 0.5);
+            if (p.getLocation().distanceSquared(center) > 24 * 24) {
+                p.sendMessage(Ui.error("시련은 수련관 안에서만 이어 갈 수 있습니다 (" + hall.name() + ")"));
+                return;
+            }
+            Run r = new Run(p.getUniqueId(), center, System.currentTimeMillis() - Long.parseLong(d.get("used")));
+            r.killed = Integer.parseInt(d.get("killed"));
+            run = r;
+            p.sendTitle(Ui.c("&6철인 100명 — 이어서"), Ui.c("&7" + r.killed + "명째부터"), 10, 50, 15);
+        }, null);
     }
 
     public void start(Player p) {
@@ -86,6 +143,7 @@ public final class IronMenTrial implements Listener {
         if (p == null || !p.isOnline()) { fail("도전자가 떠났다"); return; }
         if (p.getWorld() != r.center.getWorld() || p.getLocation().distanceSquared(r.center) > 24 * 24) { fail("수련관을 벗어났다"); return; }
         if (System.currentTimeMillis() - r.started > LIMIT_MS) { fail("시간이 다 됐다"); return; }
+        if (++beat % 10 == 0) save(r);   // 갑자기 꺼져도 이어 가게
         r.alive.removeIf(e -> !e.isValid());
         while (r.alive.size() < 3 && r.killed + r.alive.size() < TrialService.IRON_MEN) r.alive.add(spawn(r));
         Ui.bar(p, "&6철인 &f" + r.killed + "&7/" + TrialService.IRON_MEN + " &8· 남은 시간 " + (LIMIT_MS - (System.currentTimeMillis() - r.started)) / 60_000 + "분");
@@ -138,6 +196,7 @@ public final class IronMenTrial implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
+        if (stopping) return;   // 서버를 끄는 중: shutdown 이 저장했다
         if (run != null && run.who.equals(e.getPlayer().getUniqueId())) fail("도전자가 떠났다");
     }
 
@@ -164,6 +223,7 @@ public final class IronMenTrial implements Listener {
         Run r = run;
         run = null;
         if (r == null) return;
+        forget(r.who);
         for (LivingEntity e : r.alive) e.remove();
         for (Entity e : r.center.getWorld().getNearbyEntities(r.center, 32, 16, 32)) if (e.getScoreboardTags().contains(TAG)) e.remove();
     }

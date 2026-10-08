@@ -246,6 +246,8 @@ public final class SkillListener implements Listener {
         }
         p.getWorld().playSound(at, combo ? Sound.ENTITY_PLAYER_ATTACK_SWEEP : Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.8f, combo ? 1.3f : 1f);
         Ui.bar(p, (combo ? "&6" : "&f") + d.name());
+        String uid = p.getUniqueId().toString();   // 의뢰 (튜토리얼: 첫 기술)
+        async.fire("skill-quest", () -> { s.quests.record(uid, io.versaera.domain.quest.QuestDefinition.Type.SKILL, d.id(), 1, 0); return null; });
         hud(p);
     }
 
@@ -265,7 +267,9 @@ public final class SkillListener implements Listener {
     }
 
     private void hit(Player p, LivingEntity target, SkillDefinition d, double power) {
-        target.damage(power, p);
+        // 무기를 들었으면 무기 한 방 × 스킬 배율 (CombatListener) — 맨손이면 숙련만으로 정한 피해
+        if (weaponTag(p) != null) io.versaera.platform.bukkit.listener.CombatListener.skillDamage(target, p, d.damageMult());
+        else target.damage(power, p);
         if (d.effect() != null && d.effect().harmful()) status.apply(target.getUniqueId(), d.effect(), d.effectSeconds(), 1, System.currentTimeMillis());
     }
 

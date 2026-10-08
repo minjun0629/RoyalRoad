@@ -39,6 +39,8 @@ public final class GameServices {
     public final JobService jobs;
     public final DeathService deaths;
     public final QuestService quests;
+    public final RuntimeStateService state;
+    public final TutorialService tutorial;
     public final GuildService guilds;
     public final MarketService market;
     public final AuctionService auctions;
@@ -107,11 +109,13 @@ public final class GameServices {
         this.market = new MarketService(tx, marketRepo, itemRepo, items, economy, content.market(), audit, bus, clock, this::priceDiscount);
         this.auctions = new AuctionService(tx, marketRepo, itemRepo, items, economy, content.market(), audit, bus, clock,
                 uuid -> jobs.perks(uuid).getOrDefault("auction_fee_cut", 0.0));
+        this.state = new RuntimeStateService(tx, new io.versaera.persistence.JdbcRuntimeStateRepository(db), clock);
         this.quests = new QuestService(tx, new JdbcQuestRepository(db), progress, content.quests(), this, bus, clock, zone);
         this.worldEvents = new WorldEventService(tx, new JdbcWorldEventRepository(db), content.worldEvents(), regions, bus, clock, 0L);
         this.gathering = new GatheringService(this, content.resources());
         this.gates = new GateService(content.gates(), regions, growth::level);
         this.origins = new OriginService(tx, new JdbcOriginRepository(db), content.origins(), regions, items, clock, this::rules);
+        this.tutorial = new TutorialService(this);
         this.reputation = new ReputationService(tx, progress, economy, regions, content.gods(), content.temples(), clock);
         deaths.attach(origins, reputation);
         this.arts = new SecretArtService(tx, progress, content.arts(), this, clock);

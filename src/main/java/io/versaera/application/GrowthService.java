@@ -109,7 +109,9 @@ public final class GrowthService {
             long xp = progress.masteryXp(uuid, discipline);
             int before = Mastery.levelOf(xp);
             double hand = d.hand() && disciplines.containsKey(HAND_DISCIPLINE) ? 1 + Mastery.levelOf(progress.masteryXp(uuid, HAND_DISCIPLINE)) * 0.015 : 1;
-            long g = Math.round(Mastery.gain(base, actionLevel, before, hand) * xpBonus.applyAsDouble(uuid, discipline));
+            // 생산 · 채집 · 보조 분야는 한 번 하는 데 드는 시간이 길어 사냥과 같은 속도가 되게 (Progression.categoryXp)
+            long g = Math.round(Mastery.gain(base, actionLevel, before, hand) * xpBonus.applyAsDouble(uuid, discipline)
+                    * io.versaera.domain.balance.Progression.categoryXp(d.category()));
             if (g == 0) return new XpResult(0, before, before);
             long cap = Mastery.cumulative(Mastery.MAX_LEVEL);
             long nx = Math.min(cap, xp + g);

@@ -21,11 +21,11 @@ public record QuestDefinition(String id, String title, String giver, Grade grade
         Grade(String label) { this.label = label; }
     }
 
-    public enum Type { KILL, GATHER, CRAFT, DISCOVER, TALK, DELIVER, AFFINITY, DUNGEON, BOSS, TRAIN }
+    public enum Type { KILL, GATHER, CRAFT, DISCOVER, TALK, DELIVER, AFFINITY, DUNGEON, BOSS, TRAIN, SKILL }
 
     /**
      * @param target  KILL: 엔티티 종류(ZOMBIE …) 또는 "any" · GATHER: 아이템 종류 · CRAFT: 레시피 id 또는 "discipline:<분야>"
-     *                · DISCOVER: "kind:ref" · TALK/AFFINITY: NPC · DELIVER: 아이템 종류 · DUNGEON/BOSS: id
+     *                · DISCOVER: "kind:ref" · TALK/AFFINITY: NPC (TALK 은 "any" 도) · DELIVER: 아이템 종류 · DUNGEON/BOSS: id · SKILL: 스킬 id 또는 "any"
      */
     public record Objective(Type type, String target, int amount, int minQuality, String label) {
         public Objective {
@@ -35,6 +35,7 @@ public record QuestDefinition(String id, String title, String giver, Grade grade
         public boolean matches(Type t, String what) {
             if (t != type) return false;
             if (type == Type.KILL) return target.equals("any") || target.equalsIgnoreCase(what);
+            if ((type == Type.TALK || type == Type.SKILL || type == Type.CRAFT) && target.equals("any")) return true;   // 아무 NPC · 아무 기술 · 아무 제작
             if (type == Type.CRAFT && target.startsWith("discipline:")) return what.startsWith("discipline:") ? what.equals(target) : false;
             return target.equals(what);
         }

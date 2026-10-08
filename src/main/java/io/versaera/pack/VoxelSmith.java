@@ -615,6 +615,11 @@ public final class VoxelSmith {
 
     /** 상자마다 여섯 면이 칠한 텍스처(아틀라스)의 제자리를 가리킨다 */
     public static String json(Build b, VoxelPaint.Painted paint, String art, String card) {
+        return json(b, paint, art, card, true);
+    }
+
+    /** @param withCard 앞면 카드 판을 넣을지 (손 모델은 넣지 않는다 — 다른 사람 눈에 카드가 보이므로) */
+    public static String json(Build b, VoxelPaint.Painted paint, String art, String card, boolean withCard) {
         StringBuilder e = new StringBuilder();
         double maxZ = 9, k = 16.0 / paint.size();
         List<Box> boxes = fitted(b);
@@ -634,7 +639,7 @@ public final class VoxelSmith {
             e.append("}}");
         }
         double cz = maxZ + 0.1;
-        e.append(",{\"from\":[0,0,").append(n(cz)).append("],\"to\":[16,16,").append(n(cz)).append("],\"faces\":{\"south\":{\"uv\":[0,0,16,16],\"texture\":\"#card\"}}}");
+        if (withCard) e.append(",{\"from\":[0,0,").append(n(cz)).append("],\"to\":[16,16,").append(n(cz)).append("],\"faces\":{\"south\":{\"uv\":[0,0,16,16],\"texture\":\"#card\"}}}");
         return "{\"textures\":{\"art\":\"" + art + "\",\"card\":\"" + card + "\",\"particle\":\"" + card + "\"},\"gui_light\":\"front\",\"elements\":[" + e
                 + "],\"display\":" + Model3D.display(true, Math.min(1.6, 1 / fit(b))) + "}";
     }

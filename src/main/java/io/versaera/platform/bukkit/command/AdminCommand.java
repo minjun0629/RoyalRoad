@@ -107,7 +107,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] a) {
         if (!sender.hasPermission("versaera.admin")) { sender.sendMessage(Ui.error("권한이 없습니다")); return true; }
-        String sub = a.length == 0 ? "help" : a[0].toLowerCase(Locale.ROOT);
+        String sub = a.length == 0 ? "help" : KOREAN.getOrDefault(a[0], a[0].toLowerCase(Locale.ROOT));
         String req = "admin:" + (sender instanceof Player p ? p.getUniqueId() : "console") + ":" + UUID.randomUUID();
         try {
             run(sender, sub, a, req);
@@ -117,6 +117,29 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(Ui.error(e.getMessage()));
         }
         return true;
+    }
+
+    /** 한국어 하위 명령 → 영어 (둘 다 된다) */
+    private static final Map<String, String> KOREAN = Map.ofEntries(Map.entry("조사", "inspect"), Map.entry("아이템", "item"), Map.entry("기록", "audit"),
+            Map.entry("지급", "give"), Map.entry("돈", "money"), Map.entry("엔피시", "npc"), Map.entry("보스", "boss"), Map.entry("봉인", "seal"),
+            Map.entry("히든", "hidden"), Map.entry("행사", "event"), Map.entry("성능", "perf"),
+            Map.entry("소환", "spawn"), Map.entry("정보", "info"), Map.entry("제거", "stop"), Map.entry("생성", "generate"));
+    private static final List<String> SUBS = List.of("지급", "돈", "조사", "아이템", "기록", "엔피시", "보스", "봉인", "히든", "행사", "성능", "초기화", "마을");
+
+    /** 이름(띄어쓰기는 _) 이나 id → id. 못 찾으면 null */
+    static <T> String resolve(java.util.Collection<T> all, java.util.function.Function<T, String> id, java.util.function.Function<T, String> name, String arg) {
+        for (T t : all) if (id.apply(t).equals(arg)) return arg;
+        for (T t : all) if (key(name.apply(t)).equals(arg)) return id.apply(t);
+        for (T t : all) if (key(name.apply(t)).equalsIgnoreCase(arg) || name.apply(t).replace(" ", "").equals(arg)) return id.apply(t);
+        return null;
+    }
+
+    static String key(String name) {
+        return name == null ? "" : name.trim().replace(' ', '_');
+    }
+
+    private static String word(String[] a, int i) {
+        return a.length > i ? KOREAN.getOrDefault(a[i], a[i]) : "";
     }
 
     private void run(CommandSender sender, String sub, String[] a, String req) {
@@ -136,7 +159,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 if (iid == null) { sender.sendMessage(Ui.error("손에 든 고유 아이템이 없습니다")); return; }
                 async.run("item-inspect", () -> {
                     ItemInstance it = s.items.find(iid).orElse(null);
-                    return it == null ? List.of("DB 에 없음 (위조 의심)") : List.of(it.typeId() + " q=" + it.quality() + " " + it.durability() + "/" + it.maxDurability(),
+                    return it == null ? List.of("DB 에 없음 (위조 의심)") : List.of(typeName(it.typeId()) + " (" + it.typeId() + ") 품질 " + it.quality() + " · 내구 " + it.durability() + "/" + it.maxDurability(),
                             "제작 " + it.creatorName() + " · " + it.method(), "보관 " + it.custody(), "속성 " + it.props(), "내력 " + s.itemRepo.historyOf(iid));
                 }, lines -> lines.forEach(l -> sender.sendMessage(Ui.info(l))), sender);
             }
@@ -144,18 +167,20 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 String action = a.length > 1 ? a[1].toUpperCase(Locale.ROOT) : "TRADE_COMPLETED";
                 async.run("audit", () -> s.audit.recent(action, 10), lines -> lines.forEach(l -> sender.sendMessage(Ui.c("&7" + l))), sender);
             }
-            case "give" -> {   // /va give <이름> <아이템> [품질] [수량]
-                if (a.length < 3) { sender.sendMessage(Ui.error("/va give <이름> <아이템> [품질] [수량]")); return; }
+            case "give" -> {   // /va 지급 <플레이어> <아이템 이름> [품질] [수량]
+                if (a.length < 3) { sender.sendMessage(Ui.error("/va 지급 <플레이어> <아이템 이름(띄어쓰기는 _)> [품질] [수량]")); return; }
                 String id = uuidOf(a[1]);
-                if (id == null || !codec.types().has(a[2])) { sender.sendMessage(Ui.error("이름 또는 아이템이 잘못되었습니다")); return; }
+                if (id == null) { sender.sendMessage(Ui.error("플레이어 " + a[1] + " 을(를) 찾지 못했습니다")); return; }
+                String type = resolve(codec.types().all(), t -> t.id(), t -> t.name(), a[2]);
+                if (type == null) { sender.sendMessage(Ui.error("아이템 " + a[2] + " 을(를) 찾지 못했습니다 — Tab 으로 이름을 고르세요")); return; }
                 int q = a.length > 3 ? Integer.parseInt(a[3]) : 500, n = a.length > 4 ? Integer.parseInt(a[4]) : 1;
-                boolean unique = codec.types().get(a[2]).category().unique();
+                boolean unique = codec.types().get(type).category().unique();
                 async.run("admin-give", () -> {
-                    if (unique) for (int i = 0; i < Math.min(n, 36); i++) s.items.create(a[2], q, null, "관리자", "admin", Map.of(), id, req);
-                    else s.items.deliverBulk(id, a[2], q, n, "admin");
+                    if (unique) for (int i = 0; i < Math.min(n, 36); i++) s.items.create(type, q, null, "관리자", "admin", Map.of(), id, req);
+                    else s.items.deliverBulk(id, type, q, n, "admin");
                     return true;
                 }, ok -> {
-                    sender.sendMessage(Ui.info("지급 → 배달함"));
+                    sender.sendMessage(Ui.info(a[1] + " 에게 " + typeName(type) + " ×" + n + " (품질 " + q + ") 지급 → 배달함"));
                     Player t = Bukkit.getPlayerExact(a[1]);
                     if (t != null) deliver.accept(t);
                 }, sender);
@@ -169,19 +194,22 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                         ok -> sender.sendMessage(Ui.info("잔액 반영")), sender);
             }
             case "npc" -> {
-                if (a.length >= 3 && a[1].equals("info")) { npcInfo(sender, a[2]); return; }
-                if (!(sender instanceof Player p) || a.length < 3 || !a[1].equals("spawn")) { sender.sendMessage(Ui.error("/va npc spawn <id> · /va npc info <id>")); return; }
-                npcs.spawn(s.relations.npc(a[2]), p.getLocation());
-                sender.sendMessage(Ui.info("NPC " + a[2]));
+                String npc = a.length >= 3 ? resolve(s.relations.all(), n -> n.id(), n -> n.name(), a[2]) : null;
+                if (a.length >= 3 && npc == null) { sender.sendMessage(Ui.error("NPC " + a[2] + " 을(를) 찾지 못했습니다")); return; }
+                if (npc != null && word(a, 1).equals("info")) { npcInfo(sender, npc); return; }
+                if (!(sender instanceof Player p) || npc == null || !word(a, 1).equals("spawn")) { sender.sendMessage(Ui.error("/va 엔피시 소환 <이름> · /va 엔피시 정보 <이름>")); return; }
+                npcs.spawn(s.relations.npc(npc), p.getLocation());
+                sender.sendMessage(Ui.info("NPC " + s.relations.npc(npc).name()));
             }
             case "boss" -> {
-                if (a.length >= 2 && a[1].equals("stop")) { sender.sendMessage(Ui.info("보스 " + bosses.stopAll(true) + "마리 제거")); return; }
-                if (!(sender instanceof Player p) || a.length < 3 || !a[1].equals("spawn")) { sender.sendMessage(Ui.error("/va boss spawn <id> · /va boss stop")); return; }
-                bosses.spawn(a[2], p.getLocation(), sender, null);
+                if (word(a, 1).equals("stop")) { sender.sendMessage(Ui.info("보스 " + bosses.stopAll(true) + "마리 제거")); return; }
+                String boss = a.length >= 3 ? resolve(s.content.bosses(), b -> b.id(), b -> b.name(), a[2]) : null;
+                if (!(sender instanceof Player p) || boss == null || !word(a, 1).equals("spawn")) { sender.sendMessage(Ui.error("/va 보스 소환 <이름> · /va 보스 제거")); return; }
+                bosses.spawn(boss, p.getLocation(), sender, null);
             }
             case "seal" -> seal(sender);
             case "hidden" -> {
-                if (a.length < 2 || !a[1].equals("generate")) { sender.sendMessage(Ui.error("/va hidden generate [개수]")); return; }
+                if (!word(a, 1).equals("generate")) { sender.sendMessage(Ui.error("/va 히든 생성 [개수]")); return; }
                 int n = a.length >= 3 ? Integer.parseInt(a[2]) : 8;
                 generateHidden(sender, Math.max(1, Math.min(40, n)));
             }
@@ -200,7 +228,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(Ui.info("지역 " + s.regions.all().size() + " · 레시피 " + s.crafting.all().size() + " · 히든 " + (s.hidden() == null ? 0 : s.hidden().ruleCount())
                         + " · 메모리 " + (rt.totalMemory() - rt.freeMemory()) / 1048576 + "MB"));
             }
-            default -> sender.sendMessage(Ui.info("inspect · item · audit · give · money · npc spawn · boss spawn|stop · seal · hidden generate · event · perf · 초기화 · 마을"));
+            default -> sender.sendMessage(Ui.info("지급 · 돈 · 조사 · 아이템 · 기록 · 엔피시 소환|정보 · 보스 소환|제거 · 봉인 · 히든 생성 · 행사 · 성능 · 초기화 · 마을 (영어 give · money … 도 됩니다)"));
         }
     }
 
@@ -282,14 +310,24 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] a) {
         if (!sender.hasPermission("versaera.admin")) return List.of();
-        if (a.length == 1) return filter(List.of("inspect", "item", "audit", "give", "money", "npc", "boss", "seal", "hidden", "event", "perf", "초기화"), a[0]);
-        if (a.length == 3 && a[0].equals("give")) return filter(codec.types().all().stream().map(t -> t.id()).toList(), a[2]);
-        if (a.length == 3 && a[0].equals("boss")) return filter(s.content.bosses().stream().map(b -> b.id()).toList(), a[2]);
-        if (a.length == 3 && a[0].equals("npc")) return filter(s.relations.all().stream().map(n -> n.id()).toList(), a[2]);
+        if (a.length == 1) return filter(SUBS, a[0]);
+        String sub = KOREAN.getOrDefault(a[0], a[0]);
+        if (a.length == 2 && sub.equals("npc")) return filter(List.of("소환", "정보"), a[1]);
+        if (a.length == 2 && sub.equals("boss")) return filter(List.of("소환", "제거"), a[1]);
+        if (a.length == 2 && sub.equals("hidden")) return filter(List.of("생성"), a[1]);
+        if (a.length == 3 && sub.equals("give")) return filter(codec.types().all().stream().map(t -> key(t.name())).distinct().sorted().toList(), a[2]);
+        if (a.length == 3 && sub.equals("boss")) return filter(s.content.bosses().stream().map(b -> key(b.name())).toList(), a[2]);
+        if (a.length == 3 && sub.equals("npc")) return filter(s.relations.all().stream().map(n -> key(n.name())).toList(), a[2]);
+        if (a.length == 4 && sub.equals("give")) return List.of("<품질 1~1000>");
+        if (a.length == 5 && sub.equals("give")) return List.of("<수량>");
         return null;
     }
 
     private static List<String> filter(List<String> l, String p) {
-        return l.stream().filter(x -> x.startsWith(p)).toList();
+        return l.stream().filter(x -> x.contains(p)).limit(200).toList();
+    }
+
+    private String typeName(String typeId) {
+        return codec.types().has(typeId) ? codec.types().get(typeId).name() : typeId;
     }
 }

@@ -48,6 +48,7 @@ public final class RealmRuntime implements Listener {
     private final Map<String, String> shops = new ConcurrentHashMap<>();   // "world:x:y:z" → 상점 id
     private final Map<String, Integer> progress = new ConcurrentHashMap<>();
     private final Map<String, Set<String>[]> siegeSides = new ConcurrentHashMap<>();
+    private final Set<String> sidesAsked = ConcurrentHashMap.newKeySet();
 
     public RealmRuntime(Plugin plugin, GameServices s, Async async, DbExecutor exec) {
         this.plugin = plugin;
@@ -57,6 +58,10 @@ public final class RealmRuntime implements Listener {
             for (RealmRepository.Plot p : s.realm.allPlots())
                 plots.put(key(p.world(), p.cx(), p.cz()), new PlotInfo(p.owner(), new HashSet<>(s.realm.members(p.world(), p.cx(), p.cz()))));
             for (RealmRepository.Shop sh : s.realm.allShops()) shops.put(block(sh.world(), sh.x(), sh.y(), sh.z()), sh.id());
+            for (RealmService.Siege sg : s.realm.sieges()) {   // 꺼지기 전 점령 진행을 이어 간다
+                int held = s.realm.captureProgress(sg.region());
+                if (held > 0) progress.put(sg.region(), held);
+            }
             return null;
         }).join();
         Bukkit.getScheduler().runTaskTimer(plugin, this::siegeTick, 20L, 20L);
@@ -204,7 +209,7 @@ public final class RealmRuntime implements Listener {
             for (GuildRepository.Member m : s.guilds.members(sg.attacker())) a.add(m.uuid());
             for (GuildRepository.Member m : s.guilds.members(sg.defender())) d.add(m.uuid());
             return new Set[]{a, d};
-        }, sides -> siegeSides.put(sg.region(), sides), null);
+        }, sides -> { siegeSides.put(sg.region(), sides); sidesAsked.remove(sg.region()); }, null);
     }
 
     private void siegeTick() {
@@ -213,6 +218,7 @@ public final class RealmRuntime implements Listener {
             Region r = s.regions.byId(sg.region());
             var world = r == null ? null : Bukkit.getWorld(r.world());
             Set<String>[] sides = siegeSides.get(sg.region());
+            if (sides == null && world != null && sidesAsked.add(sg.region())) refreshSides(sg);   // 다시 켠 뒤 이어지는 공성
             if (world == null || sides == null) continue;
             int cx = (r.minX() + r.maxX()) / 2, cz = (r.minZ() + r.maxZ()) / 2;
             Location center = new Location(world, cx + 0.5, world.getHighestBlockYAt(cx, cz) + 1, cz + 0.5);
@@ -225,7 +231,11 @@ public final class RealmRuntime implements Listener {
             }
             int before = progress.getOrDefault(sg.region(), 0), after = RealmRules.captureTick(before, att, def);
             progress.put(sg.region(), after);
-            if (now % 10_000 < 1_000) refreshSides(sg);
+            if (now % 10_000 < 1_000) {
+                refreshSides(sg);
+                int held = after;
+                async.fire("siege-save", () -> { s.realm.saveCaptureProgress(sg.region(), held); return null; });
+            }
             for (Player p : world.getPlayers())
                 if (p.getLocation().distanceSquared(center) < 128 * 128)
                     Ui.bar(p, "&c공성 &f" + r.name() + " &7점령 " + after + "/" + RealmRules.CAPTURE_SECONDS + "초 · 공격 " + att + " · 수비 " + def

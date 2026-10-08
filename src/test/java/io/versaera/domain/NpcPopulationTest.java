@@ -58,7 +58,7 @@ class NpcPopulationTest {
         long hidden = 0;
         for (QuestDefinition q : C.quests()) {
             if (q.giver() != null) assertTrue(npcIds.contains(q.giver()), "의뢰를 주는 NPC 가 없다: " + q.id());
-            for (var o : q.objectives()) if (o.type() == QuestDefinition.Type.TALK) assertTrue(npcIds.contains(o.target()), q.id());
+            for (var o : q.objectives()) if (o.type() == QuestDefinition.Type.TALK && !o.target().equals("any")) assertTrue(npcIds.contains(o.target()), q.id());
             if (q.hidden()) {
                 hidden++;
                 assertTrue(byId.get(q.giver()) == null || byId.get(q.giver()).hiddenQuests().contains(q.id()), "숨은 의뢰는 NPC 프로필에 걸려 있다: " + q.id());
