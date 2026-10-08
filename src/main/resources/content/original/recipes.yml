@@ -38,19 +38,19 @@ recipes:
     discipline: smithing
     min_level: 18
     action_level: 20
-    output: mithril_ingot
+    output: mithril
     xp: 60
     slots:
       ore: {accepts: 'type:mithril_ore', count: 3}
       fuel: {accepts: 'tag:fuel', count: 2}
       flux: {accepts: 'tag:powder', count: 1, optional: true, bonus: 40}
     source: ORIGINAL
-  smelt_darksteel:
+  smelt_black_iron:
     name: 흑철 제련
     discipline: smithing
     min_level: 22
     action_level: 24
-    output: darksteel_ingot
+    output: black_iron
     xp: 72
     discovery: required
     slots:
@@ -116,7 +116,7 @@ recipes:
     xp: 48
     time_ticks: 102
     slots:
-      blade: {accepts: 'type:mithril_ingot', count: 3, weight: 4}
+      blade: {accepts: 'type:mithril', count: 3, weight: 4}
       grip: {accepts: 'tag:leather', count: 1}
       gem: {accepts: 'tag:cut_gem', count: 1, optional: true, bonus: 60}
     source: ORIGINAL
@@ -158,7 +158,7 @@ recipes:
     xp: 66
     time_ticks: 120
     slots:
-      blade: {accepts: 'type:mithril_ingot', count: 3, weight: 4}
+      blade: {accepts: 'type:mithril', count: 3, weight: 4}
       core: {accepts: 'type:storm_glass', count: 2, weight: 2}
       essence: {accepts: 'type:storm_essence', count: 1}
     source: ORIGINAL
@@ -172,7 +172,7 @@ recipes:
     xp: 72
     time_ticks: 126
     slots:
-      blade: {accepts: 'type:mithril_ingot', count: 4, weight: 4}
+      blade: {accepts: 'type:mithril', count: 4, weight: 4}
       gild: {accepts: 'type:gold_leaf', count: 2}
       essence: {accepts: 'tag:essence', count: 1}
     source: ORIGINAL
@@ -186,7 +186,7 @@ recipes:
     xp: 72
     time_ticks: 126
     slots:
-      blade: {accepts: 'type:darksteel_ingot', count: 3, weight: 4}
+      blade: {accepts: 'type:black_iron', count: 3, weight: 4}
       grip: {accepts: 'tag:leather', count: 1}
       essence: {accepts: 'type:ghost_essence', count: 1}
     source: ORIGINAL
@@ -214,7 +214,7 @@ recipes:
     xp: 90
     time_ticks: 144
     slots:
-      blade: {accepts: 'type:darksteel_ingot', count: 5, weight: 4}
+      blade: {accepts: 'type:black_iron', count: 5, weight: 4}
       star: {accepts: 'type:star_shard', count: 2, weight: 3}
       grip: {accepts: 'type:thick_leather', count: 2}
     source: ORIGINAL
@@ -241,7 +241,7 @@ recipes:
     xp: 57
     time_ticks: 111
     slots:
-      blade: {accepts: 'type:mithril_ingot', count: 2, weight: 3}
+      blade: {accepts: 'type:mithril', count: 2, weight: 3}
       vine: {accepts: 'type:bloodthorn_vine', count: 3}
       venom: {accepts: 'type:venom_sac', count: 1}
     source: ORIGINAL
@@ -282,7 +282,7 @@ recipes:
     xp: 63
     time_ticks: 117
     slots:
-      blade: {accepts: 'type:darksteel_ingot', count: 2, weight: 3}
+      blade: {accepts: 'type:black_iron', count: 2, weight: 3}
       essence: {accepts: 'type:ghost_essence', count: 1}
     source: ORIGINAL
   forge_pearl_dirk:
@@ -321,7 +321,7 @@ recipes:
     xp: 60
     time_ticks: 114
     slots:
-      head: {accepts: 'type:mithril_ingot', count: 3, weight: 3}
+      head: {accepts: 'type:mithril', count: 3, weight: 3}
       frost: {accepts: 'type:frost_essence', count: 1}
       haft: {accepts: 'type:dark_timber', count: 2}
     source: ORIGINAL
@@ -349,7 +349,7 @@ recipes:
     xp: 81
     time_ticks: 135
     slots:
-      head: {accepts: 'type:darksteel_ingot', count: 4, weight: 4}
+      head: {accepts: 'type:black_iron', count: 4, weight: 4}
       moon: {accepts: 'type:moonstone', count: 2}
       haft: {accepts: 'type:dark_timber', count: 2}
     source: ORIGINAL
@@ -405,7 +405,7 @@ recipes:
     time_ticks: 132
     slots:
       head: {accepts: 'type:obsidian_shard', count: 5, weight: 4}
-      bind: {accepts: 'type:darksteel_ingot', count: 1}
+      bind: {accepts: 'type:black_iron', count: 1}
       haft: {accepts: 'type:dark_timber', count: 2}
     source: ORIGINAL
   forge_bronze_pike:
@@ -431,7 +431,7 @@ recipes:
     xp: 63
     time_ticks: 117
     slots:
-      head: {accepts: 'type:mithril_ingot', count: 2, weight: 3}
+      head: {accepts: 'type:mithril', count: 2, weight: 3}
       shaft: {accepts: 'type:dark_timber', count: 3}
       plume: {accepts: 'type:griffin_feather', count: 2}
     source: ORIGINAL
@@ -459,7 +459,7 @@ recipes:
     xp: 75
     time_ticks: 129
     slots:
-      blade: {accepts: 'type:mithril_ingot', count: 3, weight: 3}
+      blade: {accepts: 'type:mithril', count: 3, weight: 3}
       ember: {accepts: 'type:fire_essence', count: 1}
       shaft: {accepts: 'type:dark_timber', count: 2}
     source: ORIGINAL
@@ -474,7 +474,7 @@ recipes:
     time_ticks: 144
     slots:
       head: {accepts: 'type:star_shard', count: 1, weight: 4}
-      socket: {accepts: 'type:darksteel_ingot', count: 2}
+      socket: {accepts: 'type:black_iron', count: 2}
       shaft: {accepts: 'type:dark_timber', count: 3}
     source: ORIGINAL
   forge_reaper_scythe:
@@ -528,7 +528,7 @@ recipes:
     xp: 60
     time_ticks: 114
     slots:
-      head: {accepts: 'type:mithril_ingot', count: 2, weight: 3}
+      head: {accepts: 'type:mithril', count: 2, weight: 3}
       haft: {accepts: 'tag:wood', count: 1}
     source: ORIGINAL
   forge_mithril_pickaxe:
@@ -541,7 +541,7 @@ recipes:
     xp: 60
     time_ticks: 114
     slots:
-      head: {accepts: 'type:mithril_ingot', count: 3, weight: 3}
+      head: {accepts: 'type:mithril', count: 3, weight: 3}
       haft: {accepts: 'tag:wood', count: 2}
     source: ORIGINAL
   forge_woodsman_axe:
@@ -593,7 +593,7 @@ recipes:
     xp: 66
     time_ticks: 120
     slots:
-      plates: {accepts: 'type:mithril_ingot', count: 4, weight: 4}
+      plates: {accepts: 'type:mithril', count: 4, weight: 4}
       strap: {accepts: 'type:thick_leather', count: 1}
     source: ORIGINAL
   forge_dawn_aegis:
@@ -606,7 +606,7 @@ recipes:
     xp: 72
     time_ticks: 126
     slots:
-      plates: {accepts: 'type:mithril_ingot', count: 4, weight: 4}
+      plates: {accepts: 'type:mithril', count: 4, weight: 4}
       gild: {accepts: 'type:gold_leaf', count: 3}
       essence: {accepts: 'tag:essence', count: 1}
     source: ORIGINAL
@@ -685,7 +685,7 @@ recipes:
     xp: 60
     time_ticks: 114
     slots:
-      plates: {accepts: 'type:mithril_ingot', count: 3, weight: 3}
+      plates: {accepts: 'type:mithril', count: 3, weight: 3}
       lining: {accepts: 'tag:cloth', count: 1}
       gem: {accepts: 'tag:cut_gem', count: 1, optional: true, bonus: 50}
     source: ORIGINAL
@@ -699,7 +699,7 @@ recipes:
     xp: 60
     time_ticks: 114
     slots:
-      plates: {accepts: 'type:mithril_ingot', count: 5, weight: 3}
+      plates: {accepts: 'type:mithril', count: 5, weight: 3}
       lining: {accepts: 'tag:cloth', count: 1}
       gem: {accepts: 'tag:cut_gem', count: 1, optional: true, bonus: 50}
     source: ORIGINAL
@@ -713,7 +713,7 @@ recipes:
     xp: 60
     time_ticks: 114
     slots:
-      plates: {accepts: 'type:mithril_ingot', count: 4, weight: 3}
+      plates: {accepts: 'type:mithril', count: 4, weight: 3}
       lining: {accepts: 'tag:cloth', count: 1}
       gem: {accepts: 'tag:cut_gem', count: 1, optional: true, bonus: 50}
     source: ORIGINAL
@@ -727,7 +727,7 @@ recipes:
     xp: 60
     time_ticks: 114
     slots:
-      plates: {accepts: 'type:mithril_ingot', count: 2, weight: 3}
+      plates: {accepts: 'type:mithril', count: 2, weight: 3}
       lining: {accepts: 'tag:cloth', count: 1}
       gem: {accepts: 'tag:cut_gem', count: 1, optional: true, bonus: 50}
     source: ORIGINAL
@@ -853,9 +853,9 @@ recipes:
     xp: 84
     time_ticks: 138
     slots:
-      plates: {accepts: 'type:darksteel_ingot', count: 3, weight: 3}
+      plates: {accepts: 'type:black_iron', count: 3, weight: 3}
       lining: {accepts: 'tag:cloth', count: 1}
-      scales: {accepts: 'type:drake_scale', count: 2, weight: 2}
+      scales: {accepts: 'type:wyvern_scale', count: 2, weight: 2}
     source: ORIGINAL
   forge_dragonscale_chest:
     name: 비룡 비늘 갑옷
@@ -867,9 +867,9 @@ recipes:
     xp: 84
     time_ticks: 138
     slots:
-      plates: {accepts: 'type:darksteel_ingot', count: 5, weight: 3}
+      plates: {accepts: 'type:black_iron', count: 5, weight: 3}
       lining: {accepts: 'tag:cloth', count: 1}
-      scales: {accepts: 'type:drake_scale', count: 4, weight: 2}
+      scales: {accepts: 'type:wyvern_scale', count: 4, weight: 2}
     source: ORIGINAL
   forge_dragonscale_legs:
     name: 비룡 비늘 각반
@@ -881,9 +881,9 @@ recipes:
     xp: 84
     time_ticks: 138
     slots:
-      plates: {accepts: 'type:darksteel_ingot', count: 4, weight: 3}
+      plates: {accepts: 'type:black_iron', count: 4, weight: 3}
       lining: {accepts: 'tag:cloth', count: 1}
-      scales: {accepts: 'type:drake_scale', count: 3, weight: 2}
+      scales: {accepts: 'type:wyvern_scale', count: 3, weight: 2}
     source: ORIGINAL
   forge_dragonscale_boots:
     name: 비룡 비늘 장화
@@ -895,9 +895,9 @@ recipes:
     xp: 84
     time_ticks: 138
     slots:
-      plates: {accepts: 'type:darksteel_ingot', count: 2, weight: 3}
+      plates: {accepts: 'type:black_iron', count: 2, weight: 3}
       lining: {accepts: 'tag:cloth', count: 1}
-      scales: {accepts: 'type:drake_scale', count: 1, weight: 2}
+      scales: {accepts: 'type:wyvern_scale', count: 1, weight: 2}
     source: ORIGINAL
   sew_militia_helmet:
     name: 민병대 투구
@@ -2071,7 +2071,7 @@ recipes:
     slots:
       band: {accepts: 'type:gold_ingot', count: 2, weight: 2}
       gem: {accepts: 'type:star_shard', count: 1, weight: 4}
-      inlay: {accepts: 'type:mithril_ingot', count: 1}
+      inlay: {accepts: 'type:mithril', count: 1}
     source: ORIGINAL
   jewel_pearl_necklace:
     name: 진주 목걸이
@@ -2485,7 +2485,7 @@ recipes:
     tool: tool_wrench
     xp: 66
     slots:
-      blades: {accepts: 'type:mithril_ingot', count: 2, weight: 3}
+      blades: {accepts: 'type:mithril', count: 2, weight: 3}
       grip: {accepts: 'type:dark_timber', count: 1}
     source: ORIGINAL
   carve_candle:

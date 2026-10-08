@@ -10,7 +10,10 @@ def dump(data, f, **kw):
     yaml.dump(data, f, Dumper=NoAlias, **kw)
 
 OUT = sys.argv[1]
+REPO = sys.argv[2] if len(sys.argv) > 2 else "."
+sys.path.insert(0, __file__.rsplit("/", 1)[0])
 items, prices, recipes, resources = {}, {}, {}, {}
+BASE_PRICE, DESIGN = {}, {}   # 손으로 정한 기준 시세 · 밸런스 단계에 넘길 설계 (공격력 · 옵션의 비율)
 
 def item(id, name, cat, mat, tags=None, weight=1, dur=0, stats=None, req=None, lore=None, set_=None, price=None):
     e = {"name": name, "category": cat, "material": mat}
@@ -24,10 +27,7 @@ def item(id, name, cat, mat, tags=None, weight=1, dur=0, stats=None, req=None, l
     if lore: e["lore"] = lore
     assert id not in items, id
     items[id] = e
-    if price is None:
-        s = stats or {}
-        price = 40 + s.get("attack", 0) * 35 + s.get("defense", 0) * 45 + sum(v for k, v in s.items() if k not in ("attack", "defense")) * 20
-    prices[id] = max(1, int(price))
+    if price is not None: BASE_PRICE[id] = price
 
 def recipe(id, name, disc, lv, out, slots, tool=None, xp=None, count=1, discovery=None, ticks=None):
     e = {"name": name, "discipline": disc, "min_level": lv, "action_level": lv + 2, "output": out}
@@ -62,8 +62,8 @@ I = lambda x: "type:" + x
 # ======================================================== 재료
 M = "MATERIAL"
 for id, name, mat, tags, p in [
-    ("mithril_ore", "미스릴 원석", "RAW_IRON", ["ore", "mithril"], 40), ("mithril_ingot", "미스릴 주괴", "IRON_INGOT", ["metal", "mineral", "mithril"], 110),
-    ("darksteel_ingot", "흑철 주괴", "NETHERITE_INGOT", ["metal", "mineral", "dark"], 160), ("copper_ingot", "구리 주괴", "COPPER_INGOT", ["metal", "mineral"], 14),
+    ("mithril_ore", "미스릴 원석", "RAW_IRON", ["ore", "mithril"], 40),
+    ("copper_ingot", "구리 주괴", "COPPER_INGOT", ["metal", "mineral"], 14),
     ("bronze_ingot", "청동 주괴", "COPPER_INGOT", ["metal", "mineral"], 26), ("gold_ore", "금 원석", "RAW_GOLD", ["ore"], 30), ("gold_ingot", "금 주괴", "GOLD_INGOT", ["metal", "mineral", "precious"], 80),
     ("coal_lump", "석탄", "COAL", ["fuel", "mineral"], 4), ("sulfur", "유황", "GLOWSTONE_DUST", ["mineral", "powder"], 12), ("saltpeter", "초석", "SUGAR", ["mineral", "powder"], 10),
     ("ember_stone", "불씨돌", "MAGMA_CREAM", ["gem", "fire_stone"], 45), ("obsidian_shard", "흑요석 조각", "OBSIDIAN", ["stone", "mineral", "obsidian"], 35),
@@ -78,7 +78,6 @@ for id, name, mat, tags, p in [
     ("honey_comb", "벌집", "HONEYCOMB", ["sweet", "wax"], 12), ("beeswax", "밀랍", "HONEYCOMB_BLOCK", ["wax"], 14),
     ("spider_silk", "거미 명주실", "COBWEB", ["fiber", "silk"], 20), ("silk_cloth", "명주 비단", "WHITE_WOOL", ["cloth", "silk"], 55), ("wool_cloth", "모직 천", "LIGHT_GRAY_WOOL", ["cloth"], 16),
     ("wolf_pelt", "늑대 모피", "RABBIT_HIDE", ["hide", "fur"], 18), ("bear_pelt", "곰 모피", "RABBIT_HIDE", ["hide", "fur"], 30), ("thick_leather", "두꺼운 가죽", "LEATHER", ["leather", "thick"], 40),
-    ("drake_scale", "비룡 비늘", "PHANTOM_MEMBRANE", ["scale", "dragon"], 120),
     ("monster_bone", "몬스터 뼈", "BONE", ["bone"], 8), ("bone_dust", "뼛가루", "BONE_MEAL", ["powder", "bone"], 6), ("slime_gel", "점액 젤", "SLIME_BALL", ["gel"], 9),
     ("venom_sac", "독주머니", "FERMENTED_SPIDER_EYE", ["poison", "organ"], 25), ("troll_blood", "트롤의 피", "REDSTONE", ["blood", "regen_mat"], 70),
     ("ghost_essence", "망령의 정수", "GHAST_TEAR", ["essence", "undead"], 85), ("fire_essence", "화염 정수", "BLAZE_POWDER", ["essence", "fire_mat"], 75),
@@ -99,17 +98,17 @@ F, C = "FOOD", "CONSUMABLE"
 for id, name, mat, tags, p in [
     ("apple_pie", "사과 파이", "PUMPKIN_PIE", ["food"], 30), ("mushroom_soup", "버섯 수프", "MUSHROOM_STEW", ["food"], 18), ("roast_fowl", "통새 구이", "COOKED_CHICKEN", ["food"], 22),
     ("herb_bread", "허브 빵", "BREAD", ["food", "grain"], 14), ("cheese_bread", "치즈 빵", "BREAD", ["food"], 26), ("veg_stew", "채소 스튜", "BEETROOT_SOUP", ["food"], 20),
-    ("fish_pie", "생선 파이", "PUMPKIN_PIE", ["food"], 32), ("spicy_stew", "불고추 스튜", "RABBIT_STEW", ["food", "warm"], 34), ("honey_cake", "꿀 케이크", "CAKE", ["food", "sweet_food"], 45),
+    ("fish_pie", "생선 파이", "PUMPKIN_PIE", ["food"], 32), ("spicy_stew", "불고추 스튜", "RABBIT_STEW", ["food", "warm"], 34), ("honey_cake", "꿀 케이크", "PUMPKIN_PIE", ["food", "sweet_food"], 45),
     ("trail_ration", "행군 식량", "DRIED_KELP", ["food", "ration"], 12), ("crab_bisque", "게살 수프", "BEETROOT_SOUP", ["food"], 38), ("grilled_trout", "송어 구이", "COOKED_COD", ["food"], 16),
-    ("royal_feast", "왕의 만찬", "CAKE", ["food", "feast"], 180), ("baked_potato", "구운 감자", "BAKED_POTATO", ["food"], 8), ("cookie", "쿠키", "COOKIE", ["food", "sweet_food"], 6),
+    ("royal_feast", "왕의 만찬", "GOLDEN_CARROT", ["food", "feast"], 180), ("baked_potato", "구운 감자", "BAKED_POTATO", ["food"], 8), ("cookie", "쿠키", "COOKIE", ["food", "sweet_food"], 6),
     ("chocolate", "초콜릿", "COOKIE", ["food", "sweet_food"], 28), ("pufferfish_sashimi", "복어회", "COOKED_SALMON", ["food", "risky"], 60),
-    ("barley_ale", "보리 에일", "POTION", ["drink", "ale"], 16), ("dark_stout", "흑맥주", "POTION", ["drink", "ale"], 28), ("grape_wine", "포도주", "POTION", ["drink", "wine"], 40),
-    ("honey_mead", "꿀술", "POTION", ["drink", "mead"], 36), ("fire_brandy", "불꽃 브랜디", "POTION", ["drink", "strong"], 70), ("dwarf_spirit", "드워프 화주", "POTION", ["drink", "strong"], 90),
+    ("barley_ale", "보리 에일", "POTION", ["drink", "ale"], 16), ("dark_stout", "흑맥주", "POTION", ["drink", "ale", "stout"], 28), ("grape_wine", "포도주", "POTION", ["drink", "wine"], 40),
+    ("honey_mead", "꿀술", "POTION", ["drink", "mead"], 36), ("fire_brandy", "불꽃 브랜디", "POTION", ["drink", "strong", "fireproof"], 70), ("dwarf_spirit", "드워프 화주", "POTION", ["drink", "strong", "stoneskin"], 90),
     ("herbal_tea", "약초차", "POTION", ["drink", "tea"], 10), ("cider", "사과주", "POTION", ["drink", "cider"], 18),
 ]:
     item(id, name, F, mat, tags, price=p)
 for id, name, mat, tags, p in [
-    ("antidote", "해독제", "POTION", ["potion", "potion_t1", "cure"], 30), ("stamina_tonic", "기력 강장제", "POTION", ["potion", "potion_t2"], 60),
+    ("antidote", "해독제", "POTION", ["potion", "potion_t1", "cure"], 30), ("stamina_tonic", "기력 강장제", "POTION", ["potion", "potion_t2", "stamina_potion"], 60),
     ("supreme_draught", "최상급 회복 물약", "POTION", ["potion", "potion_t4"], 260), ("elixir_of_life", "생명의 영약", "POTION", ["potion", "potion_t5"], 700),
     ("fire_resist_potion", "화염 저항 물약", "POTION", ["potion", "potion_t2", "resist_fire"], 90), ("frost_resist_potion", "냉기 저항 물약", "POTION", ["potion", "potion_t2", "resist_frost"], 90),
     ("mana_potion", "마나 물약", "POTION", ["potion", "potion_t2", "mana_potion"], 80), ("greater_mana_potion", "상급 마나 물약", "POTION", ["potion", "potion_t3", "mana_potion"], 180),
@@ -137,6 +136,7 @@ def weapon(id, name, mat, tags, atk, extra=None, req=None, dur=800, weight=4, lo
     s = {"attack": atk}
     if extra: s.update(extra)
     item(id, name, W, mat, tags, weight=weight, dur=dur, stats=s, req=req, lore=lore, set_=set_)
+    DESIGN[id] = ("weapon", None)   # 공격력 · 옵션은 비율 — 크기는 balance_pass 가 착용 레벨의 원작 곡선에 맞춘다
 SW, SP, AR, SC = "mastery.swordsmanship", "mastery.spearmanship", "mastery.archery", "mastery.spellcraft"
 # 검
 weapon("bronze_shortsword", "청동 단검(短劍)", "IRON_SWORD", ["sword"], 9, req={SW: 2}, dur=450, lore="대장간 견습생이 처음 두드려 보는 청동 칼")
@@ -203,6 +203,7 @@ def armor_set(sid, sname, prefix, mats, base_def, extra, req, lore, bonuses):
         s = {"defense": max(1, round(base_def * k))}
         for ek, ev in extra.items(): s[ek] = max(1, round(ev * k))
         item(f"{sid}_{key}", f"{prefix} {pname}", A, mat, [key] if key != "chest" else ["chest"], weight=max(1, round(4 * k)), dur=int(600 + base_def * 60), stats=s, req=req, lore=lore, set_=sid)
+        DESIGN[f"{sid}_{key}"] = ("armor", key)
 armor_set("militia", "민병대 차림", "민병대", ["LEATHER_HELMET", "LEATHER_CHESTPLATE", "LEATHER_LEGGINGS", "LEATHER_BOOTS"], 6, {}, None,
           "국경 마을 민병대가 맞춰 입는 가죽 차림", {2: {"defense": 2}, 4: {"health": 3}})
 armor_set("bronze_guard", "청동 경비대 갑주", "청동 경비대", ["CHAINMAIL_HELMET", "CHAINMAIL_CHESTPLATE", "CHAINMAIL_LEGGINGS", "CHAINMAIL_BOOTS"], 10, {"resist": 2}, {"stat.strength": 4},
@@ -230,6 +231,7 @@ for id, name, mat, d, ex, req, lore in [
 ]:
     s = {"defense": d}; s.update(ex)
     item(id, name, A, mat, ["shield"], weight=5, dur=1000 + d * 50, stats=s, req=req, lore=lore)
+    DESIGN[id] = ("armor", "shield")
 # 장신구
 for id, name, mat, kind, st, lore in [
     ("copper_ring", "구리 반지", "IRON_NUGGET", "ring", {"health": 1}, "견습 세공사가 처음 만드는 반지"),
@@ -256,6 +258,7 @@ for id, name, mat, kind, st, lore in [
     ("lucky_feather", "행운의 깃털", "FEATHER", "feather", {"crit": 4}, "별비 초원에서 주운 반짝이는 깃털"),
 ]:
     item(id, name, A, mat, [kind, "accessory"], weight=1, dur=500, stats=st, lore=lore)
+    DESIGN[id] = ("accessory", None)
 
 # ======================================================== 자원 (오리지널 채집점)
 res("coal_seam", "석탄층", "mining", 1, ["COAL_ORE", "DEEPSLATE_COAL_ORE"], "coal_lump", ["mountain", "underground"], "tool_pick", amount=2, respawn=60)
@@ -291,61 +294,61 @@ HAM, SEW, COOK, ALC, CARV = "tool_hammer", "tool_sewing", "tool_cook", "tool_alc
 recipe("smelt_copper", "구리 제련", "smithing", 1, "copper_ingot", {"ore": (I("copper_ore"), 2)}, xp=4)
 recipe("alloy_bronze", "청동 합금", "smithing", 4, "bronze_ingot", {"copper": (I("copper_ingot"), 3), "tin": (I("iron_ore"), 1)}, xp=10)
 recipe("smelt_gold", "금 제련", "smithing", 9, "gold_ingot", {"ore": (I("gold_ore"), 2), "fuel": (T("fuel"), 1)})
-recipe("smelt_mithril", "미스릴 제련", "smithing", 18, "mithril_ingot", {"ore": (I("mithril_ore"), 3), "fuel": (T("fuel"), 2), "flux": (T("powder"), 1, 0, 40)})
-recipe("smelt_darksteel", "흑철 제련", "smithing", 22, "darksteel_ingot", {"iron": (I("iron_ingot"), 3), "obsidian": (I("obsidian_shard"), 2), "essence": (I("ghost_essence"), 1)}, discovery="required")
+recipe("smelt_mithril", "미스릴 제련", "smithing", 18, "mithril", {"ore": (I("mithril_ore"), 3), "fuel": (T("fuel"), 2), "flux": (T("powder"), 1, 0, 40)})
+recipe("smelt_black_iron", "흑철 제련", "smithing", 22, "black_iron", {"iron": (I("iron_ingot"), 3), "obsidian": (I("obsidian_shard"), 2), "essence": (I("ghost_essence"), 1)}, discovery="required")
 recipe("hammer_gold_leaf", "금박 두드리기", "smithing", 10, "gold_leaf", {"gold": (I("gold_ingot"), 1)}, count=4)
 recipe("make_gears", "톱니 깎기", "engineering", 1, "old_gear", {"metal": (T("metal"), 1)}, count=2, xp=5)
 SMITH = [
     ("bronze_shortsword", 2, {"blade": (I("bronze_ingot"), 2, 3), "grip": (T("wood"), 1)}),
     ("militia_sabre", 5, {"blade": (I("iron_ingot"), 3, 3), "grip": (T("leather"), 1)}),
-    ("mithril_longsword", 14, {"blade": (I("mithril_ingot"), 3, 4), "grip": (T("leather"), 1), "gem": (T("cut_gem"), 1, 0, 60)}),
+    ("mithril_longsword", 14, {"blade": (I("mithril"), 3, 4), "grip": (T("leather"), 1), "gem": (T("cut_gem"), 1, 0, 60)}),
     ("ember_brand", 12, {"blade": (I("iron_ingot"), 3, 3), "core": (I("ember_stone"), 2, 2), "grip": (T("leather"), 1)}),
     ("frostbite_blade", 13, {"blade": (I("iron_ingot"), 3, 3), "core": (I("frost_crystal"), 2, 2), "grip": (T("leather"), 1)}),
-    ("stormcaller", 20, {"blade": (I("mithril_ingot"), 3, 4), "core": (I("storm_glass"), 2, 2), "essence": (I("storm_essence"), 1)}),
-    ("dawn_oath", 22, {"blade": (I("mithril_ingot"), 4, 4), "gild": (I("gold_leaf"), 2), "essence": (T("essence"), 1)}),
-    ("nightfall_edge", 22, {"blade": (I("darksteel_ingot"), 3, 4), "grip": (T("leather"), 1), "essence": (I("ghost_essence"), 1)}),
+    ("stormcaller", 20, {"blade": (I("mithril"), 3, 4), "core": (I("storm_glass"), 2, 2), "essence": (I("storm_essence"), 1)}),
+    ("dawn_oath", 22, {"blade": (I("mithril"), 4, 4), "gild": (I("gold_leaf"), 2), "essence": (T("essence"), 1)}),
+    ("nightfall_edge", 22, {"blade": (I("black_iron"), 3, 4), "grip": (T("leather"), 1), "essence": (I("ghost_essence"), 1)}),
     ("moonsilver_sword", 18, {"blade": (I("silver_ingot"), 3, 3), "moon": (I("moonstone"), 2, 2), "grip": (T("silk"), 1)}),
-    ("starfall_greatsword", 28, {"blade": (I("darksteel_ingot"), 5, 4), "star": (I("star_shard"), 2, 3), "grip": (I("thick_leather"), 2)}),
+    ("starfall_greatsword", 28, {"blade": (I("black_iron"), 5, 4), "star": (I("star_shard"), 2, 3), "grip": (I("thick_leather"), 2)}),
     ("rustgear_cleaver", 8, {"blade": (I("iron_ingot"), 2, 2), "teeth": (I("old_gear"), 3)}),
-    ("bloodthorn_sword", 17, {"blade": (I("mithril_ingot"), 2, 3), "vine": (I("bloodthorn_vine"), 3), "venom": (I("venom_sac"), 1)}),
+    ("bloodthorn_sword", 17, {"blade": (I("mithril"), 2, 3), "vine": (I("bloodthorn_vine"), 3), "venom": (I("venom_sac"), 1)}),
     ("silk_stiletto", 8, {"blade": (I("iron_ingot"), 1, 2), "wrap": (I("spider_silk"), 2)}),
     ("venom_fang", 11, {"fang": (I("monster_bone"), 2, 2), "venom": (I("venom_sac"), 2), "grip": (T("leather"), 1)}),
-    ("shadow_kris", 19, {"blade": (I("darksteel_ingot"), 2, 3), "essence": (I("ghost_essence"), 1)}),
+    ("shadow_kris", 19, {"blade": (I("black_iron"), 2, 3), "essence": (I("ghost_essence"), 1)}),
     ("pearl_dirk", 9, {"blade": (I("silver_ingot"), 1, 2), "pearl": (I("pearl"), 1)}),
     ("bronze_hatchet", 4, {"head": (I("bronze_ingot"), 2, 3), "haft": (T("wood"), 1)}),
-    ("frostbeard_axe", 18, {"head": (I("mithril_ingot"), 3, 3), "frost": (I("frost_essence"), 1), "haft": (I("dark_timber"), 2)}),
+    ("frostbeard_axe", 18, {"head": (I("mithril"), 3, 3), "frost": (I("frost_essence"), 1), "haft": (I("dark_timber"), 2)}),
     ("emberclaw_axe", 14, {"head": (I("iron_ingot"), 3, 3), "ember": (I("ember_stone"), 2), "haft": (T("wood"), 2)}),
-    ("twin_moon_axe", 25, {"head": (I("darksteel_ingot"), 4, 4), "moon": (I("moonstone"), 2), "haft": (I("dark_timber"), 2)}),
+    ("twin_moon_axe", 25, {"head": (I("black_iron"), 4, 4), "moon": (I("moonstone"), 2), "haft": (I("dark_timber"), 2)}),
     ("woodsman_bane", 10, {"head": (I("iron_ingot"), 2, 3), "haft": (I("hollow_wood"), 2)}),
     ("iron_flail", 6, {"head": (I("iron_ingot"), 3, 3), "chain": (I("iron_ingot"), 1), "haft": (T("wood"), 1)}),
     ("templar_mace", 15, {"head": (I("silver_ingot"), 3, 3), "gild": (I("gold_leaf"), 2), "haft": (T("wood"), 1)}),
-    ("obsidian_maul", 24, {"head": (I("obsidian_shard"), 5, 4), "bind": (I("darksteel_ingot"), 1), "haft": (I("dark_timber"), 2)}),
+    ("obsidian_maul", 24, {"head": (I("obsidian_shard"), 5, 4), "bind": (I("black_iron"), 1), "haft": (I("dark_timber"), 2)}),
     ("bronze_pike", 4, {"head": (I("bronze_ingot"), 1, 2), "shaft": (T("wood"), 3)}),
-    ("griffin_lance", 19, {"head": (I("mithril_ingot"), 2, 3), "shaft": (I("dark_timber"), 3), "plume": (I("griffin_feather"), 2)}),
+    ("griffin_lance", 19, {"head": (I("mithril"), 2, 3), "shaft": (I("dark_timber"), 3), "plume": (I("griffin_feather"), 2)}),
     ("tidecaller_trident", 20, {"head": (I("silver_ingot"), 3, 3), "pearl": (I("pearl"), 2), "shaft": (T("wood"), 2)}),
-    ("emberwing_glaive", 23, {"blade": (I("mithril_ingot"), 3, 3), "ember": (I("fire_essence"), 1), "shaft": (I("dark_timber"), 2)}),
-    ("starpiercer", 28, {"head": (I("star_shard"), 1, 4), "socket": (I("darksteel_ingot"), 2), "shaft": (I("dark_timber"), 3)}),
+    ("emberwing_glaive", 23, {"blade": (I("mithril"), 3, 3), "ember": (I("fire_essence"), 1), "shaft": (I("dark_timber"), 2)}),
+    ("starpiercer", 28, {"head": (I("star_shard"), 1, 4), "socket": (I("black_iron"), 2), "shaft": (I("dark_timber"), 3)}),
     ("reaper_scythe", 17, {"blade": (I("iron_ingot"), 3, 3), "essence": (I("ghost_essence"), 1), "haft": (T("wood"), 2)}),
     ("harvest_moon_scythe", 22, {"blade": (I("silver_ingot"), 3, 3), "moon": (I("moonstone"), 2), "haft": (I("birch_timber"), 2)}),
     ("chain_whip", 17, {"links": (I("iron_ingot"), 4, 3), "grip": (T("leather"), 1)}),
-    ("mithril_hammer", 18, {"head": (I("mithril_ingot"), 2, 3), "haft": (T("wood"), 1)}),
-    ("mithril_pickaxe", 18, {"head": (I("mithril_ingot"), 3, 3), "haft": (T("wood"), 2)}),
+    ("mithril_hammer", 18, {"head": (I("mithril"), 2, 3), "haft": (T("wood"), 1)}),
+    ("mithril_pickaxe", 18, {"head": (I("mithril"), 3, 3), "haft": (T("wood"), 2)}),
     ("woodsman_axe", 12, {"head": (I("iron_ingot"), 3, 3), "haft": (I("dark_timber"), 1)}),
     ("bronze_heater", 5, {"boards": (T("wood"), 2, 2), "rim": (I("bronze_ingot"), 2, 2)}),
     ("tower_shield", 14, {"plates": (I("iron_ingot"), 6, 3), "boards": (T("wood"), 3)}),
-    ("mithril_aegis", 20, {"plates": (I("mithril_ingot"), 4, 4), "strap": (I("thick_leather"), 1)}),
-    ("dawn_aegis", 22, {"plates": (I("mithril_ingot"), 4, 4), "gild": (I("gold_leaf"), 3), "essence": (T("essence"), 1)}),
+    ("mithril_aegis", 20, {"plates": (I("mithril"), 4, 4), "strap": (I("thick_leather"), 1)}),
+    ("dawn_aegis", 22, {"plates": (I("mithril"), 4, 4), "gild": (I("gold_leaf"), 3), "essence": (T("essence"), 1)}),
     ("iron_bracer", 3, {"plate": (I("iron_ingot"), 1, 2), "strap": (T("leather"), 1)}),
 ]
 for out, lv, slots in SMITH:
     recipe("forge_" + out, items[out]["name"], "smithing", lv, out, slots, tool=HAM, ticks=60 + lv * 3)
 # 판금 · 사슬 세트
-for sid, lv, mat, cnt in [("bronze_guard", 6, "bronze_ingot", 1), ("mithril_knight", 18, "mithril_ingot", 1), ("emberforged", 15, "iron_ingot", 1), ("frostwarden", 16, "iron_ingot", 1), ("dragonscale", 26, "darksteel_ingot", 1)]:
+for sid, lv, mat, cnt in [("bronze_guard", 6, "bronze_ingot", 1), ("mithril_knight", 18, "mithril", 1), ("emberforged", 15, "iron_ingot", 1), ("frostwarden", 16, "iron_ingot", 1), ("dragonscale", 26, "black_iron", 1)]:
     for key, n in [("helmet", 3), ("chest", 5), ("legs", 4), ("boots", 2)]:
         slots = {"plates": (I(mat), n * cnt, 3), "lining": (T("cloth"), 1)}
         if sid == "emberforged": slots["temper"] = (I("ember_stone"), 1)
         if sid == "frostwarden": slots["fur"] = (I("wolf_pelt"), 1)
-        if sid == "dragonscale": slots["scales"] = (I("drake_scale"), max(1, n - 1), 2)
+        if sid == "dragonscale": slots["scales"] = (I("wyvern_scale"), max(1, n - 1), 2)
         if sid == "mithril_knight": slots["gem"] = (T("cut_gem"), 1, 0, 50)
         recipe(f"forge_{sid}_{key}", items[f"{sid}_{key}"]["name"], "smithing", lv, f"{sid}_{key}", slots, tool=HAM, ticks=60 + lv * 3)
 # 가죽 · 재봉 세트
@@ -451,7 +454,7 @@ for out, lv, slots in [
     ("sapphire_ring", 9, {"band": (I("gold_ingot"), 1, 2), "gem": (I("sapphire"), 1, 3)}),
     ("emerald_ring", 10, {"band": (I("gold_ingot"), 1, 2), "gem": (I("emerald_gem"), 1, 3)}),
     ("moonstone_ring", 13, {"band": (I("silver_ingot"), 1, 2), "gem": (I("moonstone"), 1, 3)}),
-    ("star_signet", 26, {"band": (I("gold_ingot"), 2, 2), "gem": (I("star_shard"), 1, 4), "inlay": (I("mithril_ingot"), 1)}),
+    ("star_signet", 26, {"band": (I("gold_ingot"), 2, 2), "gem": (I("star_shard"), 1, 4), "inlay": (I("mithril"), 1)}),
     ("pearl_necklace", 12, {"chain": (I("gold_ingot"), 1, 2), "pearls": (I("pearl"), 3, 3)}),
     ("amber_pendant", 6, {"chain": (I("silver_ingot"), 1, 2), "gem": (I("amber"), 1, 3)}),
     ("ember_heart", 16, {"chain": (I("gold_ingot"), 1, 2), "gem": (I("ember_stone"), 2, 3), "essence": (I("fire_essence"), 1)}),
@@ -490,12 +493,13 @@ recipe("build_firework", "축포", "engineering", 6, "firework_rocket", {"powder
 recipe("forge_crystal_alembic", "수정 증류기", "engineering", 16, "crystal_alembic", {"glass": (I("storm_glass"), 2, 3), "frame": (I("copper_ingot"), 2)}, tool=WR)
 recipe("forge_silk_needle", "비단 바늘", "engineering", 8, "silk_needle", {"metal": (I("silver_ingot"), 1, 2)}, tool=WR)
 recipe("forge_silver_rod", "은빛 낚싯대", "engineering", 10, "silver_rod", {"reel": (I("silver_ingot"), 1, 2), "pole": (I("birch_timber"), 2), "line": (I("spider_silk"), 1)}, tool=WR)
-recipe("forge_master_carving_set", "명장의 조각 도구", "engineering", 20, "master_carving_set", {"blades": (I("mithril_ingot"), 2, 3), "grip": (I("dark_timber"), 1)}, tool=WR)
+recipe("forge_master_carving_set", "명장의 조각 도구", "engineering", 20, "master_carving_set", {"blades": (I("mithril"), 2, 3), "grip": (I("dark_timber"), 1)}, tool=WR)
 # 조각 (오리지널)
 recipe("carve_candle", "초 빚기", "sculpting", 1, "candle_wax", {"wax": (T("wax"), 1)}, count=2, xp=4)
 recipe("render_beeswax", "밀랍 녹이기", "cooking", 2, "beeswax", {"comb": (I("honey_comb"), 2)})
 
-for k, v in SETS.items(): pass
+import balance_pass
+balance_pass.finalize(REPO, items, prices, recipes, resources, SETS, BASE_PRICE, DESIGN)
 dump({"items": items, "sets": SETS}, open(OUT + "/items.yml", "w"), allow_unicode=True, sort_keys=False, width=220, default_flow_style=None)
 dump({"prices": prices}, open(OUT + "/market.yml", "w"), allow_unicode=True, sort_keys=False, width=220, default_flow_style=None)
 dump({"recipes": recipes}, open(OUT + "/recipes.yml", "w"), allow_unicode=True, sort_keys=False, width=220, default_flow_style=None)

@@ -8,16 +8,16 @@ skills:
   berserk_roar: {name: 광전사의 포효, kind: SELF, discipline: swordsmanship, min_level: 12, resource: STAMINA, cost: 30, cooldown_ms: 30000, radius: 3.0, damage: 1.0, effect: HASTE, effect_seconds: 8, source: ORIGINAL}
   earthsplitter: {name: 대지 가르기, kind: AREA, weapon: axe, discipline: swordsmanship, min_level: 22, resource: STAMINA, cost: 50, cooldown_ms: 16000, shape: LINE, radius: 8.0, width: 2.0, damage: 2.4, effect: SLOW, effect_seconds: 3,
     source: ORIGINAL}
-  crush: {name: 내려찍기, kind: AREA, weapon: mace, discipline: swordsmanship, min_level: 1, resource: STAMINA, cost: 18, cooldown_ms: 3500, shape: CONE, radius: 2.8, width: 70, damage: 1.4, effect: STUN, effect_seconds: 1, basic: true,
+  crush: {name: 내려찍기, kind: AREA, weapon: mace, discipline: swordsmanship, min_level: 1, resource: STAMINA, cost: 18, cooldown_ms: 3500, shape: CONE, radius: 2.8, width: 70, damage: 1.6, effect: SLOW, effect_seconds: 2, basic: true,
     source: ORIGINAL}
   shockwave: {name: 충격파, kind: AREA, weapon: mace, discipline: swordsmanship, min_level: 10, resource: STAMINA, cost: 35, cooldown_ms: 11000, shape: RING, radius: 5.0, damage: 1.5, effect: SLOW, effect_seconds: 3, source: ORIGINAL}
   holy_smite: {name: 신성한 일격, kind: AREA, weapon: mace, discipline: swordsmanship, min_level: 14, resource: STAMINA, cost: 35, cooldown_ms: 9000, shape: CIRCLE, radius: 2.5, damage: 2.0, effect: WEAKEN, effect_seconds: 5, source: ORIGINAL}
-  reap: {name: 거두기, kind: AREA, weapon: scythe, discipline: swordsmanship, min_level: 1, resource: STAMINA, cost: 18, cooldown_ms: 3500, shape: CONE, radius: 3.5, width: 150, damage: 1.3, basic: true, source: ORIGINAL}
+  reap: {name: 거두기, kind: AREA, weapon: scythe, discipline: swordsmanship, min_level: 1, resource: STAMINA, cost: 18, cooldown_ms: 3500, shape: CONE, radius: 3.5, width: 150, damage: 1.0, basic: true, source: ORIGINAL}
   soul_harvest: {name: 영혼 수확, kind: AREA, weapon: scythe, discipline: swordsmanship, min_level: 12, resource: STAMINA, cost: 35, cooldown_ms: 12000, shape: CIRCLE, radius: 4.0, damage: 1.7, effect: WEAKEN, effect_seconds: 6,
     source: ORIGINAL}
   lash: {name: 채찍질, kind: AREA, weapon: whip, discipline: swordsmanship, min_level: 1, resource: STAMINA, cost: 12, cooldown_ms: 2500, shape: LINE, radius: 5.0, width: 1.0, damage: 1.2, effect: SLOW, effect_seconds: 2, basic: true,
     source: ORIGINAL}
-  entangle: {name: 휘감기, kind: PROJECTILE, weapon: whip, discipline: swordsmanship, min_level: 10, resource: STAMINA, cost: 25, cooldown_ms: 10000, radius: 8, damage: 1.0, effect: FREEZE, effect_seconds: 2, source: ORIGINAL}
+  entangle: {name: 휘감기, kind: PROJECTILE, weapon: whip, discipline: swordsmanship, min_level: 12, resource: STAMINA, cost: 25, cooldown_ms: 14000, radius: 8, damage: 1.0, effect: FREEZE, effect_seconds: 2, source: ORIGINAL}
   piercing_lunge: {name: 꿰뚫는 돌진, kind: DASH, weapon: sword, discipline: swordsmanship, min_level: 10, resource: STAMINA, cost: 30, cooldown_ms: 9000, shape: LINE, radius: 5.0, width: 1.2, damage: 1.8, source: ORIGINAL}
   blade_dance: {name: 칼날 춤, kind: AREA, weapon: sword, discipline: swordsmanship, min_level: 18, resource: STAMINA, cost: 45, cooldown_ms: 14000, shape: CIRCLE, radius: 3.5, damage: 2.2, effect: BLEED, effect_seconds: 5, source: ORIGINAL}
   riposte: {name: 받아치기, kind: SELF, weapon: sword, discipline: swordsmanship, min_level: 14, resource: STAMINA, cost: 25, cooldown_ms: 15000, radius: 3.0, damage: 1.0, effect: GUARD, effect_seconds: 4, source: ORIGINAL}
@@ -60,6 +60,6 @@ combos:
     window_ms: 2000
     finisher: combo_storm_of_blades
 combo_skills:
-  combo_rampage: {name: 난도질, kind: AREA, discipline: swordsmanship, min_level: 8, resource: STAMINA, cost: 15, cooldown_ms: 4000, shape: CIRCLE, radius: 3.0, damage: 2.2, effect: BLEED, effect_seconds: 3, basic: true, source: ORIGINAL}
+  combo_rampage: {name: 난도질, kind: AREA, discipline: swordsmanship, min_level: 8, resource: STAMINA, cost: 15, cooldown_ms: 4000, shape: CIRCLE, radius: 3.0, damage: 1.7, effect: BLEED, effect_seconds: 3, basic: true, source: ORIGINAL}
   combo_triple_thrust: {name: 삼단 찌르기, kind: AREA, discipline: spearmanship, min_level: 5, resource: STAMINA, cost: 12, cooldown_ms: 3000, shape: LINE, radius: 5.0, width: 1.2, damage: 2.1, basic: true, source: ORIGINAL}
   combo_storm_of_blades: {name: 칼바람, kind: AREA, discipline: swordsmanship, min_level: 12, resource: STAMINA, cost: 20, cooldown_ms: 5000, shape: CONE, radius: 4.0, width: 140, damage: 2.6, basic: true, source: ORIGINAL}

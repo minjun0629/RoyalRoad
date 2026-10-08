@@ -412,7 +412,7 @@ public final class VersaEraPlugin extends JavaPlugin {
         }
                 InventoryGuard guard = new InventoryGuard(this, services, async, codec);
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
-                deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.HeadGear(codec), new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
+                deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.HeadGear(codec), new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec).refill((pl, x) -> skills.refill(pl, x[0], x[1])),
                 new io.versaera.platform.bukkit.world.TrainingDummies(this, services, async),
                 (stations = new StationListener(this, services, async, codec, sessions)), new MenuListener()))
             Bukkit.getPluginManager().registerEvents(l, this);

@@ -3,8 +3,8 @@
 set -e
 T=$(mktemp -d)
 python3 tools/gen_originals/orig_regions.py . "$T/regions.yml"
-python3 tools/gen_originals/orig_items.py "$T"
-python3 tools/gen_originals/orig_world.py "$T"
+python3 tools/gen_originals/orig_items.py "$T" .
+python3 tools/gen_originals/orig_world.py "$T" .
 D=src/main/resources/content/original
 mkdir -p "$D"
 for f in "$T"/*.yml; do
@@ -14,3 +14,4 @@ for f in "$T"/*.yml; do
     cat "$f"; } > "$D/$n"
 done
 rm -rf "$T"
+python3 tools/gen_originals/balance_report.py .

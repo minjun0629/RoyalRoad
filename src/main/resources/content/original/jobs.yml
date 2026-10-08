@@ -11,7 +11,7 @@ jobs:
       - {mastery: swordsmanship, level: 8}
       - {counter: kill.monster, at_least: 80}
       - {counter: hit_taken, at_least: 500}
-    perks: {attack_pct: 0.08, defense_pct: -0.03}
+    perks: {attack_pct: 0.1, max_health_pct: 0.03, defense_pct: -0.03}
     skills: [whirlwind, berserk_roar]
   warlord:
     name: 전쟁군주
@@ -23,7 +23,7 @@ jobs:
       all:
       - {mastery: swordsmanship, level: 20}
       - {counter: kill.monster, at_least: 1500}
-    perks: {attack_pct: 0.12, max_health_pct: 0.08, stamina: 20}
+    perks: {attack_pct: 0.1, max_health_pct: 0.08, stamina: 20}
     skills: [skull_splitter, earthsplitter]
   paladin:
     name: 성기사
@@ -60,7 +60,7 @@ jobs:
       all:
       - {mastery: swordsmanship, level: 18}
       - {counter: kill.backstab, at_least: 300}
-    perks: {crit: 0.1, attack_pct: 0.06}
+    perks: {crit: 0.1, attack_pct: 0.08}
     skills: [fan_of_knives, venom_strike]
   lancer:
     name: 창병
@@ -83,7 +83,7 @@ jobs:
       all:
       - {mastery: spearmanship, level: 18}
       - {mastery: riding, level: 10}
-    perks: {attack_pct: 0.1, stamina: 20}
+    perks: {attack_pct: 0.1, defense_pct: 0.04, stamina: 20}
     skills: [dragoon_leap, impale]
   ranger_job:
     name: 순찰자
@@ -95,7 +95,7 @@ jobs:
       all:
       - {mastery: archery, level: 15}
       - {mastery: exploration, level: 10}
-    perks: {crit: 0.05, stamina: 20}
+    perks: {crit: 0.05, attack_pct: 0.06, stamina: 20}
     skills: [multishot, fire_arrow]
   beast_hunter:
     name: 야수 사냥꾼
@@ -107,7 +107,7 @@ jobs:
       all:
       - {mastery: archery, level: 20}
       - {counter: kill.monster, at_least: 2000}
-    perks: {attack_pct: 0.08, crit: 0.04}
+    perks: {attack_pct: 0.1, crit: 0.05}
     skills: [hunters_mark, rain_of_thorns]
   priest:
     name: 사제
@@ -142,7 +142,7 @@ jobs:
       all:
       - {mastery: spellcraft, level: 18}
       - {counter: kill.monster, at_least: 800}
-    perks: {mana: 60, attack_pct: 0.1, max_health_pct: -0.05}
+    perks: {mana: 60, attack_pct: 0.12, max_health_pct: -0.05}
     skills: [void_bolt]
   druid:
     name: 드루이드
@@ -153,7 +153,7 @@ jobs:
       all:
       - {mastery: spellcraft, level: 6}
       - {mastery: herbalism, level: 10}
-    perks: {mana: 30, gather_bonus.herbalism: 1}
+    perks: {mana: 40, max_health_pct: 0.03, gather_bonus.herbalism: 1}
     skills: [entangling_roots]
   reaper:
     name: 수확자
@@ -175,7 +175,7 @@ jobs:
       all:
       - {mastery: swordsmanship, level: 8}
       - {mastery: dexterity, level: 8}
-    perks: {crit: 0.05, stamina: 15}
+    perks: {crit: 0.06, attack_pct: 0.03, stamina: 20}
     skills: [entangle]
   jeweler:
     name: 보석 세공사
@@ -196,7 +196,7 @@ jobs:
       all:
       - {mastery: brewing, level: 10}
       - {counter: craft.brewing, at_least: 50}
-    perks: {craft_quality.brewing: 50, price_discount: 0.02}
+    perks: {craft_quality.brewing: 45, price_discount: 0.02}
   cartographer:
     name: 지도 제작자
     slot: LIFE
@@ -257,7 +257,7 @@ jobs:
       all:
       - {mastery: cooking, level: 22}
       - {counter: craft.cooking, at_least: 600}
-    perks: {craft_quality.cooking: 90, craft_quality.brewing: 30}
+    perks: {craft_quality.cooking: 55, craft_quality.brewing: 15}
   grand_alchemist:
     name: 대연금술사
     slot: LIFE
@@ -268,7 +268,7 @@ jobs:
       all:
       - {mastery: alchemy, level: 22}
       - {counter: craft.alchemy, at_least: 600}
-    perks: {craft_quality.alchemy: 90}
+    perks: {craft_quality.alchemy: 70}
   couturier:
     name: 궁정 재단사
     slot: LIFE
@@ -279,7 +279,7 @@ jobs:
       all:
       - {mastery: tailoring, level: 22}
       - {counter: craft.tailoring, at_least: 600}
-    perks: {craft_quality.tailoring: 80, craft_quality.leatherwork: 40}
+    perks: {craft_quality.tailoring: 50, craft_quality.leatherwork: 20}
   artificer:
     name: 명공
     slot: LIFE
@@ -290,7 +290,7 @@ jobs:
       all:
       - {mastery: engineering, level: 22}
       - {mastery: smithing, level: 15}
-    perks: {craft_quality.engineering: 80, craft_quality.smithing: 30}
+    perks: {craft_quality.engineering: 50, craft_quality.smithing: 20}
   gem_master:
     name: 보석 명인
     slot: LIFE
@@ -301,7 +301,7 @@ jobs:
       all:
       - {mastery: jewelcraft, level: 22}
       - {counter: craft.jewelcraft, at_least: 500}
-    perks: {craft_quality.jewelcraft: 100}
+    perks: {craft_quality.jewelcraft: 70}
   trade_prince:
     name: 거상
     slot: LIFE
@@ -312,4 +312,4 @@ jobs:
       all:
       - {mastery: trading, level: 22}
       - {counter: trade.completed, at_least: 500}
-    perks: {price_discount: 0.1, auction_fee_cut: 0.8}
+    perks: {price_discount: 0.08, auction_fee_cut: 0.6}

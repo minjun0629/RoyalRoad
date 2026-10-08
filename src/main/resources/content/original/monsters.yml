@@ -4,9 +4,9 @@ monsters:
   moss_boar:
     name: 이끼 멧돼지
     entity: RAVAGER
-    hp: 34
-    damage: 4
-    level: [8, 15]
+    hp: 18
+    damage: 3
+    level: [12, 29]
     regions: [hollowroot_marsh, verdant_hollow]
     tags: [forest, swamp, valley]
     danger: [1, 3]
@@ -18,12 +18,12 @@ monsters:
   thorn_hare:
     name: 가시토끼
     entity: RABBIT
-    hp: 8
+    hp: 11
     damage: 2
-    level: [2, 6]
+    level: [4, 11]
     regions: [thornwall_heath]
     tags: [highland, frontier, plains]
-    danger: [0, 2]
+    danger: [0, 3]
     hostile: false
     weight: 5
     pack: [1, 3]
@@ -33,9 +33,9 @@ monsters:
   frostfang_wolf:
     name: 서리송곳니 늑대
     entity: WOLF
-    hp: 30
-    damage: 6
-    level: [18, 26]
+    hp: 40
+    damage: 8
+    level: [200, 332]
     regions: [frostfang_pass]
     tags: [frozen, mountain]
     danger: [3, 5]
@@ -47,9 +47,9 @@ monsters:
   cave_bear:
     name: 동굴곰
     entity: POLAR_BEAR
-    hp: 60
+    hp: 42
     damage: 8
-    level: [20, 30]
+    level: [158, 240]
     tags: [mountain, underground, forest]
     danger: [3, 5]
     weight: 2
@@ -59,9 +59,9 @@ monsters:
   giant_bee:
     name: 왕벌
     entity: VEX
-    hp: 12
+    hp: 15
     damage: 3
-    level: [6, 12]
+    level: [12, 29]
     regions: [verdant_hollow]
     tags: [valley, farmland, forest]
     danger: [1, 3]
@@ -73,9 +73,9 @@ monsters:
   salt_crab:
     name: 소금 집게
     entity: SPIDER
-    hp: 22
-    damage: 4
-    level: [12, 20]
+    hp: 42
+    damage: 8
+    level: [158, 240]
     regions: [saltglass_flats]
     tags: [salt, coast, desert]
     danger: [2, 4]
@@ -86,9 +86,9 @@ monsters:
   lake_snapper:
     name: 호수 자라
     entity: DROWNED
-    hp: 28
-    damage: 5
-    level: [10, 18]
+    hp: 30
+    damage: 6
+    level: [48, 106]
     regions: [drowned_bell_lake]
     tags: [lake, river]
     danger: [1, 3]
@@ -99,9 +99,9 @@ monsters:
   dune_scorpion:
     name: 사구 전갈
     entity: CAVE_SPIDER
-    hp: 20
-    damage: 5
-    level: [16, 24]
+    hp: 31
+    damage: 6
+    level: [90, 180]
     tags: [desert, salt, badlands]
     danger: [3, 5]
     weight: 3
@@ -112,9 +112,9 @@ monsters:
   storm_hawk:
     name: 폭풍매
     entity: PHANTOM
-    hp: 18
-    damage: 5
-    level: [22, 32]
+    hp: 40
+    damage: 8
+    level: [200, 332]
     regions: [skyreach_spires, glass_bloom_canyon]
     tags: [sky, mountain, canyon]
     danger: [4, 6]
@@ -126,9 +126,9 @@ monsters:
   griffin_chick:
     name: 어린 그리폰
     entity: PHANTOM
-    hp: 40
-    damage: 7
-    level: [28, 36]
+    hp: 59
+    damage: 11
+    level: [428, 560]
     regions: [skyreach_spires]
     tags: [sky, mountain]
     danger: [5, 6]
@@ -139,9 +139,9 @@ monsters:
   ash_jackal:
     name: 잿불 승냥이
     entity: WOLF
-    hp: 26
-    damage: 6
-    level: [24, 32]
+    hp: 46
+    damage: 9
+    level: [320, 464]
     regions: [cinder_ash_wastes]
     tags: [badlands, volcano]
     danger: [4, 6]
@@ -153,9 +153,9 @@ monsters:
   jungle_panther:
     name: 밀림 표범
     entity: FOX
-    hp: 36
-    damage: 8
-    level: [30, 40]
+    hp: 52
+    damage: 10
+    level: [299, 420]
     regions: [bloodthorn_jungle]
     tags: [swamp, frontier]
     danger: [5, 6]
@@ -166,12 +166,12 @@ monsters:
   bog_leech:
     name: 늪 거머리
     entity: CAVE_SPIDER
-    hp: 10
-    damage: 3
-    level: [6, 12]
+    hp: 31
+    damage: 6
+    level: [90, 180]
     regions: [hollowroot_marsh]
     tags: [swamp]
-    danger: [1, 3]
+    danger: [1, 4]
     weight: 4
     pack: [2, 4]
     drops: ['slime_gel:0.5', 'troll_blood:0.02']
@@ -180,9 +180,9 @@ monsters:
   silk_spider:
     name: 명주거미
     entity: SPIDER
-    hp: 24
-    damage: 4
-    level: [12, 20]
+    hp: 30
+    damage: 6
+    level: [48, 106]
     tags: [forest, ruins, underground]
     danger: [2, 4]
     weight: 3
@@ -192,9 +192,9 @@ monsters:
   brood_mother:
     name: 알 품은 독거미
     entity: SPIDER
-    hp: 50
-    damage: 7
-    level: [26, 34]
+    hp: 52
+    damage: 10
+    level: [299, 420]
     regions: [bloodthorn_jungle]
     tags: [swamp, frontier, underground]
     danger: [4, 6]
@@ -205,9 +205,9 @@ monsters:
   glow_slug:
     name: 빛민달팽이
     entity: RABBIT
-    hp: 14
+    hp: 13
     damage: 2
-    level: [4, 10]
+    level: [4, 11]
     tags: [underground, swamp, deep]
     danger: [1, 3]
     hostile: false
@@ -219,9 +219,9 @@ monsters:
     name: 울음뿌리
     entity: ZOMBIE
     baby: true
-    hp: 16
-    damage: 3
-    level: [10, 16]
+    hp: 20
+    damage: 4
+    level: [18, 36]
     tags: [forest, swamp, valley]
     danger: [2, 3]
     weight: 3
@@ -231,9 +231,9 @@ monsters:
   strangler_vine:
     name: 목조르기 덩굴
     entity: SPIDER
-    hp: 30
-    damage: 6
-    level: [28, 36]
+    hp: 52
+    damage: 10
+    level: [299, 420]
     regions: [bloodthorn_jungle]
     tags: [swamp, frontier]
     danger: [5, 6]
@@ -244,9 +244,9 @@ monsters:
   treant_sapling:
     name: 어린 나무정령
     entity: IRON_GOLEM
-    hp: 70
-    damage: 7
-    level: [22, 30]
+    hp: 26
+    damage: 4
+    level: [30, 84]
     regions: [whispering_birchwood]
     tags: [forest, mist]
     danger: [3, 5]
@@ -258,9 +258,9 @@ monsters:
   ember_sprite:
     name: 불씨 정령
     entity: VEX
-    hp: 22
+    hp: 31
     damage: 6
-    level: [18, 26]
+    level: [90, 180]
     regions: [ember_vale]
     tags: [volcano, valley]
     danger: [3, 5]
@@ -272,9 +272,9 @@ monsters:
   frost_wisp:
     name: 서리 도깨비불
     entity: VEX
-    hp: 16
-    damage: 5
-    level: [20, 28]
+    hp: 40
+    damage: 8
+    level: [200, 332]
     regions: [frostfang_pass]
     tags: [frozen, mountain]
     danger: [4, 5]
@@ -286,9 +286,9 @@ monsters:
   storm_elemental:
     name: 폭풍 정령
     entity: VEX
-    hp: 34
+    hp: 40
     damage: 8
-    level: [26, 34]
+    level: [200, 332]
     regions: [glass_bloom_canyon]
     tags: [canyon, badlands, sky]
     danger: [4, 6]
@@ -300,9 +300,9 @@ monsters:
   salt_wraith:
     name: 소금 망령
     entity: STRAY
-    hp: 30
-    damage: 6
-    level: [22, 30]
+    hp: 42
+    damage: 8
+    level: [158, 240]
     regions: [saltglass_flats]
     tags: [salt, desert]
     danger: [4, 5]
@@ -314,9 +314,9 @@ monsters:
   mist_phantom:
     name: 안개 환영
     entity: VEX
-    hp: 24
+    hp: 30
     damage: 6
-    level: [20, 30]
+    level: [48, 106]
     regions: [mistveil_isles, whispering_birchwood]
     tags: [mist, coast, sea]
     danger: [3, 5]
@@ -328,9 +328,9 @@ monsters:
   lava_golem:
     name: 용암 거인
     entity: IRON_GOLEM
-    hp: 120
-    damage: 12
-    level: [40, 50]
+    hp: 136
+    damage: 13
+    level: [428, 560]
     regions: [obsidian_teeth]
     tags: [volcano, canyon]
     danger: [6, 6]
@@ -342,9 +342,9 @@ monsters:
   moonlit_guardian:
     name: 달빛 수호석상
     entity: IRON_GOLEM
-    hp: 90
-    damage: 9
-    level: [30, 40]
+    hp: 89
+    damage: 11
+    level: [158, 240]
     regions: [shattered_moon_crater]
     tags: [crater, ruins]
     danger: [4, 6]
@@ -358,7 +358,7 @@ monsters:
     entity: DROWNED
     hp: 30
     damage: 6
-    level: [14, 22]
+    level: [48, 106]
     regions: [drowned_bell_lake]
     tags: [lake, ruins]
     danger: [2, 4]
@@ -370,9 +370,9 @@ monsters:
   ash_revenant:
     name: 잿불 망령병
     entity: WITHER_SKELETON
-    hp: 44
+    hp: 46
     damage: 9
-    level: [30, 40]
+    level: [320, 464]
     regions: [cinder_ash_wastes]
     tags: [badlands, volcano]
     danger: [5, 6]
@@ -385,9 +385,9 @@ monsters:
   bone_archer:
     name: 해골 궁수
     entity: SKELETON
-    hp: 24
+    hp: 22
     damage: 5
-    level: [12, 22]
+    level: [30, 84]
     tags: [ruins, underground, badlands]
     danger: [2, 4]
     weight: 4
@@ -399,9 +399,9 @@ monsters:
   ink_wraith:
     name: 잉크 망령
     entity: VEX
-    hp: 22
-    damage: 6
-    level: [18, 26]
+    hp: 42
+    damage: 8
+    level: [158, 240]
     regions: [sunken_archive]
     tags: [scholar, ruins, underground]
     danger: [3, 5]
@@ -413,9 +413,9 @@ monsters:
   living_tome:
     name: 살아 있는 책
     entity: VEX
-    hp: 18
-    damage: 4
-    level: [16, 24]
+    hp: 31
+    damage: 6
+    level: [90, 180]
     regions: [sunken_archive]
     tags: [scholar, ruins]
     danger: [3, 4]
@@ -427,9 +427,9 @@ monsters:
   heath_bandit:
     name: 황야 도적
     entity: PILLAGER
-    hp: 30
+    hp: 22
     damage: 5
-    level: [12, 22]
+    level: [30, 84]
     regions: [thornwall_heath]
     tags: [highland, frontier, plains]
     danger: [2, 4]
@@ -442,9 +442,9 @@ monsters:
   mist_pirate:
     name: 안개 해적
     entity: VINDICATOR
-    hp: 40
-    damage: 7
-    level: [22, 32]
+    hp: 31
+    damage: 6
+    level: [90, 180]
     regions: [mistveil_isles]
     tags: [coast, sea, mist]
     danger: [4, 5]
@@ -457,9 +457,9 @@ monsters:
   cultist_acolyte:
     name: 공허 신도
     entity: WITCH
-    hp: 36
-    damage: 7
-    level: [26, 34]
+    hp: 52
+    damage: 10
+    level: [299, 420]
     tags: [ruins, underground, crater]
     danger: [4, 6]
     weight: 2
@@ -470,9 +470,9 @@ monsters:
   nomad_raider:
     name: 초원 약탈자
     entity: PILLAGER
-    hp: 34
-    damage: 6
-    level: [18, 28]
+    hp: 22
+    damage: 5
+    level: [30, 84]
     regions: [starfall_steppe]
     tags: [plains, highland]
     danger: [3, 4]
@@ -485,9 +485,9 @@ monsters:
   clockwork_sentry:
     name: 태엽 파수병
     entity: IRON_GOLEM
-    hp: 60
+    hp: 42
     damage: 8
-    level: [20, 30]
+    level: [158, 240]
     regions: [rust_gear_ruins]
     tags: [ruins, underground]
     danger: [3, 5]
@@ -498,12 +498,12 @@ monsters:
   gear_rat:
     name: 톱니쥐
     entity: CAVE_SPIDER
-    hp: 8
-    damage: 2
-    level: [8, 14]
+    hp: 31
+    damage: 6
+    level: [90, 180]
     regions: [rust_gear_ruins]
     tags: [ruins, underground]
-    danger: [1, 3]
+    danger: [1, 4]
     weight: 5
     pack: [2, 5]
     drops: ['old_gear:0.6']
@@ -512,9 +512,9 @@ monsters:
   star_beetle:
     name: 별딱정벌레
     entity: CAVE_SPIDER
-    hp: 12
-    damage: 3
-    level: [14, 22]
+    hp: 22
+    damage: 5
+    level: [30, 84]
     regions: [shattered_moon_crater, starfall_steppe]
     tags: [crater, plains]
     danger: [2, 4]
@@ -526,9 +526,9 @@ monsters:
   glass_golem:
     name: 유리 골렘
     entity: IRON_GOLEM
-    hp: 70
-    damage: 9
-    level: [28, 36]
+    hp: 117
+    damage: 12
+    level: [299, 420]
     regions: [glass_bloom_canyon]
     tags: [canyon, badlands]
     danger: [5, 6]
@@ -540,12 +540,12 @@ monsters:
   swamp_troll:
     name: 늪 트롤
     entity: RAVAGER
-    hp: 90
-    damage: 10
-    level: [30, 40]
+    hp: 89
+    damage: 11
+    level: [158, 240]
     regions: [hollowroot_marsh, bloodthorn_jungle]
     tags: [swamp, frontier]
-    danger: [5, 6]
+    danger: [4, 6]
     weight: 2
     kinds: [LARGE]
     drops: ['troll_blood:0.3', 'monster_bone:1.0', 'bog_moss:0.6']

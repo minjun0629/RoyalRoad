@@ -8,15 +8,15 @@ field_bosses:
     entity: IRON_GOLEM
     region: hollowroot_marsh
     hp: 900
-    damage: 11
+    damage: 12
     respawn_minutes: 120
     mechanics: [REGEN, MINIONS, ENRAGE]
     minion: CAVE_SPIDER
     drops: ['hollow_wood:600:1.0', 'spirit_sap:600:0.6', 'thornwood_bow:600:0.15', 'woodsman_bane:550:0.2']
     reward:
-      money: 3000
-      xp: {swordsmanship: 250}
-      fame: 25
+      money: 4100
+      xp: {swordsmanship: 280}
+      fame: 30
     description: 늪 한가운데 천 년 묵은 고목이 일어선 것. 뿌리로 늪 거머리를 부른다
     source: ORIGINAL
   cinder_warlord:
@@ -26,16 +26,16 @@ field_bosses:
     entity: WITHER_SKELETON
     region: cinder_ash_wastes
     hp: 1300
-    damage: 14
-    respawn_minutes: 180
+    damage: 15
+    respawn_minutes: 200
     mechanics: [FEAR, MINIONS, ENRAGE, BREATH]
     minion: WITHER_SKELETON
     kinds: [UNDEAD]
     drops: ['emberforged_chest:700:0.15', 'emberclaw_axe:650:0.2', 'ember_heart:650:0.15', 'fire_essence:600:1.0']
     reward:
-      money: 6000
-      xp: {swordsmanship: 400}
-      fame: 50
+      money: 7100
+      xp: {swordsmanship: 480}
+      fame: 60
     description: 옛 전쟁에서 불타 죽고도 군대를 이끄는 장군. 잿불 망령병을 부른다
     source: ORIGINAL
   frostfang_alpha:
@@ -45,15 +45,15 @@ field_bosses:
     entity: WOLF
     region: frostfang_pass
     hp: 800
-    damage: 12
-    respawn_minutes: 120
+    damage: 11
+    respawn_minutes: 100
     mechanics: [MINIONS, ENRAGE]
     minion: WOLF
     drops: ['frostbeard_axe:650:0.15', 'frostwarden_helmet:650:0.15', 'frost_tear:650:0.12', 'wolf_pelt:600:1.0']
     reward:
       money: 3500
-      xp: {swordsmanship: 280}
-      fame: 30
+      xp: {swordsmanship: 230}
+      fame: 25
     description: 고개의 늑대 무리를 이끄는 은빛 늑대. 울부짖으면 무리가 모인다
     source: ORIGINAL
   ember_salamander:
@@ -64,12 +64,12 @@ field_bosses:
     region: ember_vale
     hp: 1000
     damage: 13
-    respawn_minutes: 120
+    respawn_minutes: 140
     mechanics: [BREATH, REGEN, ENRAGE]
     drops: ['ember_brand:650:0.2', 'ember_scepter:650:0.18', 'ember_stone:600:1.0', 'fire_essence:600:0.6']
     reward:
-      money: 4000
-      xp: {spellcraft: 300}
+      money: 4800
+      xp: {spellcraft: 330}
       fame: 35
     description: 땅불 속에서 알을 품는 거대 도롱뇽. 불길을 내뿜는다
     source: ORIGINAL
@@ -80,15 +80,15 @@ field_bosses:
     entity: IRON_GOLEM
     region: shattered_moon_crater
     hp: 1500
-    damage: 13
-    respawn_minutes: 180
+    damage: 17
+    respawn_minutes: 240
     mechanics: [VESSEL, ENRAGE]
     kinds: [LARGE]
     drops: ['moonsilver_sword:700:0.15', 'moonwell_staff:700:0.1', 'moonstone:650:1.0', 'harvest_moon_scythe:650:0.12']
     reward:
-      money: 6000
-      xp: {swordsmanship: 400}
-      fame: 55
+      money: 8700
+      xp: {swordsmanship: 590}
+      fame: 80
     description: 달조각과 함께 떨어진 돌 거인. 가슴의 월석이 생명의 그릇이다
     source: ORIGINAL
   salt_queen:
@@ -98,15 +98,15 @@ field_bosses:
     entity: WITCH
     region: saltglass_flats
     hp: 1100
-    damage: 12
-    respawn_minutes: 120
+    damage: 14
+    respawn_minutes: 160
     mechanics: [MINIONS, FEAR, FLIGHT]
     minion: STRAY
     drops: ['archmage_chest:650:0.12']
     reward:
-      money: 4500
-      xp: {spellcraft: 350}
-      fame: 40
+      money: 5500
+      xp: {spellcraft: 370}
+      fame: 45
     description: 신기루로 대상단을 홀려 소금으로 만든 마녀. 소금 망령을 부린다
     source: ORIGINAL
   bell_tide_guardian:
@@ -116,15 +116,15 @@ field_bosses:
     entity: DROWNED
     region: drowned_bell_lake
     hp: 1000
-    damage: 11
-    respawn_minutes: 120
+    damage: 13
+    respawn_minutes: 140
     mechanics: [REGEN, MINIONS]
     minion: DROWNED
     kinds: [UNDEAD]
     drops: ['tidecaller_trident:650:0.18', 'pearl_necklace:650:0.15', 'pearl:600:1.0']
     reward:
-      money: 3800
-      xp: {spearmanship: 300}
+      money: 4800
+      xp: {spearmanship: 330}
       fame: 35
     description: 가라앉은 종을 지키는 물귀신. 종이 울리면 물이 치솟는다
     source: ORIGINAL
@@ -136,12 +136,12 @@ field_bosses:
     region: thornwall_heath
     hp: 850
     damage: 11
-    respawn_minutes: 120
+    respawn_minutes: 110
     mechanics: [ENRAGE, REGEN]
     drops: ['thorn_whip:600:0.25', 'ranger_chest:600:0.15', 'bear_gauntlets:600:0.15']
     reward:
-      money: 3000
-      xp: {swordsmanship: 250}
+      money: 3800
+      xp: {swordsmanship: 260}
       fame: 25
     description: 가시덤불이 심장을 감싼 거대 짐승. 상처가 덤불로 아문다
     source: ORIGINAL
@@ -153,15 +153,15 @@ field_bosses:
     region: sunken_archive
     hp: 950
     damage: 12
-    respawn_minutes: 120
+    respawn_minutes: 130
     mechanics: [MINIONS, FLIGHT, FEAR]
     minion: VEX
     kinds: [UNDEAD]
     drops: ['archivist_staff:650:0.2', 'archmage_helmet:650:0.12', 'mana_orb:600:0.2', 'treasure_map:600:0.1']
     reward:
-      money: 4000
-      xp: {spellcraft: 320}
-      fame: 40
+      money: 4500
+      xp: {spellcraft: 300}
+      fame: 35
     description: 서고와 함께 가라앉아 책이 된 사서장. 살아 있는 책들을 부린다
     source: ORIGINAL
   starfall_khan:
@@ -171,16 +171,16 @@ field_bosses:
     entity: PILLAGER
     region: starfall_steppe
     hp: 1000
-    damage: 12
-    respawn_minutes: 120
+    damage: 13
+    respawn_minutes: 140
     mechanics: [MINIONS, ENRAGE]
     minion: PILLAGER
     kinds: [HUMAN]
     drops: ['griffin_longbow:650:0.15', 'star_shard:650:0.5', 'lucky_feather:600:0.2']
     reward:
-      money: 4200
-      xp: {archery: 320}
-      fame: 40
+      money: 4800
+      xp: {archery: 330}
+      fame: 35
     description: 떨어진 별을 모아 왕관을 만든 약탈자들의 우두머리
     source: ORIGINAL
   clockwork_colossus:
@@ -190,16 +190,16 @@ field_bosses:
     entity: IRON_GOLEM
     region: rust_gear_ruins
     hp: 1400
-    damage: 14
-    respawn_minutes: 180
+    damage: 16
+    respawn_minutes: 220
     mechanics: [VESSEL, ENRAGE, MINIONS]
     minion: CAVE_SPIDER
     kinds: [LARGE]
     drops: ['clockwork_core:700:0.6', 'clockwork_hammer:650:0.2', 'clockwork_crossbow:650:0.15']
     reward:
-      money: 5500
-      xp: {swordsmanship: 380}
-      fame: 50
+      money: 7900
+      xp: {swordsmanship: 530}
+      fame: 70
     description: 유적 한가운데 잠든 거대 태엽 인형. 등의 태엽을 먼저 부숴야 멈춘다
     source: ORIGINAL
   mist_admiral:
@@ -209,15 +209,15 @@ field_bosses:
     entity: VINDICATOR
     region: mistveil_isles
     hp: 1100
-    damage: 13
-    respawn_minutes: 120
+    damage: 14
+    respawn_minutes: 160
     mechanics: [MINIONS, FLIGHT]
     minion: VINDICATOR
     kinds: [HUMAN]
     drops: ['mistveil_cloak:650:0.18', 'star_chart:650:0.15', 'pearl_dirk:600:0.25']
     reward:
-      money: 4800
-      xp: {swordsmanship: 340}
+      money: 5500
+      xp: {swordsmanship: 370}
       fame: 45
     description: 안개 군도 해적들의 제독. 안개 속으로 사라졌다 나타난다
     source: ORIGINAL
@@ -228,15 +228,15 @@ field_bosses:
     entity: SPIDER
     region: bloodthorn_jungle
     hp: 1400
-    damage: 14
-    respawn_minutes: 180
+    damage: 16
+    respawn_minutes: 220
     mechanics: [MINIONS, REGEN, ENRAGE]
     minion: CAVE_SPIDER
     drops: ['bloodthorn_sword:700:0.18', 'venom_fang:650:0.25', 'shadowstalker_chest:650:0.12']
     reward:
-      money: 6000
-      xp: {swordsmanship: 420}
-      fame: 55
+      money: 7900
+      xp: {swordsmanship: 530}
+      fame: 70
     description: 밀림의 모든 거미를 낳았다는 어미 거미. 독안개를 뿜는다
     source: ORIGINAL
   skyreach_griffin:
@@ -246,14 +246,14 @@ field_bosses:
     entity: PHANTOM
     region: skyreach_spires
     hp: 1600
-    damage: 15
-    respawn_minutes: 200
+    damage: 18
+    respawn_minutes: 260
     mechanics: [FLIGHT, BREATH, ENRAGE]
     drops: ['griffin_lance:700:0.18', 'griffin_bracer:700:0.2', 'griffin_feather:650:1.0']
     reward:
-      money: 7000
-      xp: {spearmanship: 450}
-      fame: 60
+      money: 9600
+      xp: {spearmanship: 650}
+      fame: 90
     description: 첨탑 꼭대기에 둥지를 튼 그리폰들의 왕. 돌풍으로 사람을 떨어뜨린다
     source: ORIGINAL
   obsidian_titan:
@@ -263,15 +263,15 @@ field_bosses:
     entity: IRON_GOLEM
     region: obsidian_teeth
     hp: 2000
-    damage: 17
-    respawn_minutes: 240
+    damage: 21
+    respawn_minutes: 350
     mechanics: [VESSEL, BREATH, ENRAGE]
     kinds: [LARGE]
     drops: ['obsidian_maul:750:0.2', 'dragonscale_chest:750:0.06', 'void_scepter:700:0.1', 'obsidian_shard:650:1.0']
     reward:
-      money: 9000
-      xp: {swordsmanship: 550}
-      fame: 80
+      money: 13300
+      xp: {swordsmanship: 900}
+      fame: 135
     description: 흑요석 이빨 깊은 곳에서 용암을 마시며 자란 거신
     source: ORIGINAL
   whisper_dryad:
@@ -281,13 +281,13 @@ field_bosses:
     entity: WITCH
     region: whispering_birchwood
     hp: 900
-    damage: 10
+    damage: 12
     respawn_minutes: 120
     mechanics: [REGEN, FLIGHT, MINIONS]
     minion: VEX
     drops: ['birch_wand:600:0.3', 'spirit_sap:600:1.0', 'moonwell_staff:650:0.06']
     reward:
-      money: 3500
+      money: 4100
       xp: {spellcraft: 280}
       fame: 30
     description: 숲의 속삭임을 만드는 나무 요정. 길 잃은 사람을 영영 숲에 붙잡는다
@@ -300,13 +300,13 @@ field_bosses:
     region: glass_bloom_canyon
     hp: 1300
     damage: 15
-    respawn_minutes: 180
+    respawn_minutes: 200
     mechanics: [BREATH, FLIGHT, ENRAGE]
     drops: ['stormcaller:700:0.15', 'storm_rod:700:0.15', 'storm_orb:650:0.2', 'storm_glass:600:1.0']
     reward:
-      money: 6000
-      xp: {spellcraft: 420}
-      fame: 55
+      money: 7100
+      xp: {spellcraft: 480}
+      fame: 60
     description: 협곡에 떨어진 번개가 사라지지 않고 몸을 얻은 것
     source: ORIGINAL
   verdant_queen_bee:
@@ -316,14 +316,14 @@ field_bosses:
     entity: VEX
     region: verdant_hollow
     hp: 600
-    damage: 8
-    respawn_minutes: 90
+    damage: 9
+    respawn_minutes: 70
     mechanics: [MINIONS, FLIGHT]
     minion: VEX
     drops: ['honey_comb:550:1.0', 'honey_cake:550:0.5', 'amber_pendant:550:0.2']
     reward:
-      money: 2000
-      xp: {archery: 200}
-      fame: 20
+      money: 2300
+      xp: {archery: 150}
+      fame: 15
     description: 양봉꾼들이 두려워하는 사람만 한 여왕벌
     source: ORIGINAL

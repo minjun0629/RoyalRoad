@@ -1,5 +1,8 @@
 # 오리지널 몬스터 · 필드 보스 · 스킬 · 직업
-import yaml, sys
+import yaml, sys, math
+sys.path.insert(0, __file__.rsplit("/", 1)[0])
+from balance import Canon, DANGER_LEVEL
+REPO = sys.argv[2] if len(sys.argv) > 2 else "."
 
 class NoAlias(yaml.SafeDumper):
     def ignore_aliases(self, data):
@@ -70,6 +73,34 @@ m("gear_rat", "톱니쥐", "CAVE_SPIDER", 8, 2, [8, 14], ["ruins", "underground"
 m("star_beetle", "별딱정벌레", "CAVE_SPIDER", 12, 3, [14, 22], ["crater", "plains"], [2, 4], ["star_shard:0.02", "mana_dust:0.2"], ["shattered_moon_crater", "starfall_steppe"], weight=4, pack=[2, 4], desc="별조각을 먹어 껍질이 반짝이는 딱정벌레")
 m("glass_golem", "유리 골렘", "IRON_GOLEM", 70, 9, [28, 36], ["canyon", "badlands"], [5, 6], ["storm_glass:0.6", "glass_sand:1.0:2"], ["glass_bloom_canyon"], weight=2, kinds=["LARGE"], desc="번개 맞은 모래가 엉겨 붙은 투명한 거인")
 m("swamp_troll", "늪 트롤", "RAVAGER", 90, 10, [30, 40], ["swamp", "frontier"], [5, 6], ["troll_blood:0.3", "monster_bone:1.0", "bog_moss:0.6"], ["hollowroot_marsh", "bloodthorn_jungle"], weight=2, kinds=["LARGE"], desc="베어도 다시 붙는 늪의 트롤")
+# ---- 밸런스: 위험도 → 레벨 범위 (원작 몬스터의 위험도별 레벨) · 레벨 → 체력 · 공격 (원작 몬스터 곡선)
+#      역할: 무리 짐승 · 순한 짐승은 약하게, 혼자 다니는 사나운 것은 조금 세게, LARGE 는 원작 큰 몸 곡선
+CANON = Canon(REPO)
+REGION_DANGER = {k: v["danger"] for k, v in yaml.safe_load(open(REPO + "/src/main/resources/content/regions.yml"))["regions"].items()}
+try:
+    REGION_DANGER.update({k: v["danger"] for k, v in yaml.safe_load(open(REPO + "/src/main/resources/content/original/regions.yml"))["regions"].items()})
+except FileNotFoundError:
+    pass
+for id, e in mon.items():
+    # 사는 지역의 위험도 (여럿이면 가장 낮은 곳) · 없으면 나오는 위험도 범위의 가운데
+    homes = [REGION_DANGER[r] for r in e.get("regions", []) if r in REGION_DANGER]
+    d = min(homes) if homes else round((e["danger"][0] + e["danger"][-1]) / 2)
+    e["danger"] = [min(e["danger"][0], d), max(e["danger"][-1], d)]
+    if not e.get("hostile", True) and e["entity"] in ("RABBIT", "FOX", "GOAT"):
+        d = min(d, 1)   # 먹잇감 짐승은 어디 살든 약하다 (원작 토끼 · 여우 · 사슴처럼)
+    lo, hi = DANGER_LEVEL[d]
+    large = "LARGE" in (e.get("kinds") or [])
+    if large or (not e.get("pack") and e.get("hostile", True) and d >= 4): a, b = 0.45, 1.0      # 우두머리 · 큰 몸: 위쪽
+    elif e.get("pack") or not e.get("hostile", True): a, b = 0.0, 0.6                              # 무리 · 순한 짐승: 아래쪽
+    else: a, b = 0.2, 0.85
+    l0 = max(1, round(lo + (hi - lo) * a)); l1 = max(l0 + 1, round(lo + (hi - lo) * b))
+    mid = (l0 + l1) / 2
+    hp, dmg = CANON.monster(mid, large)
+    if e.get("pack"): hp *= 0.85; dmg *= 0.9
+    if not e.get("hostile", True): dmg *= 0.75
+    e["level"] = [l0, l1]
+    e["hp"] = max(4, round(hp))
+    e["damage"] = max(1, round(dmg))
 dump({"monsters": mon}, open(OUT + "/monsters.yml", "w"), allow_unicode=True, sort_keys=False, width=220, default_flow_style=None)
 
 # ======================================================== 필드 보스 (오리지널)
@@ -102,8 +133,24 @@ b("verdant_queen_bee", "푸른 우묵땅의 여왕벌", "FLYER", 2.0, "VEX", "ve
 # 자리만 잡은 드롭 정리
 for v in fb.values():
     v["drops"] = [d.rstrip(":") for d in v["drops"] if "placeholder" not in d]
-dump({"field_bosses": fb}, open(OUT + "/field_bosses.yml", "w"), allow_unicode=True, sort_keys=False, width=220, default_flow_style=None)
 
+# 필드 보스: 설계 체력(600 ~ 2048) → 공격 · 돈 · 숙련 경험 · 명성 · 다시 나타나는 시간 (원작 보스 log-log 곡선)
+B = CANON.bosses
+def ll(f):
+    xs = [math.log(v["hp"]) for v in B.values()]; ys = [math.log(max(1, f(v))) for v in B.values()]
+    n = len(xs); mx = sum(xs) / n; my = sum(ys) / n
+    b = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / sum((x - mx) ** 2 for x in xs)
+    return lambda hp: math.exp(my - b * mx + b * math.log(hp))
+BF = {"damage": ll(lambda v: v["damage"]), "money": ll(lambda v: v["reward"]["money"]), "xp": ll(lambda v: sum(v["reward"].get("xp", {}).values())),
+      "fame": ll(lambda v: v["reward"].get("fame", 0)), "respawn": ll(lambda v: v["respawn_minutes"])}
+for id, e in fb.items():
+    hp = max(600, min(2048, e["hp"]))
+    e["hp"] = hp
+    e["damage"] = round(BF["damage"](hp))
+    e["respawn_minutes"] = int(round(BF["respawn"](hp) / 10) * 10)
+    e["reward"] = {"money": int(round(BF["money"](hp) / 100) * 100), "xp": {k: int(round(BF["xp"](hp) / 10) * 10) for k in e["reward"]["xp"]},
+                   "fame": int(round(BF["fame"](hp) / 5) * 5)}
+dump({"field_bosses": fb}, open(OUT + "/field_bosses.yml", "w"), allow_unicode=True, sort_keys=False, width=220, default_flow_style=None)
 # ======================================================== 스킬 · 콤보
 sk = {}
 def s(id, name, kind, weapon, disc, lv, res, cost, cd, shape=None, radius=3.0, width=None, dmg=1.0, effect=None, es=0, basic=False):
@@ -126,14 +173,14 @@ s("skull_splitter", "두개골 쪼개기", "AREA", "axe", "swordsmanship", 15, S
 s("berserk_roar", "광전사의 포효", "SELF", None, "swordsmanship", 12, ST, 30, 30000, effect="HASTE", es=8)
 s("earthsplitter", "대지 가르기", "AREA", "axe", "swordsmanship", 22, ST, 50, 16000, "LINE", 8.0, 2.0, 2.4, "SLOW", 3)
 # 둔기
-s("crush", "내려찍기", "AREA", "mace", "swordsmanship", 1, ST, 18, 3500, "CONE", 2.8, 70, 1.4, "STUN", 1, basic=True)
+s("crush", "내려찍기", "AREA", "mace", "swordsmanship", 1, ST, 18, 3500, "CONE", 2.8, 70, 1.6, "SLOW", 2, basic=True)   # 기본기에 기절을 달면 3.5초마다 묶는다 → 둔화
 s("shockwave", "충격파", "AREA", "mace", "swordsmanship", 10, ST, 35, 11000, "RING", 5.0, None, 1.5, "SLOW", 3)
 s("holy_smite", "신성한 일격", "AREA", "mace", "swordsmanship", 14, ST, 35, 9000, "CIRCLE", 2.5, None, 2.0, "WEAKEN", 5)
 # 낫 · 채찍
-s("reap", "거두기", "AREA", "scythe", "swordsmanship", 1, ST, 18, 3500, "CONE", 3.5, 150, 1.3, basic=True)
+s("reap", "거두기", "AREA", "scythe", "swordsmanship", 1, ST, 18, 3500, "CONE", 3.5, 150, 1.0, basic=True)
 s("soul_harvest", "영혼 수확", "AREA", "scythe", "swordsmanship", 12, ST, 35, 12000, "CIRCLE", 4.0, None, 1.7, "WEAKEN", 6)
 s("lash", "채찍질", "AREA", "whip", "swordsmanship", 1, ST, 12, 2500, "LINE", 5.0, 1.0, 1.2, "SLOW", 2, basic=True)
-s("entangle", "휘감기", "PROJECTILE", "whip", "swordsmanship", 10, ST, 25, 10000, None, 8, None, 1.0, "FREEZE", 2)
+s("entangle", "휘감기", "PROJECTILE", "whip", "swordsmanship", 12, ST, 25, 14000, None, 8, None, 1.0, "FREEZE", 2)   # 발 묶기(궁수)와 같은 값
 # 검 · 단검 추가
 s("piercing_lunge", "꿰뚫는 돌진", "DASH", "sword", "swordsmanship", 10, ST, 30, 9000, "LINE", 5.0, 1.2, 1.8)
 s("blade_dance", "칼날 춤", "AREA", "sword", "swordsmanship", 18, ST, 45, 14000, "CIRCLE", 3.5, None, 2.2, "BLEED", 5)
@@ -166,7 +213,7 @@ combos = {
     "quick_triple": {"sequence": ["LIGHT", "LIGHT", "LIGHT", "HEAVY"], "window_ms": 2000, "finisher": "combo_storm_of_blades"},
 }
 csk = {
-    "combo_rampage": {"name": "난도질", "kind": "AREA", "discipline": "swordsmanship", "min_level": 8, "resource": "STAMINA", "cost": 15, "cooldown_ms": 4000, "shape": "CIRCLE", "radius": 3.0, "damage": 2.2, "effect": "BLEED", "effect_seconds": 3, "basic": True, "source": "ORIGINAL"},
+    "combo_rampage": {"name": "난도질", "kind": "AREA", "discipline": "swordsmanship", "min_level": 8, "resource": "STAMINA", "cost": 15, "cooldown_ms": 4000, "shape": "CIRCLE", "radius": 3.0, "damage": 1.7, "effect": "BLEED", "effect_seconds": 3, "basic": True, "source": "ORIGINAL"},
     "combo_triple_thrust": {"name": "삼단 찌르기", "kind": "AREA", "discipline": "spearmanship", "min_level": 5, "resource": "STAMINA", "cost": 12, "cooldown_ms": 3000, "shape": "LINE", "radius": 5.0, "width": 1.2, "damage": 2.1, "basic": True, "source": "ORIGINAL"},
     "combo_storm_of_blades": {"name": "칼바람", "kind": "AREA", "discipline": "swordsmanship", "min_level": 12, "resource": "STAMINA", "cost": 20, "cooldown_ms": 5000, "shape": "CONE", "radius": 4.0, "width": 140, "damage": 2.6, "basic": True, "source": "ORIGINAL"},
 }
@@ -183,34 +230,34 @@ def j(id, name, slot, tier, req, perks, skills=None, parent=None):
 A = lambda *x: {"all": list(x)}
 MS = lambda d, l: {"mastery": d, "level": l}
 CT = lambda c, n: {"counter": c, "at_least": n}
-j("berserker", "광전사", "COMBAT", 1, A(MS("swordsmanship", 8), CT("kill.monster", 80), CT("hit_taken", 500)), {"attack_pct": 0.08, "defense_pct": -0.03}, ["whirlwind", "berserk_roar"])
-j("warlord", "전쟁군주", "COMBAT", 2, A(MS("swordsmanship", 20), CT("kill.monster", 1500)), {"attack_pct": 0.12, "max_health_pct": 0.08, "stamina": 20}, ["skull_splitter", "earthsplitter"], "berserker")
+j("berserker", "광전사", "COMBAT", 1, A(MS("swordsmanship", 8), CT("kill.monster", 80), CT("hit_taken", 500)), {"attack_pct": 0.10, "max_health_pct": 0.03, "defense_pct": -0.03}, ["whirlwind", "berserk_roar"])
+j("warlord", "전쟁군주", "COMBAT", 2, A(MS("swordsmanship", 20), CT("kill.monster", 1500)), {"attack_pct": 0.10, "max_health_pct": 0.08, "stamina": 20}, ["skull_splitter", "earthsplitter"], "berserker")
 j("paladin", "성기사", "COMBAT", 2, A(MS("swordsmanship", 18), MS("spellcraft", 8), CT("hit_taken", 3000)), {"defense_pct": 0.10, "max_health_pct": 0.08, "mana": 30}, ["holy_smite", "holy_blade"], "knight")
 j("blademaster", "검성", "COMBAT", 2, A(MS("swordsmanship", 24), CT("kill.monster", 2500)), {"attack_pct": 0.10, "crit": 0.06, "stamina": 25}, ["blade_dance", "riposte"], "swordsman")
-j("duelist", "결투가", "COMBAT", 2, A(MS("swordsmanship", 18), CT("kill.backstab", 300)), {"crit": 0.10, "attack_pct": 0.06}, ["fan_of_knives", "venom_strike"], "assassin")
+j("duelist", "결투가", "COMBAT", 2, A(MS("swordsmanship", 18), CT("kill.backstab", 300)), {"crit": 0.10, "attack_pct": 0.08}, ["fan_of_knives", "venom_strike"], "assassin")
 j("lancer", "창병", "COMBAT", 1, A(MS("spearmanship", 5), CT("kill.monster", 30)), {"attack_pct": 0.04, "defense_pct": 0.04}, ["sweeping_spear", "phalanx"])
-j("dragoon", "용기병", "COMBAT", 2, A(MS("spearmanship", 18), MS("riding", 10)), {"attack_pct": 0.10, "stamina": 20}, ["dragoon_leap", "impale"], "lancer")
-j("ranger_job", "순찰자", "COMBAT", 2, A(MS("archery", 15), MS("exploration", 10)), {"crit": 0.05, "stamina": 20}, ["multishot", "fire_arrow"], "archer")
-j("beast_hunter", "야수 사냥꾼", "COMBAT", 2, A(MS("archery", 20), CT("kill.monster", 2000)), {"attack_pct": 0.08, "crit": 0.04}, ["hunters_mark", "rain_of_thorns"], "tracker")
+j("dragoon", "용기병", "COMBAT", 2, A(MS("spearmanship", 18), MS("riding", 10)), {"attack_pct": 0.10, "defense_pct": 0.04, "stamina": 20}, ["dragoon_leap", "impale"], "lancer")
+j("ranger_job", "순찰자", "COMBAT", 2, A(MS("archery", 15), MS("exploration", 10)), {"crit": 0.05, "attack_pct": 0.06, "stamina": 20}, ["multishot", "fire_arrow"], "archer")
+j("beast_hunter", "야수 사냥꾼", "COMBAT", 2, A(MS("archery", 20), CT("kill.monster", 2000)), {"attack_pct": 0.10, "crit": 0.05}, ["hunters_mark", "rain_of_thorns"], "tracker")
 j("priest", "사제", "COMBAT", 1, A(MS("spellcraft", 6), MS("bandaging", 5)), {"mana": 40, "max_health_pct": 0.05}, ["healing_light", "holy_nova"])
 j("elementalist", "정령술사", "COMBAT", 2, A(MS("spellcraft", 20), CT("kill.monster", 1000)), {"mana": 70, "attack_pct": 0.08}, ["chain_lightning", "blizzard", "meteor"], "mage")
-j("warlock", "흑마법사", "COMBAT", 2, A(MS("spellcraft", 18), CT("kill.monster", 800)), {"mana": 60, "attack_pct": 0.10, "max_health_pct": -0.05}, ["void_bolt"], "mage")
-j("druid", "드루이드", "COMBAT", 1, A(MS("spellcraft", 6), MS("herbalism", 10)), {"mana": 30, "gather_bonus.herbalism": 1}, ["entangling_roots"])
+j("warlock", "흑마법사", "COMBAT", 2, A(MS("spellcraft", 18), CT("kill.monster", 800)), {"mana": 60, "attack_pct": 0.12, "max_health_pct": -0.05}, ["void_bolt"], "mage")
+j("druid", "드루이드", "COMBAT", 1, A(MS("spellcraft", 6), MS("herbalism", 10)), {"mana": 40, "max_health_pct": 0.03, "gather_bonus.herbalism": 1}, ["entangling_roots"])
 j("reaper", "수확자", "COMBAT", 1, A(MS("swordsmanship", 10), CT("kill.monster", 200)), {"attack_pct": 0.06, "crit": 0.03}, ["soul_harvest"])
-j("whip_dancer", "채찍 무희", "COMBAT", 1, A(MS("swordsmanship", 8), MS("dexterity", 8)), {"crit": 0.05, "stamina": 15}, ["entangle"])
+j("whip_dancer", "채찍 무희", "COMBAT", 1, A(MS("swordsmanship", 8), MS("dexterity", 8)), {"crit": 0.06, "attack_pct": 0.03, "stamina": 20}, ["entangle"])
 # 생활
 j("jeweler", "보석 세공사", "LIFE", 1, A(MS("jewelcraft", 10), CT("craft.jewelcraft", 50)), {"craft_quality.jewelcraft": 50})
-j("brewer", "양조가", "LIFE", 1, A(MS("brewing", 10), CT("craft.brewing", 50)), {"craft_quality.brewing": 50, "price_discount": 0.02})
+j("brewer", "양조가", "LIFE", 1, A(MS("brewing", 10), CT("craft.brewing", 50)), {"craft_quality.brewing": 45, "price_discount": 0.02})
 j("cartographer", "지도 제작자", "LIFE", 1, A(MS("cartography", 10), CT("discover.region", 15)), {"craft_quality.cartography": 50, "stamina": 10})
 j("engineer", "기계공", "LIFE", 1, A(MS("engineering", 10), CT("craft.engineering", 50)), {"craft_quality.engineering": 50, "craft_quality.smithing": 10})
 j("farmer", "농부", "LIFE", 1, A(MS("herbalism", 10), CT("gather.herbalism", 300)), {"gather_bonus.herbalism": 1})
 j("lumberjack", "나무꾼", "LIFE", 1, A(MS("logging", 10), CT("gather.logging", 300)), {"gather_bonus.logging": 1})
 j("hunter_life", "사냥꾼", "LIFE", 1, A(MS("butchery", 8), CT("kill.monster", 200)), {"gather_bonus.butchery": 1, "crit": 0.02})
-j("master_chef", "궁정 요리장", "LIFE", 2, A(MS("cooking", 22), CT("craft.cooking", 600)), {"craft_quality.cooking": 90, "craft_quality.brewing": 30}, parent="cook")
-j("grand_alchemist", "대연금술사", "LIFE", 2, A(MS("alchemy", 22), CT("craft.alchemy", 600)), {"craft_quality.alchemy": 90}, parent="alchemist")
-j("couturier", "궁정 재단사", "LIFE", 2, A(MS("tailoring", 22), CT("craft.tailoring", 600)), {"craft_quality.tailoring": 80, "craft_quality.leatherwork": 40}, parent="tailor")
-j("artificer", "명공", "LIFE", 2, A(MS("engineering", 22), MS("smithing", 15)), {"craft_quality.engineering": 80, "craft_quality.smithing": 30}, parent="engineer")
-j("gem_master", "보석 명인", "LIFE", 2, A(MS("jewelcraft", 22), CT("craft.jewelcraft", 500)), {"craft_quality.jewelcraft": 100}, parent="jeweler")
-j("trade_prince", "거상", "LIFE", 2, A(MS("trading", 22), CT("trade.completed", 500)), {"price_discount": 0.10, "auction_fee_cut": 0.8}, parent="merchant")
+j("master_chef", "궁정 요리장", "LIFE", 2, A(MS("cooking", 22), CT("craft.cooking", 600)), {"craft_quality.cooking": 55, "craft_quality.brewing": 15}, parent="cook")
+j("grand_alchemist", "대연금술사", "LIFE", 2, A(MS("alchemy", 22), CT("craft.alchemy", 600)), {"craft_quality.alchemy": 70}, parent="alchemist")
+j("couturier", "궁정 재단사", "LIFE", 2, A(MS("tailoring", 22), CT("craft.tailoring", 600)), {"craft_quality.tailoring": 50, "craft_quality.leatherwork": 20}, parent="tailor")
+j("artificer", "명공", "LIFE", 2, A(MS("engineering", 22), MS("smithing", 15)), {"craft_quality.engineering": 50, "craft_quality.smithing": 20}, parent="engineer")
+j("gem_master", "보석 명인", "LIFE", 2, A(MS("jewelcraft", 22), CT("craft.jewelcraft", 500)), {"craft_quality.jewelcraft": 70}, parent="jeweler")
+j("trade_prince", "거상", "LIFE", 2, A(MS("trading", 22), CT("trade.completed", 500)), {"price_discount": 0.08, "auction_fee_cut": 0.6}, parent="merchant")
 dump({"jobs": jobs}, open(OUT + "/jobs.yml", "w"), allow_unicode=True, sort_keys=False, width=220, default_flow_style=None)
 print(len(mon), "monsters", len(fb), "bosses", len(sk) + len(csk), "skills", len(jobs), "jobs")

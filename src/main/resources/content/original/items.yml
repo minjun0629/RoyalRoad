@@ -8,20 +8,6 @@ items:
     weight: 1
     tags: [ore, mithril]
     source: ORIGINAL
-  mithril_ingot:
-    name: 미스릴 주괴
-    category: MATERIAL
-    material: IRON_INGOT
-    weight: 1
-    tags: [metal, mineral, mithril]
-    source: ORIGINAL
-  darksteel_ingot:
-    name: 흑철 주괴
-    category: MATERIAL
-    material: NETHERITE_INGOT
-    weight: 1
-    tags: [metal, mineral, dark]
-    source: ORIGINAL
   copper_ingot:
     name: 구리 주괴
     category: MATERIAL
@@ -280,13 +266,6 @@ items:
     material: LEATHER
     weight: 1
     tags: [leather, thick]
-    source: ORIGINAL
-  drake_scale:
-    name: 비룡 비늘
-    category: MATERIAL
-    material: PHANTOM_MEMBRANE
-    weight: 1
-    tags: [scale, dragon]
     source: ORIGINAL
   monster_bone:
     name: 몬스터 뼈
@@ -599,7 +578,7 @@ items:
   honey_cake:
     name: 꿀 케이크
     category: FOOD
-    material: CAKE
+    material: PUMPKIN_PIE
     weight: 1
     tags: [food, sweet_food]
     source: ORIGINAL
@@ -627,7 +606,7 @@ items:
   royal_feast:
     name: 왕의 만찬
     category: FOOD
-    material: CAKE
+    material: GOLDEN_CARROT
     weight: 1
     tags: [food, feast]
     source: ORIGINAL
@@ -671,7 +650,7 @@ items:
     category: FOOD
     material: POTION
     weight: 1
-    tags: [drink, ale]
+    tags: [drink, ale, stout]
     source: ORIGINAL
   grape_wine:
     name: 포도주
@@ -692,14 +671,14 @@ items:
     category: FOOD
     material: POTION
     weight: 1
-    tags: [drink, strong]
+    tags: [drink, strong, fireproof]
     source: ORIGINAL
   dwarf_spirit:
     name: 드워프 화주
     category: FOOD
     material: POTION
     weight: 1
-    tags: [drink, strong]
+    tags: [drink, strong, stoneskin]
     source: ORIGINAL
   herbal_tea:
     name: 약초차
@@ -727,7 +706,7 @@ items:
     category: CONSUMABLE
     material: POTION
     weight: 1
-    tags: [potion, potion_t2]
+    tags: [potion, potion_t2, stamina_potion]
     source: ORIGINAL
   supreme_draught:
     name: 최상급 회복 물약
@@ -957,7 +936,7 @@ items:
     durability: 450
     weight: 4
     tags: [sword]
-    stats: {attack: 9}
+    stats: {attack: 11}
     requires: {mastery.swordsmanship: 2}
     source: ORIGINAL
     lore: 대장간 견습생이 처음 두드려 보는 청동 칼
@@ -968,7 +947,7 @@ items:
     durability: 800
     weight: 4
     tags: [sword, curved]
-    stats: {attack: 13, speed: 3}
+    stats: {attack: 15, speed: 2}
     requires: {mastery.swordsmanship: 5}
     source: ORIGINAL
     lore: 국경 민병대가 지급받는 가벼운 굽은 칼
@@ -979,7 +958,7 @@ items:
     durability: 1200
     weight: 4
     tags: [sword]
-    stats: {attack: 24, crit: 4}
+    stats: {attack: 29, crit: 6}
     requires: {mastery.swordsmanship: 14}
     source: ORIGINAL
     lore: 미스릴을 접어 두드린 장검. 가볍고 잘 휘지 않는다
@@ -990,7 +969,7 @@ items:
     durability: 900
     weight: 4
     tags: [sword, wavy]
-    stats: {attack: 21, fire: 6}
+    stats: {attack: 23, fire: 5}
     requires: {mastery.swordsmanship: 12}
     source: ORIGINAL
     lore: 불씨 골짜기의 돌을 박아 넣어 칼날이 늘 따뜻하다
@@ -1012,7 +991,7 @@ items:
     durability: 1300
     weight: 4
     tags: [sword, frost]
-    stats: {attack: 30, lightning: 10, stun: 4}
+    stats: {attack: 31, lightning: 9, stun: 4}
     requires: {mastery.swordsmanship: 20}
     source: ORIGINAL
     lore: 폭풍 유리를 칼날에 녹여 넣었다. 휘두르면 공기가 찢어지는 소리가 난다
@@ -1023,7 +1002,7 @@ items:
     durability: 1500
     weight: 4
     tags: [sword, winged]
-    stats: {attack: 33, holy: 10, vs_undead: 25, regen: 1}
+    stats: {attack: 30, holy: 9, vs_undead: 23, regen: 1}
     requires: {mastery.swordsmanship: 22, fame: 400}
     source: ORIGINAL
     lore: 성기사단이 서약식에서 받는 검. 동이 트면 칼날이 희게 빛난다
@@ -1034,7 +1013,7 @@ items:
     durability: 1500
     weight: 4
     tags: [sword, demonic]
-    stats: {attack: 34, dark: 10, crit: 8}
+    stats: {attack: 34, dark: 9, crit: 8}
     requires: {mastery.swordsmanship: 22}
     source: ORIGINAL
     lore: 흑철로 벼린 칼. 그림자 속에서 휘두르면 소리가 나지 않는다
@@ -1045,7 +1024,7 @@ items:
     durability: 1000
     weight: 4
     tags: [sword, elven]
-    stats: {attack: 28, crit: 10, speed: 4}
+    stats: {attack: 34, crit: 9, speed: 4}
     requires: {mastery.swordsmanship: 18}
     source: ORIGINAL
     lore: 월석을 갈아 넣은 은빛 검. 달밤에 더 날카롭다
@@ -1067,7 +1046,7 @@ items:
     durability: 700
     weight: 4
     tags: [sword, jagged, rust]
-    stats: {attack: 16, stun: 3}
+    stats: {attack: 19, stun: 3}
     requires: {mastery.swordsmanship: 8}
     source: ORIGINAL
     lore: 유적의 톱니를 갈아 붙인 칼. 톱처럼 살을 찢는다
@@ -1078,7 +1057,7 @@ items:
     durability: 1000
     weight: 4
     tags: [sword, jagged]
-    stats: {attack: 26, poison: 8, lifesteal: 2}
+    stats: {attack: 27, poison: 7, lifesteal: 2}
     requires: {mastery.swordsmanship: 17}
     source: ORIGINAL
     lore: 밀림의 가시덩굴이 손잡이를 감고 자란다
@@ -1089,7 +1068,7 @@ items:
     durability: 500
     weight: 1
     tags: [dagger]
-    stats: {attack: 12, crit: 10}
+    stats: {attack: 19, crit: 13}
     requires: {mastery.swordsmanship: 8}
     source: ORIGINAL
     lore: 손잡이를 명주실로 감은 얇은 단검
@@ -1100,7 +1079,7 @@ items:
     durability: 600
     weight: 1
     tags: [dagger]
-    stats: {attack: 15, poison: 8}
+    stats: {attack: 19, poison: 8}
     requires: {mastery.swordsmanship: 11}
     source: ORIGINAL
     lore: 거대 독거미의 송곳니를 그대로 단 단검
@@ -1111,7 +1090,7 @@ items:
     durability: 900
     weight: 2
     tags: [dagger, wavy]
-    stats: {attack: 24, dark: 6, crit: 14}
+    stats: {attack: 30, dark: 7, crit: 15}
     requires: {mastery.swordsmanship: 19}
     source: ORIGINAL
     lore: 물결 모양 칼날이 그림자를 베어 낸다는 단검
@@ -1122,7 +1101,7 @@ items:
     durability: 500
     weight: 1
     tags: [dagger]
-    stats: {attack: 14, regen: 1, crit: 6}
+    stats: {attack: 19, regen: 1, crit: 8}
     requires: {mastery.swordsmanship: 9}
     source: ORIGINAL
     lore: 손잡이 끝에 진주를 박은 귀족의 호신용 단도
@@ -1133,7 +1112,7 @@ items:
     durability: 500
     weight: 4
     tags: [axe]
-    stats: {attack: 11}
+    stats: {attack: 14}
     requires: {mastery.swordsmanship: 4}
     source: ORIGINAL
     lore: 나무꾼과 민병이 함께 쓰는 손도끼
@@ -1144,7 +1123,7 @@ items:
     durability: 1400
     weight: 8
     tags: [axe, broad]
-    stats: {attack: 30, ice: 8, stun: 4}
+    stats: {attack: 29, ice: 7, stun: 4}
     requires: {mastery.swordsmanship: 18, stat.strength: 10}
     source: ORIGINAL
     lore: 북부 산사람들이 서리 늑대를 잡을 때 쓰는 큰 도끼
@@ -1166,7 +1145,7 @@ items:
     durability: 1800
     weight: 9
     tags: [axe, broad]
-    stats: {attack: 42, crit: 6, vs_large: 12}
+    stats: {attack: 45, crit: 5, vs_large: 10}
     requires: {mastery.swordsmanship: 25, stat.strength: 14}
     source: ORIGINAL
     lore: 양쪽 날이 초승달처럼 휜 대형 도끼
@@ -1177,7 +1156,7 @@ items:
     durability: 900
     weight: 6
     tags: [axe, rust]
-    stats: {attack: 18, craft: 2}
+    stats: {attack: 22, craft: 2}
     requires: {mastery.swordsmanship: 10}
     source: ORIGINAL
     lore: 속빈뿌리 늪의 거목을 베어 낸 나무꾼의 도끼
@@ -1199,8 +1178,8 @@ items:
     durability: 1300
     weight: 8
     tags: [mace]
-    stats: {attack: 27, holy: 8, vs_undead: 20, stun: 5}
-    requires: {stat.strength: 10, fame: 200}
+    stats: {attack: 22, holy: 7, vs_undead: 16, stun: 4}
+    requires: {stat.strength: 15, fame: 200}
     source: ORIGINAL
     lore: 성당 기사들이 언데드의 뼈를 부술 때 쓰는 철퇴
   obsidian_maul:
@@ -1210,8 +1189,8 @@ items:
     durability: 1600
     weight: 11
     tags: [mace, stone_head]
-    stats: {attack: 38, stun: 10, fire: 4}
-    requires: {stat.strength: 16}
+    stats: {attack: 39, stun: 9, fire: 4}
+    requires: {stat.strength: 24}
     source: ORIGINAL
     lore: 흑요석 이빨의 바위를 통째로 깎아 박은 망치
   clockwork_hammer:
@@ -1221,8 +1200,8 @@ items:
     durability: 1500
     weight: 9
     tags: [mace]
-    stats: {attack: 31, stun: 8, speed: -4}
-    requires: {stat.strength: 12}
+    stats: {attack: 29, stun: 8, speed: -4}
+    requires: {stat.strength: 15}
     source: ORIGINAL
     lore: 태엽을 감았다 풀면 머리가 튀어나가며 한 번 더 때린다
   bronze_pike:
@@ -1232,7 +1211,7 @@ items:
     durability: 600
     weight: 5
     tags: [spear]
-    stats: {attack: 12, pierce: 6}
+    stats: {attack: 13, pierce: 6}
     requires: {mastery.spearmanship: 4}
     source: ORIGINAL
     lore: 청동 촉을 단 보병의 장창
@@ -1243,7 +1222,7 @@ items:
     durability: 1300
     weight: 6
     tags: [spear]
-    stats: {attack: 30, pierce: 15, speed: 4}
+    stats: {attack: 35, pierce: 17, speed: 4}
     requires: {mastery.spearmanship: 19}
     source: ORIGINAL
     lore: 그리폰 깃털로 술을 단 기사의 창. 돌격하면 바람을 가른다
@@ -1254,7 +1233,7 @@ items:
     durability: 1400
     weight: 7
     tags: [spear, trident]
-    stats: {attack: 32, ice: 6, slow: 10}
+    stats: {attack: 33, ice: 6, slow: 11}
     requires: {mastery.spearmanship: 20}
     source: ORIGINAL
     lore: 가라앉은 종 호수의 수호자가 들던 삼지창
@@ -1265,7 +1244,7 @@ items:
     durability: 1500
     weight: 7
     tags: [spear]
-    stats: {attack: 36, fire: 10, crit: 4}
+    stats: {attack: 36, fire: 9, crit: 4}
     requires: {mastery.spearmanship: 23}
     source: ORIGINAL
     lore: 날이 넓은 장병기. 휘두를 때마다 불티가 날린다
@@ -1276,7 +1255,7 @@ items:
     durability: 2000
     weight: 7
     tags: [spear]
-    stats: {attack: 46, pierce: 25, vs_large: 15}
+    stats: {attack: 47, pierce: 25, vs_large: 17}
     requires: {mastery.spearmanship: 28}
     source: ORIGINAL
     lore: 별조각을 촉으로 깎아 만든 창. 갑옷을 종이처럼 뚫는다
@@ -1287,7 +1266,7 @@ items:
     durability: 400
     weight: 2
     tags: [staff]
-    stats: {attack: 10, regen: 1}
+    stats: {attack: 12, regen: 1}
     requires: {mastery.spellcraft: 4}
     source: ORIGINAL
     lore: 속삭이는 자작숲의 가지로 만든 가벼운 지팡이
@@ -1298,7 +1277,7 @@ items:
     durability: 900
     weight: 2
     tags: [staff]
-    stats: {attack: 22, fire: 10}
+    stats: {attack: 21, fire: 9}
     requires: {mastery.spellcraft: 13}
     source: ORIGINAL
     lore: 불씨돌을 머리에 박은 홀. 불꽃 주문을 키운다
@@ -1309,7 +1288,7 @@ items:
     durability: 900
     weight: 2
     tags: [staff]
-    stats: {attack: 23, ice: 10, slow: 10}
+    stats: {attack: 22, ice: 9, slow: 9}
     requires: {mastery.spellcraft: 14}
     source: ORIGINAL
     lore: 서리 정수를 실처럼 감아 만든 지팡이
@@ -1320,7 +1299,7 @@ items:
     durability: 1000
     weight: 2
     tags: [staff]
-    stats: {attack: 27, lightning: 12}
+    stats: {attack: 28, lightning: 11}
     requires: {mastery.spellcraft: 18}
     source: ORIGINAL
     lore: 폭풍 유리 구슬이 끝에서 번쩍인다
@@ -1331,7 +1310,7 @@ items:
     durability: 1000
     weight: 2
     tags: [staff, crook]
-    stats: {attack: 25, resist: 8, regen: 1}
+    stats: {attack: 26, resist: 8, regen: 1}
     requires: {mastery.spellcraft: 16}
     source: ORIGINAL
     lore: 가라앉은 서고의 마지막 서고지기가 짚던 굽은 지팡이
@@ -1342,7 +1321,7 @@ items:
     durability: 1300
     weight: 2
     tags: [staff]
-    stats: {attack: 34, holy: 10, regen: 2}
+    stats: {attack: 34, holy: 8, regen: 2}
     requires: {mastery.spellcraft: 24}
     source: ORIGINAL
     lore: 달 분지의 샘물에 백 일 담가 둔 지팡이
@@ -1353,7 +1332,7 @@ items:
     durability: 1400
     weight: 2
     tags: [staff]
-    stats: {attack: 40, dark: 14, drain: 1}
+    stats: {attack: 43, dark: 14, drain: 1}
     requires: {mastery.spellcraft: 27}
     source: ORIGINAL
     lore: 잡은 손의 온기를 빨아들이는 검은 홀. 그만큼 주문이 강해진다
@@ -1364,7 +1343,7 @@ items:
     durability: 350
     weight: 1
     tags: [bow]
-    stats: {attack: 9}
+    stats: {attack: 12}
     requires: {mastery.archery: 3}
     source: ORIGINAL
     lore: 가볍고 다루기 쉬운 짧은 활
@@ -1375,7 +1354,7 @@ items:
     durability: 700
     weight: 2
     tags: [bow]
-    stats: {attack: 18, crit: 6}
+    stats: {attack: 23, crit: 3}
     requires: {mastery.archery: 10}
     source: ORIGINAL
     lore: 양 끝이 앞으로 휜 사냥용 활. 짧아도 힘이 세다
@@ -1386,7 +1365,7 @@ items:
     durability: 1000
     weight: 2
     tags: [bow, elven]
-    stats: {attack: 30, crit: 10, pierce: 8}
+    stats: {attack: 37, crit: 9, pierce: 7}
     requires: {mastery.archery: 20}
     source: ORIGINAL
     lore: 그리폰 깃털 화살을 쓰는 장궁
@@ -1397,7 +1376,7 @@ items:
     durability: 800
     weight: 2
     tags: [bow]
-    stats: {attack: 22, poison: 6}
+    stats: {attack: 25, poison: 6}
     requires: {mastery.archery: 14}
     source: ORIGINAL
     lore: 가시담 황야의 나무로 휜 활. 화살 끝에 독이 밴다
@@ -1408,7 +1387,7 @@ items:
     durability: 900
     weight: 5
     tags: [bow, crossbow]
-    stats: {attack: 28, pierce: 16}
+    stats: {attack: 34, pierce: 19}
     requires: {mastery.archery: 18}
     source: ORIGINAL
     lore: 태엽으로 시위를 당기는 연발 석궁
@@ -1419,7 +1398,7 @@ items:
     durability: 1100
     weight: 5
     tags: [scythe]
-    stats: {attack: 26, dark: 6, lifesteal: 2}
+    stats: {attack: 28, dark: 6, lifesteal: 2}
     requires: {mastery.swordsmanship: 17}
     source: ORIGINAL
     lore: 밭을 베던 낫이 전쟁에서 사람을 베게 되었다
@@ -1430,7 +1409,7 @@ items:
     durability: 1300
     weight: 5
     tags: [scythe]
-    stats: {attack: 34, crit: 8, holy: 6}
+    stats: {attack: 35, crit: 9, holy: 6}
     requires: {mastery.swordsmanship: 22}
     source: ORIGINAL
     lore: 보름달 밤에만 벼린다는 낫. 은빛 날이 둥글다
@@ -1441,7 +1420,7 @@ items:
     durability: 800
     weight: 2
     tags: [whip]
-    stats: {attack: 16, poison: 4, slow: 6}
+    stats: {attack: 19, poison: 4, slow: 7}
     requires: {mastery.swordsmanship: 10}
     source: ORIGINAL
     lore: 가시덩굴을 엮어 만든 채찍
@@ -1452,7 +1431,7 @@ items:
     durability: 1200
     weight: 4
     tags: [whip]
-    stats: {attack: 26, stun: 6}
+    stats: {attack: 32, stun: 6}
     requires: {mastery.swordsmanship: 17}
     source: ORIGINAL
     lore: 쇠고리를 이어 만든 채찍. 감기면 빠져나오기 어렵다
@@ -1463,10 +1442,11 @@ items:
     durability: 960
     weight: 2
     tags: [helmet]
-    stats: {defense: 4}
+    stats: {defense: 6}
     set: militia
     source: ORIGINAL
     lore: 국경 마을 민병대가 맞춰 입는 가죽 차림
+    requires: {mastery.swordsmanship: 2}
   militia_chest:
     name: 민병대 갑옷
     category: ARMOR
@@ -1474,10 +1454,11 @@ items:
     durability: 960
     weight: 4
     tags: [chest]
-    stats: {defense: 6}
+    stats: {defense: 9}
     set: militia
     source: ORIGINAL
     lore: 국경 마을 민병대가 맞춰 입는 가죽 차림
+    requires: {mastery.swordsmanship: 2}
   militia_legs:
     name: 민병대 각반
     category: ARMOR
@@ -1485,10 +1466,11 @@ items:
     durability: 960
     weight: 3
     tags: [legs]
-    stats: {defense: 5}
+    stats: {defense: 7}
     set: militia
     source: ORIGINAL
     lore: 국경 마을 민병대가 맞춰 입는 가죽 차림
+    requires: {mastery.swordsmanship: 2}
   militia_boots:
     name: 민병대 장화
     category: ARMOR
@@ -1496,10 +1478,11 @@ items:
     durability: 960
     weight: 2
     tags: [boots]
-    stats: {defense: 3}
+    stats: {defense: 4}
     set: militia
     source: ORIGINAL
     lore: 국경 마을 민병대가 맞춰 입는 가죽 차림
+    requires: {mastery.swordsmanship: 2}
   bronze_guard_helmet:
     name: 청동 경비대 투구
     category: ARMOR
@@ -1507,8 +1490,8 @@ items:
     durability: 1200
     weight: 2
     tags: [helmet]
-    stats: {defense: 6, resist: 1}
-    requires: {stat.strength: 4}
+    stats: {defense: 7, resist: 1}
+    requires: {stat.strength: 6}
     set: bronze_guard
     source: ORIGINAL
     lore: 성문 경비대의 청동 비늘 갑주
@@ -1519,8 +1502,8 @@ items:
     durability: 1200
     weight: 4
     tags: [chest]
-    stats: {defense: 10, resist: 2}
-    requires: {stat.strength: 4}
+    stats: {defense: 13, resist: 1}
+    requires: {stat.strength: 6}
     set: bronze_guard
     source: ORIGINAL
     lore: 성문 경비대의 청동 비늘 갑주
@@ -1531,8 +1514,8 @@ items:
     durability: 1200
     weight: 3
     tags: [legs]
-    stats: {defense: 8, resist: 2}
-    requires: {stat.strength: 4}
+    stats: {defense: 9, resist: 1}
+    requires: {stat.strength: 6}
     set: bronze_guard
     source: ORIGINAL
     lore: 성문 경비대의 청동 비늘 갑주
@@ -1544,7 +1527,7 @@ items:
     weight: 2
     tags: [boots]
     stats: {defense: 5, resist: 1}
-    requires: {stat.strength: 4}
+    requires: {stat.strength: 6}
     set: bronze_guard
     source: ORIGINAL
     lore: 성문 경비대의 청동 비늘 갑주
@@ -1555,7 +1538,7 @@ items:
     durability: 1140
     weight: 2
     tags: [helmet]
-    stats: {defense: 5, speed: 2, crit: 1}
+    stats: {defense: 9, speed: 3, crit: 1}
     requires: {mastery.archery: 10}
     set: ranger
     source: ORIGINAL
@@ -1567,7 +1550,7 @@ items:
     durability: 1140
     weight: 4
     tags: [chest]
-    stats: {defense: 9, speed: 4, crit: 2}
+    stats: {defense: 14, speed: 7, crit: 3}
     requires: {mastery.archery: 10}
     set: ranger
     source: ORIGINAL
@@ -1579,7 +1562,7 @@ items:
     durability: 1140
     weight: 3
     tags: [legs]
-    stats: {defense: 7, speed: 3, crit: 2}
+    stats: {defense: 10, speed: 5, crit: 3}
     requires: {mastery.archery: 10}
     set: ranger
     source: ORIGINAL
@@ -1591,7 +1574,7 @@ items:
     durability: 1140
     weight: 2
     tags: [boots]
-    stats: {defense: 4, speed: 2, crit: 1}
+    stats: {defense: 6, speed: 3, crit: 2}
     requires: {mastery.archery: 10}
     set: ranger
     source: ORIGINAL
@@ -1615,7 +1598,7 @@ items:
     durability: 1680
     weight: 4
     tags: [chest]
-    stats: {defense: 18, health: 3, resist: 4}
+    stats: {defense: 20, health: 3, resist: 3}
     requires: {mastery.swordsmanship: 18, stat.strength: 10}
     set: mithril_knight
     source: ORIGINAL
@@ -1627,7 +1610,7 @@ items:
     durability: 1680
     weight: 3
     tags: [legs]
-    stats: {defense: 14, health: 2, resist: 3}
+    stats: {defense: 15, health: 2, resist: 3}
     requires: {mastery.swordsmanship: 18, stat.strength: 10}
     set: mithril_knight
     source: ORIGINAL
@@ -1639,7 +1622,7 @@ items:
     durability: 1680
     weight: 2
     tags: [boots]
-    stats: {defense: 9, health: 2, resist: 2}
+    stats: {defense: 10, health: 1, resist: 1}
     requires: {mastery.swordsmanship: 18, stat.strength: 10}
     set: mithril_knight
     source: ORIGINAL
@@ -1651,7 +1634,7 @@ items:
     durability: 1080
     weight: 2
     tags: [helmet]
-    stats: {defense: 5, resist: 4, regen: 1}
+    stats: {defense: 9, resist: 6, regen: 1}
     requires: {mastery.spellcraft: 18}
     set: archmage
     source: ORIGINAL
@@ -1663,7 +1646,7 @@ items:
     durability: 1080
     weight: 4
     tags: [chest]
-    stats: {defense: 8, resist: 6, regen: 1}
+    stats: {defense: 14, resist: 9, regen: 2}
     requires: {mastery.spellcraft: 18}
     set: archmage
     source: ORIGINAL
@@ -1675,7 +1658,7 @@ items:
     durability: 1080
     weight: 3
     tags: [legs]
-    stats: {defense: 6, resist: 5, regen: 1}
+    stats: {defense: 12, resist: 7, regen: 1}
     requires: {mastery.spellcraft: 18}
     set: archmage
     source: ORIGINAL
@@ -1687,7 +1670,7 @@ items:
     durability: 1080
     weight: 2
     tags: [boots]
-    stats: {defense: 4, resist: 3, regen: 1}
+    stats: {defense: 6, resist: 4, regen: 1}
     requires: {mastery.spellcraft: 18}
     set: archmage
     source: ORIGINAL
@@ -1699,7 +1682,7 @@ items:
     durability: 1260
     weight: 2
     tags: [helmet]
-    stats: {defense: 7, crit: 2, speed: 2}
+    stats: {defense: 13, crit: 2, speed: 2}
     requires: {mastery.swordsmanship: 16}
     set: shadowstalker
     source: ORIGINAL
@@ -1711,7 +1694,7 @@ items:
     durability: 1260
     weight: 4
     tags: [chest]
-    stats: {defense: 11, crit: 4, speed: 4}
+    stats: {defense: 19, crit: 6, speed: 6}
     requires: {mastery.swordsmanship: 16}
     set: shadowstalker
     source: ORIGINAL
@@ -1723,7 +1706,7 @@ items:
     durability: 1260
     weight: 3
     tags: [legs]
-    stats: {defense: 9, crit: 3, speed: 3}
+    stats: {defense: 14, crit: 5, speed: 5}
     requires: {mastery.swordsmanship: 16}
     set: shadowstalker
     source: ORIGINAL
@@ -1735,7 +1718,7 @@ items:
     durability: 1260
     weight: 2
     tags: [boots]
-    stats: {defense: 6, crit: 2, speed: 2}
+    stats: {defense: 9, crit: 2, speed: 2}
     requires: {mastery.swordsmanship: 16}
     set: shadowstalker
     source: ORIGINAL
@@ -1747,8 +1730,8 @@ items:
     durability: 1500
     weight: 2
     tags: [helmet]
-    stats: {defense: 9, resist: 4}
-    requires: {stat.strength: 10}
+    stats: {defense: 11, resist: 4}
+    requires: {stat.strength: 15}
     set: emberforged
     source: ORIGINAL
     lore: 불씨돌을 녹여 담금질한 붉은 판금
@@ -1759,8 +1742,8 @@ items:
     durability: 1500
     weight: 4
     tags: [chest]
-    stats: {defense: 15, resist: 6}
-    requires: {stat.strength: 10}
+    stats: {defense: 17, resist: 7}
+    requires: {stat.strength: 15}
     set: emberforged
     source: ORIGINAL
     lore: 불씨돌을 녹여 담금질한 붉은 판금
@@ -1771,8 +1754,8 @@ items:
     durability: 1500
     weight: 3
     tags: [legs]
-    stats: {defense: 12, resist: 5}
-    requires: {stat.strength: 10}
+    stats: {defense: 13, resist: 5}
+    requires: {stat.strength: 15}
     set: emberforged
     source: ORIGINAL
     lore: 불씨돌을 녹여 담금질한 붉은 판금
@@ -1783,8 +1766,8 @@ items:
     durability: 1500
     weight: 2
     tags: [boots]
-    stats: {defense: 8, resist: 3}
-    requires: {stat.strength: 10}
+    stats: {defense: 9, resist: 2}
+    requires: {stat.strength: 15}
     set: emberforged
     source: ORIGINAL
     lore: 불씨돌을 녹여 담금질한 붉은 판금
@@ -1796,7 +1779,7 @@ items:
     weight: 2
     tags: [helmet]
     stats: {defense: 10, resist: 4, health: 1}
-    requires: {stat.endurance: 10}
+    requires: {stat.endurance: 16}
     set: frostwarden
     source: ORIGINAL
     lore: 서리송곳니 고개 파수꾼들의 털 안감 판금
@@ -1807,8 +1790,8 @@ items:
     durability: 1560
     weight: 4
     tags: [chest]
-    stats: {defense: 16, resist: 6, health: 2}
-    requires: {stat.endurance: 10}
+    stats: {defense: 17, resist: 5, health: 2}
+    requires: {stat.endurance: 16}
     set: frostwarden
     source: ORIGINAL
     lore: 서리송곳니 고개 파수꾼들의 털 안감 판금
@@ -1819,8 +1802,8 @@ items:
     durability: 1560
     weight: 3
     tags: [legs]
-    stats: {defense: 13, resist: 5, health: 2}
-    requires: {stat.endurance: 10}
+    stats: {defense: 12, resist: 4, health: 2}
+    requires: {stat.endurance: 16}
     set: frostwarden
     source: ORIGINAL
     lore: 서리송곳니 고개 파수꾼들의 털 안감 판금
@@ -1831,8 +1814,8 @@ items:
     durability: 1560
     weight: 2
     tags: [boots]
-    stats: {defense: 8, resist: 3, health: 1}
-    requires: {stat.endurance: 10}
+    stats: {defense: 7, resist: 3, health: 1}
+    requires: {stat.endurance: 16}
     set: frostwarden
     source: ORIGINAL
     lore: 서리송곳니 고개 파수꾼들의 털 안감 판금
@@ -1843,7 +1826,7 @@ items:
     durability: 2040
     weight: 2
     tags: [helmet]
-    stats: {defense: 14, resist: 6, health: 2}
+    stats: {defense: 14, resist: 5, health: 2}
     requires: {mastery.swordsmanship: 26, stat.strength: 16}
     set: dragonscale
     source: ORIGINAL
@@ -1855,7 +1838,7 @@ items:
     durability: 2040
     weight: 4
     tags: [chest]
-    stats: {defense: 24, resist: 10, health: 4}
+    stats: {defense: 22, resist: 9, health: 4}
     requires: {mastery.swordsmanship: 26, stat.strength: 16}
     set: dragonscale
     source: ORIGINAL
@@ -1867,7 +1850,7 @@ items:
     durability: 2040
     weight: 3
     tags: [legs]
-    stats: {defense: 19, resist: 8, health: 3}
+    stats: {defense: 18, resist: 7, health: 2}
     requires: {mastery.swordsmanship: 26, stat.strength: 16}
     set: dragonscale
     source: ORIGINAL
@@ -1879,7 +1862,7 @@ items:
     durability: 2040
     weight: 2
     tags: [boots]
-    stats: {defense: 12, resist: 5, health: 2}
+    stats: {defense: 11, resist: 4, health: 1}
     requires: {mastery.swordsmanship: 26, stat.strength: 16}
     set: dragonscale
     source: ORIGINAL
@@ -1891,9 +1874,10 @@ items:
     durability: 1350
     weight: 5
     tags: [shield]
-    stats: {defense: 7}
+    stats: {defense: 8}
     source: ORIGINAL
     lore: 청동 테를 두른 삼각 방패
+    requires: {mastery.swordsmanship: 5}
   tower_shield:
     name: 탑 방패
     category: ARMOR
@@ -1901,8 +1885,8 @@ items:
     durability: 1700
     weight: 5
     tags: [shield]
-    stats: {defense: 14, speed: -6, resist: 4}
-    requires: {stat.strength: 12}
+    stats: {defense: 14, resist: 3, speed: -6}
+    requires: {stat.strength: 14}
     source: ORIGINAL
     lore: 몸 전체를 가리는 큰 방패
   mithril_aegis:
@@ -1912,7 +1896,7 @@ items:
     durability: 1900
     weight: 5
     tags: [shield]
-    stats: {defense: 18, resist: 8}
+    stats: {defense: 14, resist: 5}
     requires: {mastery.swordsmanship: 20}
     source: ORIGINAL
     lore: 미스릴 판을 겹친 가벼운 방패
@@ -1923,7 +1907,7 @@ items:
     durability: 2000
     weight: 5
     tags: [shield]
-    stats: {defense: 20, holy: 6, regen: 1}
+    stats: {defense: 14, holy: 3, regen: 1}
     requires: {mastery.swordsmanship: 22, fame: 400}
     source: ORIGINAL
     lore: 성기사단의 흰 방패. 언데드의 손톱이 미끄러진다
@@ -1934,7 +1918,7 @@ items:
     durability: 500
     weight: 1
     tags: [ring, accessory]
-    stats: {health: 1}
+    stats: {health: 2}
     source: ORIGINAL
     lore: 견습 세공사가 처음 만드는 반지
   ruby_ring:
@@ -1944,7 +1928,7 @@ items:
     durability: 500
     weight: 1
     tags: [ring, accessory]
-    stats: {attack: 3, fire: 2}
+    stats: {attack: 5, fire: 4}
     source: ORIGINAL
     lore: 불꽃처럼 붉은 루비를 박은 반지
   sapphire_ring:
@@ -1954,7 +1938,7 @@ items:
     durability: 500
     weight: 1
     tags: [ring, accessory]
-    stats: {resist: 6, ice: 2}
+    stats: {resist: 8, ice: 3}
     source: ORIGINAL
     lore: 맑은 물빛 사파이어 반지
   emerald_ring:
@@ -1964,7 +1948,7 @@ items:
     durability: 500
     weight: 1
     tags: [ring, accessory]
-    stats: {regen: 1, poison: 2}
+    stats: {regen: 2, poison: 5}
     source: ORIGINAL
     lore: 숲빛 에메랄드 반지
   moonstone_ring:
@@ -1974,7 +1958,7 @@ items:
     durability: 500
     weight: 1
     tags: [ring, accessory]
-    stats: {crit: 6}
+    stats: {crit: 8}
     source: ORIGINAL
     lore: 달빛을 머금은 은반지
   star_signet:
@@ -1984,7 +1968,7 @@ items:
     durability: 500
     weight: 1
     tags: [ring, accessory]
-    stats: {crit: 6, attack: 4, resist: 4}
+    stats: {crit: 8, attack: 6, resist: 9}
     source: ORIGINAL
     lore: 별조각을 깎아 인장으로 새긴 반지
   pearl_necklace:
@@ -1994,7 +1978,7 @@ items:
     durability: 500
     weight: 1
     tags: [necklace, accessory]
-    stats: {regen: 1, health: 3}
+    stats: {regen: 1, health: 4}
     source: ORIGINAL
     lore: 가라앉은 종 호수의 진주를 꿴 목걸이
   amber_pendant:
@@ -2004,7 +1988,7 @@ items:
     durability: 500
     weight: 1
     tags: [necklace, accessory]
-    stats: {resist: 4, health: 2}
+    stats: {resist: 5, health: 2}
     source: ORIGINAL
     lore: 벌레가 갇힌 호박 펜던트. 행운을 부른다고 한다
   ember_heart:
@@ -2014,7 +1998,7 @@ items:
     durability: 500
     weight: 1
     tags: [necklace, accessory]
-    stats: {fire: 6, attack: 4}
+    stats: {fire: 8, attack: 6}
     source: ORIGINAL
     lore: 식지 않는 불씨돌을 금줄에 건 목걸이
   frost_tear:
@@ -2024,7 +2008,7 @@ items:
     durability: 500
     weight: 1
     tags: [necklace, accessory]
-    stats: {ice: 6, resist: 6}
+    stats: {ice: 8, resist: 8}
     source: ORIGINAL
     lore: 녹지 않는 얼음 한 방울
   griffin_bracer:
@@ -2034,7 +2018,7 @@ items:
     durability: 500
     weight: 1
     tags: [bracelet, accessory]
-    stats: {speed: 6}
+    stats: {speed: 10}
     source: ORIGINAL
     lore: 그리폰 깃털을 엮은 팔찌
   iron_bracer:
@@ -2044,7 +2028,7 @@ items:
     durability: 500
     weight: 1
     tags: [bracelet, accessory]
-    stats: {defense: 3}
+    stats: {defense: 4}
     source: ORIGINAL
     lore: 검사들이 손목을 보호하려 차는 쇠 팔찌
   silk_gloves:
@@ -2054,7 +2038,7 @@ items:
     durability: 500
     weight: 1
     tags: [gloves, accessory]
-    stats: {craft: 4}
+    stats: {craft: 3}
     source: ORIGINAL
     lore: 손끝 감각을 살려 주는 얇은 비단 장갑 — 장인들이 아낀다
   bear_gauntlets:
@@ -2064,7 +2048,7 @@ items:
     durability: 500
     weight: 1
     tags: [gloves, accessory]
-    stats: {attack: 4, defense: 2}
+    stats: {attack: 6, defense: 3}
     source: ORIGINAL
     lore: 곰 모피를 두른 두꺼운 장갑
   wanderer_cloak:
@@ -2074,7 +2058,7 @@ items:
     durability: 500
     weight: 1
     tags: [cloak, accessory]
-    stats: {speed: 4, resist: 2}
+    stats: {speed: 9, resist: 4}
     source: ORIGINAL
     lore: 비바람을 막는 잿빛 망토
   mistveil_cloak:
@@ -2084,7 +2068,7 @@ items:
     durability: 500
     weight: 1
     tags: [cloak, accessory]
-    stats: {speed: 6, crit: 4}
+    stats: {speed: 10, crit: 8}
     source: ORIGINAL
     lore: 안개 군도의 해적들이 두르는 망토. 안개처럼 흐릿하게 보인다
   adventurer_belt:
@@ -2094,7 +2078,7 @@ items:
     durability: 500
     weight: 1
     tags: [belt, accessory]
-    stats: {health: 3}
+    stats: {health: 4}
     source: ORIGINAL
     lore: 물약을 꽂는 고리가 달린 허리띠
   champion_belt:
@@ -2104,7 +2088,7 @@ items:
     durability: 500
     weight: 1
     tags: [belt, accessory]
-    stats: {attack: 3, health: 4}
+    stats: {attack: 4, health: 5}
     source: ORIGINAL
     lore: 투기장 우승자에게 주는 금장 허리띠
   mana_orb:
@@ -2114,7 +2098,7 @@ items:
     durability: 500
     weight: 1
     tags: [orb, accessory]
-    stats: {regen: 1, resist: 4}
+    stats: {regen: 2, resist: 7}
     source: ORIGINAL
     lore: 마나 가루를 굳혀 만든 구슬
   storm_orb:
@@ -2124,7 +2108,7 @@ items:
     durability: 500
     weight: 1
     tags: [orb, accessory]
-    stats: {lightning: 6, attack: 3}
+    stats: {lightning: 10, attack: 6}
     source: ORIGINAL
     lore: 안에서 번개가 갇혀 돈다
   compass_of_ways:
@@ -2134,7 +2118,7 @@ items:
     durability: 500
     weight: 1
     tags: [compass, accessory]
-    stats: {speed: 4}
+    stats: {speed: 10}
     source: ORIGINAL
     lore: 주인이 가고 싶은 곳을 가리킨다는 나침반
   lucky_feather:
@@ -2144,7 +2128,7 @@ items:
     durability: 500
     weight: 1
     tags: [feather, accessory]
-    stats: {crit: 4}
+    stats: {crit: 8}
     source: ORIGINAL
     lore: 별비 초원에서 주운 반짝이는 깃털
 sets:
@@ -2153,54 +2137,54 @@ sets:
     source: ORIGINAL
     bonuses:
       2: {defense: 2}
-      4: {health: 3}
+      4: {health: 2}
   bronze_guard:
     name: 청동 경비대 갑주
     source: ORIGINAL
     bonuses:
       2: {defense: 3}
-      4: {health: 4, resist: 4}
+      4: {health: 2, resist: 2}
   ranger:
     name: 순찰자 차림
     source: ORIGINAL
     bonuses:
-      2: {speed: 4}
-      4: {crit: 6}
+      2: {speed: 10}
+      4: {crit: 8}
   mithril_knight:
     name: 미스릴 기사 갑주
     source: ORIGINAL
     bonuses:
       2: {defense: 6}
-      3: {health: 6}
+      3: {health: 3}
       4: {resist: 10, vs_large: 10}
   archmage:
     name: 대마법사의 의복
     source: ORIGINAL
     bonuses:
-      2: {resist: 6}
-      4: {regen: 2, health: 4}
+      2: {resist: 9}
+      4: {regen: 1, health: 3}
   shadowstalker:
     name: 그림자 추적자 차림
     source: ORIGINAL
     bonuses:
-      2: {crit: 6}
-      4: {speed: 6, crit: 6}
+      2: {crit: 8}
+      4: {crit: 8, speed: 10}
   emberforged:
     name: 불씨 단조 갑주
     source: ORIGINAL
     bonuses:
       2: {resist: 8}
-      4: {health: 6, thorns: 4}
+      4: {health: 4, thorns: 3}
   frostwarden:
     name: 서리 파수꾼 갑주
     source: ORIGINAL
     bonuses:
-      2: {resist: 8}
-      4: {health: 8}
+      2: {resist: 9}
+      4: {health: 6}
   dragonscale:
     name: 비룡 비늘 갑주
     source: ORIGINAL
     bonuses:
       2: {defense: 8}
-      3: {health: 8}
-      4: {resist: 14, vs_dragon: 20}
+      3: {health: 4}
+      4: {resist: 10, vs_dragon: 25}
