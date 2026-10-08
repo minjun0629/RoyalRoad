@@ -364,6 +364,8 @@ public final class VersaEraPlugin extends JavaPlugin {
         io.versaera.platform.bukkit.command.LifeCommands lifeCmd = new io.versaera.platform.bukkit.command.LifeCommands(services, async, codec, combat, fieldBosses, sessions::deliver);
         getCommand("menu").setExecutor(new io.versaera.platform.bukkit.ui.MainMenu());
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.HandModels(this, codec), this);   // 손에 든 장비 = 입체 모델
+        Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.HealthBars(this), this);   // 몬스터 머리 위 체력바
+        Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.world.FireGuard(), this);   // 용암 · 번지는 불이 집을 태우지 않게
         for (String c : List.of("appraise", "bandage", "whet", "polish", "iron", "roar", "shatter", "fieldboss")) getCommand(c).setExecutor(lifeCmd);
         codec.requirementNames(k -> k.startsWith("mastery.") ? services.growth.discipline(k.substring(8)).name()
                 : k.startsWith("stat.") ? services.growth.stats().stream().filter(st -> st.id().equals(k.substring(5))).map(st -> st.name()).findFirst().orElse(k)
@@ -402,9 +404,13 @@ public final class VersaEraPlugin extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.world.HungerRuntime(this, services,
                     getConfig().getDouble("hunger.hours_per_meal", 8), getConfig().getDouble("hunger.activity_scale", 0.5)), this);
         for (var l : List.<org.bukkit.event.Listener>of(petRuntime, travelRuntime, weatherR, artworkRuntime, advL)) Bukkit.getPluginManager().registerEvents(l, this);
+        if (getConfig().getLong("restore.delay_seconds", 2) == 180) {   // 0.8.1 이전 기본값(3분) → 새 기본값 2초. 직접 바꾼 값은 그대로
+            getConfig().set("restore.delay_seconds", 2);
+            saveConfig();
+        }
         if (getConfig().getBoolean("restore.enabled", true)) {
             final GatherListener g = gather;
-            restore = new io.versaera.platform.bukkit.world.BlockRestoreRuntime(this, getConfig().getLong("restore.delay_seconds", 180),
+            restore = new io.versaera.platform.bukkit.world.BlockRestoreRuntime(this, getConfig().getLong("restore.delay_seconds", 2),
                     getConfig().getBoolean("restore.drops", false), b -> realmR.ownerAt(b).isPresent(), g::node);
             Bukkit.getPluginManager().registerEvents(restore, this);
         }

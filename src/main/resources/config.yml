@@ -30,7 +30,7 @@ hunger:
 #  drops: false 면 복구되는 블록은 아이템을 떨어뜨리지 않는다 (무한 채집 방지)
 restore:
   enabled: true
-  delay_seconds: 180
+  delay_seconds: 2
   drops: false
 
 # 들판 몬스터: 지역 위험도에 맞춰 사람 둘레(도시 성벽 밖)에 나온다. 위험도 0 = 토끼 · 여우, 1 = + 늑대, 2 이상 = 늑대 무리 · 거미 · 고블린 …

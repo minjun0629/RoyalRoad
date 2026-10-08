@@ -297,7 +297,7 @@ public final class PetRuntime implements Listener {
     public void onTame(PlayerInteractEntityEvent e) {
         if (e.getHand() != EquipmentSlot.HAND || !e.getPlayer().isSneaking()) return;
         Entity target = e.getRightClicked();
-        if (!(target instanceof LivingEntity) || target instanceof Player || isPet(target) || target.getCustomName() != null) return;
+        if (!(target instanceof LivingEntity) || target instanceof Player || isPet(target) || io.versaera.platform.bukkit.listener.HealthBars.baseName(target) != null) return;
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
         String type = codec.typeId(hand);
