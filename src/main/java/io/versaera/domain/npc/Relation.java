@@ -82,6 +82,21 @@ public final class Relation {
         return affinity >= 400 ? 2 : affinity >= 100 ? 3 : 5;
     }
 
+    /** 같은 사람에게 하루에 줄 수 있는 선물 수 — 받을수록 덜 기뻐한다 (1번째 그대로 · 2번째 절반 · 3번째 1/4) */
+    public static final int GIFTS_PER_DAY = 3;
+
+    /**
+     * 오늘 nth 번째 선물 (1 부터). 좋아하는 것은 받을수록 덜 반갑고, 싫어하는 것은 몇 번째든 그대로 싫다.
+     * 같은 재료를 계속 건네 호감을 끝없이 올리던 것을 막는다.
+     */
+    public static int giftGain(NpcDefinition npc, Set<String> itemTags, int quality, int nth) {
+        int base = giftGain(npc, itemTags, quality);
+        if (base <= 0) return base;
+        int n = Math.max(1, nth);
+        if (n > GIFTS_PER_DAY) return 0;
+        return Math.max(1, base >> (n - 1));
+    }
+
     /** 선물: 좋아하는 태그면 +(10 ~ 40, 품질 따라), 싫어하는 태그면 -15, 그 밖은 +2 */
     public static int giftGain(NpcDefinition npc, Set<String> itemTags, int quality) {
         for (String t : itemTags) if (npc.dislikes().contains(t)) return -15;

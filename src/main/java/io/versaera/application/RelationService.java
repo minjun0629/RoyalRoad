@@ -71,10 +71,20 @@ public final class RelationService {
         return r[1];
     }
 
-    /** 선물 (아이템은 플랫폼이 먼저 소모) */
+    /** 오늘 (설정한 시간대 기준 날짜 번호) */
+    public long today() {
+        return day(clock.nowMillis());
+    }
+
+    /** 선물 (아이템은 플랫폼이 먼저 소모) — 그날 첫 선물로 친다 */
     public int gift(String uuid, String npcId, Set<String> itemTags, int quality) {
+        return gift(uuid, npcId, itemTags, quality, 1);
+    }
+
+    /** @param nth 오늘 이 NPC 에게 몇 번째 선물인가 (1 부터) */
+    public int gift(String uuid, String npcId, Set<String> itemTags, int quality, int nth) {
         NpcDefinition n = npc(npcId);
-        int gain = Relation.giftGain(n, itemTags, quality);
+        int gain = Relation.giftGain(n, itemTags, quality, nth);
         int na = tx.inTx(() -> {
             ProgressRepository.RelationRow row = progress.relation(uuid, npcId);
             int v = Relation.clamp((long) row.affinity() + gain);

@@ -308,9 +308,18 @@ public final class NpcWorldService {
         return s.items.repair(itemId, uuid, npcId, level, "npc_repair_item:" + requestId);
     }
 
+    static final String GIFTS = "gifts";
+
     /** 선물: 호감 + 기억(좋아함 · 싫어함) + 가족 · 거래처에게 퍼짐 */
     public int gift(String uuid, String npcId, Set<String> itemTags, int quality, String itemName) {
-        int gain = s.relations.gift(uuid, npcId, itemTags, quality);
+        // 오늘 이 사람에게 몇 번째 선물인가 (runtime_state, 다음 날이면 0 부터) — 하루 GIFTS_PER_DAY 번까지
+        long today = s.relations.today();
+        String key = uuid + ":" + npcId;
+        Map<String, String> st = s.state.load(GIFTS, key).orElse(Map.of());
+        int given = Long.toString(today).equals(st.get("day")) ? Integer.parseInt(st.getOrDefault("n", "0")) : 0;
+        DomainException.require(given < Relation.GIFTS_PER_DAY, "npc.gift_enough", "오늘은 선물을 충분히 받았습니다 — 내일 다시 오세요");
+        int gain = s.relations.gift(uuid, npcId, itemTags, quality, given + 1);
+        s.state.save(GIFTS, key, Map.of("day", Long.toString(today), "n", Integer.toString(given + 1)), clock.nowMillis() + 2 * 86_400_000L);
         if (gain >= 10) remember(uuid, npcId, "GIFT_LIKED", itemName, 1);
         else if (gain < 0) remember(uuid, npcId, "GIFT_DISLIKED", itemName, 1);
         spread(uuid, npcId, gain);

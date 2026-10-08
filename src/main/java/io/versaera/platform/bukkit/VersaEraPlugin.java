@@ -363,6 +363,10 @@ public final class VersaEraPlugin extends JavaPlugin {
         fieldBosses = new io.versaera.platform.bukkit.world.FieldBossRuntime(this, services, async, sessions::deliver);
         io.versaera.platform.bukkit.command.LifeCommands lifeCmd = new io.versaera.platform.bukkit.command.LifeCommands(services, async, codec, combat, fieldBosses, sessions::deliver);
         getCommand("menu").setExecutor(new io.versaera.platform.bukkit.ui.MainMenu());
+        // 튜토리얼 (처음 30 ~ 60 분): 위쪽 막대 · 단계 안내 · 필요한 물건
+        io.versaera.platform.bukkit.world.TutorialRuntime tutorialR = new io.versaera.platform.bukkit.world.TutorialRuntime(this, services, async, sessions::deliver);
+        Bukkit.getPluginManager().registerEvents(tutorialR, this);
+        getCommand("tutorial").setExecutor(tutorialR);
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.HandModels(this, codec), this);   // 손에 든 장비 = 입체 모델
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.HealthBars(this), this);   // 몬스터 머리 위 체력바
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.world.FireGuard(), this);   // 용암 · 번지는 불이 집을 태우지 않게
@@ -400,9 +404,13 @@ public final class VersaEraPlugin extends JavaPlugin {
         }
         menus.adventure(advCmd, regions::regionOf);
         io.versaera.platform.bukkit.listener.AdventureListener advL = new io.versaera.platform.bukkit.listener.AdventureListener(this, services, async);
+        if (getConfig().getDouble("hunger.activity_scale", 0.2) == 0.5) {   // 0.8.3 이전 기본값 → 0.2 (배고픔이 너무 빨리 닳았다)
+            getConfig().set("hunger.activity_scale", 0.2);
+            saveConfig();
+        }
         if (getConfig().getBoolean("hunger.enabled", true))
             Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.world.HungerRuntime(this, services,
-                    getConfig().getDouble("hunger.hours_per_meal", 8), getConfig().getDouble("hunger.activity_scale", 0.5)), this);
+                    getConfig().getDouble("hunger.hours_per_meal", 8), getConfig().getDouble("hunger.activity_scale", 0.2)), this);
         for (var l : List.<org.bukkit.event.Listener>of(petRuntime, travelRuntime, weatherR, artworkRuntime, advL)) Bukkit.getPluginManager().registerEvents(l, this);
         if (getConfig().getLong("restore.delay_seconds", 2) == 180) {   // 0.8.1 이전 기본값(3분) → 새 기본값 2초. 직접 바꾼 값은 그대로
             getConfig().set("restore.delay_seconds", 2);

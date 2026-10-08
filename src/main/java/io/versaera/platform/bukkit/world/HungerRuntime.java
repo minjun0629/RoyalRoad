@@ -7,18 +7,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 배고픔 (원작 「로열 로드」: 시간이 지나면 배가 고프고, 굶으면 힘이 빠진다).
  * <ul>
  *   <li>가만히 있어도 줄어든다: 배부른 상태(20)가 게임 시간 hours_per_meal 시간이면 바닥난다 — 포만감(saturation)이 먼저, 그다음 배고픔 칸</li>
- *   <li>움직여서 줄어드는 바닐라 소모는 activity_scale 만큼만 (원작은 굶주림이 하루 단위)</li>
+ *   <li>움직이고 싸우고 회복하며 쓰는 바닐라 소모(exhaustion)는 activity_scale 배만 (원작은 굶주림이 하루 단위)</li>
  *   <li>3칸 이하 = 허기 (힘 · 채굴 속도 저하), 0 = 기진 (걸음도 느려짐) · 바닐라 굶주림 피해</li>
  * </ul>
  * 게임 시간은 config time.ratio 를 따른다 (4 = 현실 하루에 게임 나흘 → 게임 1시간 = 현실 15분).
@@ -56,10 +53,12 @@ public final class HungerRuntime implements Listener {
         }
     }
 
-    /** 움직여서 줄어드는 바닐라 소모를 줄인다 (먹어서 오르는 것은 그대로) */
+    /**
+     * 움직이고 · 싸우고 · 체력이 차오를 때의 바닐라 소모(exhaustion)를 activity_scale 배로.
+     * 예전에는 배고픔 칸이 줄 때만 일부를 막았는데, 포만감은 그 전에 바닐라 속도로 다 타 버려 배고픔이 쭉쭉 닳았다.
+     */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onFood(FoodLevelChangeEvent e) {
-        if (!(e.getEntity() instanceof Player p) || e.getFoodLevel() >= p.getFoodLevel() || e.getItem() != null) return;
-        if (ThreadLocalRandom.current().nextDouble() >= activityScale) e.setCancelled(true);
+    public void onExhaust(org.bukkit.event.entity.EntityExhaustionEvent e) {
+        e.setExhaustion((float) (e.getExhaustion() * activityScale));
     }
 }

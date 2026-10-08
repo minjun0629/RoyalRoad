@@ -61,6 +61,10 @@ class NpcWorldTest {
             assertTrue(g >= 10);
             assertEquals("GIFT_LIKED", w.s.npcWorld.memories(p, smith.id(), 1).get(0).kind());
             assertTrue(w.s.npcWorld.talk(p, smith.id()).memoryLine().contains("철 주괴"));
+            // 같은 날 같은 사람에게: 받을수록 덜 반갑고, 하루 세 번까지
+            int g2 = w.s.npcWorld.gift(p, smith.id(), Set.of("metal"), 800, "철 주괴"), g3 = w.s.npcWorld.gift(p, smith.id(), Set.of("metal"), 800, "철 주괴");
+            assertTrue(g2 < g && g3 < g2 && g3 > 0, g + " → " + g2 + " → " + g3);
+            assertThrows(DomainException.class, () -> w.s.npcWorld.gift(p, smith.id(), Set.of("metal"), 800, "철 주괴"), "네 번째는 받지 않는다 (아이템은 돌려준다)");
             // 소문: 관심 이상, 아직 안 가 본 곳의 방향 · 거리
             NpcProfile gossip = w.s.npcWorld.profiles().stream().filter(x -> !x.rumors().isEmpty() && x.rare() == null && !x.wanderer()
                     && w.s.content.archetypes().get(x.archetype()).offers("RUMOR")).findFirst().orElseThrow();
