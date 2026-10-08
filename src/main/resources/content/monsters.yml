@@ -97,7 +97,7 @@ monsters:
   armored_insect: {name: 갑충, entity: SPIDER, hp: 44, damage: 6, level: [80, 130], regions: [lost_road_badlands, buried_city], tags: [badlands], danger: [4, 6],
                   weight: 2, drops: ["armored_shell:0.7", "iron_ore:0.4"], source: CANON}
   doppelganger:  {name: 도플갱어, entity: ZOMBIE_VILLAGER, hp: 40, damage: 8, level: [120, 170], regions: [exile_wall], weight: 2,
-                  drops: ["ectoplasm:0.3", "raw_gem:0.2"], source: CANON, desc: "추방자의 마을 둘레에 나타난다 (원작)"}
+                  drops: ["ectoplasm:0.3", "raw_gem:0.2"], source: CANON, desc: "추방자의 마을 둘레에 나타난다"}
 
   # ---- 금역 · 괴수의 땅
   chimera:       {name: 키메라, entity: RAVAGER, hp: 110, damage: 13, level: [280, 360], regions: [grapes, averian_forest, great_forest], weight: 2,

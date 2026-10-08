@@ -37,7 +37,7 @@ field_bosses:
     kinds: [UNDEAD]
     drops: ["black_life_necklace:650:0.2", "pago_crown:700:0.08", "vampire_blood:600:1.0"]
     reward: {money: 5000, xp: {swordsmanship: 300}, fame: 40}
-    description: "진혈의 뱀파이어족 수장. 석화 저주와 블레이드 토네이도, 흡혈로 상처를 채운다 — 심장을 노려야 흡혈이 깨진다. 원작에서는 모라타의 흑색 거성에 살았다 (시작 도시라 이 시대에는 토둠으로 가는 굴에 둥지)"
+    description: "진혈의 뱀파이어족 수장. 석화 저주와 블레이드 토네이도, 흡혈로 상처를 채운다 — 심장을 노려야 흡혈이 깨진다. 옛 기록에는 모라타의 흑색 거성에 살았다 (시작 도시라 이 시대에는 토둠으로 가는 굴에 둥지)"
   duke_basra:
     look: CASTER
     size: 2.0
@@ -125,7 +125,7 @@ field_bosses:
     kinds: [LARGE]
     drops: ["dragon_scale:650:1.0", "lizard_scale:600:1.0"]
     reward: {money: 5000, xp: {swordsmanship: 300}, fame: 40}
-    description: "일곱 머리의 괴물. 머리마다 저주와 독을 쉬지 않고 쓴다 — 원작에서는 엘드라 호수 동쪽 통곡의 늪에 살았다"
+    description: "일곱 머리의 괴물. 머리마다 저주와 독을 쉬지 않고 쓴다 — 옛 기록에는 엘드라 호수 동쪽 통곡의 늪에 살았다"
   lava_worm:
     look: HYDRA
     size: 2.4
@@ -154,7 +154,7 @@ field_bosses:
     kinds: [LARGE]
     drops: ["griffin_feather:700:1.0", "sky_ruler_armor:650:0.02"]
     reward: {money: 6000, xp: {archery: 400}, fame: 50}
-    description: "노란 그리핀 무리의 우두머리. 바위를 굴리고 나무를 내던진다 — 원작에서는 하베린의 협곡에 살며 북부 모험가를 숱하게 쓰러뜨렸다"
+    description: "노란 그리핀 무리의 우두머리. 바위를 굴리고 나무를 내던진다 — 옛 기록에는 하베린의 협곡에 살며 북부 모험가를 숱하게 쓰러뜨렸다"
   deimond:
     look: CASTER
     size: 2.0
@@ -199,7 +199,7 @@ field_bosses:
     kinds: [HUMAN]
     drops: ["alliance_staff:650:0.2", "rest_bronze_plate:600:0.15"]
     reward: {money: 7000, xp: {spellcraft: 400}, fame: 60}
-    description: "엠비뉴 교단 제11지파의 대신관. 디바인 블레스로 병사를 강하게 하고, 몰리면 희생의 주문으로 자폭한다 (원작: 통곡의 강 요새)"
+    description: "엠비뉴 교단 제11지파의 대신관. 디바인 블레스로 병사를 강하게 하고, 몰리면 희생의 주문으로 자폭한다 (옛 기록: 통곡의 강 요새)"
   king_hydra:
     look: HYDRA
     size: 3.4
@@ -213,7 +213,7 @@ field_bosses:
     kinds: [LARGE]
     drops: ["large_sapphire:700:0.6", "feather_hat:600:0.3", "sophia_great_spear:650:0.15", "old_gold_coin:600:1.0", "king_hydra_head:700:0.1"]
     reward: {money: 9000, xp: {swordsmanship: 500}, fame: 80}
-    description: "아홉 머리의 초대형 괴물. 트롤을 넘는 재생력, 성탑보다 큰 입으로 불과 독가스를 뿜는다 — 명문 길드 셋을 전멸시켰다 (원작: 노프렌 늪지)"
+    description: "아홉 머리의 초대형 괴물. 트롤을 넘는 재생력, 성탑보다 큰 입으로 불과 독가스를 뿜는다 — 명문 길드 셋을 전멸시켰다 (옛 기록: 노프렌 늪지)"
   freikis:
     look: DRAGON
     size: 3.0
@@ -299,7 +299,7 @@ field_bosses:
     mechanics: [REGEN, FEAR, FLIGHT]
     drops: ["blessed_diamond:700:0.4"]
     reward: {money: 7000, xp: {swordsmanship: 400}, fame: 60}
-    description: "2미터 넘는 나방 몬스터. 강한 신성 마법과 눈멀기 · 발묶기 · 자가 회복을 쓴다. 눈이 퇴화해 더듬이로 기척을 읽으니 더듬이부터 노려라 (원작: 에르반스 수도원의 지하 세계)"
+    description: "2미터 넘는 나방 몬스터. 강한 신성 마법과 눈멀기 · 발묶기 · 자가 회복을 쓴다. 눈이 퇴화해 더듬이로 기척을 읽으니 더듬이부터 노려라 (옛 기록: 에르반스 수도원의 지하 세계)"
   bone_dragon_diak:
     look: DRAGON
     size: 3.4
@@ -609,7 +609,7 @@ field_bosses:
     kinds: [LARGE]
     drops: ["lizard_scale:700:1.0", "old_gold_coin:600:1.0"]
     reward: {money: 9000, xp: {swordsmanship: 500}, fame: 80}
-    description: "커다란 악어를 닮은 라보스 종족의 여왕. 숨을 들이켜면 14미터로 부풀고, 진흙의 흐름으로 화살과 마법을 막는다 (원작: 던전 라보스 홀)"
+    description: "커다란 악어를 닮은 라보스 종족의 여왕. 숨을 들이켜면 14미터로 부풀고, 진흙의 흐름으로 화살과 마법을 막는다 (옛 기록: 던전 라보스 홀)"
   delam:
     look: DEMON
     size: 3.4
@@ -624,7 +624,7 @@ field_bosses:
     kinds: [DEMON, LARGE]
     drops: ["doom_movement:650:0.2", "gluttony_recipe:650:0.2", "grade1_ingredient:700:1.0", "delam_trident:700:0.1"]
     reward: {money: 14000, xp: {swordsmanship: 600}, fame: 130}
-    description: "쓰레기와 벌레를 먹고 자란 중급 악마. 먹을수록 커지고 일곱 번 탈태한다 — 굶으면 약해진다 (원작: 작센 섬 상륙작전)"
+    description: "쓰레기와 벌레를 먹고 자란 중급 악마. 먹을수록 커지고 일곱 번 탈태한다 — 굶으면 약해진다 (옛 기록: 작센 섬 상륙작전)"
   arch_lich_barkan:
     look: CASTER
     size: 3.0
@@ -653,7 +653,7 @@ field_bosses:
     kinds: [LARGE]
     drops: ["essen_hide:700:1.0", "essen_heart:700:0.5", "mana_crystal_1:700:0.5"]
     reward: {money: 14000, xp: {swordsmanship: 700, sailing: 500}, fame: 150}
-    description: "예순 해를 넘겨 날개가 돋은 바다뱀. 말을 하고 숨결을 뿜으며 바다를 더럽힌다 — 불에 매우 약하다 (원작: 아르펜 제국 해안)"
+    description: "예순 해를 넘겨 날개가 돋은 바다뱀. 말을 하고 숨결을 뿜으며 바다를 더럽힌다 — 불에 매우 약하다 (옛 기록: 아르펜 제국 해안)"
   haiager:
     look: DEMON
     size: 2.0
@@ -812,4 +812,4 @@ field_bosses:
     kinds: [DEMON, LARGE]
     drops: ["kleta_horn:900:1.0", "zenokis_spear:800:0.05", "demon_helm:750:0.1"]
     reward: {money: 30000, xp: {swordsmanship: 1200, spellcraft: 1200}, fame: 400}
-    description: "악마들의 왕. 여러 종족의 봉인석이 깨지면 베르사 대륙에 나타난다 — 원작에서는 끝내 강림하지 못했다. 이 시대에는 악마계로 원정을 가야 만난다"
+    description: "악마들의 왕. 여러 종족의 봉인석이 깨지면 베르사 대륙에 나타난다 — 전설의 시대에는 끝내 강림하지 못했다. 이 시대에는 악마계로 원정을 가야 만난다"

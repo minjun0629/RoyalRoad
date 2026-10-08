@@ -46,7 +46,7 @@ public final class CanonCommands implements CommandExecutor {
             case "history" -> {
                 sender.sendMessage(Ui.c("&6── 베르사 연대기 ──"));
                 for (var e : s.content.eras())
-                    sender.sendMessage(Ui.c("&e" + e.name() + " &8(" + e.when() + ")" + ("ORIGINAL".equals(e.source()) ? " &8[이 게임]" : "") + "\n&7  " + e.summary()));
+                    sender.sendMessage(Ui.c("&e" + e.name() + " &8(" + e.when() + ")" + "\n&7  " + e.summary()));
                 return true;
             }
             case "gods" -> {

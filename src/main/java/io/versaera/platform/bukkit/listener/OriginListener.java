@@ -135,8 +135,30 @@ public final class OriginListener implements Listener {
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
-        OriginService.Character c = chars.get(e.getPlayer().getUniqueId());
-        if (c != null) Bukkit.getScheduler().runTaskLater(plugin, () -> applyPerks(e.getPlayer(), c), 5L);
+        Player p = e.getPlayer();
+        if (creating.contains(p.getUniqueId())) {   // 만드는 중에 어떻게든 쓰러졌다면 다시 창부터
+            Bukkit.getScheduler().runTaskLater(plugin, () -> { if (p.isOnline() && creating.contains(p.getUniqueId())) reopen(p); }, 5L);
+            return;
+        }
+        OriginService.Character c = chars.get(p.getUniqueId());
+        if (c != null) Bukkit.getScheduler().runTaskLater(plugin, () -> applyPerks(p, c), 5L);
+    }
+
+    /** 캐릭터를 만드는 동안은 다치지 않는다 (창이 열린 채 맞아 죽으면 창이 사라졌다) */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onHurtWhileCreating(EntityDamageEvent e) {
+        if (e.getEntity() instanceof Player p && creating.contains(p.getUniqueId())) e.setCancelled(true);
+    }
+
+    /** … 몬스터도 노리지 않는다 */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onTargetWhileCreating(org.bukkit.event.entity.EntityTargetEvent e) {
+        if (e.getTarget() instanceof Player p && creating.contains(p.getUniqueId())) e.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onHungerWhileCreating(org.bukkit.event.entity.FoodLevelChangeEvent e) {
+        if (e.getEntity() instanceof Player p && creating.contains(p.getUniqueId())) e.setCancelled(true);
     }
 
     private void applyPerks(Player p, OriginService.Character c) {

@@ -12,16 +12,16 @@ races:
              xp_bonus: {archery: 0.10, herbalism: 0.10}, perk: night_vision}
   dwarf:    {name: 드워프, source: CANON, note: "광산과 대장간의 종족",
              xp_bonus: {smithing: 0.10, mining: 0.10}, perk: none}
-  orc:      {name: 오크,   source: CANON, note: "원작에서 위드가 시작 종족으로 열었다. 질긴 몸",
+  orc:      {name: 오크,   source: CANON, note: "전설의 조각사도 한때 오크로 살았다고 전한다. 질긴 몸",
              xp_bonus: {swordsmanship: 0.05, spearmanship: 0.05}, perk: max_health}
-  birdfolk: {name: 조인족, source: CANON, note: "원작 32권에 시작 종족으로 추가. 하늘에 사는 종족 — 떨어져도 다치지 않는다",
+  birdfolk: {name: 조인족, source: CANON, note: "하늘에 사는 종족 — 떨어져도 다치지 않는다",
              xp_bonus: {exploration: 0.10}, perk: no_fall_damage}
 
 # 시작 도시: 원작 왕국의 수도 · 큰 도시 중 지금 지도에 도시로 있는 곳. 그 지역 안(하위 지역 포함)만 다닐 수 있다.
 cities:
-  serabourg:   {name: 세라보그 성,   region: serabourg,        kingdom: 로자임,   source: CANON, note: "원작 주인공 위드가 시작한 로자임의 수도. 기초 · 초급 수련관"}
+  serabourg:   {name: 세라보그 성,   region: serabourg,        kingdom: 로자임,   source: CANON, note: "전설의 조각사가 첫발을 디뎠다는 로자임의 수도. 기초 · 초급 수련관"}
   aren:        {name: 아렌 성,       region: aren_castle,      kingdom: 하벤,     source: CANON, note: "중앙 대륙 패권국 하벤의 수도. 투쟁의 길"}
   nehales:     {name: 네할레스 성,   region: nehales_bastion,  kingdom: 브렌트,   source: CANON, note: "로자임 북쪽 브렌트의 수도"}
   sisley:      {name: 시슬레 성,     region: sisley_castle,    kingdom: 브리튼 연합, source: CANON, note: "대륙 가운데 일곱 왕국 연합의 성"}
   hillshade:   {name: 힐쉐이드 성,   region: hillshade_castle, kingdom: 아이데른, source: CANON, note: "남쪽 바다를 낀 아이데른의 수도"}
-  morata:      {name: 모라타,        region: morata_free_city, kingdom: 북부 (옛 아르펜), source: CANON, note: "원작에선 시작 도시가 아니었다 — 후대에 북부 개척민의 첫 도시가 됨 (이 게임의 설정)"}
+  morata:      {name: 모라타,        region: morata_free_city, kingdom: 북부 (옛 아르펜), source: CANON, note: "옛날엔 변방이었다 — 후대에 북부 개척민의 첫 도시가 됨 (이 게임의 설정)"}
