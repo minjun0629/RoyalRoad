@@ -72,7 +72,8 @@ public final class Sculpt {
         String k = PixelArt.kind(t);
         Color metal = metalOf(t.material()), acc = PixelArt.accent(t);
         return switch (k) {
-            case "sword", "dagger", "knife", "axe", "spear", "staff", "hammer", "pickaxe" -> weapon(t, k, metal, acc);
+            // 무기는 입체로 깎지 않는다: 바닐라처럼 손 픽셀 그림을 비스듬히 든다 (IconSmith) — 블록 덩어리 모델은 '기계가 만든' 느낌이 났다
+            case "sword", "dagger", "knife", "axe", "spear", "staff", "hammer", "pickaxe" -> null;
             case "helmet", "crown" -> helmet(t, metal, acc);
             case "potion", "ingot", "gem", "ore", "log", "block", "bread", "meat", "bone", "statue", "relic", "bandage", "whetstone", "pot", "mortar", "drop", "scrap" ->
                     lump(t, k, acc);

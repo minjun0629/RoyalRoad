@@ -75,7 +75,7 @@ class ResourcePackBuilderTest {
         var b = ResourcePackBuilder.build(c);
         assertArrayEquals(a.sha1(), b.sha1(), "같은 콘텐츠 = 같은 팩");
         assertEquals(40, a.sha1Hex().length());
-        assertTrue(a.zip().length < 1_000_000, "팩이 가볍다: " + a.zip().length);
+        assertTrue(a.zip().length < 2_000_000, "팩이 가볍다 (필드 보스 55 모델 포함): " + a.zip().length);
         Map<String, byte[]> files = unzip(a.zip());
         String meta = new String(files.get("pack.mcmeta"), StandardCharsets.UTF_8);
         assertTrue(meta.contains("\"pack_format\":15"));
@@ -174,7 +174,7 @@ class ResourcePackBuilderTest {
         }
         assertTrue(atlas.contains("iron_darker"), "철 갑옷에 철 장식 = iron_darker 팔레트");
         assertTrue(new String(dp.get("pack.mcmeta"), StandardCharsets.UTF_8).contains("\"pack_format\":15"));
-        assertTrue(pack.zip().length < 1_000_000, "팩이 가볍다: " + pack.zip().length);
+        assertTrue(pack.zip().length < 2_000_000, "팩이 가볍다 (필드 보스 55 모델 포함): " + pack.zip().length);
     }
 
     @Test

@@ -97,8 +97,9 @@ public final class PixelArt {
     }
 
     /** 장신구 · 원작 물건의 모양 (태그 이름 = 모양 이름) */
-    static final java.util.List<String> ACCESSORY_KINDS = java.util.List.of("ring", "necklace", "bracelet", "gloves", "cloak", "orb", "harp", "fan",
-            "cup", "book", "mirror", "map", "rake", "plow", "watering_can", "pickaxe_weapon");
+    static final java.util.List<String> ACCESSORY_KINDS = java.util.List.of("ring", "necklace", "bracelet", "gloves", "cloak", "belt", "pauldron", "orb",
+            "harp", "fan", "cup", "book", "mirror", "map", "rake", "plow", "watering_can", "pickaxe_weapon", "whip", "scythe", "mace", "torch", "arrow",
+            "hammer_chisel", "key", "flag", "seal", "crest", "skull", "plate", "compass", "furnace", "feather");
 
     static void cutEllipse(Canvas.Layer l, double cx, double cy, double rx, double ry) {
         for (int y = 0; y < 32; y++)
@@ -233,7 +234,8 @@ public final class PixelArt {
     /** 손에 들었을 때 막대처럼 기울여 드는 모양 (item/handheld) */
     public static boolean handheld(String kind) {
         return switch (kind) {
-            case "sword", "dagger", "axe", "spear", "staff", "knife", "hammer", "pickaxe", "rod", "bone", "rake", "plow", "pickaxe_weapon" -> true;
+            case "sword", "dagger", "axe", "spear", "staff", "knife", "hammer", "pickaxe", "rod", "bone", "rake", "plow", "pickaxe_weapon", "mace", "scythe",
+                 "torch", "hammer_chisel" -> true;
             default -> false;
         };
     }
@@ -280,7 +282,11 @@ public final class PixelArt {
         Color metal = metal(t.material()), acc = accent(t), own = hashed(t.id(), 0.55f, 0.8f);
         Color guard = acc != null ? acc : BRASS;
         boolean canon = "CANON".equals(t.source()) && t.category().unique();
-        if (t.hasTag("practice")) return practice(c, k);
+        // 장비 · 장신구 · 성물: 16 칸 손 픽셀 (IconSmith). 재료는 아래 그림 그대로
+        if (IconSmith.handles(k) && (t.category().unique() || ACCESSORY_KINDS.contains(k))) {
+            BufferedImage img = IconSmith.draw(t, k);
+            if (img != null) return img;
+        }
         if (accessory(c, k, metal, acc, own)) {
             if (canon) c.sparkle(28, 3, new Color(255, 226, 110));
             return c.image(true);
