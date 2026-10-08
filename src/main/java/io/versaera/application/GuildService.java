@@ -82,7 +82,7 @@ public final class GuildService {
             String id = UUID.randomUUID().toString();
             String key = "guild_create:" + requestId;
             long b = economy.balance(uuid);
-            DomainException.require(b >= GuildRules.CREATE_COST, "money.insufficient", "길드 창설에 " + GuildRules.CREATE_COST + " 골드가 필요합니다");
+            DomainException.require(b >= GuildRules.CREATE_COST, "money.insufficient", "길드를 만들려면 " + io.versaera.domain.economy.Money.format(GuildRules.CREATE_COST) + " 필요합니다");
             // 창설비는 사라지는 돈(싱크) — 시스템 지갑으로 보낸다
             economy.transferInTx(uuid, "system:sink", GuildRules.CREATE_COST, "guild_create", key, after);
             Guild ng = new Guild(id, name, tag, uuid, 1, 0, clock.nowMillis());

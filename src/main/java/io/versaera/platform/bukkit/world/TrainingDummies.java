@@ -45,7 +45,7 @@ public final class TrainingDummies implements Listener {
     public TrainingDummies(Plugin plugin, GameServices s, Async async) {
         this.s = s;
         this.async = async;
-        Bukkit.getScheduler().runTaskTimer(plugin, this::flush, 200L, 200L);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::flush, 20L, 20L);   // 1초마다 DB 에 (화면 숫자는 칠 때마다 바로)
         // 마을 훈련장 (SettlementPlanner: 광장 북서쪽, 너비 11 · 깊이 13, 허수아비 줄은 북쪽에서 셋째 줄) — 그 앞에 갑옷 거치대 허수아비
         for (Region r : s.regions.all()) {
             if (!io.versaera.domain.terrain.SettlementPlanner.isTown(r)) continue;
@@ -110,6 +110,7 @@ public final class TrainingDummies implements Listener {
         if (last != null && now - last < 1000) return;
         lastTarget.put(p.getUniqueId(), now);
         pendingTarget.merge(p.getUniqueId().toString(), 1L, Long::sum);
+        show(p, "hit.archery_training", "과녁");
     }
 
     private void place(World w, Region r) {
@@ -137,6 +138,40 @@ public final class TrainingDummies implements Listener {
         if (last != null && now - last < 400) return;   // 연타 매크로 대비: 0.4초에 한 번만 센다
         lastHit.put(p.getUniqueId(), now);
         pending.merge(p.getUniqueId().toString(), 1L, Long::sum);
+        show(p, "hit.training", "허수아비");
+    }
+
+    /** 지금까지 친 수 (DB 기록 + 아직 쓰지 않은 것) — 처음 칠 때 한 번 DB 에서 읽고, 그 뒤로는 칠 때마다 바로 올린다 */
+    private final Map<String, Long> totals = new ConcurrentHashMap<>();
+    private final java.util.Set<String> loading = ConcurrentHashMap.newKeySet();
+
+    private void show(Player p, String counter, String what) {
+        String key = p.getUniqueId() + ":" + counter;
+        Long n = totals.computeIfPresent(key, (k, v) -> v + 1);
+        if (n != null) {
+            bar(p, what, n);
+            return;
+        }
+        if (!loading.add(key)) return;
+        String id = p.getUniqueId().toString();
+        async.run("training-count", () -> s.growth.counter(id, counter), stored -> {
+            loading.remove(key);
+            // DB 값 + 아직 쓰지 않은 것 (방금 친 것 포함)
+            long now = stored + (counter.equals("hit.training") ? pending : pendingTarget).getOrDefault(id, 0L);
+            totals.put(key, now);
+            if (p.isOnline()) bar(p, what, now);
+        }, null);
+    }
+
+    private static void bar(Player p, String what, long n) {
+        p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR,
+                net.md_5.bungee.api.chat.TextComponent.fromLegacyText(io.versaera.platform.bukkit.Ui.c("&f" + what + " &e" + n + "&7회")));
+    }
+
+    @EventHandler
+    public void onQuit(org.bukkit.event.player.PlayerQuitEvent e) {
+        String u = e.getPlayer().getUniqueId().toString();
+        totals.keySet().removeIf(k -> k.startsWith(u));
     }
 
     @EventHandler

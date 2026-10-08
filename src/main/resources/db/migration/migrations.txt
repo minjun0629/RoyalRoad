@@ -7,3 +7,4 @@ V6__npc_world.sql
 V7__adventure.sql
 V8__progression_curve.sql
 V9__runtime_state.sql
+V10__money_units.sql

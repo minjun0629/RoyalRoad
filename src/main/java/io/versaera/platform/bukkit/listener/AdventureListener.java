@@ -35,7 +35,7 @@ public final class AdventureListener implements Listener {
         s.bus.subscribe(GameEvents.GuildQuestDone.class, e -> Bukkit.getScheduler().runTask(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers())
                 async.run("gq-done", () -> s.guilds.membership(p.getUniqueId().toString()).map(m -> m.guildId().equals(e.guildId())).orElse(false),
-                        mine -> { if (mine) p.sendMessage(Ui.info("길드 의뢰 완료: &f" + e.name() + " &7(금고 +" + e.money() + ")")); }, null);
+                        mine -> { if (mine) p.sendMessage(Ui.info("길드 의뢰 완료: &f" + e.name() + " &7(금고 +" + io.versaera.domain.economy.Money.format(e.money()) + ")")); }, null);
         }));
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {

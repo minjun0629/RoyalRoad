@@ -48,11 +48,11 @@ public final class BlockRestoreRuntime implements Listener {
      * @param node  자원 블록인가 (채집이 되살린다)
      */
     public BlockRestoreRuntime(Plugin plugin, long delaySeconds, boolean drops, Predicate<Block> owned, Predicate<Material> node) {
-        this.delayMs = Math.max(5, delaySeconds) * 1000L;
+        this.delayMs = Math.max(1, delaySeconds) * 1000L;
         this.drops = drops;
         this.owned = owned;
         this.node = node;
-        Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 40L, 20L);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 40L, 5L);   // 0.25초마다 (복구 시간이 2초처럼 짧아도 제때)
     }
 
     private boolean exempt(Block b) {
@@ -135,7 +135,7 @@ public final class BlockRestoreRuntime implements Listener {
         if (!exempt(e.getBlock())) remember(e.getBlock(), e.getBlock().getBlockData());
     }
 
-    /** 1초마다: 때가 된 자리를 되돌린다. 청크가 안 읽혔거나 사람이 서 있으면 미룬다 */
+    /** 0.25초마다: 때가 된 자리를 되돌린다. 청크가 안 읽혔거나 사람이 서 있으면 미룬다 */
     private void tick() {
         if (pending.isEmpty()) return;
         long now = System.currentTimeMillis();
@@ -149,7 +149,7 @@ public final class BlockRestoreRuntime implements Listener {
             if (w == null) { it.remove(); continue; }
             if (!w.isChunkLoaded(p.at().getBlockX() >> 4, p.at().getBlockZ() >> 4)) continue;
             it.remove();
-            if (occupied(p.at())) { later.add(new Pending(p.at(), p.original(), now + 5000)); continue; }
+            if (occupied(p.at())) { later.add(new Pending(p.at(), p.original(), now + 1000)); continue; }
             p.at().getBlock().setBlockData(p.original(), false);
             budget--;
         }

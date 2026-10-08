@@ -243,7 +243,7 @@ public final class NpcWorldService {
         String d = p.trains();
         int cap = Math.max(5, p.level() / 2), lv = s.growth.level(uuid, d);
         DomainException.require(lv < cap, "npc.train_cap", "더 가르칠 게 없다고 한다 (" + s.growth.discipline(d).name() + " " + cap + " 까지)");
-        long cost = 50 + p.level() * 10L;
+        long cost = (50 + p.level() * 10L) * io.versaera.domain.economy.Money.SILVER;
         String key = "train:" + uuid + ":" + npcId + ":" + day();
         DomainException.require(s.economy.withdraw(uuid, cost, "npc_train", key), "npc.trained_today", "오늘은 이미 배웠습니다");
         long xp = (60 + p.level() * 4L) * (stage(uuid, npcId).atLeast(Relation.Stage.COMRADE) ? 2 : 1);
@@ -284,8 +284,8 @@ public final class NpcWorldService {
     public long paidService(String uuid, String npcId, String service, String requestId) {
         need(uuid, npcId, service, Relation.Stage.STRANGER);
         NpcDefinition n = s.relations.npc(npcId);
-        long base = switch (service) { case "INN" -> 30; case "HEAL" -> 40; default -> throw DomainException.of("npc.no_service", "없는 일"); };
-        long cost = Math.max(5, Math.round(base * (1 - stage(uuid, npcId).discount()) * (tier(n.region()) == Tier.DECLINE ? 1.5 : 1)));
+        long base = switch (service) { case "INN" -> 30 * io.versaera.domain.economy.Money.SILVER; case "HEAL" -> 40 * io.versaera.domain.economy.Money.SILVER; default -> throw DomainException.of("npc.no_service", "없는 일"); };
+        long cost = Math.max(5 * io.versaera.domain.economy.Money.SILVER, Math.round(base * (1 - stage(uuid, npcId).discount()) * (tier(n.region()) == Tier.DECLINE ? 1.5 : 1)));
         s.economy.withdraw(uuid, cost, "npc_" + service.toLowerCase(Locale.ROOT), "npc:" + service + ":" + requestId);
         return cost;
     }
@@ -302,15 +302,24 @@ public final class NpcWorldService {
         var it = s.items.find(itemId).filter(x -> x.custody().ownedBy(uuid)).orElseThrow(() -> DomainException.of("item.not_owner", "내 장비를 손에 들어야 합니다"));
         int missing = it.maxDurability() - it.durability();
         DomainException.require(missing > 0 || it.ruined(), "npc.no_repair", "고칠 데가 없습니다");
-        long cost = Math.max(10, Math.round(missing * 0.6 * (1 - stage(uuid, npcId).discount())));
+        long cost = Math.max(10 * io.versaera.domain.economy.Money.SILVER, Math.round(missing * 0.6 * io.versaera.domain.economy.Money.SILVER * (1 - stage(uuid, npcId).discount())));
         s.economy.withdraw(uuid, cost, "npc_repair", "npc_repair:" + requestId);
         int level = profiles.containsKey(npcId) ? Math.min(31, profiles.get(npcId).level() / 2) : 10;
         return s.items.repair(itemId, uuid, npcId, level, "npc_repair_item:" + requestId);
     }
 
+    static final String GIFTS = "gifts";
+
     /** 선물: 호감 + 기억(좋아함 · 싫어함) + 가족 · 거래처에게 퍼짐 */
     public int gift(String uuid, String npcId, Set<String> itemTags, int quality, String itemName) {
-        int gain = s.relations.gift(uuid, npcId, itemTags, quality);
+        // 오늘 이 사람에게 몇 번째 선물인가 (runtime_state, 다음 날이면 0 부터) — 하루 GIFTS_PER_DAY 번까지
+        long today = s.relations.today();
+        String key = uuid + ":" + npcId;
+        Map<String, String> st = s.state.load(GIFTS, key).orElse(Map.of());
+        int given = Long.toString(today).equals(st.get("day")) ? Integer.parseInt(st.getOrDefault("n", "0")) : 0;
+        DomainException.require(given < Relation.GIFTS_PER_DAY, "npc.gift_enough", "오늘은 선물을 충분히 받았습니다 — 내일 다시 오세요");
+        int gain = s.relations.gift(uuid, npcId, itemTags, quality, given + 1);
+        s.state.save(GIFTS, key, Map.of("day", Long.toString(today), "n", Integer.toString(given + 1)), clock.nowMillis() + 2 * 86_400_000L);
         if (gain >= 10) remember(uuid, npcId, "GIFT_LIKED", itemName, 1);
         else if (gain < 0) remember(uuid, npcId, "GIFT_DISLIKED", itemName, 1);
         spread(uuid, npcId, gain);
@@ -326,12 +335,12 @@ public final class NpcWorldService {
         return d + switch (tier(n.region())) { case THRIVING -> 0.03; case FLOURISHING -> 0.06; default -> 0; };
     }
 
-    /** 거래가 끝난 뒤: 단골 기억 · 지역 번영 (500 골드마다 +1) */
+    /** 거래가 끝난 뒤: 단골 기억 · 지역 번영 (5 골드마다 +1) */
     public void traded(String uuid, String npcId, long amount, String requestId) {
         if (amount <= 0) return;
         NpcDefinition n = s.relations.npc(npcId);
         if (world.count(uuid, npcId, "TRADE") < 3) remember(uuid, npcId, "TRADE", Long.toString(amount), 1);
-        contribute(n.region(), (int) Math.max(1, amount / 500), "trade:" + requestId);
+        contribute(n.region(), (int) Math.max(1, amount / (500 * io.versaera.domain.economy.Money.SILVER)), "trade:" + requestId);
     }
 
     /** NPC 가 일하는 시장 (가장 가까운 시장 — 경매인의 경매장) */

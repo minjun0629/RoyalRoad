@@ -37,7 +37,7 @@ class NpcWorldTest {
             assertTrue(w.s.progress.discovered(p, "quest", hidden), "신뢰 = 숨은 의뢰");
             assertTrue(w.s.npcWorld.shopDiscount(p, smith.id()) >= 0.07);
             // 숙련 지도: 하루 한 번, 돈을 내고
-            w.s.economy.deposit(p, 10_000, "test", "t1");
+            w.s.economy.deposit(p, 10_000 * io.versaera.domain.economy.Money.SILVER, "test", "t1");
             var lesson = w.s.npcWorld.train(p, smith.id());
             assertEquals("smithing", lesson.discipline());
             assertTrue(w.s.growth.xp(p, "smithing") > 0);
@@ -61,6 +61,10 @@ class NpcWorldTest {
             assertTrue(g >= 10);
             assertEquals("GIFT_LIKED", w.s.npcWorld.memories(p, smith.id(), 1).get(0).kind());
             assertTrue(w.s.npcWorld.talk(p, smith.id()).memoryLine().contains("철 주괴"));
+            // 같은 날 같은 사람에게: 받을수록 덜 반갑고, 하루 세 번까지
+            int g2 = w.s.npcWorld.gift(p, smith.id(), Set.of("metal"), 800, "철 주괴"), g3 = w.s.npcWorld.gift(p, smith.id(), Set.of("metal"), 800, "철 주괴");
+            assertTrue(g2 < g && g3 < g2 && g3 > 0, g + " → " + g2 + " → " + g3);
+            assertThrows(DomainException.class, () -> w.s.npcWorld.gift(p, smith.id(), Set.of("metal"), 800, "철 주괴"), "네 번째는 받지 않는다 (아이템은 돌려준다)");
             // 소문: 관심 이상, 아직 안 가 본 곳의 방향 · 거리
             NpcProfile gossip = w.s.npcWorld.profiles().stream().filter(x -> !x.rumors().isEmpty() && x.rare() == null && !x.wanderer()
                     && w.s.content.archetypes().get(x.archetype()).offers("RUMOR")).findFirst().orElseThrow();
@@ -88,11 +92,11 @@ class NpcWorldTest {
             w.s.items.confirmDelivered(it.id(), p);
             w.s.items.wear(it.id(), p, 100, false);
             assertThrows(DomainException.class, () -> w.s.npcWorld.repair(p, smith.id(), it.id(), "r0"), "돈이 없으면 못 고친다");
-            w.s.economy.deposit(p, 5000, "test", "t2");
+            w.s.economy.deposit(p, 5000 * io.versaera.domain.economy.Money.SILVER, "test", "t2");
             w.s.npcWorld.repair(p, smith.id(), it.id(), "r1");
             var after = w.s.items.find(it.id()).orElseThrow();
             assertEquals(after.maxDurability(), after.durability());
-            assertTrue(w.s.economy.balance(p) < 5000);
+            assertTrue(w.s.economy.balance(p) < 5000 * io.versaera.domain.economy.Money.SILVER);
         }
     }
 

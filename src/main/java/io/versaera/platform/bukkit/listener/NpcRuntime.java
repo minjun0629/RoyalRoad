@@ -165,7 +165,18 @@ public final class NpcRuntime {
             Point in = places.getOrDefault("tavern", places.get("home"));
             if (in != null) return in;
         }
-        return NpcSchedule.target(n, places, h);
+        return spread(n.id(), NpcSchedule.target(n, places, h));
+    }
+
+    /**
+     * 같은 자리(주점 · 광장 · 가게 앞)를 쓰는 사람들이 한 칸에 겹쳐 서지 않게: 사람마다 정해진 방향 · 거리(1 ~ 2.5 블록, 지붕 위로 올라가지 않을 만큼)만큼 비켜 선다.
+     * id 로 정하므로 날마다 같은 자리에 선다.
+     */
+    static Point spread(String id, Point p) {
+        if (p == null) return null;
+        int h = id.hashCode();
+        double angle = (h & 0xffff) / 65536.0 * Math.PI * 2, r = 1.0 + ((h >>> 16) & 0xff) / 255.0 * 1.5;
+        return new Point(p.x() + Math.cos(angle) * r, p.z() + Math.sin(angle) * r);
     }
 
     /** 집 자리 둘레 6 블록 안에서 가장 가까운 문 (아래 칸) */

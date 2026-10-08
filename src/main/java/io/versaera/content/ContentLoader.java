@@ -87,6 +87,13 @@ public final class ContentLoader {
         return v instanceof Number n ? n.longValue() : v == null ? def : Long.parseLong(String.valueOf(v));
     }
 
+    /** 돈: 파일에는 실버로 (소수 가능), 게임 안에서는 쿠퍼 — {@link io.versaera.domain.economy.Money} */
+    private static long money(Map<String, Object> m, String k, double defSilver) {
+        Object v = m.get(k);
+        double silver = v instanceof Number n ? n.doubleValue() : v == null ? defSilver : Double.parseDouble(String.valueOf(v));
+        return io.versaera.domain.economy.Money.silver(silver);
+    }
+
     private static double d(Map<String, Object> m, String k, double def) {
         Object v = m.get(k);
         return v instanceof Number n ? n.doubleValue() : v == null ? def : Double.parseDouble(String.valueOf(v));
@@ -158,7 +165,7 @@ public final class ContentLoader {
             List<io.versaera.domain.npc.Archetype.QuestTemplate> qs = new ArrayList<>();
             if (m.get("quests") instanceof List<?> l) for (Object o : l) {
                 Map<String, Object> q = map(o);
-                qs.add(new io.versaera.domain.npc.Archetype.QuestTemplate(req(q, "target"), i(q, "amount", 1), l(q, "money", 0), intMap(q, "xp"),
+                qs.add(new io.versaera.domain.npc.Archetype.QuestTemplate(req(q, "target"), i(q, "amount", 1), money(q, "money", 0), intMap(q, "xp"),
                         i(q, "affinity", 5), b(q, "daily", false), b(q, "hidden", false), req(q, "title"), str(q, "label", "")));
             }
             List<String> lv = list(m, "level");
@@ -309,7 +316,7 @@ public final class ContentLoader {
     private static QuestDefinition.Reward reward(Object o) {
         Map<String, Object> m = map(o);
         if (m.isEmpty()) return QuestDefinition.Reward.NONE;
-        return new QuestDefinition.Reward(l(m, "money", 0), list(m, "items"), intMap(m, "xp"), intMap(m, "affinity"), intMap(m, "reputation"),
+        return new QuestDefinition.Reward(money(m, "money", 0), list(m, "items"), intMap(m, "xp"), intMap(m, "affinity"), intMap(m, "reputation"),
                 i(m, "fame", 0), list(m, "unlocks"));
     }
 
@@ -338,8 +345,8 @@ public final class ContentLoader {
                 d(m, "tax", 0.05), new LinkedHashSet<>(list(m, "cheap")), new LinkedHashSet<>(list(m, "dear"))))) markets.put(m.id(), m);
         Map<String, Long> prices = new LinkedHashMap<>();
         for (Map.Entry<String, Object> e : section(root, "prices", file).entrySet()) {
-            long v = ((Number) e.getValue()).longValue();
-            if (v <= 0) throw new ContentException(file + " / prices / " + e.getKey() + ": 시세는 1 이상");
+            long v = io.versaera.domain.economy.Money.silver(((Number) e.getValue()).doubleValue());   // 실버 → 쿠퍼
+            if (v <= 0) throw new ContentException(file + " / prices / " + e.getKey() + ": 시세는 1 쿠퍼 이상");
             prices.put(e.getKey(), v);
         }
         Map<String, io.versaera.domain.market.MarketCatalog.Shop> shops = new LinkedHashMap<>();
@@ -469,7 +476,7 @@ public final class ContentLoader {
             String title = str(r, "title", null);
             if (title != null && !titles.containsKey(title)) throw new IllegalArgumentException("없는 칭호: " + title);
             return new io.versaera.domain.achievement.Achievement(id, req(m, "name"), str(m, "category", "기타"), str(m, "desc", ""), condition(m.get("when")),
-                    l(r, "money", 0), i(r, "fame", 0), title, b(m, "hidden", false), i(r, "points", 10));
+                    money(r, "money", 0), i(r, "fame", 0), title, b(m, "hidden", false), i(r, "points", 10));
         });
         var species = each(read.apply("pets.yml"), "species", "pets.yml", (id, m) -> {
             Map<String, Object> t = map(m.get("tame"));
@@ -481,7 +488,7 @@ public final class ContentLoader {
         });
         Map<String, Object> tr = read.apply("travel.yml");
         var mounts = each(tr, "mounts", "travel.yml", (id, m) -> new io.versaera.domain.travel.MountKind(id, req(m, "name"), req(m, "entity"),
-                d(m, "speed", 0.22), d(m, "jump", 0.6), i(m, "health", 20), l(m, "price", 1000), i(m, "riding", 0), str(m, "color", "NONE")));
+                d(m, "speed", 0.22), d(m, "jump", 0.6), i(m, "health", 20), money(m, "price", 1000), i(m, "riding", 0), str(m, "color", "NONE")));
         var network = io.versaera.domain.travel.TravelNetwork.build(regions, new io.versaera.domain.travel.TravelNetwork.Rules(
                 mode(section(tr, "carriage", "travel.yml")), mode(section(tr, "ship", "travel.yml")), i(tr, "port_range", 900)));
         Map<String, Object> w = read.apply("weather.yml");
@@ -499,7 +506,7 @@ public final class ContentLoader {
             String title = str(r, "title", null);
             if (title != null && !titles.containsKey(title)) throw new IllegalArgumentException("없는 칭호: " + title);
             return new io.versaera.domain.raid.RaidDefinition(id, req(m, "name"), req(m, "region"), req(m, "boss"), Integer.parseInt(pl.get(0)),
-                    Integer.parseInt(pl.get(1)), i(m, "mastery", 0), l(m, "time_limit_minutes", 15) * 60_000L, l(r, "money", 0), list(r, "items"), title,
+                    Integer.parseInt(pl.get(1)), i(m, "mastery", 0), l(m, "time_limit_minutes", 15) * 60_000L, money(r, "money", 0), list(r, "items"), title,
                     i(r, "fame", 0), str(m, "desc", ""));
         });
         var arts = each(read.apply("artworks.yml"), "kinds", "artworks.yml", (id, m) -> {
@@ -512,7 +519,7 @@ public final class ContentLoader {
         });
         Map<String, Object> gq = read.apply("guild_quests.yml");
         var guildQuests = each(gq, "quests", "guild_quests.yml", (id, m) -> new io.versaera.domain.guild.GuildQuestDef(id, req(m, "name"), req(m, "counter"),
-                l(m, "target", 1), l(m, "money", 0), l(m, "activity", 0), b(m, "deposit", false), str(m, "desc", "")));
+                l(m, "target", 1), money(m, "money", 0), l(m, "activity", 0), b(m, "deposit", false), str(m, "desc", "")));
         Map<String, Object> st = section(gq, "storage", "guild_quests.yml");
         return new Expansion(achievements, titles, species, mounts, network, kinds, climates, l(w, "window_minutes", 40) * 60_000L, i(w, "cell", 3000),
                 raids, arts, guildQuests, intMap(st, "daily_withdraw"), i(st, "max_kinds", 120), monsters(read.apply("monsters.yml"), "monsters.yml"));
@@ -538,7 +545,7 @@ public final class ContentLoader {
     }
 
     private static io.versaera.domain.travel.TravelNetwork.Mode mode(Map<String, Object> m) {
-        return new io.versaera.domain.travel.TravelNetwork.Mode(i(m, "links", 3), i(m, "max_distance", 4000), l(m, "base", 20), d(m, "per_block", 0.04),
+        return new io.versaera.domain.travel.TravelNetwork.Mode(i(m, "links", 3), i(m, "max_distance", 4000), money(m, "base", 20), d(m, "per_block", 0.04) * io.versaera.domain.economy.Money.SILVER,
                 d(m, "blocks_per_second", 30));
     }
 

@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 
 /**
  * 튜토리얼 화면 (TutorialService): 위쪽 막대에 지금 단계 · 진행, 단계를 열 때 할 일 안내와 필요한 물건(연습용 목검 · 베틀),
- * 끝낼 때 보상 알림. 3 초마다 살핀다. /튜토리얼 · /튜토리얼 건너뛰기.
+ * 끝낼 때 보상 알림. 1 초마다 살핀다. /튜토리얼 · /튜토리얼 건너뛰기.
  */
 public final class TutorialRuntime implements Listener, CommandExecutor {
     /** 단계를 열 때 보이는 안내 */
@@ -61,7 +61,7 @@ public final class TutorialRuntime implements Listener, CommandExecutor {
         this.s = s;
         this.async = async;
         this.deliver = deliver;
-        Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 100L, 60L);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 100L, 20L);   // 1초마다 (허수아비 · 사냥 수가 바로 보이게)
     }
 
     private void tick() {
@@ -123,7 +123,7 @@ public final class TutorialRuntime implements Listener, CommandExecutor {
     private static String reward(QuestDefinition.Reward r) {
         if (r == null) return "";
         StringBuilder sb = new StringBuilder();
-        if (r.money() > 0) sb.append(" &e+").append(r.money()).append(" 골드");
+        if (r.money() > 0) sb.append(" &e+").append(io.versaera.domain.economy.Money.format(r.money()));
         if (!r.items().isEmpty()) sb.append(" &d+ 물건 ").append(r.items().size()).append("가지 (배달함)");
         r.xp().forEach((d, x) -> sb.append(" &b+").append(x).append(" ").append(d));
         return sb.toString();

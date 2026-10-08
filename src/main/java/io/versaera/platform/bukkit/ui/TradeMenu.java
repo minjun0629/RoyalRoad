@@ -79,8 +79,8 @@ public final class TradeMenu extends Menu {
             if (it != null && i < THEIRS.length) set(THEIRS[i++], codec.unique(it), null);
         }
         for (int r = 0; r < 3; r++) set(4 + r * 9, Menu.icon(Material.GRAY_STAINED_GLASS_PANE, " ", List.of()), null);
-        set(27, Menu.icon(Material.GOLD_NUGGET, "&e" + t.money(uid()), List.of("&7좌 +100 · 우 -100 · 쉬프트 ×10")), this::money);
-        set(35, Menu.icon(Material.GOLD_NUGGET, "&e" + t.money(other), List.of()), null);
+        set(27, Menu.icon(Material.GOLD_NUGGET, "&e" + io.versaera.domain.economy.Money.format(t.money(uid())), List.of("&7좌 +1실버 · 우 -1실버 · 쉬프트: 1골드씩")), this::money);
+        set(35, Menu.icon(Material.GOLD_NUGGET, "&e" + io.versaera.domain.economy.Money.format(t.money(other)), List.of()), null);
         boolean myLock = t.locked(uid()), theirLock = t.locked(other);
         set(30, Menu.icon(myLock ? Material.IRON_BARS : Material.OAK_FENCE, myLock ? "&a고정됨" : "&f고정", List.of()), e -> act("lock"));
         set(32, Menu.icon(t.confirmed(uid()) ? Material.LIME_DYE : Material.GRAY_DYE, "&f확인",
@@ -126,7 +126,7 @@ public final class TradeMenu extends Menu {
     }
 
     private void money(InventoryClickEvent e) {
-        long step = (e.isShiftClick() ? 1000 : 100) * (e.isRightClick() ? -1 : 1);
+        long step = (e.isShiftClick() ? io.versaera.domain.economy.Money.GOLD : io.versaera.domain.economy.Money.SILVER) * (e.isRightClick() ? -1 : 1);
         async.run("trade-money", () -> {
             TradeSession t = s.trades.of(uid()).orElseThrow();
             s.trades.setMoney(tradeId, uid(), Math.max(0, t.money(uid()) + step));

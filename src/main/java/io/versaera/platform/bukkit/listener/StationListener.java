@@ -34,7 +34,7 @@ import java.util.*;
  * 재료는 인벤토리에서 품질이 높은 것부터 골라 <b>먼저 빼고</b> 서버에 제작을 요청한다. 실패하면 재료는 배달함으로 돌아온다.
  */
 public final class StationListener implements Listener {
-    private static final Map<Material, String> STATIONS = Map.ofEntries(
+    static final Map<Material, String> STATIONS = Map.ofEntries(
             Map.entry(Material.ANVIL, "smithing"), Map.entry(Material.LOOM, "tailoring"), Map.entry(Material.CRAFTING_TABLE, "leatherwork"),
             Map.entry(Material.SMOKER, "cooking"), Map.entry(Material.BREWING_STAND, "alchemy"), Map.entry(Material.STONECUTTER, "sculpting"),
             Map.entry(Material.SMITHING_TABLE, "repair"), Map.entry(Material.FLETCHING_TABLE, "woodworking"),

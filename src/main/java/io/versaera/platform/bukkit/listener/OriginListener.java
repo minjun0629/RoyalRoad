@@ -61,6 +61,8 @@ public final class OriginListener implements Listener {
     /** 초보는 시작 도시 밖으로 못 나간다 — RegionTracker 가 지역이 바뀔 때 부른다 */
     public String confine(Player p, String regionId, Location to) {
         if (creating.contains(p.getUniqueId())) return "먼저 캐릭터를 만들어야 한다";
+        // 관리자 (versaera.admin) · config beginner.confine: false 면 어디든 간다 (초보 보호 — 죽어도 손실 없음 — 는 그대로)
+        if (p.hasPermission("versaera.admin") || !plugin.getConfig().getBoolean("beginner.confine", true)) return null;
         OriginService.Character c = chars.get(p.getUniqueId());
         if (c == null || !c.beginner(System.currentTimeMillis()) || inside(c, regionId, to)) return null;
         long left = c.beginnerUntil() - System.currentTimeMillis();

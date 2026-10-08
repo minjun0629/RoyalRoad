@@ -246,7 +246,7 @@ public final class SkillListener implements Listener {
         }
         p.getWorld().playSound(at, combo ? Sound.ENTITY_PLAYER_ATTACK_SWEEP : Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.8f, combo ? 1.3f : 1f);
         Ui.bar(p, (combo ? "&6" : "&f") + d.name());
-        String uid = p.getUniqueId().toString();   // 의뢰 (튜토리얼: 첫 기술)
+        String uid = p.getUniqueId().toString();   // 의뢰 (기술 쓰기 목표)
         async.fire("skill-quest", () -> { s.quests.record(uid, io.versaera.domain.quest.QuestDefinition.Type.SKILL, d.id(), 1, 0); return null; });
         hud(p);
     }

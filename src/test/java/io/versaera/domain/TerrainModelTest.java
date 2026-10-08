@@ -83,6 +83,33 @@ class TerrainModelTest {
         assertTrue(cliffs < checked / 200, "경계가 부드럽다: " + cliffs + "/" + checked);
     }
 
+    /** 시작 도시 성벽 밖 사냥터는 걸어서 나갈 수 있어야 한다: 네 방향으로 성벽부터 120 블록까지 이웃 칸 높이 차를 잰다 */
+    @Test
+    void startCitiesCanBeWalkedOutOf() {
+        StringBuilder report = new StringBuilder();
+        int bad = 0, total = 0;
+        for (var city : c.origins().cities()) {
+            var r = regions.byId(city.region());
+            if (r == null) continue;
+            int cx = (r.minX() + r.maxX()) / 2, cz = (r.minZ() + r.maxZ()) / 2;
+            int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+            for (int[] d : dirs)
+                for (int off = -40; off <= 40; off += 10) {
+                    int x = d[0] > 0 ? r.maxX() : d[0] < 0 ? r.minX() : cx + off, z = d[1] > 0 ? r.maxZ() : d[1] < 0 ? r.minZ() : cz + off;
+                    int prev = t.height(x, z), worst = 0;
+                    for (int i = 1; i <= 120; i++) {
+                        int h = t.height(x + d[0] * i, z + d[1] * i);
+                        worst = Math.max(worst, Math.abs(h - prev));
+                        prev = h;
+                    }
+                    total++;
+                    if (worst > 1) { bad++; report.append(city.region()).append(" ").append(d[0]).append(",").append(d[1]).append(" off ").append(off).append(" 계단 ").append(worst).append("\n"); }
+                }
+        }
+        System.out.println("[성벽 밖 길] " + bad + "/" + total + "\n" + report);
+        assertTrue(bad * 10 <= total, "성벽 밖에 걸어서 못 넘는 턱이 많다: " + bad + "/" + total + "\n" + report);
+    }
+
     @Test
     void ruinsGetPillarsOnlyInRuins() {
         int inRuins = 0;

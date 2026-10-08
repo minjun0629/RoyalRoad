@@ -1,4 +1,4 @@
-# 시장 · 시세 · NPC 상점 — 모두 ORIGINAL. 원작의 화폐 단위 · 물가는 쓰지 않는다 (단위: 골드).
+# 시장 · 시세 · NPC 상점 — 모두 ORIGINAL. 시세는 실버로 적는다 (소수 가능: 0.3 = 30쿠퍼). 1골드 = 100실버 = 10000쿠퍼
 # markets: 지역 시장. cheap 태그는 그 지역에서 흔해 싸고, dear 태그는 귀해 비싸다.
 markets:
   harden:      {name: 하르덴 대시장,  region: harden,           tax: 0.05, cheap: [grain, food, cloth], dear: [frost, sky, gem]}

@@ -40,6 +40,8 @@ public final class JdbcResetRepository implements ResetRepository {
         n += j.update("DELETE FROM item_history WHERE item_id IN (SELECT id FROM item_instance WHERE custody_ref = ?)", ps -> ps.setString(1, uuid));
         n += j.update("DELETE FROM item_instance WHERE custody_ref = ?", ps -> ps.setString(1, uuid));
         for (String t : BY_UUID) n += j.update("DELETE FROM " + t + " WHERE uuid = ?", ps -> ps.setString(1, uuid));
+        // 재시작 보존 상태 (손질 버프 · 비기 재사용 대기 …: 키가 그 사람)
+        n += j.update("DELETE FROM runtime_state WHERE key = ?", ps -> ps.setString(1, uuid));
         // 서버 최초 (지역 · 보스 · 업적 …) → 다음에 처음 해낸 사람이 다시 최초가 된다
         n += j.update("DELETE FROM world_first WHERE uuid = ?", ps -> ps.setString(1, uuid));
         // 한 번만 받는 보상 열쇠: 기록은 남기고 열쇠만 푼다

@@ -66,7 +66,7 @@ public final class AuctionService {
 
     private void checkNew(String uuid, String market, long price) {
         catalog.market(market);
-        DomainException.require(price > 0 && price <= MAX_PRICE, "auction.bad_price", "가격은 1 ~ " + MAX_PRICE + " 골드");
+        DomainException.require(price > 0 && price <= MAX_PRICE, "auction.bad_price", "가격은 1쿠퍼 ~ " + io.versaera.domain.economy.Money.format(MAX_PRICE));
         DomainException.require(repo.bySeller(uuid, "OPEN").size() < MAX_OPEN, "auction.too_many", "동시에 " + MAX_OPEN + "개까지 올릴 수 있습니다");
     }
 

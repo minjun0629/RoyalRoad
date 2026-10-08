@@ -205,7 +205,7 @@ class BalanceTest {
             double unit = cost / r.outputCount(), sell = price.getOrDefault(r.output(), 0L);
             if (!originalItems.contains(r.output())) continue;   // 원작 재료를 만드는 법 (미스릴 · 흑철 제련)은 원작 시세 그대로
             assertTrue(sell >= unit * 0.95, r.id() + ": 팔면 손해 (재료 " + unit + " > 시세 " + sell + ")");
-            assertTrue(sell <= unit * 3 + 4 * r.minLevel() * r.minLevel() + 60, r.id() + ": 너무 남는다 (재료 " + unit + " · 시세 " + sell + ")");
+            assertTrue(sell <= unit * 3 + (4 * r.minLevel() * r.minLevel() + 60) * io.versaera.domain.economy.Money.SILVER, r.id() + ": 너무 남는다 (재료 " + unit + " · 시세 " + sell + ")");
         }
     }
 

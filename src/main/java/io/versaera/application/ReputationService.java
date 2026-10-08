@@ -105,16 +105,16 @@ public final class ReputationService {
 
     /**
      * 신전 기부: 돈을 내면 먼저 악명을 씻고(악명이 많을수록 1 포인트가 비싸다), 악명이 0 이 되면 살인자 상태도 풀린다.
-     * 남은 돈 20 골드마다 축복 1초 (최대 30분). 같은 key 는 한 번만 처리.
+     * 남은 돈 20 실버마다 축복 1초 (최대 30분). 같은 key 는 한 번만 처리.
      */
     public Donation donate(String uuid, String regionId, long amount, String key) {
         Temple t = templeAt(regionId).orElseThrow(() -> DomainException.of("temple.none", "신전 안에서만 기부할 수 있습니다"));
-        DomainException.require(amount >= 10, "temple.too_little", "10 골드 이상 기부할 수 있습니다");
+        DomainException.require(amount >= 10 * io.versaera.domain.economy.Money.SILVER, "temple.too_little", "10실버 이상 기부할 수 있습니다");
         long notoriety = progress.counter(uuid, "notoriety");
         long cleansed = Reputation.cleansedBy(amount, notoriety);
         long cost = 0;
         for (long n = notoriety, i = 0; i < cleansed; i++, n--) cost += Reputation.donationPerPoint(n);
-        int blessing = (int) Math.min(1800, (amount - cost) / 20);
+        int blessing = (int) Math.min(1800, (amount - cost) / (20 * io.versaera.domain.economy.Money.SILVER));
         tx.inTx(() -> {   // 돈과 악명을 한 트랜잭션에서 (중첩 트랜잭션)
             if (!economy.withdraw(uuid, amount, "temple:" + t.id(), key)) throw DomainException.of("temple.duplicate", "이미 처리한 기부입니다");
             if (cleansed > 0) progress.addCounter(uuid, "notoriety", -cleansed);

@@ -105,7 +105,7 @@ public final class AdventureCommands implements CommandExecutor, TabCompleter {
                 lore.add(hide ? "&8숨은 업적" : "&7" + x.desc());
                 if (!hide) {
                     List<String> rw = new ArrayList<>();
-                    if (x.money() > 0) rw.add("&e" + x.money() + " 골드");
+                    if (x.money() > 0) rw.add("&e" + io.versaera.domain.economy.Money.format(x.money()));
                     if (x.fame() > 0) rw.add("&6명성 " + x.fame());
                     if (x.title() != null) rw.add("&d칭호 " + s.achievements.title(x.title()).name());
                     if (!rw.isEmpty()) lore.add(String.join(" &8· ", rw));
@@ -260,7 +260,7 @@ public final class AdventureCommands implements CommandExecutor, TabCompleter {
         Menu m = new Menu(3, "&8마구간");
         int slot = 9;
         for (var k : s.travel.mountKinds()) {
-            m.set(slot++, Menu.ui("mount", Material.SADDLE, "&6" + k.name(), List.of("&e" + k.price() + " 골드 &8(관계 할인 따로)", "&7승마 " + k.ridingLevel() + " · 체력 " + k.health(),
+            m.set(slot++, Menu.ui("mount", Material.SADDLE, "&6" + k.name(), List.of("&e" + io.versaera.domain.economy.Money.format(k.price()) + " &8(관계 할인 따로)", "&7승마 " + k.ridingLevel() + " · 체력 " + k.health(),
                     "&8클릭: 사기")), e -> {
                 String id = p.getUniqueId().toString(), req = UUID.randomUUID().toString();
                 async.run("mount-buy", () -> s.travel.buy(id, npcId, k.id(), req), mt -> {
@@ -281,7 +281,7 @@ public final class AdventureCommands implements CommandExecutor, TabCompleter {
         for (var r : list) {
             if (slot > 26) break;
             m.set(slot++, Menu.ui(ship ? "ship" : "carriage", ship ? Material.OAK_BOAT : Material.MINECART, "&f" + s.regions.byId(r.to()).name(),
-                    List.of("&e" + r.fare() + " 골드 &7· " + r.distance() + " 블록 · " + Math.max(1, r.durationMs() / 1000) + "초", "&8클릭: 떠나기")), e -> {
+                    List.of("&e" + io.versaera.domain.economy.Money.format(r.fare()) + " &7· " + r.distance() + " 블록 · " + Math.max(1, r.durationMs() / 1000) + "초", "&8클릭: 떠나기")), e -> {
                 p.closeInventory();
                 travel.depart(p, npcId, r, here);
             });
@@ -328,7 +328,7 @@ public final class AdventureCommands implements CommandExecutor, TabCompleter {
                     boolean locked = (boolean) o[1];
                     @SuppressWarnings("unchecked") var best = (List<AdventureRepository.RaidClear>) o[2];
                     List<String> lore = new ArrayList<>(List.of("&7" + d.desc(), "&7" + s.regions.byId(d.region()).name() + " · " + d.minPlayers() + "~" + d.maxPlayers() + "명",
-                            "&7전투 숙련 " + d.mastery() + " · " + d.timeLimitMs() / 60_000 + "분", "&e" + d.money() + " 골드 · 명성 " + d.fame()
+                            "&7전투 숙련 " + d.mastery() + " · " + d.timeLimitMs() / 60_000 + "분", "&e" + io.versaera.domain.economy.Money.format(d.money()) + " · 명성 " + d.fame()
                                     + (d.title() == null ? "" : " · 칭호 " + s.achievements.title(d.title()).name())));
                     if (!best.isEmpty()) lore.add("&b최고 기록 " + best.get(0).durationMs() / 1000 / 60 + "분 " + best.get(0).durationMs() / 1000 % 60 + "초");
                     lore.add(locked ? "&c이번 주 귀속" : "&8공격대장: 그 지역에서 /레이드 시작 " + d.id());
@@ -382,7 +382,7 @@ public final class AdventureCommands implements CommandExecutor, TabCompleter {
             int slot = 11;
             for (GuildVaultService.QuestState q : list) {
                 List<String> lore = new ArrayList<>(List.of("&7" + q.def().desc(), "&f" + q.progress() + "/" + q.def().target(),
-                        "&e금고 " + q.def().money() + " · 활동 " + q.def().activity()));
+                        "&e금고 " + io.versaera.domain.economy.Money.format(q.def().money()) + " · 활동 " + q.def().activity()));
                 for (var c : q.top()) {
                     var op = Bukkit.getOfflinePlayer(UUID.fromString(c.uuid()));
                     lore.add("&8" + (op.getName() == null ? "?" : op.getName()) + " " + c.amount());

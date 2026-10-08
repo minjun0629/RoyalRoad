@@ -1,3 +1,4 @@
+# 돈은 실버로 적는다 (소수 가능: 0.3 = 30쿠퍼). 게임 안에서는 1골드 = 100실버 = 10000쿠퍼 (domain.economy.Money)
 # 거대 보스 — 모두 ORIGINAL. scale 은 모델 · 판정 · 공격 범위 · 전투 공간에 모두 곱해진다 (일반 몬스터의 7 ~ 15배 크기).
 # speed: 초당 이동 거리 · reward: 기여도 조건(전체의 3% 이상)을 채운 사람마다 한 번
 # shape: CIRCLE · CONE(width=각도) · LINE(width=폭) · RING(inner=안쪽 반지름). telegraph_ms: 바닥에 범위를 보여 주는 예고 시간.

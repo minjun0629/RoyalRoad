@@ -57,7 +57,7 @@ public final class PlayerCommand implements CommandExecutor {
             @SuppressWarnings("unchecked") Map<String, Integer> stats = (Map<String, Integer>) r[1];
             long money = (long) r[2];
             Menu m = new Menu(4, "&8" + p.getName());
-            m.set(4, Menu.ui("money", Material.GOLD_INGOT, "&e" + money, List.of()), null);
+            m.set(4, Menu.ui("money", Material.GOLD_INGOT, "&e" + io.versaera.domain.economy.Money.format(money), List.of()), null);
             int slot = 9;
             List<Map.Entry<String, Long>> top = new ArrayList<>(mastery.entrySet());
             top.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));

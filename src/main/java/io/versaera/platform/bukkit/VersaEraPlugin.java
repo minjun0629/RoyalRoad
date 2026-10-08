@@ -368,11 +368,17 @@ public final class VersaEraPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(tutorialR, this);
         getCommand("tutorial").setExecutor(tutorialR);
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.HandModels(this, codec), this);   // 손에 든 장비 = 입체 모델
+        Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.HealthBars(this), this);   // 몬스터 머리 위 체력바
+        Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.world.FireGuard(), this);   // 용암 · 번지는 불이 집을 태우지 않게
         for (String c : List.of("appraise", "bandage", "whet", "polish", "iron", "roar", "shatter", "fieldboss")) getCommand(c).setExecutor(lifeCmd);
         codec.requirementNames(k -> k.startsWith("mastery.") ? services.growth.discipline(k.substring(8)).name()
                 : k.startsWith("stat.") ? services.growth.stats().stream().filter(st -> st.id().equals(k.substring(5))).map(st -> st.name()).findFirst().orElse(k)
                 : k.equals("fame") ? "명성" : k);
-        services.realm.emperorReward(getConfig().getLong("emperor.reward_gold", 1_000_000));
+        if (getConfig().getLong("emperor.reward_gold", 10_000) == 1_000_000) {   // 0.9 이전: 단위가 하나(지금의 실버)였다 → 같은 가치의 골드
+            getConfig().set("emperor.reward_gold", 10_000);
+            saveConfig();
+        }
+        services.realm.emperorReward(getConfig().getLong("emperor.reward_gold", 10_000));
         io.versaera.platform.bukkit.world.RealmRuntime realmR = new io.versaera.platform.bukkit.world.RealmRuntime(this, services, async, exec);
         io.versaera.platform.bukkit.command.RealmCommands realmCmd = new io.versaera.platform.bukkit.command.RealmCommands(services, async, codec, realmR);
         for (String c : List.of("land", "pshop", "castle", "nation", "emperor")) getCommand(c).setExecutor(realmCmd);
@@ -402,14 +408,26 @@ public final class VersaEraPlugin extends JavaPlugin {
         }
         menus.adventure(advCmd, regions::regionOf);
         io.versaera.platform.bukkit.listener.AdventureListener advL = new io.versaera.platform.bukkit.listener.AdventureListener(this, services, async);
+        if (getConfig().getDouble("hunger.activity_scale", 0.2) == 0.5) {   // 0.8.3 이전 기본값 → 0.2 (배고픔이 너무 빨리 닳았다)
+            getConfig().set("hunger.activity_scale", 0.2);
+            saveConfig();
+        }
         if (getConfig().getBoolean("hunger.enabled", true))
             Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.world.HungerRuntime(this, services,
-                    getConfig().getDouble("hunger.hours_per_meal", 8), getConfig().getDouble("hunger.activity_scale", 0.5)), this);
+                    getConfig().getDouble("hunger.hours_per_meal", 8), getConfig().getDouble("hunger.activity_scale", 0.2)), this);
         for (var l : List.<org.bukkit.event.Listener>of(petRuntime, travelRuntime, weatherR, artworkRuntime, advL)) Bukkit.getPluginManager().registerEvents(l, this);
+        if (getConfig().getLong("restore.delay_seconds", 2) == 180) {   // 0.8.1 이전 기본값(3분) → 새 기본값 2초. 직접 바꾼 값은 그대로
+            getConfig().set("restore.delay_seconds", 2);
+            saveConfig();
+        }
+        // 사람이 놓은 작업대: 웅크리고 우클릭 · 부수면 가방으로, 세계 복구가 지우지 않는다
+        io.versaera.platform.bukkit.listener.PortableStations portable = new io.versaera.platform.bukkit.listener.PortableStations(services, async);
+        Bukkit.getPluginManager().registerEvents(portable, this);
+        Bukkit.getScheduler().runTaskTimer(this, portable::prune, 1200L, 1200L);
         if (getConfig().getBoolean("restore.enabled", true)) {
             final GatherListener g = gather;
-            restore = new io.versaera.platform.bukkit.world.BlockRestoreRuntime(this, getConfig().getLong("restore.delay_seconds", 180),
-                    getConfig().getBoolean("restore.drops", false), b -> realmR.ownerAt(b).isPresent(), g::node);
+            restore = new io.versaera.platform.bukkit.world.BlockRestoreRuntime(this, getConfig().getLong("restore.delay_seconds", 2),
+                    getConfig().getBoolean("restore.drops", false), b -> realmR.ownerAt(b).isPresent() || portable.placed(b), g::node);
             Bukkit.getPluginManager().registerEvents(restore, this);
         }
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.ServerIcon(getLogger()), this);

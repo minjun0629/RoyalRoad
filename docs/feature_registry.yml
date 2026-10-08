@@ -1738,7 +1738,7 @@ features:
     data_model: player_quests (기존)
     ui: 보스 막대 · /튜토리얼
     resource_pack: 없음
-    performance_risk: 3초마다 접속자별 DB 조회 1회
+    performance_risk: 1초마다 접속자별 DB 조회 몇 번 (SQLite 소규모 서버 기준)
     security_risk: 없음
     persistence: DB
     tests: [TutorialTest]
