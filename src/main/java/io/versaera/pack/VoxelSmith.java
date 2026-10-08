@@ -539,6 +539,16 @@ public final class VoxelSmith {
     }
 
     static void bow(Build b, IconSmith.Look l, boolean elven) {
+        int from = b.boxes.size();
+        bowShape(b, l, elven);
+        // 좌우를 뒤집는다: 그대로면 손에 들었을 때 시위가 바깥(과녁 쪽), 활대가 사람 쪽으로 휘어 반대로 보였다
+        for (int i = from; i < b.boxes.size(); i++) {
+            Box x = b.boxes.get(i);
+            b.boxes.set(i, new Box(16 - x.x1(), x.y0(), x.z0(), 16 - x.x0(), x.y1(), x.z1(), x.c()));
+        }
+    }
+
+    private static void bowShape(Build b, IconSmith.Look l, boolean elven) {
         Color[] s = T(l.s()), a = T(l.a());
         double len = TOP - BOT;
         double prevX = 8;

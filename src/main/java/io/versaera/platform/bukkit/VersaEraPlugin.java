@@ -416,10 +416,14 @@ public final class VersaEraPlugin extends JavaPlugin {
             getConfig().set("restore.delay_seconds", 2);
             saveConfig();
         }
+        // 사람이 놓은 작업대: 웅크리고 우클릭 · 부수면 가방으로, 세계 복구가 지우지 않는다
+        io.versaera.platform.bukkit.listener.PortableStations portable = new io.versaera.platform.bukkit.listener.PortableStations(services, async);
+        Bukkit.getPluginManager().registerEvents(portable, this);
+        Bukkit.getScheduler().runTaskTimer(this, portable::prune, 1200L, 1200L);
         if (getConfig().getBoolean("restore.enabled", true)) {
             final GatherListener g = gather;
             restore = new io.versaera.platform.bukkit.world.BlockRestoreRuntime(this, getConfig().getLong("restore.delay_seconds", 2),
-                    getConfig().getBoolean("restore.drops", false), b -> realmR.ownerAt(b).isPresent(), g::node);
+                    getConfig().getBoolean("restore.drops", false), b -> realmR.ownerAt(b).isPresent() || portable.placed(b), g::node);
             Bukkit.getPluginManager().registerEvents(restore, this);
         }
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.ServerIcon(getLogger()), this);
