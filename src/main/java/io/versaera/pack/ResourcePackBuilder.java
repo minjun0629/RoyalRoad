@@ -161,6 +161,10 @@ public final class ResourcePackBuilder {
         return !UNMODELED.contains(t.material());
     }
 
+    /** 비스듬히 쥐는 무기 · 도구 (입체 모델을 무기 축으로 뒤집는다) */
+    static final Set<String> WIELDED = Set.of("sword", "dagger", "knife", "axe", "spear", "staff", "torch", "hammer", "mace", "pickaxe", "pickaxe_weapon",
+            "scythe", "rake", "plow", "bow", "arrow");
+
     private void itemModel(io.versaera.domain.item.ItemType t) {
         String kind = PixelArt.kind(t);
         String parent = switch (t.material()) {
@@ -168,8 +172,25 @@ public final class ResourcePackBuilder {
             case "FISHING_ROD" -> "minecraft:item/handheld_rod";
             default -> PixelArt.handheld(kind) ? "minecraft:item/handheld" : "minecraft:item/generated";
         };
-        png("assets/versaera/textures/item/" + t.id() + ".png", PixelArt.item(t));
         Sculpt.Made made = Sculpt.of(t);
+        if (made == null && t.category().unique() && MmoIcon.handles(kind)) {   // 장비: 인벤토리 카드 + 손에 든 입체 모델
+            MmoIcon.Drawn d = MmoIcon.render(t, kind);
+            if (d != null) {
+                VoxelSmith.Build vox = VoxelSmith.handles(kind) ? VoxelSmith.build(t, kind, d.look()) : null;
+                // 무기 · 도구의 카드 그림은 큐브 모델을 렌더링한 입체 그림 (손에 든 모습과 같다)
+                png("assets/versaera/textures/item/" + t.id() + ".png", MmoCard.card(t, kind, vox == null ? d : new MmoIcon.Drawn(VoxelRender.icon(vox, 52), d.look(), d.grade())));
+                if (vox != null) {   // 무기 · 도구: Armourer's Workshop 식 큐브 모델 (팔레트 텍스처)
+                    png("assets/versaera/textures/item3d/" + t.id() + ".png", VoxelSmith.palette(vox));
+                    text("assets/versaera/models/item/" + t.id() + ".json", VoxelSmith.json(vox, "versaera:item3d/" + t.id(), "versaera:item/" + t.id()));
+                    return;
+                }
+                png("assets/versaera/textures/item3d/" + t.id() + ".png", d.art());
+                text("assets/versaera/models/item/" + t.id() + ".json", Model3D.json(d.art(), d.look(), WIELDED.contains(kind),
+                        "versaera:item3d/" + t.id(), "versaera:item/" + t.id()));
+                return;
+            }
+        }
+        png("assets/versaera/textures/item/" + t.id() + ".png", PixelArt.item(t));
         if (made != null) {   // 입체 조각 모델 (그림은 부서질 때 파티클 · 문서용으로 남긴다)
             var built = ModelKit.build(t.id(), List.of(new ModelKit.Part("item", "NONE", 8, 8, 8, 0, made.cubes())), made.style(), "item3d/" + t.id(), made.display());
             text("assets/versaera/models/item/" + t.id() + ".json", built.models().get("item"));

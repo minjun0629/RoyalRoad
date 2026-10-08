@@ -18,14 +18,16 @@ class CanonItemSheetTest {
         ContentBundle c = ContentBundle.fromClasspath(getClass().getClassLoader());
         List<ItemType> canon = c.items().stream().filter(t -> "CANON".equals(t.source())).toList();
         for (ItemType t : canon) assertNotEquals("blob", PixelArt.kind(t), t.id() + " 모양이 없다");
-        int cols = 10, rows = (canon.size() + cols - 1) / cols, cell = 34 * 3;
+        int cols = 10, rows = (canon.size() + cols - 1) / cols, cell = 102;
         BufferedImage sheet = new BufferedImage(cols * cell, rows * cell, BufferedImage.TYPE_INT_ARGB);
         for (int i = 0; i < canon.size(); i++) {
             BufferedImage img = PixelArt.item(canon.get(i));
             int ox = (i % cols) * cell + 3, oy = (i / cols) * cell + 3;
             for (int y = 0; y < 96; y++) for (int x = 0; x < 96; x++) sheet.setRGB(ox + x, oy + y, 0xff3a3a46 | 0);
-            for (int y = 0; y < 96; y++) for (int x = 0; x < 96; x++) {
-                int p = img.getRGB(x / 3, y / 3);
+            int k = 96 / img.getWidth();
+            if (k == 0) k = 1;
+            for (int y = 0; y < img.getHeight() * k && y < 96; y++) for (int x = 0; x < img.getWidth() * k && x < 96; x++) {
+                int p = img.getRGB(x / k, y / k);
                 if ((p >>> 24) != 0) sheet.setRGB(ox + x, oy + y, p);
             }
         }

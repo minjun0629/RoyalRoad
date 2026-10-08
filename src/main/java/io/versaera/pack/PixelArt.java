@@ -282,9 +282,9 @@ public final class PixelArt {
         Color metal = metal(t.material()), acc = accent(t), own = hashed(t.id(), 0.55f, 0.8f);
         Color guard = acc != null ? acc : BRASS;
         boolean canon = "CANON".equals(t.source()) && t.category().unique();
-        // 장비 · 장신구 · 성물: 16 칸 손 픽셀 (IconSmith). 재료는 아래 그림 그대로
-        if (IconSmith.handles(k) && (t.category().unique() || ACCESSORY_KINDS.contains(k))) {
-            BufferedImage img = IconSmith.draw(t, k);
+        // 장비 · 장신구 · 성물: 한국 MMORPG 아이템 아이콘처럼 64 칸에 광택 · 장식 · 보석 · 등급 빛 (MmoIcon). 재료는 아래 그림 그대로
+        if (MmoIcon.handles(k) && (t.category().unique() || ACCESSORY_KINDS.contains(k))) {
+            BufferedImage img = MmoIcon.draw(t, k);
             if (img != null) return img;
         }
         if (accessory(c, k, metal, acc, own)) {

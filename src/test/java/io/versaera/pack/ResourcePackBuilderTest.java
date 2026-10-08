@@ -75,7 +75,7 @@ class ResourcePackBuilderTest {
         var b = ResourcePackBuilder.build(c);
         assertArrayEquals(a.sha1(), b.sha1(), "같은 콘텐츠 = 같은 팩");
         assertEquals(40, a.sha1Hex().length());
-        assertTrue(a.zip().length < 2_000_000, "팩이 가볍다 (필드 보스 55 모델 포함): " + a.zip().length);
+        assertTrue(a.zip().length < 12_000_000, "팩이 가볍다 (보스 55 모델 · 64 칸 장비 아이콘 · 큐브 무기 모델 포함): " + a.zip().length);
         Map<String, byte[]> files = unzip(a.zip());
         String meta = new String(files.get("pack.mcmeta"), StandardCharsets.UTF_8);
         assertTrue(meta.contains("\"pack_format\":15"));
@@ -127,10 +127,10 @@ class ResourcePackBuilderTest {
                 assertTrue(model.contains("\"display\""), "손 · 아이콘 표시 변환: " + t.id());
             }
             var img = ImageIO.read(new ByteArrayInputStream(files.get("assets/versaera/textures/item/" + t.id() + ".png")));
-            assertEquals(32, img.getWidth(), t.id());
+            assertTrue(img.getWidth() == img.getHeight() && (img.getWidth() == 32 || img.getWidth() == 64), t.id() + " 32 또는 64 칸");
             int opaque = 0;
-            for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++) if ((img.getRGB(x, y) >>> 24) != 0) opaque++;
-            assertTrue(opaque >= 60, "아이콘이 비어 있지 않다: " + t.id());
+            for (int y = 0; y < img.getHeight(); y++) for (int x = 0; x < img.getWidth(); x++) if ((img.getRGB(x, y) >>> 24) != 0) opaque++;
+            assertTrue(opaque >= 60 * (img.getWidth() / 32) * (img.getWidth() / 32), "아이콘이 비어 있지 않다: " + t.id());
             byte[] vanilla = files.get("assets/minecraft/models/item/" + t.material().toLowerCase(java.util.Locale.ROOT) + ".json");
             assertNotNull(vanilla, "바닐라 모델 덮어쓰기: " + t.material());
             String v = new String(vanilla, StandardCharsets.UTF_8);
@@ -174,7 +174,7 @@ class ResourcePackBuilderTest {
         }
         assertTrue(atlas.contains("iron_darker"), "철 갑옷에 철 장식 = iron_darker 팔레트");
         assertTrue(new String(dp.get("pack.mcmeta"), StandardCharsets.UTF_8).contains("\"pack_format\":15"));
-        assertTrue(pack.zip().length < 2_000_000, "팩이 가볍다 (필드 보스 55 모델 포함): " + pack.zip().length);
+        assertTrue(pack.zip().length < 12_000_000, "팩이 가볍다 (보스 55 모델 · 64 칸 장비 아이콘 · 큐브 무기 모델 포함): " + pack.zip().length);
     }
 
     @Test
