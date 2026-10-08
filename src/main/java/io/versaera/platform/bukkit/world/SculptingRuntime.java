@@ -80,6 +80,11 @@ public final class SculptingRuntime implements Listener {
     private final Map<UUID, String> naming = new java.util.concurrent.ConcurrentHashMap<>();   // 채팅은 다른 스레드
     private final Map<UUID, Long> namingUntil = new java.util.concurrent.ConcurrentHashMap<>();
     private final Random rng = new Random();
+    private PetRuntime pets;
+
+    public void pets(PetRuntime r) {
+        this.pets = r;
+    }
 
     public SculptingRuntime(Plugin plugin, GameServices s, Async async, ItemCodec codec, ArtworkRuntime art, Function<UUID, String> regionOf, Consumer<Player> deliver) {
         this.plugin = plugin;
@@ -95,6 +100,54 @@ public final class SculptingRuntime implements Listener {
     private boolean holdingKnife(Player p) {
         String t = codec.typeId(p.getInventory().getItemInMainHand());
         return t != null && codec.types().get(t).hasTag("tool_carving");
+    }
+
+    // ------------------------------------------------------------------ 내 작품: 조각칼로 허공 우클릭
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onAir(PlayerInteractEvent e) {
+        if (e.getHand() != EquipmentSlot.HAND || e.getAction() != Action.RIGHT_CLICK_AIR || !holdingKnife(e.getPlayer())) return;
+        mine(e.getPlayer());
+    }
+
+    /** 내 작품 목록: 클릭 = 이름 바꾸기 (채팅) · 쉬프트 클릭 = 허물기 (재료 절반이 배달함으로) */
+    private void mine(Player p) {
+        String uuid = p.getUniqueId().toString();
+        List<Artwork> list = s.artworks.mine(uuid);
+        Menu m = new Menu(Math.max(1, Math.min(6, (list.size() + 8) / 9)), "&8내 작품 " + list.size());
+        int slot = 0;
+        for (Artwork a : list) {
+            if (slot >= 54) break;
+            ArtworkKind k = s.artworks.kind(a.kind());
+            List<String> lore = List.of(Ui.gradeColor(a.quality()) + ArtGrade.name(a.quality()) + " &7" + a.quality() / 10, "&7" + k.name() + " · 감상 " + a.views(),
+                    "&8" + a.world() + " " + a.x() + ", " + a.y() + ", " + a.z() + (ArtworkService.moonlit(a) ? " &b☾" : ""), ArtworkService.livingSpecies(a.kind()) != null ? "&8클릭: 이름 · 쉬프트: 허물기 · 우클릭: 생명 불어넣기" : "&8클릭: 이름 · 쉬프트: 허물기");
+            m.set(slot++, Menu.icon(icon(a.kind()), "&f「" + a.title() + "」", lore), ev -> {
+                p.closeInventory();
+                if (ev.isRightClick() && !ev.isShiftClick() && ArtworkService.livingSpecies(a.kind()) != null) {   // 조각 생명술: 작품이 깨어나 동료로
+                    async.run("art-awaken", () -> s.artworks.awaken(uuid, a.id()), pet -> {
+                        art.removed(a);
+                        World w = Bukkit.getWorld(a.world());
+                        if (w != null) {
+                            Location at = new Location(w, a.x() + 0.5, a.y() + 1, a.z() + 0.5);
+                            w.spawnParticle(Particle.END_ROD, at, 120, 0.8, 1.5, 0.8, 0.06);
+                            w.playSound(at, Sound.BLOCK_BEACON_ACTIVATE, 1f, 1.2f);
+                        }
+                        p.sendTitle(Ui.c("&b「" + pet.name() + "」"), Ui.c("&7깨어났다 · Lv." + pet.level()), 5, 60, 15);
+                        if (pets != null) pets.summon(p, pet.id());
+                    }, p);
+                } else if (ev.isShiftClick()) {
+                    async.run("art-remove", () -> s.artworks.remove(uuid, a.id(), false), gone -> {
+                        art.removed(gone);
+                        deliver.accept(p);
+                        Ui.bar(p, "&7「" + gone.title() + "」을(를) 허물었다");
+                    }, p);
+                } else {
+                    naming.put(p.getUniqueId(), a.id());
+                    namingUntil.put(p.getUniqueId(), System.currentTimeMillis() + 30_000);
+                    Ui.bar(p, "&e채팅으로 새 이름 (30초)");
+                }
+            });
+        }
+        m.open(p);
     }
 
     // ------------------------------------------------------------------ 시작: 웅크리고 땅 우클릭
@@ -310,11 +363,17 @@ public final class SculptingRuntime implements Listener {
     private void finish(Player p, Session ss) {
         String uuid = p.getUniqueId().toString(), region = regionOf.apply(p.getUniqueId());
         boolean moon = moonlit(ss.base);
-        double roll = moon ? 0.5 + rng.nextDouble() * 0.5 : rng.nextDouble();   // 달빛은 손 떨림을 줄인다
+        double r0 = rng.nextDouble();
         Location at = ss.base;
         String title = ss.kind.name();
-        async.run("art-create", () -> s.artworks.create(uuid, ss.kind.id(), ss.picks, at.getWorld().getName(), at.getBlockX(), at.getBlockY(), at.getBlockZ(), ss.yaw,
-                title, region, roll), a -> {
+        async.run("art-create", () -> {
+            // 달빛은 손 떨림을 줄인다 — 달빛 조각사는 더
+            boolean master = s.jobs.held(uuid).values().stream().anyMatch(h -> h.jobId().equals("moonlight_sculptor"));
+            double roll = moon ? (master ? 0.75 + r0 * 0.25 : 0.5 + r0 * 0.5) : r0;
+            Artwork made = s.artworks.create(uuid, ss.kind.id(), ss.picks, at.getWorld().getName(), at.getBlockX(), at.getBlockY(), at.getBlockZ(), ss.yaw,
+                    title, region, roll);
+            return moon ? s.artworks.markMoonlit(uuid, made.id()) : made;   // 달빛 조각품은 계속 은은하게 빛난다
+        }, a -> {
             clearPreview(ss);
             art.placed(a);
             reveal(p, ss, a, moon);

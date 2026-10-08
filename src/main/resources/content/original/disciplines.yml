@@ -1,0 +1,7 @@
+# 오리지널 콘텐츠 (원작 『달빛조각사』에 없는 이 게임의 것) — 같은 이름의 원작 파일 content/disciplines.yml 에 합쳐진다.
+# tools/gen_originals/*.py 로 생성. 같은 id 가 원작 파일에 있으면 시작할 때 오류 (원작을 덮어쓰지 않는다).
+disciplines:
+  jewelcraft: {name: 보석 세공, category: PRODUCTION, hand: true, source: ORIGINAL}
+  brewing: {name: 양조, category: PRODUCTION, hand: true, source: ORIGINAL}
+  cartography: {name: 지도 제작, category: PRODUCTION, hand: true, source: ORIGINAL}
+  engineering: {name: 기계 공학, category: PRODUCTION, hand: true, source: ORIGINAL}

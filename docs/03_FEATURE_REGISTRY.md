@@ -70,7 +70,7 @@
 | TRN-02 | 초급 수련관 — 철인 100명 | CANON | **IMPLEMENTED** | CanonRulesTest |
 | ART-01 | 비기 · 최후의 비기 (+ 조각 검술 · 자연조각술 · 검사의 비기) | CANON | **IMPLEMENTED** | CanonRulesTest |
 | ITM-05 | 장비 능력 · 착용 조건 · 세트 · 감정 | CANON | **IMPLEMENTED** | GearAndFieldBossTest |
-| ITM-06 | 원작 이름 장비 | CANON | **IMPLEMENTED** | GearAndFieldBossTest, CanonRulesTest, ContentIntegrityTest |
+| ITM-06 | 원작 이름 장비 · 장신구 · 유물 | CANON | **IMPLEMENTED** | GearAndFieldBossTest, CanonRulesTest, ContentIntegrityTest, CanonItemSheetTest |
 | BOS-03 | 원작 이름 필드 보스 | CANON | **IMPLEMENTED** | GearAndFieldBossTest |
 | SKL-04 | 생활 스킬 (감정 · 붕대 · 손질 · 도축 · 사자후 · 조각 파괴술 · 일점 공격) | CANON | **IMPLEMENTED** | GearAndFieldBossTest |
 | LND-01 | 땅 | CANON | **IMPLEMENTED** | RealmServiceTest |
@@ -80,6 +80,16 @@
 | LORE-01 | 연대기 · 신 목록 | CANON | **IMPLEMENTED** | CanonDomainTest |
 | UI-01 | 전용 MMORPG UI | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest |
 | RP-01 | 리소스팩 (아이템 · 갑옷 · 보스 · UI 전부 코드로 생성 · 배포) | ORIGINAL | **IMPLEMENTED** | ResourcePackBuilderTest, ExternalPackTest |
+| WLD-07 | 중세 도시 설계도 | ORIGINAL | **IMPLEMENTED** | MedievalTest, SettlementPlannerTest |
+| WLD-04 | 세계 복구 | ORIGINAL | **PARTIAL** | — |
+| WLD-05 | 들판 몬스터 (원작 몬스터 · 서식지) | ORIGINAL | **PARTIAL** | FieldMonsterTest |
+| WLD-06 | 대륙 모양 지형 · 5만 세계 · 지도 | ORIGINAL | **IMPLEMENTED** | TerrainModelTest |
+| ART-03 | 손으로 깎는 조각 | SOURCE-BASED | **PARTIAL** | WorkTimeAndGradeTest, AdventureTest |
+| CRF-03 | 제작대에서 손으로 만들기 | ORIGINAL | **PARTIAL** | WorkTimeAndGradeTest |
+| ART-04 | 직업마다 비기 열 가지 | SOURCE-BASED | **IMPLEMENTED** | SecretArtCountTest, CanonRulesTest |
+| NPC-06 | 훈련장 · 교관 | SOURCE-BASED | **IMPLEMENTED** | NpcWorldTest |
+| MKT-03 | 경매 편의 | ORIGINAL | **IMPLEMENTED** | MarketAuctionTest |
+| QOL-01 | 서버 아이콘 · 마을 진단 | ORIGINAL | **PARTIAL** | — |
 | SRV-01 | 실제 Paper 서버 테스트 | ORIGINAL | **BLOCKED** | — |
 
 상태 합계: BLOCKED 1 · IMPLEMENTED 37

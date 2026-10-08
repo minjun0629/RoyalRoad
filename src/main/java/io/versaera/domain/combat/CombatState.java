@@ -47,6 +47,13 @@ public final class CombatState {
         mana = Math.min(maxMana, mana + 4 * s);
     }
 
+    /** 물약 · 음료로 기력 · 마나를 채운다 (최대치까지) */
+    public void restore(double addStamina, double addMana, long now) {
+        regen(now);
+        stamina = Math.min(maxStamina, stamina + Math.max(0, addStamina));
+        mana = Math.min(maxMana, mana + Math.max(0, addMana));
+    }
+
     public int stamina() { return (int) stamina; }
     public int mana() { return (int) mana; }
     public int maxStamina() { return maxStamina; }

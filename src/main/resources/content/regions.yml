@@ -2410,7 +2410,7 @@ regions:
     max: [12690, 320, 4877]
     priority: 25
     parent: serabourg
-    tags: [landmark]
+    tags: [landmark, training]
     purpose: 허수아비를 오래 때리는 첫 수련관
     changed: 원작에 위치가 없어 이 게임은 시작 도시 세라보그 성 한쪽에 둠. 후대에는 마을 아이들도 드나드는 훈련장
   novice_training_hall:
@@ -2421,7 +2421,7 @@ regions:
     max: [13721, 320, 5908]
     priority: 25
     parent: serabourg
-    tags: [landmark]
+    tags: [landmark, training]
     purpose: 철인 100명과 겨루는 수련관
     changed: 원작에 위치가 없어 이 게임은 세라보그 성 반대편 귀퉁이에 둠
   hero_tower:

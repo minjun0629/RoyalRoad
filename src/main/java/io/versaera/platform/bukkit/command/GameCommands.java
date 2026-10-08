@@ -89,7 +89,12 @@ public final class GameCommands implements CommandExecutor {
                 m.set(slot++, Menu.icon(Material.ENCHANTED_BOOK, "&a" + j.name(), List.of("&7" + (j.slot().equals("COMBAT") ? "전투" : "생활") + " " + j.tier())),
                         e -> async.run("job-advance", () -> s.jobs.advance(id, j.id(), f), d -> {
                             p.closeInventory();
-                            p.sendTitle(Ui.c("&6" + d.name()), "", 5, 40, 10);
+                            if (d.id().equals("moonlight_sculptor")) {   // 히든 직업: 서버 전체가 안다
+                                p.sendTitle(Ui.c("&b&l☾ 달빛 조각사"), Ui.c("&f달빛이 조각칼에 깃들었다"), 10, 80, 20);
+                                p.getWorld().spawnParticle(org.bukkit.Particle.END_ROD, p.getLocation().add(0, 1, 0), 150, 0.8, 1.5, 0.8, 0.05);
+                                p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 0.8f);
+                                Bukkit.broadcastMessage(Ui.c("&b[히든 직업] &f" + p.getName() + " &7— 달빛 조각사"));
+                            } else p.sendTitle(Ui.c("&6" + d.name()), "", 5, 40, 10);
                         }, p));
             }
             m.open(p);

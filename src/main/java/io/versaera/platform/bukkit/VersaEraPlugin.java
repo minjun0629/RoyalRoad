@@ -248,13 +248,15 @@ public final class VersaEraPlugin extends JavaPlugin {
         File dir = new File(getDataFolder(), "content"), marks = new File(dir, ".bundled");
         marks.mkdirs();
         File backup = new File(dir, "backup-" + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")));
-        for (String f : ContentBundle.FILES) {
+        List<String> files = new java.util.ArrayList<>(ContentBundle.FILES);
+        for (String f : ContentBundle.FILES) files.add(ContentBundle.ORIGINAL_DIR + f);
+        for (String f : files) {
             byte[] bundled;
             try (InputStream in = getResource("content/" + f)) {
                 if (in == null) continue;
                 bundled = in.readAllBytes();
             }
-            File target = new File(dir, f), mark = new File(marks, f + ".sha1");
+            File target = new File(dir, f), mark = new File(marks, f.replace('/', '_') + ".sha1");
             String want = hex(sha256(bundled));
             if (target.exists()) {
                 String have = hex(sha256(java.nio.file.Files.readAllBytes(target.toPath())));
@@ -262,6 +264,7 @@ public final class VersaEraPlugin extends JavaPlugin {
                 String last = mark.exists() ? java.nio.file.Files.readString(mark.toPath()).strip() : "";
                 if (!have.equals(last)) {   // 관리자가 고친 파일 (또는 표시가 없는 옛 버전) → 백업
                     backup.mkdirs();
+                    new File(backup, f).getParentFile().mkdirs();
                     java.nio.file.Files.copy(target.toPath(), new File(backup, f).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                     getLogger().warning("content/" + f + " 를 새 버전으로 바꿨습니다 — 예전 파일은 " + backup.getName() + "/ 에 있습니다");
                 }
@@ -376,11 +379,13 @@ public final class VersaEraPlugin extends JavaPlugin {
         combat.regionOf(regions::regionOf);
         petRuntime = new io.versaera.platform.bukkit.world.PetRuntime(this, services, async, codec, regions::regionOf, tagsOf);
         gather.petSkill(petRuntime::hasSkill);
+        artsR.pets(petRuntime);
         travelRuntime = new io.versaera.platform.bukkit.world.TravelRuntime(this, services, async);
         io.versaera.platform.bukkit.world.WeatherRuntime weatherR = new io.versaera.platform.bukkit.world.WeatherRuntime(this, services, regions::regionOf);
         io.versaera.platform.bukkit.world.RaidRuntime raidR = new io.versaera.platform.bukkit.world.RaidRuntime(this, services, async, bosses, regions::regionOf);
         artworkRuntime = new io.versaera.platform.bukkit.world.ArtworkRuntime(this, services, async, codec, regions::regionOf, sessions::deliver);
         sculpting = new io.versaera.platform.bukkit.world.SculptingRuntime(this, services, async, codec, artworkRuntime, regions::regionOf, sessions::deliver);
+        sculpting.pets(petRuntime);
         Bukkit.getPluginManager().registerEvents(sculpting, this);
         io.versaera.platform.bukkit.command.AdventureCommands advCmd = new io.versaera.platform.bukkit.command.AdventureCommands(services, async, codec,
                 sessions::deliver, petRuntime, travelRuntime, raidR, weatherR, artworkRuntime);
@@ -402,12 +407,12 @@ public final class VersaEraPlugin extends JavaPlugin {
         }
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.ServerIcon(getLogger()), this);
         if (getConfig().getBoolean("field-mobs.enabled", true)) {
-            fieldMobs = new io.versaera.platform.bukkit.world.FieldMobRuntime(this, services);
+            fieldMobs = new io.versaera.platform.bukkit.world.FieldMobRuntime(this, services, codec, async, sessions::deliver);
             Bukkit.getPluginManager().registerEvents(fieldMobs, this);
         }
                 InventoryGuard guard = new InventoryGuard(this, services, async, codec);
         for (var l : List.of(sessions, guard, new CustodyGuard(this, codec, guard), regions, npcs, gather, combat, bosses, skills,
-                deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.HeadGear(codec), new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec),
+                deathL, dungeons, maps, originL, repL, artsR, trialR, realmR, fieldBosses, lifeCmd, new io.versaera.platform.bukkit.listener.HeadGear(codec), new io.versaera.platform.bukkit.listener.PotionListener(services, async, codec).refill((pl, x) -> skills.refill(pl, x[0], x[1])),
                 new io.versaera.platform.bukkit.world.TrainingDummies(this, services, async),
                 (stations = new StationListener(this, services, async, codec, sessions)), new MenuListener()))
             Bukkit.getPluginManager().registerEvents(l, this);
@@ -554,7 +559,9 @@ public final class VersaEraPlugin extends JavaPlugin {
         ContentBundle.handPlaces(opener).values().forEach(m -> m.values().forEach(p -> npcSpots.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
         java.util.Set<String> starts = new java.util.HashSet<>();
         for (var city : c.origins().cities()) starts.add(city.region());
-        VersaChunkGenerator g = new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots, starts);
+        List<int[]> crowd = new java.util.ArrayList<>();   // 생성 주민 자리: 작은 장식만 비켜 선다
+        c.places().values().forEach(m -> m.values().forEach(p -> crowd.add(new int[]{(int) Math.floor(p.x()), (int) Math.floor(p.z())})));
+        VersaChunkGenerator g = new VersaChunkGenerator(new io.versaera.domain.world.RegionIndex(c.regions()), npcSpots, starts, crowd);
         generators.put(worldName, g);
         return g;
     }

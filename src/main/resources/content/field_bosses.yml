@@ -1,8 +1,9 @@
-# 필드 보스 (BOS-02). 이름은 나무위키 「로열 로드/몬스터」 사용자 제공 본문의 보스 몬스터 (CANON).
-# 둥지 자리 · 몸(바닐라 엔티티) · 체력 · 패턴 · 드롭은 이 게임이 정한 것 (ORIGINAL) — 원작의 정확한 위치가 본문에 없는 보스가 많다.
+# 필드 보스 (BOS-03). 이름 · 생김새 · 능력 · 원작 드롭은 나무위키 「로열 로드/보스 몬스터」 본문 (2026-10 사용자 제공, CANON).
+# 원작에 나온 곳이 이 지도에 있으면 그곳에, 없으면 성격이 맞는 지역에 둥지를 둔다 (설명에 원작 장소를 적었다). 체력 · 패턴 수치 · 드롭 확률은 ORIGINAL.
+# 본문 56 항목 가운데 넣지 않은 것: 바르칸 데모프의 소환체 (같은 바르칸이 지팡이 권능으로 잠시 소환된 모습 — 따로 넣지 않음)
 # 둥지(region) 64 블록 안에 사람이 오면 나타나고, 쓰러지면 respawn_minutes 뒤 다시 나타난다.
 # mechanics: REGEN(재생) · MINIONS(부하 소환) · FEAR(공포: 둔화 · 나약) · VESSEL(생명의 그릇: 그릇을 먼저 부수지 않으면 한 번 되살아남)
-#            ENRAGE(체력 30% 아래 광폭) · BREATH(앞쪽으로 불길) · FLIGHT(공중 도약)
+#            ENRAGE(체력 30% 아래 광폭) · BREATH(앞쪽으로 숨결) · FLIGHT(공중 도약 · 순간 이동)
 # look: 리소스팩 모델 모양 · size: 보이는 크기 배율 (판정은 바닐라 몸 그대로)
 # drops: "아이템:품질:확률" — 가장 많이 때린 사람에게. reward: 기여 10% 이상인 사람마다
 field_bosses:
@@ -11,46 +12,46 @@ field_bosses:
     size: 2.2
     name: 데스 나이트 반 호크
     entity: WITHER_SKELETON
-    region: sendeim_valley
-    hp: 900
-    damage: 14
+    region: lavias
+    hp: 700
+    damage: 12
     respawn_minutes: 120
     mechanics: [FEAR, ENRAGE, MINIONS]
     minion: SKELETON
     kinds: [UNDEAD]
-    drops: ["van_hawk_helm:700:0.25", "dragon_bone:500:0.3"]
+    drops: ["van_hawk_helm:700:0.25", "death_knight_necklace:700:0.2", "calamor_sword:650:0.3", "herein_cup:600:0.15"]
     reward: {money: 4000, xp: {swordsmanship: 300}, fame: 30}
-    description: "죽음의 기사. 주위를 공포로 얼어붙게 하고 해골 병사를 부른다"
+    description: "칼라모르 제국의 기사였다가 바르칸의 암흑 군대를 지휘한 데스 나이트. 라비아스의 바르칸 지하묘지에서 헤레인의 잔을 지킨다"
   torido:
     look: VAMPIRE
     size: 2.0
-    name: 뱀파이어 토리도
+    name: 뱀파이어 로드 토리도
     entity: VINDICATOR
     region: todum_depths
     hp: 1100
     damage: 13
     respawn_minutes: 150
-    mechanics: [REGEN, MINIONS, FLIGHT]
+    mechanics: [REGEN, MINIONS, FEAR]
     minion: BAT
     kinds: [UNDEAD]
-    drops: ["vampire_blood:600:1.0", "coldrim_demon_sword:600:0.05"]
+    drops: ["black_life_necklace:650:0.2", "pago_crown:700:0.08", "vampire_blood:600:1.0"]
     reward: {money: 5000, xp: {swordsmanship: 300}, fame: 40}
-    description: "토둠의 뱀파이어 귀족. 상처가 저절로 아물고 박쥐 떼를 부른다"
+    description: "진혈의 뱀파이어족 수장. 석화 저주와 블레이드 토네이도, 흡혈로 상처를 채운다 — 심장을 노려야 흡혈이 깨진다. 원작에서는 모라타의 흑색 거성에 살았다 (시작 도시라 이 시대에는 토둠으로 가는 굴에 둥지)"
   duke_basra:
-    look: DEMON
-    size: 2.4
+    look: CASTER
+    size: 2.0
     name: 바스라 대공
-    entity: PIGLIN_BRUTE
+    entity: EVOKER
     region: basra_cave
-    hp: 1000
-    damage: 15
+    hp: 900
+    damage: 12
     respawn_minutes: 120
-    mechanics: [FEAR, MINIONS, ENRAGE]
-    minion: ZOMBIFIED_PIGLIN
-    kinds: [DEMON]
-    drops: ["demon_horn:600:1.0", "calamor_sword:650:0.15"]
-    reward: {money: 4500, xp: {swordsmanship: 250}, fame: 30}
-    description: "바스라 마굴의 주인. 부하를 거느리고, 몰리면 날뛴다"
+    mechanics: [MINIONS, FLIGHT, ENRAGE]
+    minion: ZOMBIE
+    kinds: [HUMAN]
+    drops: ["calamor_sword:600:0.1", "old_gold_coin:600:1.0"]
+    reward: {money: 4500, xp: {swordsmanship: 250, spellcraft: 150}, fame: 30}
+    description: "브리튼 연합 결성에 끝까지 반대하다 쫓겨난 귀족 네크로맨서. 도둑 길드와 손잡고 반역을 꿈꾼다 — 다크 애로우 · 블링크 · 언데드 소환"
   lich_shire:
     look: CASTER
     size: 2.2
@@ -63,178 +64,751 @@ field_bosses:
     mechanics: [VESSEL, MINIONS, FEAR]
     minion: SKELETON
     kinds: [UNDEAD]
-    drops: ["lich_phylactery_shard:700:1.0", "saint_staff:650:0.15"]
+    drops: ["saint_staff:650:0.2", "necromancer_tome:700:0.1", "enhance_stone_1:700:0.5", "kurdal_shoes:650:0.1", "vine_magic_robe:650:0.1"]
     reward: {money: 6000, xp: {spellcraft: 400}, fame: 50}
-    description: "생명의 그릇에 목숨을 숨긴 리치. 그릇을 먼저 부수지 않으면 쓰러져도 다시 일어난다"
+    description: "바르칸의 제자. 술수로 스승을 타락시키고 불사의 군단을 이끌었다. 그래비티 · 데몬 스피어 · 아이스 오브를 쓰고 스켈레톤 · 좀비 · 구울을 부른다"
   bone_dragon_kurenberg:
     look: DRAGON
-    size: 3.5
+    size: 3.8
     name: 본 드래곤 쿠렌베르크
     entity: RAVAGER
-    region: withered_ruins
-    hp: 1600
+    region: sendeim_valley
+    hp: 1800
     damage: 20
     respawn_minutes: 240
     mechanics: [BREATH, FEAR, ENRAGE]
     kinds: [UNDEAD, DRAGON, LARGE]
-    drops: ["dragon_bone:800:1.0", "red_star:700:0.05"]
-    reward: {money: 9000, xp: {swordsmanship: 500, archery: 500}, fame: 80}
-    description: "뼈만 남은 용. 썩은 숨결을 내뿜는다"
-  kubicha:
-    look: BEAST
+    drops: ["niflheim_crest:700:0.3", "niflheim_nobles_2:600:0.2", "rotten_dragon_bone:700:1.0", "ancient_shield:700:0.15"]
+    reward: {money: 10000, xp: {swordsmanship: 500, archery: 500}, fame: 90}
+    description: "엠비뉴 교단이 죽음의 계곡에서 되살린 400미터 넘는 본 드래곤. 원래 포악한 레드 드래곤이었다 — 보기만 해도 몸이 굳고, 산성 숨결은 모든 것을 녹인다"
+  cruel_urolba:
+    look: KNIGHT
     size: 2.0
-    name: 쿠비챠
-    entity: HOGLIN
-    region: mist_forest
-    hp: 700
-    damage: 11
-    respawn_minutes: 90
-    mechanics: [ENRAGE, FLIGHT]
-    kinds: [LARGE]
-    drops: ["kubicha_boots:650:0.3", "hide:600:1.0"]
-    reward: {money: 2500, xp: {archery: 200}, fame: 20}
-    description: "안개 숲을 뛰어다니는 보스. 무척 빠르다"
-  montus:
-    look: GOLEM
-    size: 3.2
-    name: 몬투스
-    entity: IRON_GOLEM
-    region: giants_mountain
-    hp: 1400
-    damage: 18
+    name: 잔혹한 우롤바
+    entity: VINDICATOR
+    region: furghol_ruins
+    hp: 900
+    damage: 13
+    respawn_minutes: 120
+    mechanics: [MINIONS, FEAR, ENRAGE]
+    minion: WOLF
+    kinds: [HUMAN]
+    drops: ["blood_whip:600:0.05", "hide:600:1.0"]
+    reward: {money: 4000, xp: {swordsmanship: 250}, fame: 30}
+    description: "한 달에 한 번 되살아나는 마수 조련사. 전기 채찍에 스치면 몸이 굳고, 마수와 함께 나타난다"
+  death_lord:
+    look: KNIGHT
+    size: 2.4
+    name: 데스 로드
+    entity: WITHER_SKELETON
+    region: complete_citadel
+    hp: 1300
+    damage: 16
     respawn_minutes: 180
-    mechanics: [ENRAGE, FEAR]
+    mechanics: [FEAR, MINIONS, ENRAGE]
+    minion: SKELETON
+    kinds: [UNDEAD]
+    drops: ["revival_tome:650:0.03", "ectoplasm:600:1.0", "gray_shroud:600:0.2"]
+    reward: {money: 7000, xp: {swordsmanship: 400}, fame: 60}
+    description: "북부의 알려지지 않은 던전 텐바인의 보스. 쓰러지며 남긴 말이 죽음의 사제 퀘스트로 이어졌다 (텐바인은 이 지도에 없어 완전한 성채에 둥지)"
+  hydra:
+    look: HYDRA
+    size: 2.8
+    name: 히드라
+    entity: RAVAGER
+    region: water_pit_south
+    hp: 1200
+    damage: 14
+    respawn_minutes: 150
+    mechanics: [REGEN, BREATH, FEAR]
     kinds: [LARGE]
-    drops: ["talok_armor:650:0.1", "iron_ingot:700:1.0"]
-    reward: {money: 6000, xp: {swordsmanship: 350}, fame: 50}
-    description: "산처럼 큰 보스. 한 번 맞으면 크게 다친다"
+    drops: ["dragon_scale:650:1.0", "lizard_scale:600:1.0"]
+    reward: {money: 5000, xp: {swordsmanship: 300}, fame: 40}
+    description: "일곱 머리의 괴물. 머리마다 저주와 독을 쉬지 않고 쓴다 — 원작에서는 엘드라 호수 동쪽 통곡의 늪에 살았다"
+  lava_worm:
+    look: HYDRA
+    size: 2.4
+    name: 라바
+    entity: ZOGLIN
+    region: frig_region
+    hp: 1000
+    damage: 12
+    respawn_minutes: 120
+    mechanics: [REGEN, ENRAGE]
+    kinds: [UNDEAD, LARGE]
+    drops: ["ectoplasm:600:1.0", "old_bone:500:1.0"]
+    reward: {money: 4500, xp: {swordsmanship: 250}, fame: 30}
+    description: "성의 잔해에 사는 언데드 지렁이. 녹색 몸에 사람 같은 머리, 베어도 꿈틀거리며 잘 죽지 않는다"
+  king_griffin:
+    look: FLYER
+    size: 2.6
+    name: 킹 그리핀
+    entity: PHANTOM
+    region: thousand_pillars
+    hp: 1100
+    damage: 14
+    respawn_minutes: 150
+    mechanics: [FLIGHT, MINIONS, ENRAGE]
+    minion: PHANTOM
+    kinds: [LARGE]
+    drops: ["griffin_feather:700:1.0", "sky_ruler_armor:650:0.02"]
+    reward: {money: 6000, xp: {archery: 400}, fame: 50}
+    description: "노란 그리핀 무리의 우두머리. 바위를 굴리고 나무를 내던진다 — 원작에서는 하베린의 협곡에 살며 북부 모험가를 숱하게 쓰러뜨렸다"
+  deimond:
+    look: CASTER
+    size: 2.0
+    name: 부활의 사제 데이몬드
+    entity: EVOKER
+    region: benzen_plains
+    hp: 1200
+    damage: 14
+    respawn_minutes: 180
+    mechanics: [MINIONS, VESSEL, FEAR]
+    minion: ZOMBIE
+    kinds: [HUMAN]
+    drops: ["revival_tome:700:0.15", "bone_sword:600:0.1"]
+    reward: {money: 6000, xp: {spellcraft: 400}, fame: 60}
+    description: "대지의 약탈자 길드장. 부활의 마법서로 부활의 사제가 되어 마물 군대를 이끌었다 — 생명을 취해야 마법을 쓰고, 죽으면 몸이 엠비뉴에게 바쳐진다"
+  elfin_queen_spider:
+    look: BEAST
+    size: 2.4
+    name: 엘핀 퀸 스파이더
+    entity: SPIDER
+    region: averian_forest
+    hp: 1200
+    damage: 14
+    respawn_minutes: 150
+    mechanics: [MINIONS, FEAR]
+    minion: CAVE_SPIDER
+    kinds: [LARGE]
+    drops: ["egg_sapphire:650:0.5", "waist_guard:650:0.3", "old_gold_coin:500:1.0"]
+    reward: {money: 6000, xp: {archery: 300, swordsmanship: 300}, fame: 50}
+    description: "던전 크라마도의 보스. 열두 다리의 거대 거미로 팔뚝보다 두꺼운 거미줄을 쏜다. 겁이 많고, 꽁무니가 급소다"
+  payload:
+    look: CASTER
+    size: 2.4
+    name: 대신관 페이로드
+    entity: EVOKER
+    region: rotten_river
+    hp: 1300
+    damage: 12
+    respawn_minutes: 200
+    mechanics: [MINIONS, REGEN, FEAR]
+    minion: VINDICATOR
+    kinds: [HUMAN]
+    drops: ["alliance_staff:650:0.2", "rest_bronze_plate:600:0.15"]
+    reward: {money: 7000, xp: {spellcraft: 400}, fame: 60}
+    description: "엠비뉴 교단 제11지파의 대신관. 디바인 블레스로 병사를 강하게 하고, 몰리면 희생의 주문으로 자폭한다 (원작: 통곡의 강 요새)"
+  king_hydra:
+    look: HYDRA
+    size: 3.4
+    name: 킹 히드라
+    entity: RAVAGER
+    region: rotten_foam_swamp
+    hp: 1800
+    damage: 18
+    respawn_minutes: 240
+    mechanics: [REGEN, BREATH, ENRAGE]
+    kinds: [LARGE]
+    drops: ["large_sapphire:700:0.6", "feather_hat:600:0.3", "sophia_great_spear:650:0.15", "old_gold_coin:600:1.0", "king_hydra_head:700:0.1"]
+    reward: {money: 9000, xp: {swordsmanship: 500}, fame: 80}
+    description: "아홉 머리의 초대형 괴물. 트롤을 넘는 재생력, 성탑보다 큰 입으로 불과 독가스를 뿜는다 — 명문 길드 셋을 전멸시켰다 (원작: 노프렌 늪지)"
+  freikis:
+    look: DRAGON
+    size: 3.0
+    name: 블랙 이무기 프레이키스
+    entity: PHANTOM
+    region: cloud_plateau
+    hp: 1600
+    damage: 16
+    respawn_minutes: 200
+    mechanics: [FLIGHT, FEAR, BREATH]
+    kinds: [DRAGON, LARGE]
+    drops: ["zordia_seal:650:0.2", "imugi_diamond:650:0.5", "isren_magic_arms:650:0.1", "imugi_hide:700:1.0", "imugi_meat:700:1.0", "freikis_head:700:0.1"]
+    reward: {money: 8000, xp: {archery: 400, swordsmanship: 400}, fame: 70}
+    description: "드래곤이 되기를 기다리는 60미터 이무기. 벼락과 바위를 떨어뜨리고 독을 토하며, 눈빛만으로 병사를 굳힌다. 정수리가 약점"
+  kubicha:
+    look: KNIGHT
+    size: 2.4
+    name: 혼돈의 대전사 쿠비챠
+    entity: VINDICATOR
+    region: inferno
+    hp: 1500
+    damage: 16
+    respawn_minutes: 180
+    mechanics: [REGEN, ENRAGE, FLIGHT, MINIONS]
+    minion: VINDICATOR
+    kinds: [LARGE]
+    drops: ["kubicha_boots:650:0.3", "kubicha_plate:650:0.15", "jigolas_map:600:0.3", "red_star:700:0.02", "sloar_wedding_ring:650:0.1"]
+    reward: {money: 8000, xp: {swordsmanship: 500}, fame: 70}
+    description: "지골라스 혼돈의 전사들을 이끄는 대전사. 어려서 드래곤의 검 레드 스타를 주웠다 — 불의 땅에서 빨리 회복하고, 블링크와 전사의 광분을 쓴다"
+  silent_tower:
+    look: GOLEM
+    size: 4.0
+    name: 영웅을 기다리는 고요한 탑
+    entity: IRON_GOLEM
+    region: silent_tower
+    hp: 2048
+    damage: 16
+    respawn_minutes: 300
+    mechanics: [REGEN, FEAR]
+    kinds: [LARGE]
+    drops: ["marble_block:700:1.0", "jigolas_crystal:600:1.0"]
+    reward: {money: 8000, xp: {swordsmanship: 400, sculpting: 300}, fame: 80}
+    description: "지골라스의 조각사들이 세운 거대한 탑. 생명이 깃들어 움직이고 생각하는 조각 생명체가 되었지만, 너무 커서 지골라스를 떠나지 못했다"
+  hasilis:
+    look: KNIGHT
+    size: 2.4
+    name: 하실리스
+    entity: DROWNED
+    region: wolhof_coral
+    hp: 1800
+    damage: 18
+    respawn_minutes: 240
+    mechanics: [FEAR, MINIONS, ENRAGE]
+    minion: DROWNED
+    kinds: [UNDEAD]
+    drops: ["irekaya_necklace:700:0.1", "wandering_scimitar:600:0.3", "ectoplasm:700:1.0"]
+    reward: {money: 10000, xp: {swordsmanship: 500, sailing: 300}, fame: 90}
+    description: "바다 유령선들의 지배자. 저주로 개구리 같은 피부가 된 옛 해군 제독이 바르칸의 부하로 되살아났다 — 마주치면 선원의 사기가 바닥난다"
+  sahran:
+    look: CASTER
+    size: 2.2
+    name: 교주 사흐란
+    entity: EVOKER
+    region: embinyu_quarry
+    hp: 1500
+    damage: 16
+    respawn_minutes: 240
+    mechanics: [MINIONS, FEAR, VESSEL]
+    minion: VINDICATOR
+    kinds: [HUMAN]
+    drops: ["embinyu_token:600:1.0", "hell_ring:650:0.08"]
+    reward: {money: 8000, xp: {spellcraft: 500}, fame: 70}
+    description: "엠비뉴 교단 제7지파 교주. 감춰진 신전에서 몬스터의 사체를 바치며 중앙 대륙 침공을 이끌었다"
+  avanna_roderiam:
+    look: FLYER
+    size: 2.2
+    name: 대왕 아반나 로드리암
+    entity: VEX
+    region: star_palace
+    hp: 1400
+    damage: 15
+    respawn_minutes: 200
+    mechanics: [REGEN, FEAR, FLIGHT]
+    drops: ["blessed_diamond:700:0.4"]
+    reward: {money: 7000, xp: {swordsmanship: 400}, fame: 60}
+    description: "2미터 넘는 나방 몬스터. 강한 신성 마법과 눈멀기 · 발묶기 · 자가 회복을 쓴다. 눈이 퇴화해 더듬이로 기척을 읽으니 더듬이부터 노려라 (원작: 에르반스 수도원의 지하 세계)"
+  bone_dragon_diak:
+    look: DRAGON
+    size: 3.4
+    name: 본 드래곤 다이아크
+    entity: RAVAGER
+    region: bargo_fortress
+    hp: 1800
+    damage: 20
+    respawn_minutes: 300
+    mechanics: [BREATH, FEAR, ENRAGE]
+    kinds: [UNDEAD, DRAGON, LARGE]
+    drops: ["destroyer_sigil:700:0.2", "bone_dragon_recipe:650:0.1", "rotten_dragon_bone:700:1.0", "ancient_history_19:600:0.2", "ancient_cloak:650:0.2"]
+    reward: {money: 11000, xp: {swordsmanship: 600, archery: 600}, fame: 110}
+    description: "바르칸이 직접 만든 본 드래곤. 바르고 성채의 중앙 탑에서 바르칸의 라이프 베슬을 지킨다 — 산성 숨결이 성채 외벽까지 녹인다"
+  bone_dragon_butoria:
+    look: DRAGON
+    size: 3.4
+    name: 본 드래곤 부토리아
+    entity: RAVAGER
+    region: bargo_fortress
+    hp: 1700
+    damage: 19
+    respawn_minutes: 300
+    mechanics: [BREATH, FEAR]
+    kinds: [UNDEAD, DRAGON, LARGE]
+    drops: ["rotten_dragon_bone:700:1.0", "dragon_bone:650:0.2"]
+    reward: {money: 10000, xp: {swordsmanship: 600, archery: 600}, fame: 100}
+    description: "다이아크와 함께 라이프 베슬을 지키는 본 드래곤. 숨결이 성벽과 언데드까지 녹인다"
+  barkan:
+    look: CASTER
+    size: 2.8
+    name: 리치 바르칸 데모프
+    entity: EVOKER
+    region: bargo_fortress
+    hp: 2048
+    damage: 20
+    respawn_minutes: 360
+    mechanics: [VESSEL, MINIONS, FEAR, ENRAGE]
+    minion: WITHER_SKELETON
+    kinds: [UNDEAD]
+    drops: ["hell_lord_robe:750:0.15", "hell_cloak:750:0.15", "darkness_ruler_boots:750:0.15", "ring_of_extinction:800:0.12", "purgatory_necklace:750:0.15", "barkan_skull:700:0.3", "lu_divine_sword:800:0.05"]
+    reward: {money: 15000, xp: {spellcraft: 700, swordsmanship: 500}, fame: 150}
+    description: "모든 왕국과 교단의 공적. 불치병 환자를 위해 불사를 연구하던 천재가 샤이어의 술수로 타락했다 — 가슴의 루의 신검이 힘을 억누르고, 라이프 베슬을 부수기 전엔 죽지 않는다"
+  calacrops_leader:
+    look: BEAST
+    size: 3.0
+    name: 칼라크롭스 대장 수컷
+    entity: RAVAGER
+    region: rosenheim_frontier
+    hp: 1300
+    damage: 16
+    respawn_minutes: 180
+    mechanics: [ENRAGE, MINIONS]
+    minion: RAVAGER
+    kinds: [LARGE]
+    drops: ["calacrops_horn:650:1.0", "embinyu_token:600:0.5"]
+    reward: {money: 6000, xp: {swordsmanship: 400}, fame: 50}
+    description: "매머드처럼 생긴 9미터 코뿔소의 우두머리. 땅을 울리며 들이받는다 — 엠비뉴 교단이 세라보그를 칠 때 끌고 왔다"
+  belloni:
+    look: CASTER
+    size: 2.2
+    name: 교주 벨로니
+    entity: EVOKER
+    region: royal_underpass
+    hp: 1400
+    damage: 15
+    respawn_minutes: 240
+    mechanics: [MINIONS, FEAR, REGEN]
+    minion: VINDICATOR
+    kinds: [HUMAN]
+    drops: ["embinyu_token:600:1.0", "royal_treasure_sword:600:0.1"]
+    reward: {money: 8000, xp: {spellcraft: 500}, fame: 70}
+    description: "엠비뉴 교단 제9지파 교주. 세라보그 성을 불태우고 왕의 집무실을 약탈했다"
+  umba_belkain:
+    look: BEAST
+    size: 2.6
+    name: 움바 벨카인
+    entity: RAVAGER
+    region: belkain_lair
+    hp: 1500
+    damage: 17
+    respawn_minutes: 180
+    mechanics: [MINIONS, ENRAGE, FEAR]
+    minion: WOLF
+    kinds: [DEMON, LARGE]
+    drops: ["demon_horn:700:1.0", "hell_ore:600:0.5"]
+    reward: {money: 8000, xp: {swordsmanship: 500}, fame: 70}
+    description: "지옥 밑바닥에서 기어 나왔다는 마수. 200년 전 톨렌을 휩쓸다 하이엘프들에게 쫓겨나 멜버른 광산 아래 숨어 새끼들을 키운다 — 돌덩이를 날리고 지진을 일으킨다"
+  red_belkain:
+    look: BEAST
+    size: 3.2
+    name: 레드 벨카인
+    entity: RAVAGER
+    region: belkain_lair
+    hp: 2048
+    damage: 21
+    respawn_minutes: 300
+    mechanics: [ENRAGE, FEAR, BREATH]
+    kinds: [DEMON, LARGE]
+    drops: ["black_knight_sword:700:0.1", "demon_horn:750:1.0"]
+    reward: {money: 12000, xp: {swordsmanship: 600}, fame: 110}
+    description: "하이네프 산악을 지배하는 마수, 움바 벨카인의 남편. 강철 무기와 흑마법이 거의 통하지 않는다 — 울부짖음 · 배리얼 그라운드 · 대지의 분노"
+  igvalba:
+    look: CASTER
+    size: 2.4
+    name: 대신관 이그발바
+    entity: EVOKER
+    region: odein_plains
+    hp: 1500
+    damage: 16
+    respawn_minutes: 240
+    mechanics: [MINIONS, REGEN]
+    minion: VINDICATOR
+    kinds: [HUMAN]
+    drops: ["embinyu_token:600:1.0"]
+    reward: {money: 8000, xp: {spellcraft: 500}, fame: 70}
+    description: "오데인 요새를 친 엠비뉴 교단의 대신관. 마물 · 광신도 · 암흑 기사 26만을 이끌었다"
+  ibrencha:
+    look: CASTER
+    size: 2.2
+    name: 대사제 이브렌챠
+    entity: EVOKER
+    region: torone_mountain
+    hp: 1400
+    damage: 15
+    respawn_minutes: 240
+    mechanics: [MINIONS, REGEN]
+    minion: VINDICATOR
+    kinds: [HUMAN]
+    drops: ["embinyu_token:600:1.0"]
+    reward: {money: 7000, xp: {spellcraft: 500}, fame: 60}
+    description: "베르네르트 성을 친 엠비뉴 교단의 대사제. 아무리 행군해도 지치지 않는 권능으로 찬송가를 부르며 군대를 이끌었다"
+  montus:
+    look: DEMON
+    size: 3.0
+    name: 하급 악마 몬투스
+    entity: WITHER_SKELETON
+    region: roderick_labyrinth
+    hp: 2048
+    damage: 22
+    respawn_minutes: 360
+    mechanics: [FEAR, MINIONS, ENRAGE, FLIGHT]
+    minion: VINDICATOR
+    kinds: [DEMON, LARGE]
+    drops: ["demon_helm:700:0.15", "blood_whip:700:0.15", "large_diamond:700:0.5", "hell_ore:700:1.0"]
+    reward: {money: 15000, xp: {swordsmanship: 700, spellcraft: 500}, fame: 150}
+    description: "로드릭 미궁에 수백 년 갇힌 하급 악마. 열두 장의 날개와 긴 꼬리, 악마병을 거느린다 — 로열 로드 최초로 레이드된 악마"
+  king_desson:
+    look: CASTER
+    size: 2.4
+    name: 국왕 데슨
+    entity: EVOKER
+    region: antarosa_ruins
+    hp: 1500
+    damage: 16
+    respawn_minutes: 240
+    mechanics: [REGEN, MINIONS]
+    minion: VINDICATOR
+    kinds: [HUMAN]
+    drops: ["hildern_orb:650:0.2"]
+    reward: {money: 8000, xp: {spellcraft: 400, swordsmanship: 300}, fame: 60}
+    description: "전쟁의 시대 포르투 왕국의 국왕, 흑마법사 차크젤의 제자. 암흑 신체로 몸을 굳히고 마족 강림을 꾀했다 (이 시대에는 옛 폐허에 원혼으로 남았다)"
+  chakzel:
+    look: CASTER
+    size: 2.4
+    name: 흑마법사 챠크젤
+    entity: EVOKER
+    region: hidram_manor
+    hp: 1700
+    damage: 18
+    respawn_minutes: 300
+    mechanics: [FEAR, MINIONS, FLIGHT]
+    minion: VEX
+    kinds: [HUMAN]
+    drops: ["death_book:600:0.05", "black_magic_essence:600:0.2"]
+    reward: {money: 9000, xp: {spellcraft: 600}, fame: 80}
+    description: "희대의 흑마법사이자 학살자. 혼돈의 지배와 지옥의 문을 쓰고, 몰리면 마법 게이트로 달아난다"
   salamander_king:
     look: SALAMANDER
     size: 2.6
     name: 말살의 불도마뱀 왕
     entity: BLAZE
-    region: jigolas
-    hp: 1000
-    damage: 14
-    respawn_minutes: 150
-    mechanics: [BREATH, MINIONS, REGEN]
-    minion: MAGMA_CUBE
-    kinds: [DEMON]
-    drops: ["red_star:650:0.05", "sky_metal:700:0.5"]
-    reward: {money: 5000, xp: {spellcraft: 300}, fame: 40}
-    description: "열화의 땅을 다스리는 불도마뱀의 왕. 불길을 뿜고 용암 덩어리를 부른다"
-  belkain:
-    look: KNIGHT
-    size: 2.0
-    name: 벨카인
-    entity: VINDICATOR
-    region: belkain_lair
-    hp: 900
-    damage: 13
-    respawn_minutes: 120
-    mechanics: [MINIONS, ENRAGE]
-    minion: PILLAGER
-    drops: ["cold_lot_sword:650:0.15", "clay_sword:600:0.3"]
-    reward: {money: 4000, xp: {swordsmanship: 250}, fame: 30}
-    description: "은신처에 숨어 사는 우두머리. 부하를 끌고 다닌다"
-  king_hydra:
-    look: HYDRA
-    size: 3.2
-    name: 킹 히드라
-    entity: RAVAGER
-    region: rotten_foam_swamp
+    region: metapeia
     hp: 1500
     damage: 16
     respawn_minutes: 200
-    mechanics: [REGEN, BREATH, ENRAGE]
+    mechanics: [BREATH, MINIONS, REGEN]
+    minion: MAGMA_CUBE
     kinds: [LARGE]
-    drops: ["dragon_scale:700:1.0", "chaos_axe:650:0.05"]
-    reward: {money: 7000, xp: {swordsmanship: 400}, fame: 60}
-    description: "늪의 머리 여럿 달린 괴물. 금세 다시 아물어 한꺼번에 몰아쳐야 한다"
-  freikis:
-    look: FLYER
-    size: 2.6
-    name: 프레이키스
-    entity: GHAST
-    region: ulta_range
-    hp: 800
-    damage: 12
-    respawn_minutes: 120
-    mechanics: [FLIGHT, FEAR]
-    kinds: [LARGE]
-    drops: ["yerika_bow:650:0.15", "dragon_scale:600:0.5"]
-    reward: {money: 4000, xp: {archery: 300}, fame: 30}
-    description: "높은 산을 나는 보스. 활이 아니면 잡기 어렵다"
-  barkan:
+    drops: ["salamander_hide:700:0.8", "salamander_mana_heart:700:0.5", "salamander_horn:700:0.5", "salamander_crystal:650:0.3"]
+    reward: {money: 8000, xp: {spellcraft: 400}, fame: 70}
+    description: "메타페이아의 보스. 레드 드래곤 말고는 이보다 강한 불의 몬스터가 없다 — 철 무기는 박히면 녹고, 혓바닥이 약점이다"
+  ingrig:
     look: CASTER
-    size: 2.8
-    name: 불사의 군단장 바르칸 데몰라
+    size: 2.4
+    name: 미쳐 버린 잉그리그
     entity: EVOKER
-    region: niflheim_wastes
-    hp: 2000
+    region: gradian_lands
+    hp: 1800
+    damage: 17
+    respawn_minutes: 300
+    mechanics: [REGEN, MINIONS, VESSEL]
+    minion: VINDICATOR
+    kinds: [HUMAN]
+    drops: ["embinyu_token:600:1.0", "witch_broken_orb:600:0.2"]
+    reward: {money: 9000, xp: {spellcraft: 600}, fame: 80}
+    description: "엠비뉴 교단 제6지파 대사제. 기록의 석판을 주운 농부가 광신도가 되었다 — 불멸의 약속으로 쓰러진 부하를 되살린다 (들모레 요새는 이 지도에 없어 그라디안 땅에)"
+  motuls:
+    look: KNIGHT
+    size: 2.4
+    name: 거악의 제물 상납자 모툴스
+    entity: VINDICATOR
+    region: haisaa_peak
+    hp: 1800
     damage: 18
-    respawn_minutes: 360
-    mechanics: [VESSEL, MINIONS, FEAR, ENRAGE]
-    minion: ZOMBIE
-    kinds: [UNDEAD]
-    drops: ["lich_phylactery_shard:800:1.0", "agatha_holy_sword:700:0.1", "van_hawk_helm:700:0.1"]
-    reward: {money: 12000, xp: {spellcraft: 600, swordsmanship: 400}, fame: 120}
-    description: "불사의 군단을 이끈 리치. 생명의 그릇과 언데드 군대를 거느린다"
-  keibern:
-    look: DRAGON
-    size: 3.8
-    name: 케이베른
-    entity: RAVAGER
-    region: east_peaks
-    hp: 2000
-    damage: 22
-    respawn_minutes: 360
-    mechanics: [BREATH, FEAR, ENRAGE, FLIGHT]
-    kinds: [DRAGON, LARGE]
-    drops: ["dragon_scale:850:1.0", "dragon_bone:850:1.0", "roa_masterpiece:700:0.08"]
-    reward: {money: 15000, xp: {swordsmanship: 700, archery: 700}, fame: 150}
-    description: "용. 숨결 한 번에 사람 여럿이 쓰러진다"
-  randoni:
+    respawn_minutes: 300
+    mechanics: [REGEN, MINIONS, FEAR]
+    minion: IRON_GOLEM
+    kinds: [HUMAN]
+    drops: ["embinyu_token:600:1.0"]
+    reward: {money: 9000, xp: {swordsmanship: 600}, fame: 80}
+    description: "엠비뉴 교단 제4지파 대사제이자 몽크. 신성불가침의 영역을 펼치고 청동 거인을 부른다"
+  pechet:
+    look: CASTER
+    size: 2.2
+    name: 대마녀 페쳇
+    entity: WITCH
+    region: nod_grape
+    hp: 1500
+    damage: 15
+    respawn_minutes: 240
+    mechanics: [FLIGHT, MINIONS, VESSEL]
+    minion: VEX
+    drops: ["dragon_bone_flute:650:0.2", "space_cloak:650:0.15", "hell_ring:700:0.1", "eternal_bracer:650:0.15"]
+    reward: {money: 8000, xp: {spellcraft: 500}, fame: 70}
+    description: "엠비뉴와의 옛 약속으로 단 한 번 돕는 마녀. 두세 차원을 넘나들며 참 몸을 숨기니, 생기를 빨아들일 때 드러나는 순간을 노려라"
+  ausoleto:
     look: DRAGON
     size: 4.0
-    name: 랜도니
+    name: 혼돈의 드래곤 아우솔레토
     entity: RAVAGER
-    region: randoni_lair
+    region: withered_ruins
+    hp: 2048
+    damage: 26
+    respawn_minutes: 600
+    mechanics: [BREATH, FEAR, ENRAGE, FLIGHT]
+    kinds: [DRAGON, LARGE]
+    drops: ["ashen_lake_map:700:0.3", "yuskelanta_mirror:800:0.08", "mana_stone:700:1.0", "niflheim_relic_bone:800:1.0", "black_dragon_scale:800:1.0", "black_dragon_whisker:700:0.5", "dragon_heart:800:0.3"]
+    reward: {money: 25000, xp: {swordsmanship: 1000, archery: 1000, spellcraft: 1000}, fame: 300}
+    description: "몸길이 350미터의 블랙 드래곤. 대륙을 날려 버릴 전쟁 끝에 봉인되었다가 엠비뉴 교단의 발굴로 메마른 울부짖는 폐허에서 깨어났다 — 물리 피해 97% · 마법 98%를 막는다"
+  avatar_of_embinyu:
+    look: DEMON
+    size: 3.6
+    name: 엠비뉴의 화신
+    entity: WITHER_SKELETON
+    region: demonkind_gate
     hp: 2048
     damage: 24
     respawn_minutes: 480
+    mechanics: [FEAR, MINIONS, ENRAGE, REGEN]
+    minion: VEX
+    kinds: [DEMON, LARGE]
+    drops: ["soul_remnant:700:0.3", "demon_horn:800:1.0"]
+    reward: {money: 20000, xp: {swordsmanship: 800, spellcraft: 800}, fame: 250}
+    description: "여덟 팔에 활 · 검 · 창 · 도끼 · 사슬 · 채찍 · 마력 구슬을 든 화신. 사제들이 생명력을 대 주는 한 피해가 금세 아문다"
+  howler:
+    look: CASTER
+    size: 2.4
+    name: 대사제 헤울러
+    entity: EVOKER
+    region: embinyu_sanctum
+    hp: 2000
+    damage: 20
+    respawn_minutes: 360
+    mechanics: [MINIONS, FEAR, REGEN]
+    minion: VINDICATOR
+    kinds: [HUMAN]
+    drops: ["howler_staff:700:0.2", "resentful_pants:650:0.2"]
+    reward: {money: 15000, xp: {spellcraft: 800}, fame: 150}
+    description: "천 년을 살며 엠비뉴 교단을 이끈 대사제. 종속의 제한된 영역 · 멸망의 불 · 빙하의 숨결 · 생명 흡수를 쓴다"
+  abyss_knight_van_hawk:
+    look: KNIGHT
+    size: 2.6
+    name: 어비스 나이트 반 호크
+    entity: WITHER_SKELETON
+    region: calamor_ruins
+    hp: 2048
+    damage: 22
+    respawn_minutes: 360
+    mechanics: [FEAR, MINIONS, ENRAGE]
+    minion: WITHER_SKELETON
+    kinds: [UNDEAD]
+    drops: ["agony_breastplate:700:0.15", "abyss_helm:700:0.15", "grudge_gloves:700:0.2"]
+    reward: {money: 14000, xp: {swordsmanship: 700}, fame: 130}
+    description: "테오도르 황제의 무덤이 도굴된 데 분노해 심연의 힘을 깨운 반 호크. 칼라모르의 원혼을 일으켜 하벤에 복수한다"
+  galatro:
+    look: BEAST
+    size: 3.0
+    name: 라보스 여왕 갈라트로
+    entity: RAVAGER
+    region: karayak_habitat
+    hp: 1700
+    damage: 17
+    respawn_minutes: 240
+    mechanics: [REGEN, ENRAGE, MINIONS]
+    minion: DROWNED
+    kinds: [LARGE]
+    drops: ["lizard_scale:700:1.0", "old_gold_coin:600:1.0"]
+    reward: {money: 9000, xp: {swordsmanship: 500}, fame: 80}
+    description: "커다란 악어를 닮은 라보스 종족의 여왕. 숨을 들이켜면 14미터로 부풀고, 진흙의 흐름으로 화살과 마법을 막는다 (원작: 던전 라보스 홀)"
+  delam:
+    look: DEMON
+    size: 3.4
+    name: 폭식의 악마 델암
+    entity: RAVAGER
+    region: hot_underground
+    hp: 2048
+    damage: 22
+    respawn_minutes: 360
+    mechanics: [REGEN, ENRAGE, FEAR, MINIONS]
+    minion: WITCH
+    kinds: [DEMON, LARGE]
+    drops: ["doom_movement:650:0.2", "gluttony_recipe:650:0.2", "grade1_ingredient:700:1.0", "delam_trident:700:0.1"]
+    reward: {money: 14000, xp: {swordsmanship: 600}, fame: 130}
+    description: "쓰레기와 벌레를 먹고 자란 중급 악마. 먹을수록 커지고 일곱 번 탈태한다 — 굶으면 약해진다 (원작: 작센 섬 상륙작전)"
+  arch_lich_barkan:
+    look: CASTER
+    size: 3.0
+    name: 아크 리치 바르칸 데모프
+    entity: EVOKER
+    region: agolta_region
+    hp: 2048
+    damage: 24
+    respawn_minutes: 600
+    mechanics: [VESSEL, MINIONS, FEAR, ENRAGE]
+    minion: WITHER_SKELETON
+    kinds: [UNDEAD]
+    drops: ["white_elephant_hide:500:1.0", "spotted_deer_hide:500:1.0", "shiny_pebble:500:1.0"]
+    reward: {money: 20000, xp: {spellcraft: 1000}, fame: 250}
+    description: "조각부활술로 아골타 지역에서 다시 깨어난 바르칸. 신검이 빠져 완전한 힘을 되찾았다 — 장비를 예전에 다 떨어뜨려 잡동사니만 나온다"
+  essen_forat:
+    look: HYDRA
+    size: 3.6
+    name: 에센 포라트
+    entity: GUARDIAN
+    region: northern_sea
+    hp: 2000
+    damage: 20
+    respawn_minutes: 360
+    mechanics: [BREATH, REGEN, FLIGHT]
+    kinds: [LARGE]
+    drops: ["essen_hide:700:1.0", "essen_heart:700:0.5", "mana_crystal_1:700:0.5"]
+    reward: {money: 14000, xp: {swordsmanship: 700, sailing: 500}, fame: 150}
+    description: "예순 해를 넘겨 날개가 돋은 바다뱀. 말을 하고 숨결을 뿜으며 바다를 더럽힌다 — 불에 매우 약하다 (원작: 아르펜 제국 해안)"
+  haiager:
+    look: DEMON
+    size: 2.0
+    name: 마족 병사 하이어거
+    entity: WITHER_SKELETON
+    region: struggle_road
+    hp: 1100
+    damage: 15
+    respawn_minutes: 120
+    mechanics: [REGEN, ENRAGE]
+    kinds: [DEMON]
+    drops: ["haiager_scythe:650:0.2", "demon_soldier_boots:650:0.2"]
+    reward: {money: 5000, xp: {swordsmanship: 350}, fame: 40}
+    description: "고급 수련관의 보스. 말라붙은 피의 땅에서 온 학살병으로 2미터 낫을 쓴다"
+  gratorg:
+    look: GOLEM
+    size: 3.6
+    name: 그라토르그
+    entity: IRON_GOLEM
+    region: struggle_road
+    hp: 2048
+    damage: 22
+    respawn_minutes: 300
+    mechanics: [REGEN, FEAR, ENRAGE]
+    kinds: [LARGE]
+    drops: ["gratorg_mace:700:0.2", "doom_metal:700:1.0"]
+    reward: {money: 12000, xp: {swordsmanship: 700}, fame: 120}
+    description: "투쟁의 길의 보스, 19미터 거인 전사. 10초마다 생명력 2%를 되찾고, 고함으로 투지를 꺾는다 — 채찍과 철퇴를 함께 휘두른다"
+  mammoth_warrior:
+    look: FLYER
+    size: 2.4
+    name: 비탄의 악마족 매모스 전사
+    entity: PHANTOM
+    region: east_peaks
+    hp: 1600
+    damage: 17
+    respawn_minutes: 240
+    mechanics: [FLIGHT, FEAR, BREATH]
+    kinds: [DEMON]
+    drops: ["hell_ore:600:1.0"]
+    reward: {money: 9000, xp: {swordsmanship: 500}, fame: 80}
+    description: "사람 · 새 · 악마가 합쳐진 마물. 케이베른이 봉인을 풀었다 — 잠깐 투명해지고, 맹독 폭발로 몸을 굳힌다"
+  badem_mix:
+    look: KNIGHT
+    size: 2.8
+    name: 용아병 지휘관 바뎀믹스
+    entity: WITHER_SKELETON
+    region: saigorn_range
+    hp: 1900
+    damage: 20
+    respawn_minutes: 300
+    mechanics: [FEAR, MINIONS, ENRAGE]
+    minion: STRAY
+    kinds: [LARGE]
+    drops: ["dragon_bone:650:0.3", "iron_ingot:700:1.0"]
+    reward: {money: 11000, xp: {swordsmanship: 600}, fame: 100}
+    description: "케이베른의 레어를 지키는 용아병 지휘관. 할버드로 드워프를 수십 미터 날리고, 뿔피리로 둘레 10km의 몬스터를 부른다"
+  lich_smalling:
+    look: CASTER
+    size: 2.2
+    name: 리치 스몰링
+    entity: EVOKER
+    region: norn_range
+    hp: 1600
+    damage: 17
+    respawn_minutes: 240
+    mechanics: [FEAR, MINIONS]
+    minion: SKELETON
+    kinds: [UNDEAD]
+    drops: ["ectoplasm:700:1.0", "mana_stone:600:0.3"]
+    reward: {money: 9000, xp: {spellcraft: 600}, fame: 80}
+    description: "케이베른의 레어를 지키는 리치. 중력을 여섯 배로 키워 적을 짓누른다"
+  zultan:
+    look: KNIGHT
+    size: 2.0
+    name: 죽음을 관장하는 암살자 즐탄
+    entity: WITHER_SKELETON
+    region: ugot
+    hp: 1500
+    damage: 22
+    respawn_minutes: 240
+    mechanics: [FLIGHT, FEAR]
+    kinds: [UNDEAD]
+    drops: ["ectoplasm:700:1.0"]
+    reward: {money: 9000, xp: {swordsmanship: 600}, fame: 80}
+    description: "뼈 가면을 쓴 케이베른의 암살자. 사형 집행자의 습격과 독 단검 다섯 자루로 단숨에 목숨을 앗는다"
+  kracore:
+    look: BEAST
+    size: 3.4
+    name: 아골디아의 옛 지배자 크라코어
+    entity: SLIME
+    region: dwarf_vault
+    hp: 2048
+    damage: 18
+    respawn_minutes: 360
+    mechanics: [MINIONS, REGEN, FEAR]
+    minion: SLIME
+    kinds: [LARGE]
+    drops: ["elixir_material:700:1.0", "thunder_crown:800:0.08"]
+    reward: {money: 14000, xp: {swordsmanship: 600}, fame: 130}
+    description: "몸 전체가 특수 세포로 된 55미터 분홍빛 괴물. 세포를 떼어 삼켰던 몬스터를 만든다 — 물리 피해 95% · 불을 막지만 독과 추위에 약하고 겁이 많다"
+  keibern:
+    look: DRAGON
+    size: 3.8
+    name: 블랙 드래곤 케이베른
+    entity: RAVAGER
+    region: ulta_range
+    hp: 2048
+    damage: 24
+    respawn_minutes: 480
+    mechanics: [BREATH, FEAR, ENRAGE, FLIGHT]
+    kinds: [DRAGON, LARGE]
+    drops: ["niflheim_relic_bone:850:1.0", "black_dragon_scale:850:1.0", "keibern_heart:800:0.3", "kleta_horn:800:0.1", "death_book:700:0.05", "black_magic_essence:700:0.2", "patia_sword:700:0.05", "nameless_sword:700:0.02", "laktisha_plow:600:0.1", "cloud_watering_can:600:0.1"]
+    reward: {money: 18000, xp: {swordsmanship: 800, archery: 800}, fame: 200}
+    description: "울타 산맥 일곱 드래곤 중 하나, 악룡. 악마 집사들에게 길러져 클레타를 불러내려 한다 — 맹독 숨결과 흑마법, 몰리면 악의 분열로 셋이 된다"
+  randoni:
+    look: DRAGON
+    size: 4.0
+    name: 레드 드래곤 랜도니
+    entity: RAVAGER
+    region: randoni_lair
+    hp: 2048
+    damage: 26
+    respawn_minutes: 480
     mechanics: [BREATH, FEAR, ENRAGE, REGEN]
     kinds: [DRAGON, LARGE]
-    drops: ["dragon_scale:900:1.0", "red_star:750:0.1"]
-    reward: {money: 18000, xp: {swordsmanship: 800, archery: 800}, fame: 200}
-    description: "대화산 레어의 용"
+    drops: ["dragon_scale:900:1.0", "dragon_bone:850:1.0", "red_star:750:0.05"]
+    reward: {money: 20000, xp: {swordsmanship: 900, archery: 900}, fame: 220}
+    description: "케이베른보다 30% 큰 레드 드래곤. 불의 고리 대화산에 레어가 있고, 오크들의 봉인석을 찾아 오크를 학살한다 — 절대 소멸 · 불타는 유성 소환"
   mahilgorta:
     look: DEMON
     size: 3.0
-    name: 마힐고르타
+    name: 악마 집사장 마힐고르타
     entity: WITHER_SKELETON
     region: devil_gate
-    hp: 1800
-    damage: 20
-    respawn_minutes: 300
+    hp: 2048
+    damage: 22
+    respawn_minutes: 360
     mechanics: [FEAR, MINIONS, ENRAGE, REGEN]
-    minion: VEX
+    minion: VINDICATOR
     kinds: [DEMON]
-    drops: ["demon_horn:800:1.0", "coldrim_demon_sword:700:0.1"]
-    reward: {money: 12000, xp: {swordsmanship: 600}, fame: 120}
-    description: "악마계의 문을 지키는 악마"
+    drops: ["demon_horn:800:1.0", "coldrim_demon_sword:700:0.05"]
+    reward: {money: 14000, xp: {swordsmanship: 700}, fame: 140}
+    description: "클레타의 오른팔. 카올랴의 오염된 땅에 숨어 있었다 — 휘어진 검과 늘어나는 채찍, 붙잡힌 자는 악마 군단의 병사가 된다"
   kleta:
     look: DEMON
-    size: 2.6
-    name: 클레타
-    entity: PIGLIN_BRUTE
-    region: hell_rift
-    hp: 1500
-    damage: 18
-    respawn_minutes: 240
-    mechanics: [ENRAGE, MINIONS, BREATH]
-    minion: BLAZE
-    kinds: [DEMON]
-    drops: ["demon_horn:750:1.0", "chaos_axe:650:0.08"]
-    reward: {money: 9000, xp: {swordsmanship: 500}, fame: 80}
-    description: "지옥의 틈에 사는 보스"
+    size: 4.0
+    name: 악마계의 지배자 클레타
+    entity: WITHER_SKELETON
+    region: devil_realm
+    hp: 2048
+    damage: 30
+    respawn_minutes: 720
+    mechanics: [FEAR, MINIONS, ENRAGE, REGEN, BREATH]
+    minion: VEX
+    kinds: [DEMON, LARGE]
+    drops: ["kleta_horn:900:1.0", "zenokis_spear:800:0.05", "demon_helm:750:0.1"]
+    reward: {money: 30000, xp: {swordsmanship: 1200, spellcraft: 1200}, fame: 400}
+    description: "악마들의 왕. 여러 종족의 봉인석이 깨지면 베르사 대륙에 나타난다 — 원작에서는 끝내 강림하지 못했다. 이 시대에는 악마계로 원정을 가야 만난다"

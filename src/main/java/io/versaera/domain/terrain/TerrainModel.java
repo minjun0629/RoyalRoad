@@ -138,7 +138,7 @@ public final class TerrainModel {
         return r != null && (r.maxY() < 64 || markerOnly(r)) ? null : r;
     }
 
-    private static final Set<String> MARKERS = Set.of("landmark", "dungeon_site", "wall", "sealed", "portal");
+    private static final Set<String> MARKERS = Set.of("landmark", "dungeon_site", "wall", "sealed", "portal", "training");
 
     private static boolean markerOnly(Region r) {
         return !r.tags().isEmpty() && MARKERS.containsAll(r.tags());

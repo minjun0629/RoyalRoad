@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'io.versaera'
-version = '0.4.8'
+version = '0.7.1'
 
 java {
     toolchain { languageVersion = JavaLanguageVersion.of(21) }

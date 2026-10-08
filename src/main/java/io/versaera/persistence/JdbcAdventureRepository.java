@@ -230,6 +230,11 @@ public final class JdbcAdventureRepository implements AdventureRepository {
     }
 
     @Override
+    public void setArtworkMaterials(String id, String materials) {
+        j.update("UPDATE artwork SET materials = ? WHERE id = ?", args(materials, id));
+    }
+
+    @Override
     public void renameArtwork(String id, String title) {
         j.update("UPDATE artwork SET title = ? WHERE id = ?", args(title, id));
     }

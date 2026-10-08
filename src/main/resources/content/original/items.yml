@@ -1,0 +1,2190 @@
+# 오리지널 콘텐츠 (원작 『달빛조각사』에 없는 이 게임의 것) — 같은 이름의 원작 파일 content/items.yml 에 합쳐진다.
+# tools/gen_originals/*.py 로 생성. 같은 id 가 원작 파일에 있으면 시작할 때 오류 (원작을 덮어쓰지 않는다).
+items:
+  mithril_ore:
+    name: 미스릴 원석
+    category: MATERIAL
+    material: RAW_IRON
+    weight: 1
+    tags: [ore, mithril]
+    source: ORIGINAL
+  copper_ingot:
+    name: 구리 주괴
+    category: MATERIAL
+    material: COPPER_INGOT
+    weight: 1
+    tags: [metal, mineral]
+    source: ORIGINAL
+  bronze_ingot:
+    name: 청동 주괴
+    category: MATERIAL
+    material: COPPER_INGOT
+    weight: 1
+    tags: [metal, mineral]
+    source: ORIGINAL
+  gold_ore:
+    name: 금 원석
+    category: MATERIAL
+    material: RAW_GOLD
+    weight: 1
+    tags: [ore]
+    source: ORIGINAL
+  gold_ingot:
+    name: 금 주괴
+    category: MATERIAL
+    material: GOLD_INGOT
+    weight: 1
+    tags: [metal, mineral, precious]
+    source: ORIGINAL
+  coal_lump:
+    name: 석탄
+    category: MATERIAL
+    material: COAL
+    weight: 1
+    tags: [fuel, mineral]
+    source: ORIGINAL
+  sulfur:
+    name: 유황
+    category: MATERIAL
+    material: GLOWSTONE_DUST
+    weight: 1
+    tags: [mineral, powder]
+    source: ORIGINAL
+  saltpeter:
+    name: 초석
+    category: MATERIAL
+    material: SUGAR
+    weight: 1
+    tags: [mineral, powder]
+    source: ORIGINAL
+  ember_stone:
+    name: 불씨돌
+    category: MATERIAL
+    material: MAGMA_CREAM
+    weight: 1
+    tags: [gem, fire_stone]
+    source: ORIGINAL
+  obsidian_shard:
+    name: 흑요석 조각
+    category: MATERIAL
+    material: OBSIDIAN
+    weight: 1
+    tags: [stone, mineral, obsidian]
+    source: ORIGINAL
+  storm_glass:
+    name: 폭풍 유리
+    category: MATERIAL
+    material: GLASS
+    weight: 1
+    tags: [glass, gem, storm]
+    source: ORIGINAL
+  star_shard:
+    name: 별조각
+    category: MATERIAL
+    material: NETHER_STAR
+    weight: 1
+    tags: [gem, sky, star]
+    source: ORIGINAL
+  moonstone:
+    name: 월석
+    category: MATERIAL
+    material: QUARTZ
+    weight: 1
+    tags: [gem, moon]
+    source: ORIGINAL
+  ruby:
+    name: 루비
+    category: MATERIAL
+    material: REDSTONE
+    weight: 1
+    tags: [gem, cut_gem]
+    source: ORIGINAL
+  sapphire:
+    name: 사파이어
+    category: MATERIAL
+    material: LAPIS_LAZULI
+    weight: 1
+    tags: [gem, cut_gem]
+    source: ORIGINAL
+  emerald_gem:
+    name: 에메랄드
+    category: MATERIAL
+    material: EMERALD
+    weight: 1
+    tags: [gem, cut_gem]
+    source: ORIGINAL
+  amber:
+    name: 호박
+    category: MATERIAL
+    material: HONEYCOMB
+    weight: 1
+    tags: [gem, amber]
+    source: ORIGINAL
+  pearl:
+    name: 진주
+    category: MATERIAL
+    material: ENDER_PEARL
+    weight: 1
+    tags: [gem, pearl]
+    source: ORIGINAL
+  old_gear:
+    name: 녹슨 톱니
+    category: MATERIAL
+    material: IRON_NUGGET
+    weight: 1
+    tags: [part, metal_scrap]
+    source: ORIGINAL
+  spring_coil:
+    name: 태엽 용수철
+    category: MATERIAL
+    material: IRON_NUGGET
+    weight: 1
+    tags: [part]
+    source: ORIGINAL
+  clockwork_core:
+    name: 태엽 심장
+    category: MATERIAL
+    material: CLOCK
+    weight: 1
+    tags: [part, core]
+    source: ORIGINAL
+  glass_pane:
+    name: 유리판
+    category: MATERIAL
+    material: GLASS_PANE
+    weight: 1
+    tags: [glass]
+    source: ORIGINAL
+  birch_timber:
+    name: 자작나무 목재
+    category: MATERIAL
+    material: BIRCH_LOG
+    weight: 1
+    tags: [wood]
+    source: ORIGINAL
+  jungle_timber:
+    name: 밀림 목재
+    category: MATERIAL
+    material: JUNGLE_LOG
+    weight: 1
+    tags: [wood, exotic_wood]
+    source: ORIGINAL
+  dark_timber:
+    name: 검은참나무 목재
+    category: MATERIAL
+    material: DARK_OAK_LOG
+    weight: 1
+    tags: [wood, dark_wood]
+    source: ORIGINAL
+  hollow_wood:
+    name: 속빈뿌리 목재
+    category: MATERIAL
+    material: MANGROVE_LOG
+    weight: 1
+    tags: [wood, swamp]
+    source: ORIGINAL
+  spirit_sap:
+    name: 정령 수액
+    category: MATERIAL
+    material: HONEY_BOTTLE
+    weight: 1
+    tags: [herb, essence, sap]
+    source: ORIGINAL
+  bog_moss:
+    name: 늪 이끼
+    category: MATERIAL
+    material: MOSS_BLOCK
+    weight: 1
+    tags: [herb, swamp]
+    source: ORIGINAL
+  bloodthorn_vine:
+    name: 핏빛 가시덩굴
+    category: MATERIAL
+    material: VINE
+    weight: 1
+    tags: [herb, fiber, poison_herb]
+    source: ORIGINAL
+  thorn_berry:
+    name: 가시 열매
+    category: MATERIAL
+    material: SWEET_BERRIES
+    weight: 1
+    tags: [fruit, herb]
+    source: ORIGINAL
+  honey_comb:
+    name: 벌집
+    category: MATERIAL
+    material: HONEYCOMB
+    weight: 1
+    tags: [sweet, wax]
+    source: ORIGINAL
+  beeswax:
+    name: 밀랍
+    category: MATERIAL
+    material: HONEYCOMB_BLOCK
+    weight: 1
+    tags: [wax]
+    source: ORIGINAL
+  spider_silk:
+    name: 거미 명주실
+    category: MATERIAL
+    material: COBWEB
+    weight: 1
+    tags: [fiber, silk]
+    source: ORIGINAL
+  silk_cloth:
+    name: 명주 비단
+    category: MATERIAL
+    material: WHITE_WOOL
+    weight: 1
+    tags: [cloth, silk]
+    source: ORIGINAL
+  wool_cloth:
+    name: 모직 천
+    category: MATERIAL
+    material: LIGHT_GRAY_WOOL
+    weight: 1
+    tags: [cloth]
+    source: ORIGINAL
+  wolf_pelt:
+    name: 늑대 모피
+    category: MATERIAL
+    material: RABBIT_HIDE
+    weight: 1
+    tags: [hide, fur]
+    source: ORIGINAL
+  bear_pelt:
+    name: 곰 모피
+    category: MATERIAL
+    material: RABBIT_HIDE
+    weight: 1
+    tags: [hide, fur]
+    source: ORIGINAL
+  thick_leather:
+    name: 두꺼운 가죽
+    category: MATERIAL
+    material: LEATHER
+    weight: 1
+    tags: [leather, thick]
+    source: ORIGINAL
+  monster_bone:
+    name: 몬스터 뼈
+    category: MATERIAL
+    material: BONE
+    weight: 1
+    tags: [bone]
+    source: ORIGINAL
+  bone_dust:
+    name: 뼛가루
+    category: MATERIAL
+    material: BONE_MEAL
+    weight: 1
+    tags: [powder, bone]
+    source: ORIGINAL
+  slime_gel:
+    name: 점액 젤
+    category: MATERIAL
+    material: SLIME_BALL
+    weight: 1
+    tags: [gel]
+    source: ORIGINAL
+  venom_sac:
+    name: 독주머니
+    category: MATERIAL
+    material: FERMENTED_SPIDER_EYE
+    weight: 1
+    tags: [poison, organ]
+    source: ORIGINAL
+  troll_blood:
+    name: 트롤의 피
+    category: MATERIAL
+    material: REDSTONE
+    weight: 1
+    tags: [blood, regen_mat]
+    source: ORIGINAL
+  ghost_essence:
+    name: 망령의 정수
+    category: MATERIAL
+    material: GHAST_TEAR
+    weight: 1
+    tags: [essence, undead]
+    source: ORIGINAL
+  fire_essence:
+    name: 화염 정수
+    category: MATERIAL
+    material: BLAZE_POWDER
+    weight: 1
+    tags: [essence, fire_mat]
+    source: ORIGINAL
+  frost_essence:
+    name: 서리 정수
+    category: MATERIAL
+    material: SNOWBALL
+    weight: 1
+    tags: [essence, frost]
+    source: ORIGINAL
+  storm_essence:
+    name: 폭풍 정수
+    category: MATERIAL
+    material: GLOWSTONE_DUST
+    weight: 1
+    tags: [essence, storm]
+    source: ORIGINAL
+  mana_dust:
+    name: 마나 가루
+    category: MATERIAL
+    material: GLOWSTONE_DUST
+    weight: 1
+    tags: [powder, mana]
+    source: ORIGINAL
+  parchment:
+    name: 양피지
+    category: MATERIAL
+    material: PAPER
+    weight: 1
+    tags: [paper]
+    source: ORIGINAL
+  ink_sac:
+    name: 먹물 주머니
+    category: MATERIAL
+    material: INK_SAC
+    weight: 1
+    tags: [ink, dye]
+    source: ORIGINAL
+  fine_ink:
+    name: 고운 잉크
+    category: MATERIAL
+    material: BLACK_DYE
+    weight: 1
+    tags: [ink]
+    source: ORIGINAL
+  gold_leaf:
+    name: 금박
+    category: MATERIAL
+    material: GOLD_NUGGET
+    weight: 1
+    tags: [precious, leaf_gold]
+    source: ORIGINAL
+  candle_wax:
+    name: 초
+    category: MATERIAL
+    material: CANDLE
+    weight: 1
+    tags: [wax, light]
+    source: ORIGINAL
+  barley:
+    name: 보리
+    category: MATERIAL
+    material: WHEAT
+    weight: 1
+    tags: [grain, barley]
+    source: ORIGINAL
+  hops:
+    name: 홉
+    category: MATERIAL
+    material: FERN
+    weight: 1
+    tags: [herb, hops]
+    source: ORIGINAL
+  grapes:
+    name: 포도
+    category: MATERIAL
+    material: SWEET_BERRIES
+    weight: 1
+    tags: [fruit, grape]
+    source: ORIGINAL
+  apple:
+    name: 사과
+    category: MATERIAL
+    material: APPLE
+    weight: 1
+    tags: [fruit]
+    source: ORIGINAL
+  carrot:
+    name: 당근
+    category: MATERIAL
+    material: CARROT
+    weight: 1
+    tags: [vegetable]
+    source: ORIGINAL
+  potato:
+    name: 감자
+    category: MATERIAL
+    material: POTATO
+    weight: 1
+    tags: [vegetable]
+    source: ORIGINAL
+  beet:
+    name: 비트
+    category: MATERIAL
+    material: BEETROOT
+    weight: 1
+    tags: [vegetable]
+    source: ORIGINAL
+  onion:
+    name: 양파
+    category: MATERIAL
+    material: BEETROOT
+    weight: 1
+    tags: [vegetable, spice]
+    source: ORIGINAL
+  mushroom:
+    name: 버섯
+    category: MATERIAL
+    material: BROWN_MUSHROOM
+    weight: 1
+    tags: [herb, mushroom]
+    source: ORIGINAL
+  glowcap:
+    name: 빛버섯
+    category: MATERIAL
+    material: RED_MUSHROOM
+    weight: 1
+    tags: [herb, mushroom, glow]
+    source: ORIGINAL
+  pepper:
+    name: 불고추
+    category: MATERIAL
+    material: NETHER_WART
+    weight: 1
+    tags: [spice, seasoning]
+    source: ORIGINAL
+  milk_jug:
+    name: 우유 단지
+    category: MATERIAL
+    material: MILK_BUCKET
+    weight: 1
+    tags: [dairy]
+    source: ORIGINAL
+  cheese:
+    name: 치즈
+    category: MATERIAL
+    material: YELLOW_WOOL
+    weight: 1
+    tags: [dairy, food_mat]
+    source: ORIGINAL
+  egg:
+    name: 달걀
+    category: MATERIAL
+    material: EGG
+    weight: 1
+    tags: [egg]
+    source: ORIGINAL
+  flour:
+    name: 밀가루
+    category: MATERIAL
+    material: SUGAR
+    weight: 1
+    tags: [flour]
+    source: ORIGINAL
+  sugar_cane:
+    name: 사탕수수
+    category: MATERIAL
+    material: SUGAR_CANE
+    weight: 1
+    tags: [sweet]
+    source: ORIGINAL
+  cocoa:
+    name: 카카오
+    category: MATERIAL
+    material: COCOA_BEANS
+    weight: 1
+    tags: [sweet, exotic]
+    source: ORIGINAL
+  raw_fowl:
+    name: 새고기
+    category: MATERIAL
+    material: CHICKEN
+    weight: 1
+    tags: [meat]
+    source: ORIGINAL
+  trout:
+    name: 송어
+    category: MATERIAL
+    material: COD
+    weight: 1
+    tags: [fish]
+    source: ORIGINAL
+  pufferfish:
+    name: 복어
+    category: MATERIAL
+    material: PUFFERFISH
+    weight: 1
+    tags: [fish, poison]
+    source: ORIGINAL
+  lake_crab:
+    name: 호수 게
+    category: MATERIAL
+    material: COD
+    weight: 1
+    tags: [fish, shellfish]
+    source: ORIGINAL
+  apple_pie:
+    name: 사과 파이
+    category: FOOD
+    material: PUMPKIN_PIE
+    weight: 1
+    tags: [food]
+    source: ORIGINAL
+  mushroom_soup:
+    name: 버섯 수프
+    category: FOOD
+    material: MUSHROOM_STEW
+    weight: 1
+    tags: [food]
+    source: ORIGINAL
+  roast_fowl:
+    name: 통새 구이
+    category: FOOD
+    material: COOKED_CHICKEN
+    weight: 1
+    tags: [food]
+    source: ORIGINAL
+  herb_bread:
+    name: 허브 빵
+    category: FOOD
+    material: BREAD
+    weight: 1
+    tags: [food, grain]
+    source: ORIGINAL
+  cheese_bread:
+    name: 치즈 빵
+    category: FOOD
+    material: BREAD
+    weight: 1
+    tags: [food]
+    source: ORIGINAL
+  veg_stew:
+    name: 채소 스튜
+    category: FOOD
+    material: BEETROOT_SOUP
+    weight: 1
+    tags: [food]
+    source: ORIGINAL
+  fish_pie:
+    name: 생선 파이
+    category: FOOD
+    material: PUMPKIN_PIE
+    weight: 1
+    tags: [food]
+    source: ORIGINAL
+  spicy_stew:
+    name: 불고추 스튜
+    category: FOOD
+    material: RABBIT_STEW
+    weight: 1
+    tags: [food, warm]
+    source: ORIGINAL
+  honey_cake:
+    name: 꿀 케이크
+    category: FOOD
+    material: PUMPKIN_PIE
+    weight: 1
+    tags: [food, sweet_food]
+    source: ORIGINAL
+  trail_ration:
+    name: 행군 식량
+    category: FOOD
+    material: DRIED_KELP
+    weight: 1
+    tags: [food, ration]
+    source: ORIGINAL
+  crab_bisque:
+    name: 게살 수프
+    category: FOOD
+    material: BEETROOT_SOUP
+    weight: 1
+    tags: [food]
+    source: ORIGINAL
+  grilled_trout:
+    name: 송어 구이
+    category: FOOD
+    material: COOKED_COD
+    weight: 1
+    tags: [food]
+    source: ORIGINAL
+  royal_feast:
+    name: 왕의 만찬
+    category: FOOD
+    material: GOLDEN_CARROT
+    weight: 1
+    tags: [food, feast]
+    source: ORIGINAL
+  baked_potato:
+    name: 구운 감자
+    category: FOOD
+    material: BAKED_POTATO
+    weight: 1
+    tags: [food]
+    source: ORIGINAL
+  cookie:
+    name: 쿠키
+    category: FOOD
+    material: COOKIE
+    weight: 1
+    tags: [food, sweet_food]
+    source: ORIGINAL
+  chocolate:
+    name: 초콜릿
+    category: FOOD
+    material: COOKIE
+    weight: 1
+    tags: [food, sweet_food]
+    source: ORIGINAL
+  pufferfish_sashimi:
+    name: 복어회
+    category: FOOD
+    material: COOKED_SALMON
+    weight: 1
+    tags: [food, risky]
+    source: ORIGINAL
+  barley_ale:
+    name: 보리 에일
+    category: FOOD
+    material: POTION
+    weight: 1
+    tags: [drink, ale]
+    source: ORIGINAL
+  dark_stout:
+    name: 흑맥주
+    category: FOOD
+    material: POTION
+    weight: 1
+    tags: [drink, ale, stout]
+    source: ORIGINAL
+  grape_wine:
+    name: 포도주
+    category: FOOD
+    material: POTION
+    weight: 1
+    tags: [drink, wine]
+    source: ORIGINAL
+  honey_mead:
+    name: 꿀술
+    category: FOOD
+    material: POTION
+    weight: 1
+    tags: [drink, mead]
+    source: ORIGINAL
+  fire_brandy:
+    name: 불꽃 브랜디
+    category: FOOD
+    material: POTION
+    weight: 1
+    tags: [drink, strong, fireproof]
+    source: ORIGINAL
+  dwarf_spirit:
+    name: 드워프 화주
+    category: FOOD
+    material: POTION
+    weight: 1
+    tags: [drink, strong, stoneskin]
+    source: ORIGINAL
+  herbal_tea:
+    name: 약초차
+    category: FOOD
+    material: POTION
+    weight: 1
+    tags: [drink, tea]
+    source: ORIGINAL
+  cider:
+    name: 사과주
+    category: FOOD
+    material: POTION
+    weight: 1
+    tags: [drink, cider]
+    source: ORIGINAL
+  antidote:
+    name: 해독제
+    category: CONSUMABLE
+    material: POTION
+    weight: 1
+    tags: [potion, potion_t1, cure]
+    source: ORIGINAL
+  stamina_tonic:
+    name: 기력 강장제
+    category: CONSUMABLE
+    material: POTION
+    weight: 1
+    tags: [potion, potion_t2, stamina_potion]
+    source: ORIGINAL
+  supreme_draught:
+    name: 최상급 회복 물약
+    category: CONSUMABLE
+    material: POTION
+    weight: 1
+    tags: [potion, potion_t4]
+    source: ORIGINAL
+  elixir_of_life:
+    name: 생명의 영약
+    category: CONSUMABLE
+    material: POTION
+    weight: 1
+    tags: [potion, potion_t5]
+    source: ORIGINAL
+  fire_resist_potion:
+    name: 화염 저항 물약
+    category: CONSUMABLE
+    material: POTION
+    weight: 1
+    tags: [potion, potion_t2, resist_fire]
+    source: ORIGINAL
+  frost_resist_potion:
+    name: 냉기 저항 물약
+    category: CONSUMABLE
+    material: POTION
+    weight: 1
+    tags: [potion, potion_t2, resist_frost]
+    source: ORIGINAL
+  mana_potion:
+    name: 마나 물약
+    category: CONSUMABLE
+    material: POTION
+    weight: 1
+    tags: [potion, potion_t2, mana_potion]
+    source: ORIGINAL
+  greater_mana_potion:
+    name: 상급 마나 물약
+    category: CONSUMABLE
+    material: POTION
+    weight: 1
+    tags: [potion, potion_t3, mana_potion]
+    source: ORIGINAL
+  fire_bomb:
+    name: 화염 폭탄
+    category: CONSUMABLE
+    material: FIRE_CHARGE
+    weight: 1
+    tags: [bomb, throwable]
+    source: ORIGINAL
+  smoke_bomb:
+    name: 연막탄
+    category: CONSUMABLE
+    material: GUNPOWDER
+    weight: 1
+    tags: [bomb, throwable]
+    source: ORIGINAL
+  frost_bomb:
+    name: 서리 폭탄
+    category: CONSUMABLE
+    material: SNOWBALL
+    weight: 1
+    tags: [bomb, throwable]
+    source: ORIGINAL
+  bear_trap:
+    name: 곰 덫
+    category: CONSUMABLE
+    material: TRIPWIRE_HOOK
+    weight: 1
+    tags: [trap]
+    source: ORIGINAL
+  lantern_oil:
+    name: 등잔 기름
+    category: CONSUMABLE
+    material: HONEY_BOTTLE
+    weight: 1
+    tags: [fuel]
+    source: ORIGINAL
+  whetstone_fine:
+    name: 고운 숫돌
+    category: CONSUMABLE
+    material: FLINT
+    weight: 1
+    tags: [whetstone]
+    source: ORIGINAL
+  repair_kit:
+    name: 수리 도구
+    category: CONSUMABLE
+    material: IRON_NUGGET
+    weight: 1
+    tags: [repair_kit]
+    source: ORIGINAL
+  scroll_of_return:
+    name: 귀환 두루마리
+    category: CONSUMABLE
+    material: PAPER
+    weight: 1
+    tags: [scroll]
+    source: ORIGINAL
+  treasure_map:
+    name: 보물 지도
+    category: CONSUMABLE
+    material: MAP
+    weight: 1
+    tags: [map_scroll, treasure]
+    source: ORIGINAL
+  region_map:
+    name: 지역 지도
+    category: CONSUMABLE
+    material: MAP
+    weight: 1
+    tags: [map_scroll]
+    source: ORIGINAL
+  star_chart:
+    name: 별자리 해도
+    category: CONSUMABLE
+    material: PAPER
+    weight: 1
+    tags: [map_scroll, sea_chart]
+    source: ORIGINAL
+  firework_rocket:
+    name: 축포
+    category: CONSUMABLE
+    material: FIREWORK_ROCKET
+    weight: 1
+    tags: [firework]
+    source: ORIGINAL
+  jeweler_loupe:
+    name: 보석 세공 돋보기
+    category: TOOL
+    material: SPYGLASS
+    durability: 300
+    weight: 2
+    tags: [tool_jewel]
+    source: ORIGINAL
+  quill_set:
+    name: 깃펜 세트
+    category: TOOL
+    material: FEATHER
+    durability: 300
+    weight: 2
+    tags: [tool_quill]
+    source: ORIGINAL
+  engineer_wrench:
+    name: 기계공 렌치
+    category: TOOL
+    material: IRON_HOE
+    durability: 400
+    weight: 2
+    tags: [tool_wrench]
+    source: ORIGINAL
+  brew_paddle:
+    name: 양조 주걱
+    category: TOOL
+    material: STICK
+    durability: 300
+    weight: 2
+    tags: [tool_brew]
+    source: ORIGINAL
+  mithril_hammer:
+    name: 미스릴 대장 망치
+    category: TOOL
+    material: IRON_AXE
+    durability: 900
+    weight: 2
+    tags: [tool_hammer]
+    stats: {craft: 4}
+    source: ORIGINAL
+  master_carving_set:
+    name: 명장의 조각 도구
+    category: TOOL
+    material: SHEARS
+    durability: 800
+    weight: 2
+    tags: [tool_carving]
+    stats: {craft: 5}
+    source: ORIGINAL
+  silk_needle:
+    name: 비단 바늘
+    category: TOOL
+    material: SHEARS
+    durability: 600
+    weight: 2
+    tags: [tool_sewing]
+    stats: {craft: 3}
+    source: ORIGINAL
+  crystal_alembic:
+    name: 수정 증류기
+    category: TOOL
+    material: BOWL
+    durability: 600
+    weight: 2
+    tags: [tool_alchemy]
+    stats: {craft: 4}
+    source: ORIGINAL
+  mithril_pickaxe:
+    name: 미스릴 곡괭이
+    category: TOOL
+    material: DIAMOND_PICKAXE
+    durability: 1200
+    weight: 2
+    tags: [tool_pick]
+    stats: {craft: 2}
+    source: ORIGINAL
+  woodsman_axe:
+    name: 숲지기 도끼
+    category: TOOL
+    material: DIAMOND_AXE
+    durability: 1000
+    weight: 2
+    tags: [tool_axe]
+    stats: {craft: 2}
+    source: ORIGINAL
+  silver_rod:
+    name: 은빛 낚싯대
+    category: TOOL
+    material: FISHING_ROD
+    durability: 600
+    weight: 2
+    tags: [tool_rod]
+    stats: {craft: 2}
+    source: ORIGINAL
+  bronze_shortsword:
+    name: 청동 단검(短劍)
+    category: WEAPON
+    material: IRON_SWORD
+    durability: 450
+    weight: 4
+    tags: [sword]
+    stats: {attack: 11}
+    requires: {mastery.swordsmanship: 2}
+    source: ORIGINAL
+    lore: 대장간 견습생이 처음 두드려 보는 청동 칼
+  militia_sabre:
+    name: 민병대 사브르
+    category: WEAPON
+    material: IRON_SWORD
+    durability: 800
+    weight: 4
+    tags: [sword, curved]
+    stats: {attack: 15, speed: 2}
+    requires: {mastery.swordsmanship: 5}
+    source: ORIGINAL
+    lore: 국경 민병대가 지급받는 가벼운 굽은 칼
+  mithril_longsword:
+    name: 미스릴 장검
+    category: WEAPON
+    material: DIAMOND_SWORD
+    durability: 1200
+    weight: 4
+    tags: [sword]
+    stats: {attack: 29, crit: 6}
+    requires: {mastery.swordsmanship: 14}
+    source: ORIGINAL
+    lore: 미스릴을 접어 두드린 장검. 가볍고 잘 휘지 않는다
+  ember_brand:
+    name: 불씨의 검
+    category: WEAPON
+    material: IRON_SWORD
+    durability: 900
+    weight: 4
+    tags: [sword, wavy]
+    stats: {attack: 23, fire: 5}
+    requires: {mastery.swordsmanship: 12}
+    source: ORIGINAL
+    lore: 불씨 골짜기의 돌을 박아 넣어 칼날이 늘 따뜻하다
+  frostbite_blade:
+    name: 동상의 칼날
+    category: WEAPON
+    material: DIAMOND_SWORD
+    durability: 950
+    weight: 4
+    tags: [sword, frost]
+    stats: {attack: 22, ice: 6, slow: 12}
+    requires: {mastery.swordsmanship: 13}
+    source: ORIGINAL
+    lore: 서리송곳니 고개의 고드름을 녹이지 않고 벼린 칼
+  stormcaller:
+    name: 폭풍을 부르는 검
+    category: WEAPON
+    material: DIAMOND_SWORD
+    durability: 1300
+    weight: 4
+    tags: [sword, frost]
+    stats: {attack: 31, lightning: 9, stun: 4}
+    requires: {mastery.swordsmanship: 20}
+    source: ORIGINAL
+    lore: 폭풍 유리를 칼날에 녹여 넣었다. 휘두르면 공기가 찢어지는 소리가 난다
+  dawn_oath:
+    name: 새벽의 서약
+    category: WEAPON
+    material: GOLDEN_SWORD
+    durability: 1500
+    weight: 4
+    tags: [sword, winged]
+    stats: {attack: 30, holy: 9, vs_undead: 23, regen: 1}
+    requires: {mastery.swordsmanship: 22, fame: 400}
+    source: ORIGINAL
+    lore: 성기사단이 서약식에서 받는 검. 동이 트면 칼날이 희게 빛난다
+  nightfall_edge:
+    name: 밤이 내린 칼날
+    category: WEAPON
+    material: NETHERITE_SWORD
+    durability: 1500
+    weight: 4
+    tags: [sword, demonic]
+    stats: {attack: 34, dark: 9, crit: 8}
+    requires: {mastery.swordsmanship: 22}
+    source: ORIGINAL
+    lore: 흑철로 벼린 칼. 그림자 속에서 휘두르면 소리가 나지 않는다
+  moonsilver_sword:
+    name: 달은 검
+    category: WEAPON
+    material: DIAMOND_SWORD
+    durability: 1000
+    weight: 4
+    tags: [sword, elven]
+    stats: {attack: 34, crit: 9, speed: 4}
+    requires: {mastery.swordsmanship: 18}
+    source: ORIGINAL
+    lore: 월석을 갈아 넣은 은빛 검. 달밤에 더 날카롭다
+  starfall_greatsword:
+    name: 별비 대검
+    category: WEAPON
+    material: NETHERITE_SWORD
+    durability: 2200
+    weight: 9
+    tags: [sword, broad, long]
+    stats: {attack: 48, vs_large: 20, crit: 6}
+    requires: {mastery.swordsmanship: 28, stat.strength: 14}
+    source: ORIGINAL
+    lore: 별조각을 녹여 만든 대검. 들어 올리는 데만 장정 둘이 필요하다
+  rustgear_cleaver:
+    name: 녹슨 톱니 식칼
+    category: WEAPON
+    material: IRON_SWORD
+    durability: 700
+    weight: 4
+    tags: [sword, jagged, rust]
+    stats: {attack: 19, stun: 3}
+    requires: {mastery.swordsmanship: 8}
+    source: ORIGINAL
+    lore: 유적의 톱니를 갈아 붙인 칼. 톱처럼 살을 찢는다
+  bloodthorn_sword:
+    name: 핏빛가시 검
+    category: WEAPON
+    material: IRON_SWORD
+    durability: 1000
+    weight: 4
+    tags: [sword, jagged]
+    stats: {attack: 27, poison: 7, lifesteal: 2}
+    requires: {mastery.swordsmanship: 17}
+    source: ORIGINAL
+    lore: 밀림의 가시덩굴이 손잡이를 감고 자란다
+  silk_stiletto:
+    name: 명주 송곳단검
+    category: WEAPON
+    material: IRON_SWORD
+    durability: 500
+    weight: 1
+    tags: [dagger]
+    stats: {attack: 19, crit: 13}
+    requires: {mastery.swordsmanship: 8}
+    source: ORIGINAL
+    lore: 손잡이를 명주실로 감은 얇은 단검
+  venom_fang:
+    name: 독니
+    category: WEAPON
+    material: IRON_SWORD
+    durability: 600
+    weight: 1
+    tags: [dagger]
+    stats: {attack: 19, poison: 8}
+    requires: {mastery.swordsmanship: 11}
+    source: ORIGINAL
+    lore: 거대 독거미의 송곳니를 그대로 단 단검
+  shadow_kris:
+    name: 그림자 크리스
+    category: WEAPON
+    material: NETHERITE_SWORD
+    durability: 900
+    weight: 2
+    tags: [dagger, wavy]
+    stats: {attack: 30, dark: 7, crit: 15}
+    requires: {mastery.swordsmanship: 19}
+    source: ORIGINAL
+    lore: 물결 모양 칼날이 그림자를 베어 낸다는 단검
+  pearl_dirk:
+    name: 진주 단도
+    category: WEAPON
+    material: GOLDEN_SWORD
+    durability: 500
+    weight: 1
+    tags: [dagger]
+    stats: {attack: 19, regen: 1, crit: 8}
+    requires: {mastery.swordsmanship: 9}
+    source: ORIGINAL
+    lore: 손잡이 끝에 진주를 박은 귀족의 호신용 단도
+  bronze_hatchet:
+    name: 청동 전투 손도끼
+    category: WEAPON
+    material: IRON_AXE
+    durability: 500
+    weight: 4
+    tags: [axe]
+    stats: {attack: 14}
+    requires: {mastery.swordsmanship: 4}
+    source: ORIGINAL
+    lore: 나무꾼과 민병이 함께 쓰는 손도끼
+  frostbeard_axe:
+    name: 서리수염 도끼
+    category: WEAPON
+    material: DIAMOND_AXE
+    durability: 1400
+    weight: 8
+    tags: [axe, broad]
+    stats: {attack: 29, ice: 7, stun: 4}
+    requires: {mastery.swordsmanship: 18, stat.strength: 10}
+    source: ORIGINAL
+    lore: 북부 산사람들이 서리 늑대를 잡을 때 쓰는 큰 도끼
+  emberclaw_axe:
+    name: 불발톱 도끼
+    category: WEAPON
+    material: IRON_AXE
+    durability: 1000
+    weight: 6
+    tags: [axe]
+    stats: {attack: 24, fire: 7}
+    requires: {mastery.swordsmanship: 14}
+    source: ORIGINAL
+    lore: 날이 불씨돌로 덮여 찍은 자리를 태운다
+  twin_moon_axe:
+    name: 쌍달 도끼
+    category: WEAPON
+    material: NETHERITE_AXE
+    durability: 1800
+    weight: 9
+    tags: [axe, broad]
+    stats: {attack: 45, crit: 5, vs_large: 10}
+    requires: {mastery.swordsmanship: 25, stat.strength: 14}
+    source: ORIGINAL
+    lore: 양쪽 날이 초승달처럼 휜 대형 도끼
+  woodsman_bane:
+    name: 숲지기의 재앙
+    category: WEAPON
+    material: IRON_AXE
+    durability: 900
+    weight: 6
+    tags: [axe, rust]
+    stats: {attack: 22, craft: 2}
+    requires: {mastery.swordsmanship: 10}
+    source: ORIGINAL
+    lore: 속빈뿌리 늪의 거목을 베어 낸 나무꾼의 도끼
+  iron_flail:
+    name: 철 도리깨
+    category: WEAPON
+    material: IRON_AXE
+    durability: 800
+    weight: 7
+    tags: [mace]
+    stats: {attack: 15, stun: 5}
+    requires: {stat.strength: 6}
+    source: ORIGINAL
+    lore: 농기구를 개조한 민병대의 둔기
+  templar_mace:
+    name: 성당 기사의 철퇴
+    category: WEAPON
+    material: GOLDEN_AXE
+    durability: 1300
+    weight: 8
+    tags: [mace]
+    stats: {attack: 22, holy: 7, vs_undead: 16, stun: 4}
+    requires: {stat.strength: 15, fame: 200}
+    source: ORIGINAL
+    lore: 성당 기사들이 언데드의 뼈를 부술 때 쓰는 철퇴
+  obsidian_maul:
+    name: 흑요석 망치
+    category: WEAPON
+    material: NETHERITE_AXE
+    durability: 1600
+    weight: 11
+    tags: [mace, stone_head]
+    stats: {attack: 39, stun: 9, fire: 4}
+    requires: {stat.strength: 24}
+    source: ORIGINAL
+    lore: 흑요석 이빨의 바위를 통째로 깎아 박은 망치
+  clockwork_hammer:
+    name: 태엽 해머
+    category: WEAPON
+    material: IRON_AXE
+    durability: 1500
+    weight: 9
+    tags: [mace]
+    stats: {attack: 29, stun: 8, speed: -4}
+    requires: {stat.strength: 15}
+    source: ORIGINAL
+    lore: 태엽을 감았다 풀면 머리가 튀어나가며 한 번 더 때린다
+  bronze_pike:
+    name: 청동 장창
+    category: WEAPON
+    material: TRIDENT
+    durability: 600
+    weight: 5
+    tags: [spear]
+    stats: {attack: 13, pierce: 6}
+    requires: {mastery.spearmanship: 4}
+    source: ORIGINAL
+    lore: 청동 촉을 단 보병의 장창
+  griffin_lance:
+    name: 그리폰 기창
+    category: WEAPON
+    material: TRIDENT
+    durability: 1300
+    weight: 6
+    tags: [spear]
+    stats: {attack: 35, pierce: 17, speed: 4}
+    requires: {mastery.spearmanship: 19}
+    source: ORIGINAL
+    lore: 그리폰 깃털로 술을 단 기사의 창. 돌격하면 바람을 가른다
+  tidecaller_trident:
+    name: 물결을 부르는 삼지창
+    category: WEAPON
+    material: TRIDENT
+    durability: 1400
+    weight: 7
+    tags: [spear, trident]
+    stats: {attack: 33, ice: 6, slow: 11}
+    requires: {mastery.spearmanship: 20}
+    source: ORIGINAL
+    lore: 가라앉은 종 호수의 수호자가 들던 삼지창
+  emberwing_glaive:
+    name: 불날개 언월도
+    category: WEAPON
+    material: TRIDENT
+    durability: 1500
+    weight: 7
+    tags: [spear]
+    stats: {attack: 36, fire: 9, crit: 4}
+    requires: {mastery.spearmanship: 23}
+    source: ORIGINAL
+    lore: 날이 넓은 장병기. 휘두를 때마다 불티가 날린다
+  starpiercer:
+    name: 별을 꿰는 창
+    category: WEAPON
+    material: TRIDENT
+    durability: 2000
+    weight: 7
+    tags: [spear]
+    stats: {attack: 47, pierce: 25, vs_large: 17}
+    requires: {mastery.spearmanship: 28}
+    source: ORIGINAL
+    lore: 별조각을 촉으로 깎아 만든 창. 갑옷을 종이처럼 뚫는다
+  birch_wand:
+    name: 자작나무 지팡이
+    category: WEAPON
+    material: STICK
+    durability: 400
+    weight: 2
+    tags: [staff]
+    stats: {attack: 12, regen: 1}
+    requires: {mastery.spellcraft: 4}
+    source: ORIGINAL
+    lore: 속삭이는 자작숲의 가지로 만든 가벼운 지팡이
+  ember_scepter:
+    name: 불씨의 홀
+    category: WEAPON
+    material: BLAZE_ROD
+    durability: 900
+    weight: 2
+    tags: [staff]
+    stats: {attack: 21, fire: 9}
+    requires: {mastery.spellcraft: 13}
+    source: ORIGINAL
+    lore: 불씨돌을 머리에 박은 홀. 불꽃 주문을 키운다
+  frostweave_staff:
+    name: 서리 엮은 지팡이
+    category: WEAPON
+    material: BLAZE_ROD
+    durability: 900
+    weight: 2
+    tags: [staff]
+    stats: {attack: 22, ice: 9, slow: 9}
+    requires: {mastery.spellcraft: 14}
+    source: ORIGINAL
+    lore: 서리 정수를 실처럼 감아 만든 지팡이
+  storm_rod:
+    name: 폭풍의 막대
+    category: WEAPON
+    material: BLAZE_ROD
+    durability: 1000
+    weight: 2
+    tags: [staff]
+    stats: {attack: 28, lightning: 11}
+    requires: {mastery.spellcraft: 18}
+    source: ORIGINAL
+    lore: 폭풍 유리 구슬이 끝에서 번쩍인다
+  archivist_staff:
+    name: 서고지기의 지팡이
+    category: WEAPON
+    material: BLAZE_ROD
+    durability: 1000
+    weight: 2
+    tags: [staff, crook]
+    stats: {attack: 26, resist: 8, regen: 1}
+    requires: {mastery.spellcraft: 16}
+    source: ORIGINAL
+    lore: 가라앉은 서고의 마지막 서고지기가 짚던 굽은 지팡이
+  moonwell_staff:
+    name: 달샘 지팡이
+    category: WEAPON
+    material: BLAZE_ROD
+    durability: 1300
+    weight: 2
+    tags: [staff]
+    stats: {attack: 34, holy: 8, regen: 2}
+    requires: {mastery.spellcraft: 24}
+    source: ORIGINAL
+    lore: 달 분지의 샘물에 백 일 담가 둔 지팡이
+  void_scepter:
+    name: 공허의 홀
+    category: WEAPON
+    material: BLAZE_ROD
+    durability: 1400
+    weight: 2
+    tags: [staff]
+    stats: {attack: 43, dark: 14, drain: 1}
+    requires: {mastery.spellcraft: 27}
+    source: ORIGINAL
+    lore: 잡은 손의 온기를 빨아들이는 검은 홀. 그만큼 주문이 강해진다
+  birch_shortbow:
+    name: 자작나무 단궁
+    category: WEAPON
+    material: BOW
+    durability: 350
+    weight: 1
+    tags: [bow]
+    stats: {attack: 12}
+    requires: {mastery.archery: 3}
+    source: ORIGINAL
+    lore: 가볍고 다루기 쉬운 짧은 활
+  hunter_recurve:
+    name: 사냥꾼의 리커브
+    category: WEAPON
+    material: BOW
+    durability: 700
+    weight: 2
+    tags: [bow]
+    stats: {attack: 23, crit: 3}
+    requires: {mastery.archery: 10}
+    source: ORIGINAL
+    lore: 양 끝이 앞으로 휜 사냥용 활. 짧아도 힘이 세다
+  griffin_longbow:
+    name: 그리폰 장궁
+    category: WEAPON
+    material: BOW
+    durability: 1000
+    weight: 2
+    tags: [bow, elven]
+    stats: {attack: 37, crit: 9, pierce: 7}
+    requires: {mastery.archery: 20}
+    source: ORIGINAL
+    lore: 그리폰 깃털 화살을 쓰는 장궁
+  thornwood_bow:
+    name: 가시나무 활
+    category: WEAPON
+    material: BOW
+    durability: 800
+    weight: 2
+    tags: [bow]
+    stats: {attack: 25, poison: 6}
+    requires: {mastery.archery: 14}
+    source: ORIGINAL
+    lore: 가시담 황야의 나무로 휜 활. 화살 끝에 독이 밴다
+  clockwork_crossbow:
+    name: 태엽 석궁
+    category: WEAPON
+    material: CROSSBOW
+    durability: 900
+    weight: 5
+    tags: [bow, crossbow]
+    stats: {attack: 34, pierce: 19}
+    requires: {mastery.archery: 18}
+    source: ORIGINAL
+    lore: 태엽으로 시위를 당기는 연발 석궁
+  reaper_scythe:
+    name: 수확자의 낫
+    category: WEAPON
+    material: IRON_HOE
+    durability: 1100
+    weight: 5
+    tags: [scythe]
+    stats: {attack: 28, dark: 6, lifesteal: 2}
+    requires: {mastery.swordsmanship: 17}
+    source: ORIGINAL
+    lore: 밭을 베던 낫이 전쟁에서 사람을 베게 되었다
+  harvest_moon_scythe:
+    name: 한가위 낫
+    category: WEAPON
+    material: IRON_HOE
+    durability: 1300
+    weight: 5
+    tags: [scythe]
+    stats: {attack: 35, crit: 9, holy: 6}
+    requires: {mastery.swordsmanship: 22}
+    source: ORIGINAL
+    lore: 보름달 밤에만 벼린다는 낫. 은빛 날이 둥글다
+  thorn_whip:
+    name: 가시 채찍
+    category: WEAPON
+    material: LEAD
+    durability: 800
+    weight: 2
+    tags: [whip]
+    stats: {attack: 19, poison: 4, slow: 7}
+    requires: {mastery.swordsmanship: 10}
+    source: ORIGINAL
+    lore: 가시덩굴을 엮어 만든 채찍
+  chain_whip:
+    name: 쇠사슬 채찍
+    category: WEAPON
+    material: LEAD
+    durability: 1200
+    weight: 4
+    tags: [whip]
+    stats: {attack: 32, stun: 6}
+    requires: {mastery.swordsmanship: 17}
+    source: ORIGINAL
+    lore: 쇠고리를 이어 만든 채찍. 감기면 빠져나오기 어렵다
+  militia_helmet:
+    name: 민병대 투구
+    category: ARMOR
+    material: LEATHER_HELMET
+    durability: 960
+    weight: 2
+    tags: [helmet]
+    stats: {defense: 6}
+    set: militia
+    source: ORIGINAL
+    lore: 국경 마을 민병대가 맞춰 입는 가죽 차림
+    requires: {mastery.swordsmanship: 2}
+  militia_chest:
+    name: 민병대 갑옷
+    category: ARMOR
+    material: LEATHER_CHESTPLATE
+    durability: 960
+    weight: 4
+    tags: [chest]
+    stats: {defense: 9}
+    set: militia
+    source: ORIGINAL
+    lore: 국경 마을 민병대가 맞춰 입는 가죽 차림
+    requires: {mastery.swordsmanship: 2}
+  militia_legs:
+    name: 민병대 각반
+    category: ARMOR
+    material: LEATHER_LEGGINGS
+    durability: 960
+    weight: 3
+    tags: [legs]
+    stats: {defense: 7}
+    set: militia
+    source: ORIGINAL
+    lore: 국경 마을 민병대가 맞춰 입는 가죽 차림
+    requires: {mastery.swordsmanship: 2}
+  militia_boots:
+    name: 민병대 장화
+    category: ARMOR
+    material: LEATHER_BOOTS
+    durability: 960
+    weight: 2
+    tags: [boots]
+    stats: {defense: 4}
+    set: militia
+    source: ORIGINAL
+    lore: 국경 마을 민병대가 맞춰 입는 가죽 차림
+    requires: {mastery.swordsmanship: 2}
+  bronze_guard_helmet:
+    name: 청동 경비대 투구
+    category: ARMOR
+    material: CHAINMAIL_HELMET
+    durability: 1200
+    weight: 2
+    tags: [helmet]
+    stats: {defense: 7, resist: 1}
+    requires: {stat.strength: 6}
+    set: bronze_guard
+    source: ORIGINAL
+    lore: 성문 경비대의 청동 비늘 갑주
+  bronze_guard_chest:
+    name: 청동 경비대 갑옷
+    category: ARMOR
+    material: CHAINMAIL_CHESTPLATE
+    durability: 1200
+    weight: 4
+    tags: [chest]
+    stats: {defense: 13, resist: 1}
+    requires: {stat.strength: 6}
+    set: bronze_guard
+    source: ORIGINAL
+    lore: 성문 경비대의 청동 비늘 갑주
+  bronze_guard_legs:
+    name: 청동 경비대 각반
+    category: ARMOR
+    material: CHAINMAIL_LEGGINGS
+    durability: 1200
+    weight: 3
+    tags: [legs]
+    stats: {defense: 9, resist: 1}
+    requires: {stat.strength: 6}
+    set: bronze_guard
+    source: ORIGINAL
+    lore: 성문 경비대의 청동 비늘 갑주
+  bronze_guard_boots:
+    name: 청동 경비대 장화
+    category: ARMOR
+    material: CHAINMAIL_BOOTS
+    durability: 1200
+    weight: 2
+    tags: [boots]
+    stats: {defense: 5, resist: 1}
+    requires: {stat.strength: 6}
+    set: bronze_guard
+    source: ORIGINAL
+    lore: 성문 경비대의 청동 비늘 갑주
+  ranger_helmet:
+    name: 순찰자 투구
+    category: ARMOR
+    material: LEATHER_HELMET
+    durability: 1140
+    weight: 2
+    tags: [helmet]
+    stats: {defense: 9, speed: 3, crit: 1}
+    requires: {mastery.archery: 10}
+    set: ranger
+    source: ORIGINAL
+    lore: 숲과 황야를 걷는 순찰자의 질긴 가죽옷
+  ranger_chest:
+    name: 순찰자 갑옷
+    category: ARMOR
+    material: LEATHER_CHESTPLATE
+    durability: 1140
+    weight: 4
+    tags: [chest]
+    stats: {defense: 14, speed: 7, crit: 3}
+    requires: {mastery.archery: 10}
+    set: ranger
+    source: ORIGINAL
+    lore: 숲과 황야를 걷는 순찰자의 질긴 가죽옷
+  ranger_legs:
+    name: 순찰자 각반
+    category: ARMOR
+    material: LEATHER_LEGGINGS
+    durability: 1140
+    weight: 3
+    tags: [legs]
+    stats: {defense: 10, speed: 5, crit: 3}
+    requires: {mastery.archery: 10}
+    set: ranger
+    source: ORIGINAL
+    lore: 숲과 황야를 걷는 순찰자의 질긴 가죽옷
+  ranger_boots:
+    name: 순찰자 장화
+    category: ARMOR
+    material: LEATHER_BOOTS
+    durability: 1140
+    weight: 2
+    tags: [boots]
+    stats: {defense: 6, speed: 3, crit: 2}
+    requires: {mastery.archery: 10}
+    set: ranger
+    source: ORIGINAL
+    lore: 숲과 황야를 걷는 순찰자의 질긴 가죽옷
+  mithril_knight_helmet:
+    name: 미스릴 기사 투구
+    category: ARMOR
+    material: DIAMOND_HELMET
+    durability: 1680
+    weight: 2
+    tags: [helmet]
+    stats: {defense: 11, health: 2, resist: 2}
+    requires: {mastery.swordsmanship: 18, stat.strength: 10}
+    set: mithril_knight
+    source: ORIGINAL
+    lore: 미스릴 판금을 겹친 기사의 갑주. 무게에 비해 단단하다
+  mithril_knight_chest:
+    name: 미스릴 기사 갑옷
+    category: ARMOR
+    material: DIAMOND_CHESTPLATE
+    durability: 1680
+    weight: 4
+    tags: [chest]
+    stats: {defense: 20, health: 3, resist: 3}
+    requires: {mastery.swordsmanship: 18, stat.strength: 10}
+    set: mithril_knight
+    source: ORIGINAL
+    lore: 미스릴 판금을 겹친 기사의 갑주. 무게에 비해 단단하다
+  mithril_knight_legs:
+    name: 미스릴 기사 각반
+    category: ARMOR
+    material: DIAMOND_LEGGINGS
+    durability: 1680
+    weight: 3
+    tags: [legs]
+    stats: {defense: 15, health: 2, resist: 3}
+    requires: {mastery.swordsmanship: 18, stat.strength: 10}
+    set: mithril_knight
+    source: ORIGINAL
+    lore: 미스릴 판금을 겹친 기사의 갑주. 무게에 비해 단단하다
+  mithril_knight_boots:
+    name: 미스릴 기사 장화
+    category: ARMOR
+    material: DIAMOND_BOOTS
+    durability: 1680
+    weight: 2
+    tags: [boots]
+    stats: {defense: 10, health: 1, resist: 1}
+    requires: {mastery.swordsmanship: 18, stat.strength: 10}
+    set: mithril_knight
+    source: ORIGINAL
+    lore: 미스릴 판금을 겹친 기사의 갑주. 무게에 비해 단단하다
+  archmage_helmet:
+    name: 대마법사의 투구
+    category: ARMOR
+    material: LEATHER_HELMET
+    durability: 1080
+    weight: 2
+    tags: [helmet]
+    stats: {defense: 9, resist: 6, regen: 1}
+    requires: {mastery.spellcraft: 18}
+    set: archmage
+    source: ORIGINAL
+    lore: 명주 비단에 마나 가루로 문양을 수놓은 로브
+  archmage_chest:
+    name: 대마법사의 갑옷
+    category: ARMOR
+    material: LEATHER_CHESTPLATE
+    durability: 1080
+    weight: 4
+    tags: [chest]
+    stats: {defense: 14, resist: 9, regen: 2}
+    requires: {mastery.spellcraft: 18}
+    set: archmage
+    source: ORIGINAL
+    lore: 명주 비단에 마나 가루로 문양을 수놓은 로브
+  archmage_legs:
+    name: 대마법사의 각반
+    category: ARMOR
+    material: LEATHER_LEGGINGS
+    durability: 1080
+    weight: 3
+    tags: [legs]
+    stats: {defense: 12, resist: 7, regen: 1}
+    requires: {mastery.spellcraft: 18}
+    set: archmage
+    source: ORIGINAL
+    lore: 명주 비단에 마나 가루로 문양을 수놓은 로브
+  archmage_boots:
+    name: 대마법사의 장화
+    category: ARMOR
+    material: LEATHER_BOOTS
+    durability: 1080
+    weight: 2
+    tags: [boots]
+    stats: {defense: 6, resist: 4, regen: 1}
+    requires: {mastery.spellcraft: 18}
+    set: archmage
+    source: ORIGINAL
+    lore: 명주 비단에 마나 가루로 문양을 수놓은 로브
+  shadowstalker_helmet:
+    name: 그림자 추적자 투구
+    category: ARMOR
+    material: LEATHER_HELMET
+    durability: 1260
+    weight: 2
+    tags: [helmet]
+    stats: {defense: 13, crit: 2, speed: 2}
+    requires: {mastery.swordsmanship: 16}
+    set: shadowstalker
+    source: ORIGINAL
+    lore: 소리를 먹는 검은 가죽으로 지은 옷
+  shadowstalker_chest:
+    name: 그림자 추적자 갑옷
+    category: ARMOR
+    material: LEATHER_CHESTPLATE
+    durability: 1260
+    weight: 4
+    tags: [chest]
+    stats: {defense: 19, crit: 6, speed: 6}
+    requires: {mastery.swordsmanship: 16}
+    set: shadowstalker
+    source: ORIGINAL
+    lore: 소리를 먹는 검은 가죽으로 지은 옷
+  shadowstalker_legs:
+    name: 그림자 추적자 각반
+    category: ARMOR
+    material: LEATHER_LEGGINGS
+    durability: 1260
+    weight: 3
+    tags: [legs]
+    stats: {defense: 14, crit: 5, speed: 5}
+    requires: {mastery.swordsmanship: 16}
+    set: shadowstalker
+    source: ORIGINAL
+    lore: 소리를 먹는 검은 가죽으로 지은 옷
+  shadowstalker_boots:
+    name: 그림자 추적자 장화
+    category: ARMOR
+    material: LEATHER_BOOTS
+    durability: 1260
+    weight: 2
+    tags: [boots]
+    stats: {defense: 9, crit: 2, speed: 2}
+    requires: {mastery.swordsmanship: 16}
+    set: shadowstalker
+    source: ORIGINAL
+    lore: 소리를 먹는 검은 가죽으로 지은 옷
+  emberforged_helmet:
+    name: 불씨 단조 투구
+    category: ARMOR
+    material: IRON_HELMET
+    durability: 1500
+    weight: 2
+    tags: [helmet]
+    stats: {defense: 11, resist: 4}
+    requires: {stat.strength: 15}
+    set: emberforged
+    source: ORIGINAL
+    lore: 불씨돌을 녹여 담금질한 붉은 판금
+  emberforged_chest:
+    name: 불씨 단조 갑옷
+    category: ARMOR
+    material: IRON_CHESTPLATE
+    durability: 1500
+    weight: 4
+    tags: [chest]
+    stats: {defense: 17, resist: 7}
+    requires: {stat.strength: 15}
+    set: emberforged
+    source: ORIGINAL
+    lore: 불씨돌을 녹여 담금질한 붉은 판금
+  emberforged_legs:
+    name: 불씨 단조 각반
+    category: ARMOR
+    material: IRON_LEGGINGS
+    durability: 1500
+    weight: 3
+    tags: [legs]
+    stats: {defense: 13, resist: 5}
+    requires: {stat.strength: 15}
+    set: emberforged
+    source: ORIGINAL
+    lore: 불씨돌을 녹여 담금질한 붉은 판금
+  emberforged_boots:
+    name: 불씨 단조 장화
+    category: ARMOR
+    material: IRON_BOOTS
+    durability: 1500
+    weight: 2
+    tags: [boots]
+    stats: {defense: 9, resist: 2}
+    requires: {stat.strength: 15}
+    set: emberforged
+    source: ORIGINAL
+    lore: 불씨돌을 녹여 담금질한 붉은 판금
+  frostwarden_helmet:
+    name: 서리 파수꾼 투구
+    category: ARMOR
+    material: IRON_HELMET
+    durability: 1560
+    weight: 2
+    tags: [helmet]
+    stats: {defense: 10, resist: 4, health: 1}
+    requires: {stat.endurance: 16}
+    set: frostwarden
+    source: ORIGINAL
+    lore: 서리송곳니 고개 파수꾼들의 털 안감 판금
+  frostwarden_chest:
+    name: 서리 파수꾼 갑옷
+    category: ARMOR
+    material: IRON_CHESTPLATE
+    durability: 1560
+    weight: 4
+    tags: [chest]
+    stats: {defense: 17, resist: 5, health: 2}
+    requires: {stat.endurance: 16}
+    set: frostwarden
+    source: ORIGINAL
+    lore: 서리송곳니 고개 파수꾼들의 털 안감 판금
+  frostwarden_legs:
+    name: 서리 파수꾼 각반
+    category: ARMOR
+    material: IRON_LEGGINGS
+    durability: 1560
+    weight: 3
+    tags: [legs]
+    stats: {defense: 12, resist: 4, health: 2}
+    requires: {stat.endurance: 16}
+    set: frostwarden
+    source: ORIGINAL
+    lore: 서리송곳니 고개 파수꾼들의 털 안감 판금
+  frostwarden_boots:
+    name: 서리 파수꾼 장화
+    category: ARMOR
+    material: IRON_BOOTS
+    durability: 1560
+    weight: 2
+    tags: [boots]
+    stats: {defense: 7, resist: 3, health: 1}
+    requires: {stat.endurance: 16}
+    set: frostwarden
+    source: ORIGINAL
+    lore: 서리송곳니 고개 파수꾼들의 털 안감 판금
+  dragonscale_helmet:
+    name: 비룡 비늘 투구
+    category: ARMOR
+    material: NETHERITE_HELMET
+    durability: 2040
+    weight: 2
+    tags: [helmet]
+    stats: {defense: 14, resist: 5, health: 2}
+    requires: {mastery.swordsmanship: 26, stat.strength: 16}
+    set: dragonscale
+    source: ORIGINAL
+    lore: 비룡의 비늘을 한 장씩 꿰매 붙인 갑주. 불길이 미끄러진다
+  dragonscale_chest:
+    name: 비룡 비늘 갑옷
+    category: ARMOR
+    material: NETHERITE_CHESTPLATE
+    durability: 2040
+    weight: 4
+    tags: [chest]
+    stats: {defense: 22, resist: 9, health: 4}
+    requires: {mastery.swordsmanship: 26, stat.strength: 16}
+    set: dragonscale
+    source: ORIGINAL
+    lore: 비룡의 비늘을 한 장씩 꿰매 붙인 갑주. 불길이 미끄러진다
+  dragonscale_legs:
+    name: 비룡 비늘 각반
+    category: ARMOR
+    material: NETHERITE_LEGGINGS
+    durability: 2040
+    weight: 3
+    tags: [legs]
+    stats: {defense: 18, resist: 7, health: 2}
+    requires: {mastery.swordsmanship: 26, stat.strength: 16}
+    set: dragonscale
+    source: ORIGINAL
+    lore: 비룡의 비늘을 한 장씩 꿰매 붙인 갑주. 불길이 미끄러진다
+  dragonscale_boots:
+    name: 비룡 비늘 장화
+    category: ARMOR
+    material: NETHERITE_BOOTS
+    durability: 2040
+    weight: 2
+    tags: [boots]
+    stats: {defense: 11, resist: 4, health: 1}
+    requires: {mastery.swordsmanship: 26, stat.strength: 16}
+    set: dragonscale
+    source: ORIGINAL
+    lore: 비룡의 비늘을 한 장씩 꿰매 붙인 갑주. 불길이 미끄러진다
+  bronze_heater:
+    name: 청동 기사 방패
+    category: ARMOR
+    material: SHIELD
+    durability: 1350
+    weight: 5
+    tags: [shield]
+    stats: {defense: 8}
+    source: ORIGINAL
+    lore: 청동 테를 두른 삼각 방패
+    requires: {mastery.swordsmanship: 5}
+  tower_shield:
+    name: 탑 방패
+    category: ARMOR
+    material: SHIELD
+    durability: 1700
+    weight: 5
+    tags: [shield]
+    stats: {defense: 14, resist: 3, speed: -6}
+    requires: {stat.strength: 14}
+    source: ORIGINAL
+    lore: 몸 전체를 가리는 큰 방패
+  mithril_aegis:
+    name: 미스릴 수호 방패
+    category: ARMOR
+    material: SHIELD
+    durability: 1900
+    weight: 5
+    tags: [shield]
+    stats: {defense: 14, resist: 5}
+    requires: {mastery.swordsmanship: 20}
+    source: ORIGINAL
+    lore: 미스릴 판을 겹친 가벼운 방패
+  dawn_aegis:
+    name: 새벽 방패
+    category: ARMOR
+    material: SHIELD
+    durability: 2000
+    weight: 5
+    tags: [shield]
+    stats: {defense: 14, holy: 3, regen: 1}
+    requires: {mastery.swordsmanship: 22, fame: 400}
+    source: ORIGINAL
+    lore: 성기사단의 흰 방패. 언데드의 손톱이 미끄러진다
+  copper_ring:
+    name: 구리 반지
+    category: ARMOR
+    material: IRON_NUGGET
+    durability: 500
+    weight: 1
+    tags: [ring, accessory]
+    stats: {health: 2}
+    source: ORIGINAL
+    lore: 견습 세공사가 처음 만드는 반지
+  ruby_ring:
+    name: 루비 반지
+    category: ARMOR
+    material: GOLD_NUGGET
+    durability: 500
+    weight: 1
+    tags: [ring, accessory]
+    stats: {attack: 5, fire: 4}
+    source: ORIGINAL
+    lore: 불꽃처럼 붉은 루비를 박은 반지
+  sapphire_ring:
+    name: 사파이어 반지
+    category: ARMOR
+    material: GOLD_NUGGET
+    durability: 500
+    weight: 1
+    tags: [ring, accessory]
+    stats: {resist: 8, ice: 3}
+    source: ORIGINAL
+    lore: 맑은 물빛 사파이어 반지
+  emerald_ring:
+    name: 에메랄드 반지
+    category: ARMOR
+    material: GOLD_NUGGET
+    durability: 500
+    weight: 1
+    tags: [ring, accessory]
+    stats: {regen: 2, poison: 5}
+    source: ORIGINAL
+    lore: 숲빛 에메랄드 반지
+  moonstone_ring:
+    name: 월석 반지
+    category: ARMOR
+    material: IRON_NUGGET
+    durability: 500
+    weight: 1
+    tags: [ring, accessory]
+    stats: {crit: 8}
+    source: ORIGINAL
+    lore: 달빛을 머금은 은반지
+  star_signet:
+    name: 별의 인장 반지
+    category: ARMOR
+    material: GOLD_NUGGET
+    durability: 500
+    weight: 1
+    tags: [ring, accessory]
+    stats: {crit: 8, attack: 6, resist: 9}
+    source: ORIGINAL
+    lore: 별조각을 깎아 인장으로 새긴 반지
+  pearl_necklace:
+    name: 진주 목걸이
+    category: ARMOR
+    material: GOLD_NUGGET
+    durability: 500
+    weight: 1
+    tags: [necklace, accessory]
+    stats: {regen: 1, health: 4}
+    source: ORIGINAL
+    lore: 가라앉은 종 호수의 진주를 꿴 목걸이
+  amber_pendant:
+    name: 호박 펜던트
+    category: ARMOR
+    material: GOLD_NUGGET
+    durability: 500
+    weight: 1
+    tags: [necklace, accessory]
+    stats: {resist: 5, health: 2}
+    source: ORIGINAL
+    lore: 벌레가 갇힌 호박 펜던트. 행운을 부른다고 한다
+  ember_heart:
+    name: 불씨 심장 목걸이
+    category: ARMOR
+    material: GOLD_NUGGET
+    durability: 500
+    weight: 1
+    tags: [necklace, accessory]
+    stats: {fire: 8, attack: 6}
+    source: ORIGINAL
+    lore: 식지 않는 불씨돌을 금줄에 건 목걸이
+  frost_tear:
+    name: 서리 눈물 목걸이
+    category: ARMOR
+    material: IRON_NUGGET
+    durability: 500
+    weight: 1
+    tags: [necklace, accessory]
+    stats: {ice: 8, resist: 8}
+    source: ORIGINAL
+    lore: 녹지 않는 얼음 한 방울
+  griffin_bracer:
+    name: 그리폰 팔찌
+    category: ARMOR
+    material: GOLD_NUGGET
+    durability: 500
+    weight: 1
+    tags: [bracelet, accessory]
+    stats: {speed: 10}
+    source: ORIGINAL
+    lore: 그리폰 깃털을 엮은 팔찌
+  iron_bracer:
+    name: 철 손목보호대
+    category: ARMOR
+    material: IRON_NUGGET
+    durability: 500
+    weight: 1
+    tags: [bracelet, accessory]
+    stats: {defense: 4}
+    source: ORIGINAL
+    lore: 검사들이 손목을 보호하려 차는 쇠 팔찌
+  silk_gloves:
+    name: 명주 장갑
+    category: ARMOR
+    material: LEATHER
+    durability: 500
+    weight: 1
+    tags: [gloves, accessory]
+    stats: {craft: 3}
+    source: ORIGINAL
+    lore: 손끝 감각을 살려 주는 얇은 비단 장갑 — 장인들이 아낀다
+  bear_gauntlets:
+    name: 곰가죽 건틀릿
+    category: ARMOR
+    material: LEATHER
+    durability: 500
+    weight: 1
+    tags: [gloves, accessory]
+    stats: {attack: 6, defense: 3}
+    source: ORIGINAL
+    lore: 곰 모피를 두른 두꺼운 장갑
+  wanderer_cloak:
+    name: 나그네 망토
+    category: ARMOR
+    material: LEATHER
+    durability: 500
+    weight: 1
+    tags: [cloak, accessory]
+    stats: {speed: 9, resist: 4}
+    source: ORIGINAL
+    lore: 비바람을 막는 잿빛 망토
+  mistveil_cloak:
+    name: 안개 장막 망토
+    category: ARMOR
+    material: LEATHER
+    durability: 500
+    weight: 1
+    tags: [cloak, accessory]
+    stats: {speed: 10, crit: 8}
+    source: ORIGINAL
+    lore: 안개 군도의 해적들이 두르는 망토. 안개처럼 흐릿하게 보인다
+  adventurer_belt:
+    name: 모험가의 허리띠
+    category: ARMOR
+    material: LEATHER
+    durability: 500
+    weight: 1
+    tags: [belt, accessory]
+    stats: {health: 4}
+    source: ORIGINAL
+    lore: 물약을 꽂는 고리가 달린 허리띠
+  champion_belt:
+    name: 투사의 허리띠
+    category: ARMOR
+    material: LEATHER
+    durability: 500
+    weight: 1
+    tags: [belt, accessory]
+    stats: {attack: 4, health: 5}
+    source: ORIGINAL
+    lore: 투기장 우승자에게 주는 금장 허리띠
+  mana_orb:
+    name: 마나 구슬
+    category: ARMOR
+    material: ENDER_EYE
+    durability: 500
+    weight: 1
+    tags: [orb, accessory]
+    stats: {regen: 2, resist: 7}
+    source: ORIGINAL
+    lore: 마나 가루를 굳혀 만든 구슬
+  storm_orb:
+    name: 폭풍 구슬
+    category: ARMOR
+    material: ENDER_EYE
+    durability: 500
+    weight: 1
+    tags: [orb, accessory]
+    stats: {lightning: 10, attack: 6}
+    source: ORIGINAL
+    lore: 안에서 번개가 갇혀 돈다
+  compass_of_ways:
+    name: 길잡이 나침반
+    category: ARMOR
+    material: COMPASS
+    durability: 500
+    weight: 1
+    tags: [compass, accessory]
+    stats: {speed: 10}
+    source: ORIGINAL
+    lore: 주인이 가고 싶은 곳을 가리킨다는 나침반
+  lucky_feather:
+    name: 행운의 깃털
+    category: ARMOR
+    material: FEATHER
+    durability: 500
+    weight: 1
+    tags: [feather, accessory]
+    stats: {crit: 8}
+    source: ORIGINAL
+    lore: 별비 초원에서 주운 반짝이는 깃털
+sets:
+  militia:
+    name: 민병대 차림
+    source: ORIGINAL
+    bonuses:
+      2: {defense: 2}
+      4: {health: 2}
+  bronze_guard:
+    name: 청동 경비대 갑주
+    source: ORIGINAL
+    bonuses:
+      2: {defense: 3}
+      4: {health: 2, resist: 2}
+  ranger:
+    name: 순찰자 차림
+    source: ORIGINAL
+    bonuses:
+      2: {speed: 10}
+      4: {crit: 8}
+  mithril_knight:
+    name: 미스릴 기사 갑주
+    source: ORIGINAL
+    bonuses:
+      2: {defense: 6}
+      3: {health: 3}
+      4: {resist: 10, vs_large: 10}
+  archmage:
+    name: 대마법사의 의복
+    source: ORIGINAL
+    bonuses:
+      2: {resist: 9}
+      4: {regen: 1, health: 3}
+  shadowstalker:
+    name: 그림자 추적자 차림
+    source: ORIGINAL
+    bonuses:
+      2: {crit: 8}
+      4: {crit: 8, speed: 10}
+  emberforged:
+    name: 불씨 단조 갑주
+    source: ORIGINAL
+    bonuses:
+      2: {resist: 8}
+      4: {health: 4, thorns: 3}
+  frostwarden:
+    name: 서리 파수꾼 갑주
+    source: ORIGINAL
+    bonuses:
+      2: {resist: 9}
+      4: {health: 6}
+  dragonscale:
+    name: 비룡 비늘 갑주
+    source: ORIGINAL
+    bonuses:
+      2: {defense: 8}
+      3: {health: 4}
+      4: {resist: 10, vs_dragon: 25}

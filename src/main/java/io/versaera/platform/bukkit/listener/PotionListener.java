@@ -2,6 +2,7 @@ package io.versaera.platform.bukkit.listener;
 
 import io.versaera.application.GameServices;
 import io.versaera.domain.item.ItemType;
+import io.versaera.domain.potion.Consumable;
 import io.versaera.domain.potion.PotionRule;
 import io.versaera.platform.bukkit.Async;
 import io.versaera.platform.bukkit.Ui;
@@ -21,13 +22,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 물약 (POT-01, CANON 개념): 즉시 회복이 아니라 회복력을 잠시 올린다 (재생 효과). 효과가 남아 있으면 다음 물약을 마실 수 없고,
- * 높은 숙련일수록 같은 물약이 덜 듣는다 (PotionRule).
+ * 높은 숙련일수록 같은 물약이 덜 듣는다 (PotionRule). 해독 · 저항 · 마나 · 기력 물약과 음료는 Consumable 의 효과를 바로 낸다.
  */
 public final class PotionListener implements Listener {
     private final GameServices s;
     private final Async async;
     private final ItemCodec codec;
-    private final Map<UUID, Long> activeUntil = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> activeUntil = new ConcurrentHashMap<>(), drinkUntil = new ConcurrentHashMap<>();
+    /** 기력 · 마나 채우기 (스킬 리스너가 가진 전투 상태) */
+    private java.util.function.BiConsumer<Player, double[]> refill = (p, x) -> { };
 
     public PotionListener(GameServices s, Async async, ItemCodec codec) {
         this.s = s;
@@ -35,9 +38,9 @@ public final class PotionListener implements Listener {
         this.codec = codec;
     }
 
-    private static int tier(ItemType t) {
-        for (int i = 5; i >= 1; i--) if (t.hasTag("potion_t" + i)) return i;
-        return 1;
+    public PotionListener refill(java.util.function.BiConsumer<Player, double[]> f) {
+        this.refill = f;
+        return this;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -45,17 +48,24 @@ public final class PotionListener implements Listener {
         String typeId = codec.typeId(e.getItem());
         if (typeId == null) return;
         ItemType t = codec.types().get(typeId);
-        if (!t.hasTag("potion")) return;
+        Consumable.Use use = Consumable.of(t.tags());
+        if (use == null) return;
         Player p = e.getPlayer();
         long now = System.currentTimeMillis();
-        if (!PotionRule.canDrink(now, activeUntil.getOrDefault(p.getUniqueId(), 0L))) {
+        Map<UUID, Long> lock = use.drink() ? drinkUntil : activeUntil;
+        if (!PotionRule.canDrink(now, lock.getOrDefault(p.getUniqueId(), 0L))) {
             e.setCancelled(true);
-            p.sendMessage(Ui.c("&7앞의 물약 기운이 남아 있어 더 마셔도 소용없다"));
+            p.sendMessage(Ui.c(use.drink() ? "&7방금 마신 것이 아직 배에 남아 있다" : "&7앞의 물약 기운이 남아 있어 더 마셔도 소용없다"));
+            return;
+        }
+        if (use.regenTier() == 0) {   // 특별 물약 · 음료: 바로 듣는다
+            lock.put(p.getUniqueId(), now + use.lockSeconds() * 1000L);
+            apply(p, use);
             return;
         }
         activeUntil.put(p.getUniqueId(), now + 5_000);   // 결과가 올 때까지 이어 마시기 막기
         String id = p.getUniqueId().toString();
-        int tier = tier(t);
+        int tier = use.regenTier();
         async.run("potion", () -> {
             int lv = 1;
             for (String d : List.of("swordsmanship", "spearmanship", "archery", "spellcraft")) lv = Math.max(lv, s.growth.level(id, d));
@@ -73,8 +83,25 @@ public final class PotionListener implements Listener {
         }, p);
     }
 
+    private void apply(Player p, Consumable.Use use) {
+        if (use.cure()) for (PotionEffectType bad : List.of(PotionEffectType.POISON, PotionEffectType.WITHER, PotionEffectType.HUNGER, PotionEffectType.WEAKNESS))
+            p.removePotionEffect(bad);
+        if (use.thaw()) {
+            p.removePotionEffect(PotionEffectType.SLOW);
+            p.setFreezeTicks(0);
+        }
+        for (Consumable.Buff b : use.buffs()) {
+            PotionEffectType type = PotionEffectType.getByName(b.type());
+            if (type != null) p.addPotionEffect(new PotionEffect(type, b.seconds() * 20, b.amplifier()));
+        }
+        if (use.nauseaSeconds() > 0) p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, use.nauseaSeconds() * 20, 0));
+        if (use.stamina() > 0 || use.mana() > 0) refill.accept(p, new double[]{use.stamina(), use.mana()});
+        if (use.message() != null) p.sendMessage(Ui.c(use.message()));
+    }
+
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         activeUntil.remove(e.getPlayer().getUniqueId());
+        drinkUntil.remove(e.getPlayer().getUniqueId());
     }
 }

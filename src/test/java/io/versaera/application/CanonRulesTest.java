@@ -157,6 +157,13 @@ class CanonRulesTest {
             assertEquals("relic", w.s.arts.learn(p, "sculpt_revival", relic(w, p, "relic_revival_statue")));
             assertEquals("discover", w.s.arts.learn(p, "sculpting_swordsmanship", null), "조각 검술: 조각 + 검술");
             assertEquals("discover", w.s.arts.learn(p, "nature_sculpting", null), "대재앙의 자연조각술");
+            // 열 가지가 되도록 더한 비기 셋
+            w.s.tx.inTx(() -> {
+                w.s.progress.addCounter(p, "art.created", 3);
+                return null;
+            });
+            for (String more : java.util.List.of("moonlight_veil", "light_sculpture", "frost_sculpture"))
+                assertEquals("discover", w.s.arts.learn(p, more, null), more);
             assertThrows(DomainException.class, () -> w.s.arts.learn(p, "radiant_sword", null), "검사의 비기는 검사만");
             assertEquals("final", w.s.arts.learn(p, "time_sculpting", null));
             assertEquals(1, io.versaera.domain.art.SecretArt.timeTier(w.s.arts.castLevel(p, "time_sculpting")), "숙련 29 = 초급 시간 가속");

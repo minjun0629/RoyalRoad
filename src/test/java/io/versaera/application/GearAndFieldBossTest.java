@@ -86,7 +86,7 @@ class GearAndFieldBossTest {
             var d = w.s.fieldBosses.defeated("van_hawk", gen, Map.of(a, 800.0, b, 150.0, c, 50.0), Map.of(a, "A", b, "B", c, "C"), ALWAYS);
             assertEquals(a, d.top());
             assertEquals(Set.of(a, b), d.rewarded(), "기여 10% 미만은 보상 없음");
-            assertTrue(d.drops().contains("반 호크의 투구"), "확률 드롭은 가장 많이 때린 사람에게");
+            assertTrue(d.drops().contains("반 호크의 마법 헬름"), "확률 드롭은 가장 많이 때린 사람에게");
             assertTrue(d.worldFirst());
             var firstBoss = w.s.achievements.achievement("giant_hunter");   // 첫 필드 보스 업적도 함께 (ACH-01)
             assertEquals(4000 + firstBoss.money(), w.s.economy.balance(a));

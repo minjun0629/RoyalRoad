@@ -21,7 +21,7 @@ public record QuestDefinition(String id, String title, String giver, Grade grade
         Grade(String label) { this.label = label; }
     }
 
-    public enum Type { KILL, GATHER, CRAFT, DISCOVER, TALK, DELIVER, AFFINITY, DUNGEON, BOSS }
+    public enum Type { KILL, GATHER, CRAFT, DISCOVER, TALK, DELIVER, AFFINITY, DUNGEON, BOSS, TRAIN }
 
     /**
      * @param target  KILL: 엔티티 종류(ZOMBIE …) 또는 "any" · GATHER: 아이템 종류 · CRAFT: 레시피 id 또는 "discipline:<분야>"

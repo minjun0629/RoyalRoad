@@ -1,0 +1,553 @@
+# 오리지널 콘텐츠 (원작 『달빛조각사』에 없는 이 게임의 것) — 같은 이름의 원작 파일 content/monsters.yml 에 합쳐진다.
+# tools/gen_originals/*.py 로 생성. 같은 id 가 원작 파일에 있으면 시작할 때 오류 (원작을 덮어쓰지 않는다).
+monsters:
+  moss_boar:
+    name: 이끼 멧돼지
+    entity: RAVAGER
+    hp: 18
+    damage: 3
+    level: [12, 29]
+    regions: [hollowroot_marsh, verdant_hollow]
+    tags: [forest, swamp, valley]
+    danger: [1, 3]
+    hostile: false
+    weight: 3
+    drops: ['raw_meat:1.0:2', 'hide:0.6', 'bog_moss:0.4']
+    source: ORIGINAL
+    desc: 등에 이끼가 자라는 멧돼지. 건드리면 들이받는다
+  thorn_hare:
+    name: 가시토끼
+    entity: RABBIT
+    hp: 11
+    damage: 2
+    level: [4, 11]
+    regions: [thornwall_heath]
+    tags: [highland, frontier, plains]
+    danger: [0, 3]
+    hostile: false
+    weight: 5
+    pack: [1, 3]
+    drops: ['raw_meat:0.8', 'thorn_berry:0.4']
+    source: ORIGINAL
+    desc: 털이 가시처럼 곤두선 토끼
+  frostfang_wolf:
+    name: 서리송곳니 늑대
+    entity: WOLF
+    hp: 40
+    damage: 8
+    level: [200, 332]
+    regions: [frostfang_pass]
+    tags: [frozen, mountain]
+    danger: [3, 5]
+    weight: 4
+    pack: [2, 4]
+    drops: ['wolf_pelt:1.0', 'frost_essence:0.08']
+    source: ORIGINAL
+    desc: 입김에 서리가 서리는 늑대 무리
+  cave_bear:
+    name: 동굴곰
+    entity: POLAR_BEAR
+    hp: 42
+    damage: 8
+    level: [158, 240]
+    tags: [mountain, underground, forest]
+    danger: [3, 5]
+    weight: 2
+    drops: ['bear_pelt:1.0', 'raw_meat:1.0:2']
+    source: ORIGINAL
+    desc: 겨울잠을 깨우면 몹시 사납다
+  giant_bee:
+    name: 왕벌
+    entity: VEX
+    hp: 15
+    damage: 3
+    level: [12, 29]
+    regions: [verdant_hollow]
+    tags: [valley, farmland, forest]
+    danger: [1, 3]
+    weight: 3
+    pack: [2, 4]
+    drops: ['honey_comb:0.6', 'venom_sac:0.1']
+    source: ORIGINAL
+    desc: 손바닥만 한 벌. 벌집을 건드리면 떼로 몰려온다
+  salt_crab:
+    name: 소금 집게
+    entity: SPIDER
+    hp: 42
+    damage: 8
+    level: [158, 240]
+    regions: [saltglass_flats]
+    tags: [salt, coast, desert]
+    danger: [2, 4]
+    weight: 3
+    drops: ['lake_crab:0.8', 'sea_salt:0.6']
+    source: ORIGINAL
+    desc: 소금 결정이 등딱지에 붙은 커다란 게
+  lake_snapper:
+    name: 호수 자라
+    entity: DROWNED
+    hp: 30
+    damage: 6
+    level: [48, 106]
+    regions: [drowned_bell_lake]
+    tags: [lake, river]
+    danger: [1, 3]
+    weight: 2
+    drops: ['lake_crab:0.5', 'pearl:0.05']
+    source: ORIGINAL
+    desc: 물가에서 발목을 무는 자라
+  dune_scorpion:
+    name: 사구 전갈
+    entity: CAVE_SPIDER
+    hp: 31
+    damage: 6
+    level: [90, 180]
+    tags: [desert, salt, badlands]
+    danger: [3, 5]
+    weight: 3
+    pack: [1, 2]
+    drops: ['venom_sac:0.5', 'monster_bone:0.4']
+    source: ORIGINAL
+    desc: 모래 속에 숨었다가 꼬리로 찌른다
+  storm_hawk:
+    name: 폭풍매
+    entity: PHANTOM
+    hp: 40
+    damage: 8
+    level: [200, 332]
+    regions: [skyreach_spires, glass_bloom_canyon]
+    tags: [sky, mountain, canyon]
+    danger: [4, 6]
+    weight: 3
+    pack: [1, 3]
+    drops: ['griffin_feather:0.15', 'storm_essence:0.06']
+    source: ORIGINAL
+    desc: 천둥이 칠 때만 사냥하는 매
+  griffin_chick:
+    name: 어린 그리폰
+    entity: PHANTOM
+    hp: 59
+    damage: 11
+    level: [428, 560]
+    regions: [skyreach_spires]
+    tags: [sky, mountain]
+    danger: [5, 6]
+    weight: 2
+    drops: ['griffin_feather:0.6', 'raw_meat:0.5']
+    source: ORIGINAL
+    desc: 날개가 덜 자란 그리폰. 어미가 근처에 있다
+  ash_jackal:
+    name: 잿불 승냥이
+    entity: WOLF
+    hp: 46
+    damage: 9
+    level: [320, 464]
+    regions: [cinder_ash_wastes]
+    tags: [badlands, volcano]
+    danger: [4, 6]
+    weight: 4
+    pack: [2, 3]
+    drops: ['wolf_pelt:0.8', 'ember_stone:0.08']
+    source: ORIGINAL
+    desc: 잿더미 속에서 사는 회색 승냥이
+  jungle_panther:
+    name: 밀림 표범
+    entity: FOX
+    hp: 52
+    damage: 10
+    level: [299, 420]
+    regions: [bloodthorn_jungle]
+    tags: [swamp, frontier]
+    danger: [5, 6]
+    weight: 3
+    drops: ['hide:1.0:2', 'raw_meat:0.6']
+    source: ORIGINAL
+    desc: 붉은 덩굴 사이를 소리 없이 다니는 표범
+  bog_leech:
+    name: 늪 거머리
+    entity: CAVE_SPIDER
+    hp: 31
+    damage: 6
+    level: [90, 180]
+    regions: [hollowroot_marsh]
+    tags: [swamp]
+    danger: [1, 4]
+    weight: 4
+    pack: [2, 4]
+    drops: ['slime_gel:0.5', 'troll_blood:0.02']
+    source: ORIGINAL
+    desc: 물속에서 다리에 달라붙는 거머리
+  silk_spider:
+    name: 명주거미
+    entity: SPIDER
+    hp: 30
+    damage: 6
+    level: [48, 106]
+    tags: [forest, ruins, underground]
+    danger: [2, 4]
+    weight: 3
+    drops: ['spider_silk:0.8:2', 'venom_sac:0.2']
+    source: ORIGINAL
+    desc: 은빛 실을 뽑는 큰 거미. 거미줄을 걷으면 명주실이 된다
+  brood_mother:
+    name: 알 품은 독거미
+    entity: SPIDER
+    hp: 52
+    damage: 10
+    level: [299, 420]
+    regions: [bloodthorn_jungle]
+    tags: [swamp, frontier, underground]
+    danger: [4, 6]
+    weight: 1
+    drops: ['venom_sac:1.0', 'spider_silk:1.0:3']
+    source: ORIGINAL
+    desc: 등에 새끼 수백 마리를 업은 거미
+  glow_slug:
+    name: 빛민달팽이
+    entity: RABBIT
+    hp: 13
+    damage: 2
+    level: [4, 11]
+    tags: [underground, swamp, deep]
+    danger: [1, 3]
+    hostile: false
+    weight: 4
+    drops: ['slime_gel:1.0', 'glowcap:0.3']
+    source: ORIGINAL
+    desc: 몸에서 푸른 빛이 나는 커다란 민달팽이
+  mandrake:
+    name: 울음뿌리
+    entity: ZOMBIE
+    baby: true
+    hp: 20
+    damage: 4
+    level: [18, 36]
+    tags: [forest, swamp, valley]
+    danger: [2, 3]
+    weight: 3
+    drops: ['moonleaf:0.6', 'spirit_sap:0.05']
+    source: ORIGINAL
+    desc: 뽑으면 비명을 지르는 뿌리 괴물
+  strangler_vine:
+    name: 목조르기 덩굴
+    entity: SPIDER
+    hp: 52
+    damage: 10
+    level: [299, 420]
+    regions: [bloodthorn_jungle]
+    tags: [swamp, frontier]
+    danger: [5, 6]
+    weight: 3
+    drops: ['bloodthorn_vine:1.0:2', 'spirit_sap:0.08']
+    source: ORIGINAL
+    desc: 지나가는 짐승의 목을 감는 붉은 덩굴
+  treant_sapling:
+    name: 어린 나무정령
+    entity: IRON_GOLEM
+    hp: 26
+    damage: 4
+    level: [30, 84]
+    regions: [whispering_birchwood]
+    tags: [forest, mist]
+    danger: [3, 5]
+    hostile: false
+    weight: 2
+    drops: ['birch_timber:1.0:3', 'spirit_sap:0.2']
+    source: ORIGINAL
+    desc: 숲을 해치는 자에게만 손을 든다
+  ember_sprite:
+    name: 불씨 정령
+    entity: VEX
+    hp: 31
+    damage: 6
+    level: [90, 180]
+    regions: [ember_vale]
+    tags: [volcano, valley]
+    danger: [3, 5]
+    weight: 4
+    pack: [1, 3]
+    drops: ['ember_stone:0.5', 'fire_essence:0.1']
+    source: ORIGINAL
+    desc: 땅불에서 피어오른 작은 불꽃 정령
+  frost_wisp:
+    name: 서리 도깨비불
+    entity: VEX
+    hp: 40
+    damage: 8
+    level: [200, 332]
+    regions: [frostfang_pass]
+    tags: [frozen, mountain]
+    danger: [4, 5]
+    weight: 3
+    pack: [2, 3]
+    drops: ['frost_crystal:0.4', 'frost_essence:0.1']
+    source: ORIGINAL
+    desc: 눈보라 속에서 길을 잃게 하는 푸른 불빛
+  storm_elemental:
+    name: 폭풍 정령
+    entity: VEX
+    hp: 40
+    damage: 8
+    level: [200, 332]
+    regions: [glass_bloom_canyon]
+    tags: [canyon, badlands, sky]
+    danger: [4, 6]
+    weight: 2
+    pack: [1, 2]
+    drops: ['storm_glass:0.4', 'storm_essence:0.15']
+    source: ORIGINAL
+    desc: 번개가 사람 모양으로 뭉친 정령
+  salt_wraith:
+    name: 소금 망령
+    entity: STRAY
+    hp: 42
+    damage: 8
+    level: [158, 240]
+    regions: [saltglass_flats]
+    tags: [salt, desert]
+    danger: [4, 5]
+    weight: 3
+    kinds: [UNDEAD]
+    drops: ['sea_salt:1.0:2', 'ghost_essence:0.06']
+    source: ORIGINAL
+    desc: 사막에서 목말라 죽은 대상인의 혼
+  mist_phantom:
+    name: 안개 환영
+    entity: VEX
+    hp: 30
+    damage: 6
+    level: [48, 106]
+    regions: [mistveil_isles, whispering_birchwood]
+    tags: [mist, coast, sea]
+    danger: [3, 5]
+    weight: 3
+    kinds: [UNDEAD]
+    drops: ['ghost_essence:0.1', 'pearl:0.05']
+    source: ORIGINAL
+    desc: 안개 속에서 아는 사람의 목소리로 부르는 환영
+  lava_golem:
+    name: 용암 거인
+    entity: IRON_GOLEM
+    hp: 136
+    damage: 13
+    level: [428, 560]
+    regions: [obsidian_teeth]
+    tags: [volcano, canyon]
+    danger: [6, 6]
+    weight: 2
+    kinds: [LARGE]
+    drops: ['obsidian_shard:1.0:2', 'fire_essence:0.3', 'ember_stone:0.5']
+    source: ORIGINAL
+    desc: 흑요석 껍질 속에 용암이 흐르는 거인
+  moonlit_guardian:
+    name: 달빛 수호석상
+    entity: IRON_GOLEM
+    hp: 89
+    damage: 11
+    level: [158, 240]
+    regions: [shattered_moon_crater]
+    tags: [crater, ruins]
+    danger: [4, 6]
+    weight: 2
+    kinds: [LARGE]
+    drops: ['moonstone:0.4', 'sky_metal:0.2']
+    source: ORIGINAL
+    desc: 떨어진 달조각을 지키는 돌 기사
+  drowned_bellringer:
+    name: 물에 잠긴 종지기
+    entity: DROWNED
+    hp: 30
+    damage: 6
+    level: [48, 106]
+    regions: [drowned_bell_lake]
+    tags: [lake, ruins]
+    danger: [2, 4]
+    weight: 3
+    kinds: [UNDEAD]
+    drops: ['pearl:0.1', 'ghost_essence:0.05', 'monster_bone:0.5']
+    source: ORIGINAL
+    desc: 종탑과 함께 가라앉은 종지기. 밤마다 종을 치러 간다
+  ash_revenant:
+    name: 잿불 망령병
+    entity: WITHER_SKELETON
+    hp: 46
+    damage: 9
+    level: [320, 464]
+    regions: [cinder_ash_wastes]
+    tags: [badlands, volcano]
+    danger: [5, 6]
+    weight: 3
+    pack: [1, 3]
+    kinds: [UNDEAD]
+    drops: ['monster_bone:0.8', 'ghost_essence:0.1', 'sulfur:0.4']
+    source: ORIGINAL
+    desc: 옛 전쟁터에서 아직도 싸우는 불탄 병사
+  bone_archer:
+    name: 해골 궁수
+    entity: SKELETON
+    hp: 22
+    damage: 5
+    level: [30, 84]
+    tags: [ruins, underground, badlands]
+    danger: [2, 4]
+    weight: 4
+    pack: [1, 3]
+    kinds: [UNDEAD]
+    drops: ['monster_bone:1.0', 'bone_dust:0.5']
+    source: ORIGINAL
+    desc: 녹슨 활을 든 해골
+  ink_wraith:
+    name: 잉크 망령
+    entity: VEX
+    hp: 42
+    damage: 8
+    level: [158, 240]
+    regions: [sunken_archive]
+    tags: [scholar, ruins, underground]
+    danger: [3, 5]
+    weight: 4
+    kinds: [UNDEAD]
+    drops: ['ink_sac:1.0:2', 'fine_ink:0.2', 'parchment:0.4']
+    source: ORIGINAL
+    desc: 쏟아진 잉크가 원한을 품고 일어선 것
+  living_tome:
+    name: 살아 있는 책
+    entity: VEX
+    hp: 31
+    damage: 6
+    level: [90, 180]
+    regions: [sunken_archive]
+    tags: [scholar, ruins]
+    danger: [3, 4]
+    weight: 4
+    pack: [1, 3]
+    drops: ['parchment:1.0:3', 'mana_dust:0.2']
+    source: ORIGINAL
+    desc: 책장을 펄럭이며 날아다니는 마법서
+  heath_bandit:
+    name: 황야 도적
+    entity: PILLAGER
+    hp: 22
+    damage: 5
+    level: [30, 84]
+    regions: [thornwall_heath]
+    tags: [highland, frontier, plains]
+    danger: [2, 4]
+    weight: 3
+    pack: [2, 3]
+    kinds: [HUMAN]
+    drops: ['copper_ingot:0.4', 'trail_ration:0.4', 'region_map:0.05']
+    source: ORIGINAL
+    desc: 가시담 사이에 숨어 대상을 터는 도적
+  mist_pirate:
+    name: 안개 해적
+    entity: VINDICATOR
+    hp: 31
+    damage: 6
+    level: [90, 180]
+    regions: [mistveil_isles]
+    tags: [coast, sea, mist]
+    danger: [4, 5]
+    weight: 3
+    pack: [2, 4]
+    kinds: [HUMAN]
+    drops: ['pearl:0.15', 'barley_ale:0.3', 'treasure_map:0.02']
+    source: ORIGINAL
+    desc: 안개 군도를 근거지로 삼은 해적
+  cultist_acolyte:
+    name: 공허 신도
+    entity: WITCH
+    hp: 52
+    damage: 10
+    level: [299, 420]
+    tags: [ruins, underground, crater]
+    danger: [4, 6]
+    weight: 2
+    kinds: [HUMAN]
+    drops: ['mana_dust:0.5', 'ghost_essence:0.08']
+    source: ORIGINAL
+    desc: 달조각에서 공허의 목소리를 들었다는 광신도
+  nomad_raider:
+    name: 초원 약탈자
+    entity: PILLAGER
+    hp: 22
+    damage: 5
+    level: [30, 84]
+    regions: [starfall_steppe]
+    tags: [plains, highland]
+    danger: [3, 4]
+    weight: 3
+    pack: [2, 3]
+    kinds: [HUMAN]
+    drops: ['star_shard:0.01', 'hide:0.6', 'trail_ration:0.4']
+    source: ORIGINAL
+    desc: 말 위에서 활을 쏘는 약탈자
+  clockwork_sentry:
+    name: 태엽 파수병
+    entity: IRON_GOLEM
+    hp: 42
+    damage: 8
+    level: [158, 240]
+    regions: [rust_gear_ruins]
+    tags: [ruins, underground]
+    danger: [3, 5]
+    weight: 3
+    drops: ['old_gear:1.0:3', 'spring_coil:0.4', 'clockwork_core:0.02']
+    source: ORIGINAL
+    desc: 아직도 태엽이 돌며 유적을 지키는 기계 병사
+  gear_rat:
+    name: 톱니쥐
+    entity: CAVE_SPIDER
+    hp: 31
+    damage: 6
+    level: [90, 180]
+    regions: [rust_gear_ruins]
+    tags: [ruins, underground]
+    danger: [1, 4]
+    weight: 5
+    pack: [2, 5]
+    drops: ['old_gear:0.6']
+    source: ORIGINAL
+    desc: 톱니를 갉아 먹고 사는 쥐
+  star_beetle:
+    name: 별딱정벌레
+    entity: CAVE_SPIDER
+    hp: 22
+    damage: 5
+    level: [30, 84]
+    regions: [shattered_moon_crater, starfall_steppe]
+    tags: [crater, plains]
+    danger: [2, 4]
+    weight: 4
+    pack: [2, 4]
+    drops: ['star_shard:0.02', 'mana_dust:0.2']
+    source: ORIGINAL
+    desc: 별조각을 먹어 껍질이 반짝이는 딱정벌레
+  glass_golem:
+    name: 유리 골렘
+    entity: IRON_GOLEM
+    hp: 117
+    damage: 12
+    level: [299, 420]
+    regions: [glass_bloom_canyon]
+    tags: [canyon, badlands]
+    danger: [5, 6]
+    weight: 2
+    kinds: [LARGE]
+    drops: ['storm_glass:0.6', 'glass_sand:1.0:2']
+    source: ORIGINAL
+    desc: 번개 맞은 모래가 엉겨 붙은 투명한 거인
+  swamp_troll:
+    name: 늪 트롤
+    entity: RAVAGER
+    hp: 89
+    damage: 11
+    level: [158, 240]
+    regions: [hollowroot_marsh, bloodthorn_jungle]
+    tags: [swamp, frontier]
+    danger: [4, 6]
+    weight: 2
+    kinds: [LARGE]
+    drops: ['troll_blood:0.3', 'monster_bone:1.0', 'bog_moss:0.6']
+    source: ORIGINAL
+    desc: 베어도 다시 붙는 늪의 트롤

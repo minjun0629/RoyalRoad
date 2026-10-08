@@ -420,6 +420,12 @@ public final class FieldBossRuntime implements Listener {
             p.sendMessage(Ui.c("&5" + l.def.name() + ": 생명의 그릇이 남아 있는 한 나는 죽지 않는다!"));
     }
 
+    /** 해골 · 팬텀 몸의 보스는 낮에도 타지 않는다 */
+    @EventHandler(ignoreCancelled = true)
+    public void onCombust(org.bukkit.event.entity.EntityCombustEvent e) {
+        if (byBody.containsKey(e.getEntity().getUniqueId()) || e.getEntity().getScoreboardTags().contains(MINION)) e.setCancelled(true);
+    }
+
     @EventHandler
     public void onDeath(EntityDeathEvent e) {
         if (e.getEntity().getScoreboardTags().contains(MINION)) {

@@ -67,10 +67,16 @@ public final class SkillListener implements Listener {
         return states.computeIfAbsent(p.getUniqueId(), k -> new CombatState(100, 60, System.currentTimeMillis()));
     }
 
+    /** 물약 · 음료: 기력 · 마나 채우기 (메인 스레드) */
+    public void refill(Player p, double stamina, double mana) {
+        state(p).restore(stamina, mana, System.currentTimeMillis());
+        hud(p);
+    }
+
     private String weaponTag(Player p) {
         String t = codec.typeId(p.getInventory().getItemInMainHand());
         if (t == null) return null;
-        for (String tag : List.of("sword", "dagger", "bow", "staff", "spear")) if (codec.types().get(t).hasTag(tag)) return tag;
+        for (String tag : List.of("sword", "dagger", "bow", "staff", "spear", "axe", "mace", "scythe", "whip", "fan", "harp")) if (codec.types().get(t).hasTag(tag)) return tag;
         return null;
     }
 

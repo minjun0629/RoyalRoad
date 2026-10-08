@@ -29,19 +29,21 @@ public final class VersaChunkGenerator extends ChunkGenerator {
     private final RegionIndex regions;
     private final List<int[]> keepClear;
     private final java.util.Set<String> startCities;
+    private final List<int[]> crowd;
     private final Map<String, TerrainModel> models = new ConcurrentHashMap<>();
     private final Map<String, SettlementPlanner> plans = new ConcurrentHashMap<>();
     private final Map<String, BlockData> blocks = new ConcurrentHashMap<>();
 
     /** @param keepClear NPC 일과 장소 {x, z} — 건물을 짓지 않을 자리 · startCities 시작 도시 지역 (광장 깃대) */
-    public VersaChunkGenerator(RegionIndex regions, List<int[]> keepClear, java.util.Set<String> startCities) {
+    public VersaChunkGenerator(RegionIndex regions, List<int[]> keepClear, java.util.Set<String> startCities, List<int[]> crowd) {
         this.regions = regions;
         this.keepClear = List.copyOf(keepClear);
+        this.crowd = List.copyOf(crowd);
         this.startCities = java.util.Set.copyOf(startCities);
     }
 
     private SettlementPlanner plan(WorldInfo w) {
-        return plans.computeIfAbsent(w.getName(), n -> SettlementPlanner.plan(regions, n, w.getSeed(), keepClear, startCities));
+        return plans.computeIfAbsent(w.getName(), n -> SettlementPlanner.plan(regions, n, w.getSeed(), keepClear, startCities, crowd));
     }
 
     /** "STONE_BRICKS" · "oak_stairs[facing=north,half=bottom]" → 블록 상태 (한 번 읽고 기억) */
@@ -179,7 +181,7 @@ public final class VersaChunkGenerator extends ChunkGenerator {
 
     /** 진단 (/va 마을): 이 세계의 배치 */
     public SettlementPlanner planOf(String world, long seed) {
-        return plans.computeIfAbsent(world, n -> SettlementPlanner.plan(regions, n, seed, keepClear, startCities));
+        return plans.computeIfAbsent(world, n -> SettlementPlanner.plan(regions, n, seed, keepClear, startCities, crowd));
     }
 
     private void decorate(WorldInfo info, int chunkX, int chunkZ, LimitedRegion region) {

@@ -252,6 +252,34 @@ public final class NpcWorldService {
         return new Lesson(d, xp, cost);
     }
 
+    /**
+     * 처음 온 사람에게 주는 물건 (훈련 교관의 수련용 목검 …). 직업 틀마다 한 사람에 한 번 — 다른 도시의 같은 교관에게 또 받을 수 없다.
+     * @return 플랫폼이 직접 줄 바닐라 물건 ("minecraft:arrow:32") — 게임 아이템은 배달함으로 간다
+     */
+    public List<String> receiveGift(String uuid, String npcId) {
+        need(uuid, npcId, "GIFT", Relation.Stage.STRANGER);
+        Archetype a = archetypeOf(npcId);
+        boolean first = tx.inTx(() -> s.progress.discover(uuid, "npc_gift", a.id(), clock.nowMillis()));
+        DomainException.require(first, "npc.gift_taken", "이미 받았습니다");
+        List<String> vanilla = new ArrayList<>();
+        for (String g : a.gifts()) {
+            String[] p = g.split(":");
+            if (p[0].equals("minecraft")) { vanilla.add(g); continue; }
+            int q = Integer.parseInt(p[1]), n = Integer.parseInt(p[2]);
+            if (s.items.types().get(p[0]).category().unique())
+                for (int i = 0; i < n; i++) s.items.create(p[0], q, null, s.relations.npc(npcId).name(), "npc_gift", Map.of(), uuid, "gift:" + uuid + ":" + a.id() + ":" + i);
+            else s.items.deliverBulk(uuid, p[0], q, n, "npc_gift");
+        }
+        remember(uuid, npcId, "GIFT", a.job(), 1);
+        return vanilla;
+    }
+
+    /** 이 사람에게서 이미 선물을 받았나 */
+    public boolean giftTaken(String uuid, String npcId) {
+        Archetype a = archetypeOf(npcId);
+        return a == null || s.progress.discovered(uuid, "npc_gift", a.id());
+    }
+
     /** 돈을 받고 하는 일 (쉼 · 치유) — 같은 요청 key 는 한 번 */
     public long paidService(String uuid, String npcId, String service, String requestId) {
         need(uuid, npcId, service, Relation.Stage.STRANGER);

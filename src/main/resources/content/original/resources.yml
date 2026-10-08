@@ -1,0 +1,355 @@
+# 오리지널 콘텐츠 (원작 『달빛조각사』에 없는 이 게임의 것) — 같은 이름의 원작 파일 content/resources.yml 에 합쳐진다.
+# tools/gen_originals/*.py 로 생성. 같은 id 가 원작 파일에 있으면 시작할 때 오류 (원작을 덮어쓰지 않는다).
+resources:
+  coal_seam:
+    name: 석탄층
+    discipline: mining
+    min_level: 1
+    action_level: 3
+    blocks: [COAL_ORE, DEEPSLATE_COAL_ORE]
+    yield: coal_lump
+    amount: 2
+    bonus: 1
+    rich_in: [mountain, underground]
+    respawn_seconds: 60
+    tool: tool_pick
+    xp: 5
+    source: ORIGINAL
+  gold_vein:
+    name: 금 광맥
+    discipline: mining
+    min_level: 10
+    action_level: 12
+    blocks: [NETHER_GOLD_ORE]
+    yield: gold_ore
+    amount: 1
+    bonus: 1
+    rich_in: [mountain, deep, desert]
+    respawn_seconds: 300
+    tool: tool_pick
+    xp: 23
+    source: ORIGINAL
+  mithril_vein:
+    name: 미스릴 광맥
+    discipline: mining
+    min_level: 18
+    action_level: 20
+    blocks: [EMERALD_ORE, DEEPSLATE_EMERALD_ORE]
+    yield: mithril_ore
+    amount: 1
+    bonus: 1
+    rich_in: [deep, mountain]
+    respawn_seconds: 900
+    tool: tool_pick
+    xp: 39
+    source: ORIGINAL
+  lapis_vein:
+    name: 사파이어 원석층
+    discipline: mining
+    min_level: 14
+    action_level: 16
+    blocks: [LAPIS_ORE, DEEPSLATE_LAPIS_ORE]
+    yield: sapphire
+    amount: 1
+    bonus: 1
+    rich_in: [deep, mountain]
+    respawn_seconds: 600
+    tool: tool_pick
+    xp: 31
+    source: ORIGINAL
+  ruby_vein:
+    name: 루비 원석층
+    discipline: mining
+    min_level: 14
+    action_level: 16
+    blocks: [REDSTONE_ORE, DEEPSLATE_REDSTONE_ORE]
+    yield: ruby
+    amount: 1
+    bonus: 1
+    rich_in: [deep, volcano]
+    respawn_seconds: 600
+    tool: tool_pick
+    xp: 31
+    source: ORIGINAL
+  sulfur_vent:
+    name: 유황 분출구
+    discipline: mining
+    min_level: 8
+    action_level: 10
+    blocks: [MAGMA_BLOCK]
+    yield: sulfur
+    amount: 1
+    bonus: 1
+    rich_in: [volcano, badlands]
+    respawn_seconds: 300
+    tool: tool_pick
+    xp: 19
+    source: ORIGINAL
+  obsidian_rock:
+    name: 흑요석 바위
+    discipline: mining
+    min_level: 16
+    action_level: 18
+    blocks: [OBSIDIAN]
+    yield: obsidian_shard
+    amount: 1
+    bonus: 1
+    rich_in: [volcano, canyon]
+    respawn_seconds: 900
+    tool: tool_pick
+    xp: 35
+    source: ORIGINAL
+  ember_rock:
+    name: 불씨 바위
+    discipline: mining
+    min_level: 12
+    action_level: 14
+    blocks: [NETHERRACK]
+    yield: ember_stone
+    amount: 1
+    bonus: 1
+    rich_in: [volcano, valley]
+    respawn_seconds: 600
+    tool: tool_pick
+    xp: 27
+    source: ORIGINAL
+  birch_tree:
+    name: 자작나무
+    discipline: logging
+    min_level: 3
+    action_level: 5
+    blocks: [BIRCH_LOG]
+    yield: birch_timber
+    amount: 1
+    bonus: 2
+    rich_in: [forest, mist]
+    respawn_seconds: 120
+    tool: tool_axe
+    xp: 9
+    source: ORIGINAL
+  jungle_tree:
+    name: 밀림 거목
+    discipline: logging
+    min_level: 10
+    action_level: 12
+    blocks: [JUNGLE_LOG]
+    yield: jungle_timber
+    amount: 1
+    bonus: 2
+    rich_in: [swamp, frontier]
+    respawn_seconds: 240
+    tool: tool_axe
+    xp: 23
+    source: ORIGINAL
+  dark_oak_tree:
+    name: 검은참나무
+    discipline: logging
+    min_level: 8
+    action_level: 10
+    blocks: [DARK_OAK_LOG]
+    yield: dark_timber
+    amount: 1
+    bonus: 2
+    rich_in: [forest, mist]
+    respawn_seconds: 240
+    tool: tool_axe
+    xp: 19
+    source: ORIGINAL
+  mangrove_tree:
+    name: 속빈뿌리 나무
+    discipline: logging
+    min_level: 6
+    action_level: 8
+    blocks: [MANGROVE_LOG]
+    yield: hollow_wood
+    amount: 1
+    bonus: 2
+    rich_in: [swamp]
+    respawn_seconds: 180
+    tool: tool_axe
+    xp: 15
+    source: ORIGINAL
+  carrot_field:
+    name: 당근밭
+    discipline: herbalism
+    min_level: 1
+    action_level: 3
+    blocks: [CARROTS]
+    yield: carrot
+    amount: 1
+    bonus: 2
+    rich_in: [farmland, plains]
+    respawn_seconds: 60
+    xp: 5
+    source: ORIGINAL
+  potato_field:
+    name: 감자밭
+    discipline: herbalism
+    min_level: 1
+    action_level: 3
+    blocks: [POTATOES]
+    yield: potato
+    amount: 1
+    bonus: 2
+    rich_in: [farmland, plains]
+    respawn_seconds: 60
+    xp: 5
+    source: ORIGINAL
+  beet_field:
+    name: 비트밭
+    discipline: herbalism
+    min_level: 2
+    action_level: 4
+    blocks: [BEETROOTS]
+    yield: beet
+    amount: 1
+    bonus: 2
+    rich_in: [farmland]
+    respawn_seconds: 60
+    xp: 7
+    source: ORIGINAL
+  berry_bush:
+    name: 열매 덤불
+    discipline: herbalism
+    min_level: 2
+    action_level: 4
+    blocks: [SWEET_BERRY_BUSH]
+    yield: thorn_berry
+    amount: 1
+    bonus: 2
+    rich_in: [forest, highland, frontier]
+    respawn_seconds: 90
+    xp: 7
+    source: ORIGINAL
+  mushroom_patch:
+    name: 버섯 군락
+    discipline: herbalism
+    min_level: 3
+    action_level: 5
+    blocks: [BROWN_MUSHROOM]
+    yield: mushroom
+    amount: 1
+    bonus: 2
+    rich_in: [forest, swamp, underground]
+    respawn_seconds: 90
+    xp: 9
+    source: ORIGINAL
+  glowcap_patch:
+    name: 빛버섯 군락
+    discipline: herbalism
+    min_level: 12
+    action_level: 14
+    blocks: [RED_MUSHROOM]
+    yield: glowcap
+    amount: 1
+    bonus: 1
+    rich_in: [underground, deep, swamp]
+    respawn_seconds: 300
+    xp: 27
+    source: ORIGINAL
+  moss_bed:
+    name: 이끼 바닥
+    discipline: herbalism
+    min_level: 4
+    action_level: 6
+    blocks: [MOSS_BLOCK, MOSS_CARPET]
+    yield: bog_moss
+    amount: 1
+    bonus: 2
+    rich_in: [swamp]
+    respawn_seconds: 120
+    xp: 11
+    source: ORIGINAL
+  vine_tangle:
+    name: 가시덩굴
+    discipline: herbalism
+    min_level: 10
+    action_level: 12
+    blocks: [VINE]
+    yield: bloodthorn_vine
+    amount: 1
+    bonus: 1
+    rich_in: [swamp, frontier]
+    respawn_seconds: 240
+    xp: 23
+    source: ORIGINAL
+  cobweb_nest:
+    name: 거미줄
+    discipline: herbalism
+    min_level: 6
+    action_level: 8
+    blocks: [COBWEB]
+    yield: spider_silk
+    amount: 1
+    bonus: 1
+    rich_in: [forest, ruins, underground]
+    respawn_seconds: 240
+    xp: 15
+    source: ORIGINAL
+  cane_patch:
+    name: 사탕수수밭
+    discipline: herbalism
+    min_level: 2
+    action_level: 4
+    blocks: [SUGAR_CANE]
+    yield: sugar_cane
+    amount: 1
+    bonus: 2
+    rich_in: [river, lake, coast]
+    respawn_seconds: 90
+    xp: 7
+    source: ORIGINAL
+  bee_nest:
+    name: 야생 벌집
+    discipline: herbalism
+    min_level: 8
+    action_level: 10
+    blocks: [BEE_NEST, BEEHIVE]
+    yield: honey_comb
+    amount: 1
+    bonus: 1
+    rich_in: [forest, farmland, valley]
+    respawn_seconds: 300
+    xp: 19
+    source: ORIGINAL
+  cocoa_pod:
+    name: 카카오 열매
+    discipline: herbalism
+    min_level: 9
+    action_level: 11
+    blocks: [COCOA]
+    yield: cocoa
+    amount: 1
+    bonus: 1
+    rich_in: [swamp, frontier]
+    respawn_seconds: 300
+    xp: 21
+    source: ORIGINAL
+  lake_fish:
+    name: 호수 낚시
+    discipline: fishing
+    min_level: 4
+    action_level: 6
+    blocks: [WATER]
+    yield: trout
+    amount: 1
+    bonus: 1
+    rich_in: [lake, river]
+    respawn_seconds: 0
+    tool: tool_rod
+    xp: 11
+    source: ORIGINAL
+  reef_fish:
+    name: 산호초 낚시
+    discipline: fishing
+    min_level: 12
+    action_level: 14
+    blocks: [WATER]
+    yield: pufferfish
+    amount: 1
+    bonus: 1
+    rich_in: [coast, sea]
+    respawn_seconds: 0
+    tool: tool_rod
+    xp: 27
+    source: ORIGINAL

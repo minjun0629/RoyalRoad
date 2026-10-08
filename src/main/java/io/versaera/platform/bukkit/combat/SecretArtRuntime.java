@@ -93,6 +93,14 @@ public final class SecretArtRuntime implements Listener {
         }, p);
     }
 
+    private final Map<UUID, String> lastPet = new java.util.concurrent.ConcurrentHashMap<>();
+    private io.versaera.platform.bukkit.world.PetRuntime pets;
+
+    /** 조각 생명술로 깨어난 동료를 바로 부르기 위해 */
+    public void pets(io.versaera.platform.bukkit.world.PetRuntime r) {
+        this.pets = r;
+    }
+
     public void cast(Player p, String artId) {
         String key = p.getUniqueId() + ":" + artId;
         long now = System.currentTimeMillis();
@@ -105,27 +113,29 @@ public final class SecretArtRuntime implements Listener {
         async.run("art-cast", () -> {
             int lv = s.arts.castLevel(id, artId);
             int quality = 0;
-            if ("COMPANION".equals(s.arts.art(artId).effect())) {   // 조각품을 바친다
+            String newPet = null;
+            if ("COMPANION".equals(s.arts.art(artId).effect())) {   // 조각품을 바쳐 계속 함께하는 조각 생명체로
                 var it = hand == null ? null : s.items.find(hand).filter(x -> x.custody().ownedBy(id) && s.items.types().get(x.typeId()).hasTag("sculpture")
                         && !s.items.types().get(x.typeId()).hasTag("relic")).orElse(null);
                 if (it == null) throw io.versaera.domain.common.DomainException.of("art.need_sculpture", "생명을 불어넣을 조각품을 손에 들어야 한다");
                 quality = it.quality();
+                String species = it.typeId().equals("statuette") ? "living_statue" : "living_beast";
+                newPet = s.pets.awaken(id, species, s.items.types().get(it.typeId()).name(), quality).id();
                 s.items.destroy(hand, id, "조각 생명술", "art-life:" + hand);
             }
+            lastPet.put(p.getUniqueId(), newPet == null ? "" : newPet);
             return new int[]{lv, quality, s.growth.statPoints(id, "artistry")};
         }, r -> {
             if (!p.isOnline()) return;
             SecretArt a = s.arts.art(artId);
             cooldown.put(key, System.currentTimeMillis() + a.cooldownMs());
             switch (a.effect()) {
-                case "COMPANION" -> {
+                case "COMPANION" -> {   // 조각품이 깨어나 펫이 된다 (/펫 으로 부르고 · 이름 짓고 · 함께 자란다)
                     p.getInventory().setItemInMainHand(null);
-                    IronGolem g = p.getWorld().spawn(p.getLocation().add(p.getLocation().getDirection().setY(0).normalize().multiply(2)), IronGolem.class);
-                    g.setPlayerCreated(true);
-                    g.setPersistent(false);
-                    g.setCustomName(p.getName() + "의 조각 생명체");
-                    g.setCustomNameVisible(true);
-                    expire(g, (3 + r[1] / 100) * 60);
+                    String petId = lastPet.remove(p.getUniqueId());
+                    p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 80, 0.8, 1.2, 0.8, 0.05);
+                    p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.BLOCK_BEACON_ACTIVATE, 1f, 1.4f);
+                    if (pets != null && petId != null && !petId.isEmpty()) pets.summon(p, petId);
                 }
                 case "TRANSFORM" -> {
                     int t = 5 * 60 * 20;
@@ -246,11 +256,129 @@ public final class SecretArtRuntime implements Listener {
                         }, null);
                     }
                 }
+                case "BUFF" -> buff(p, id, a);
+                case "STRIKE" -> strike(p, a, r[0], r[2]);
                 default -> { }
             }
             p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 30, 0.6, 0.8, 0.6, 0.02);
             p.sendMessage(Ui.info(a.name()));
         }, p);
+    }
+
+    /** 범용 버프 비기: potions "효과:세기:초" 를 나 · 파티(16 블록) · 근처 모두(16 블록)에게 */
+    private void buff(Player p, String id, SecretArt a) {
+        List<Player> who = new ArrayList<>();
+        String target = a.params().getOrDefault("target", "self");
+        if (target.equals("near")) {
+            for (Player o : p.getWorld().getPlayers()) if (o.getLocation().distanceSquared(p.getLocation()) <= 16 * 16) who.add(o);
+        } else if (target.equals("party")) {
+            for (String m : s.parties.members(id)) {
+                Player o = Bukkit.getPlayer(UUID.fromString(m));
+                if (o != null && o.getWorld() == p.getWorld() && o.getLocation().distanceSquared(p.getLocation()) <= 16 * 16) who.add(o);
+            }
+        }
+        if (!who.contains(p)) who.add(p);
+        for (String spec : a.params().get("potions").split(",")) {
+            String[] x = spec.trim().split(":");
+            PotionEffectType type = PotionEffectType.getByName(x[0]);
+            if (type == null) continue;
+            for (Player o : who) o.addPotionEffect(new PotionEffect(type, Integer.parseInt(x[2]) * 20, Integer.parseInt(x[1])));
+        }
+        for (Player o : who) if (o != p) o.sendMessage(Ui.info(p.getName() + " — " + a.name()));
+        for (Player o : who) fx(o.getLocation(), a, 1.2);
+        sound(p.getLocation(), a, org.bukkit.Sound.BLOCK_AMETHYST_BLOCK_CHIME);
+    }
+
+    /**
+     * 범용 공격 비기: shape cone(앞쪽 부채꼴) · line(앞으로 곧게) · circle(둘레), range, damage(+ level_bonus × 숙련, + art_bonus × 예술),
+     * hits(몇 번) · interval(틱), slow(맞은 적 느리게 초)
+     */
+    private void strike(Player p, SecretArt a, int level, int artistry) {
+        String shape = a.params().get("shape");
+        double range = a.param("range", 6), dmg = a.param("damage", 10) + a.param("level_bonus", 0) * level + a.param("art_bonus", 0) * artistry;
+        int hits = (int) a.param("hits", 1), every = (int) a.param("interval", 6), slow = (int) a.param("slow", 0);
+        for (int i = 0; i < hits; i++)
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (!p.isOnline()) return;
+                org.bukkit.util.Vector dir = p.getLocation().getDirection().setY(0).normalize();
+                for (Entity e : p.getNearbyEntities(range, 4, range)) {
+                    if (!(e instanceof LivingEntity le) || e instanceof Player || e instanceof ArmorStand) continue;
+                    org.bukkit.util.Vector to = e.getLocation().toVector().subtract(p.getLocation().toVector()).setY(0);
+                    double d = to.length();
+                    if (d > range || d < 1e-3) continue;
+                    boolean in = switch (shape) {
+                        case "cone" -> to.clone().normalize().dot(dir) >= 0.5;
+                        case "line" -> to.dot(dir) > 0 && to.clone().subtract(dir.clone().multiply(to.dot(dir))).length() <= 1.4;
+                        default -> true;
+                    };
+                    if (!in) continue;
+                    CombatListener.rawDamage(le, dmg, p);
+                    if (slow > 0) le.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, slow * 20, 1));
+                }
+                Location c = p.getLocation().add(0, 1, 0);
+                switch (shape) {
+                    case "line" -> { for (double d = 1; d <= range; d += 0.7) p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, c.clone().add(dir.clone().multiply(d)), 1); }
+                    case "cone" -> { for (int k = -4; k <= 4; k++) { double ang = Math.atan2(dir.getZ(), dir.getX()) + k * 0.13;
+                        p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, c.clone().add(Math.cos(ang) * range * 0.6, 0, Math.sin(ang) * range * 0.6), 1); } }
+                    default -> p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, c, 14, range / 2, 0.4, range / 2, 0);
+                }
+                if (slow > 0) p.getWorld().spawnParticle(Particle.SNOWFLAKE, c, 30, range / 2, 0.5, range / 2, 0.02);
+                if ("trail".equals(a.params().get("pattern")) || "line".equals(shape)) {   // 직선: 날아가는 기운
+                    Particle pt = particle(a);
+                    for (double d = 1; d <= range; d += 0.5) p.getWorld().spawnParticle(pt, c.clone().add(dir.clone().multiply(d)), 2, 0.1, 0.1, 0.1, 0.01);
+                } else fx(p.getLocation(), a, "circle".equals(shape) ? range : range * 0.6);
+                sound(c, a, org.bukkit.Sound.ENTITY_PLAYER_ATTACK_SWEEP);
+            }, (long) i * every);
+    }
+
+    // ------------------------------------------------------------------ 비기마다 다른 모습 (params: fx 입자 · pattern 모양 · sound 소리)
+    private static Particle particle(SecretArt a) {
+        try {
+            return Particle.valueOf(a.params().getOrDefault("fx", "END_ROD"));
+        } catch (IllegalArgumentException e) {
+            return Particle.END_ROD;
+        }
+    }
+
+    private static void sound(Location at, SecretArt a, org.bukkit.Sound fallback) {
+        org.bukkit.Sound snd = fallback;
+        try {
+            if (a.params().containsKey("sound")) snd = org.bukkit.Sound.valueOf(a.params().get("sound"));
+        } catch (IllegalArgumentException ignored) {
+        }
+        at.getWorld().playSound(at, snd, 1f, 1f);
+    }
+
+    /** ring 고리 · spiral 감아 오르는 나선 · pillar 솟는 기둥 · burst 터짐 · rain 위에서 쏟아짐 · trail(직선 비기는 strike 가 그림) */
+    private void fx(Location base, SecretArt a, double radius) {
+        Particle pt = particle(a);
+        org.bukkit.World w = base.getWorld();
+        String pattern = a.params().getOrDefault("pattern", "burst");
+        double r = Math.max(1, radius);
+        switch (pattern) {
+            case "ring" -> {
+                for (int i = 0; i < 36; i++) {
+                    double ang = Math.PI * 2 * i / 36;
+                    w.spawnParticle(pt, base.clone().add(Math.cos(ang) * r, 0.2, Math.sin(ang) * r), 1, 0, 0.05, 0, 0);
+                }
+            }
+            case "spiral" -> {
+                for (int i = 0; i < 48; i++) {
+                    double ang = i * 0.4, h = i * 0.05;
+                    w.spawnParticle(pt, base.clone().add(Math.cos(ang) * r * 0.8, h, Math.sin(ang) * r * 0.8), 1, 0, 0, 0, 0);
+                }
+            }
+            case "pillar" -> {
+                for (double h = 0; h < 3.5; h += 0.15) w.spawnParticle(pt, base.clone().add(0, h, 0), 2, 0.25, 0, 0.25, 0);
+            }
+            case "rain" -> {
+                for (int k = 0; k < 6; k++) {
+                    int tick = k;
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> w.spawnParticle(pt, base.clone().add(0, 4, 0), 25, r, 0.3, r, 0.2), tick * 4L);
+                }
+            }
+            default -> w.spawnParticle(pt, base.clone().add(0, 1, 0), 40, r * 0.4, 0.6, r * 0.4, 0.08);
+        }
     }
 
     private void time(Player p, int tier) {

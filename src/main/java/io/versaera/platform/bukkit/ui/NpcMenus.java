@@ -73,7 +73,8 @@ public final class NpcMenus {
             s.worldEvents.forecastBy(npcId).forEach((d, t) -> fc.put(d.name(), t));
             var stage = s.npcWorld.stage(id, npcId);
             var arch = s.npcWorld.archetypeOf(npcId);
-            Set<String> services = arch == null ? Set.of() : Set.copyOf(arch.services());
+            Set<String> services = new HashSet<>(arch == null ? Set.of() : arch.services());
+            if (services.contains("GIFT") && s.npcWorld.giftTaken(id, npcId)) services.remove("GIFT");   // 이미 받았으면 단추를 숨긴다
             List<String> info = new ArrayList<>();
             List<String> people = new ArrayList<>();
             s.npcWorld.profile(npcId).ifPresent(pr -> {
@@ -128,6 +129,7 @@ public final class NpcMenus {
                 h.stage().discount() > 0 ? List.of("&e할인 " + Math.round(h.stage().discount() * 100) + "%") : List.of()), e -> shop(p, npc));
         if (sv.contains("REPAIR")) m.set(23, Menu.ui("repair", Material.ANVIL, "&f수리", List.of("&7손에 든 장비")), e -> repair(p, npc));
         m.set(24, Menu.ui("gift", Material.POPPY, "&d선물", List.of("&7손에 든 재료 1개")), e -> gift(p, npc));
+        if (sv.contains("GIFT")) m.set(2, Menu.ui("gift", Material.CHEST, "&a받기", List.of("&7처음 온 사람에게 주는 것")), e -> receive(p, npc));
         if (sv.contains("SONG")) m.set(25, Menu.ui("song", Material.NOTE_BLOCK, "&d노래", List.of("&7하루 한 번")), e -> song(p, npc));
         if (adventure != null) {
             if (sv.contains("STABLE")) m.set(0, Menu.ui("mount", Material.SADDLE, "&6마구간", List.of("&7탈것 사기")), e -> adventure.stable(p, npc));
@@ -150,6 +152,21 @@ public final class NpcMenus {
         async.run("npc-rumor", () -> s.npcWorld.rumor(id, npcId), r -> {
             p.closeInventory();
             p.sendMessage(Ui.c("&b소문 &7" + r.regionName() + " &8— &7" + r.direction() + " 쪽 " + r.distance() + " 블록"));
+        }, p);
+    }
+
+    private void receive(Player p, String npcId) {
+        String id = p.getUniqueId().toString();
+        async.run("npc-gift", () -> s.npcWorld.receiveGift(id, npcId), vanilla -> {
+            p.closeInventory();
+            for (String g : vanilla) {   // "minecraft:arrow:32"
+                String[] x = g.split(":");
+                Material m = Material.matchMaterial(x[1]);
+                if (m != null) for (var left : p.getInventory().addItem(new org.bukkit.inventory.ItemStack(m, Integer.parseInt(x[2]))).values())
+                    p.getWorld().dropItemNaturally(p.getLocation(), left);
+            }
+            deliver.accept(p);
+            p.playSound(p.getLocation(), org.bukkit.Sound.ENTITY_ITEM_PICKUP, 1f, 1f);
         }, p);
     }
 

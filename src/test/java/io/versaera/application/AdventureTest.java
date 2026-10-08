@@ -343,11 +343,29 @@ class AdventureTest {
             assertThrows(DomainException.class, () -> w.s.artworks.rename(a, art.id(), "&c색"));
             assertEquals("달빛 아래의 기사", w.s.artworks.rename(a, art.id(), "  달빛 아래의 기사 ").title());
             assertEquals("달빛 아래의 기사", w.s.artworks.all().stream().filter(x -> x.id().equals(art.id())).findFirst().orElseThrow().title());
+            // 달빛 조각품: 표시가 남고, 모양 · 허물기 환급에는 끼지 않는다
+            assertFalse(ArtworkService.moonlit(art));
+            var moonArt = w.s.artworks.markMoonlit(a, art.id());
+            assertTrue(ArtworkService.moonlit(moonArt));
+            assertEquals(Map.of("pedestal", "sandstone", "body", "marble", "accent", "silver"), ArtworkService.looks(moonArt));
+            assertEquals(1, w.s.artworks.mine(a).size());
+            assertTrue(w.s.artworks.mine(v).isEmpty());
             // 허물기: 만든 사람만, 재료 절반
             assertThrows(DomainException.class, () -> w.s.artworks.remove(v, art.id(), false));
             int before = w.s.items.pendingBulk(a).size();
             w.s.artworks.remove(a, art.id(), false);
             assertEquals(before + 3, w.s.items.pendingBulk(a).size(), "재료 세 가지의 절반");
+            // 깨우기: 조각 생명술을 익혀야 하고, 깨어나면 이름 · 품질을 이은 동료가 되고 작품은 사라진다
+            var second = w.s.artworks.create(a, "statue", picks, "world", 300, 70, 300, 0, "깨어날 기사", null, 0.5);
+            assertThrows(DomainException.class, () -> w.s.artworks.awaken(a, second.id()), "조각 생명술 없이는");
+            w.s.tx.inTx(() -> { w.s.progress.discover(a, "art", "sculpt_life", 0); return null; });
+            int petsBefore = w.s.pets.pets(a).size();
+            var pet = w.s.artworks.awaken(a, second.id());
+            assertEquals("living_statue", pet.species());
+            assertEquals("깨어날 기사", pet.name());
+            assertTrue(pet.level() >= 8, "품질만큼 높은 레벨로 깨어난다: " + pet.level());
+            assertEquals(petsBefore + 1, w.s.pets.pets(a).size());
+            assertTrue(w.s.artworks.mine(a).isEmpty(), "작품은 사라진다");
             assertTrue(w.s.artworks.all().isEmpty());
         }
     }

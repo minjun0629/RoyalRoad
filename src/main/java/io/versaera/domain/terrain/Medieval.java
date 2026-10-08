@@ -208,7 +208,43 @@ public final class Medieval {
         // 살림: 1층 귀퉁이 통 · 작업대
         b.set(x2 - 1, 1, z2 - 1, "barrel[facing=up]");
         b.set(x2 - 1, 1, z2 - 2, "crafting_table");
+        furnish(b, p, x1, x2, z1, z2, door, F, rng);
         return b;
+    }
+
+    /** 빈 칸(공기)에만 놓는다 — 벽 · 계단 · 굴뚝을 덮지 않는다 */
+    private static void put(Blueprint b, int x, int y, int z, String block) {
+        if ("air".equals(b.get(x, y, z))) b.set(x, y, z, block);
+    }
+
+    /**
+     * 집 안 꾸미기: 1층 = 작업대 앞 의자 · 뒷벽 책장 · 화분 · 가운데 깔개, 위층 = 침대 · 머리맡 통 · 깔개 · 옷장.
+     * 문 앞 한 칸과 굴뚝 자리는 비워 둔다
+     */
+    private static void furnish(Blueprint b, Palette p, int x1, int x2, int z1, int z2, int door, int floors, SplittableRandom rng) {
+        if (x2 - x1 < 3 || z2 - z1 < 3) return;
+        String[] carpets = {"red_carpet", "brown_carpet", "green_carpet", "blue_carpet", "light_gray_carpet"};
+        String carpet = carpets[rng.nextInt(carpets.length)];
+        // 1층
+        put(b, x2 - 2, 1, z2 - 2, p.woodStairs() + "[facing=east,half=bottom,shape=straight]");   // 작업대를 보는 의자
+        for (int x = x1 + 2; x <= x2 - 2; x++) if (x != door) put(b, x, 1, z2 - 1, rng.nextInt(3) == 0 ? "chiseled_bookshelf[facing=north]" : "bookshelf");
+        put(b, x1 + 1, 1, z1 + 1, "potted_" + new String[]{"poppy", "dandelion", "fern", "azure_bluet"}[rng.nextInt(4)]);
+        for (int x = Math.max(x1 + 1, door - 1); x <= Math.min(x2 - 1, door + 1); x++)
+            for (int z = z1 + 2; z <= Math.min(z2 - 2, z1 + 3); z++) put(b, x, 1, z, carpet);
+        // 위층마다 침대 하나
+        String[] beds = {"red", "white", "blue", "green", "brown"};
+        for (int k = 1; k < floors; k++) {
+            int y = 4 * k + 1;
+            String bed = beds[rng.nextInt(beds.length)] + "_bed";
+            if ("air".equals(b.get(x2 - 1, y, z2 - 2)) && "air".equals(b.get(x2 - 1, y, z2 - 1))) {
+                b.set(x2 - 1, y, z2 - 2, bed + "[facing=south,part=foot,occupied=false]");
+                b.set(x2 - 1, y, z2 - 1, bed + "[facing=south,part=head,occupied=false]");
+                put(b, x2 - 2, y, z2 - 1, "barrel[facing=up]");
+                put(b, x2 - 2, y + 1, z2 - 1, "candle[candles=1,lit=false]");
+            }
+            put(b, x1 + 2, y, z1 + 1, "barrel[facing=south]");   // 옷장
+            for (int x = x1 + 2; x <= x2 - 2; x++) for (int z = z1 + 2; z <= z2 - 3; z++) if (rng.nextInt(3) > 0) put(b, x, y, z, carpet);
+        }
     }
 
     /** 사막: 두꺼운 사암 벽 · 평지붕 + 낮은 난간 · 문 위 천 차양 */
@@ -535,8 +571,59 @@ public final class Medieval {
         b.set(1, 1, 7, "barrel[facing=up]");
         b.set(1, 1, 8, "anvil[facing=north]");
         b.set(1, 1, 9, "barrel[facing=up]");
+        b.set(1, 1, 10, "fletching_table");   // 목공: 활 · 화살대
         flagpole(b, 0, 0, 0, 8, "red");
         flagpole(b, W - 1, 0, 0, 8, "red");
+        return b;
+    }
+
+    /**
+     * 목공소 마당 (목수의 일터): 울타리 친 마당 + 북쪽 반은 나무 지붕 처마. 화살 작업대(목공 제작대) 둘 · 제작대 · 통나무 더미 ·
+     * 톱질 모탕 · 대패질 부스러기(퇴비통). 문은 남쪽(광장 쪽).
+     */
+    public static Blueprint carpentryYard(Palette p, SplittableRandom rng) {
+        int W = 11, D = 9;
+        Blueprint b = new Blueprint(W, 8, D);
+        String wood = p.frameWood(), fence = wood + "_fence", planks = wood + "_planks", log = "stripped_" + wood + "_log";
+        for (int x = 0; x < W; x++)
+            for (int z = 0; z < D; z++) {
+                boolean edge = x == 0 || x == W - 1 || z == 0 || z == D - 1;
+                b.set(x, 0, z, edge ? p.foundation() : z <= 3 ? planks : rng.nextInt(3) == 0 ? "coarse_dirt" : "dirt_path");
+                if (edge && z > 3) b.set(x, 1, z, fence + (x == 0 || x == W - 1 ? "[north=true,south=" + (z < D - 1) + "]" : "[east=" + (x > 0) + ",west=" + (x < W - 1) + "]"));
+            }
+        // 북쪽 처마: 뒷벽(판자) + 기둥 넷 + 평지붕(반 블록)
+        for (int x = 0; x < W; x++) {
+            for (int y = 1; y <= 3; y++) b.set(x, y, 0, x == 0 || x == W - 1 ? log + "[axis=y]" : planks);
+            for (int z = 0; z <= 4; z++) b.set(x, 4, z, wood + "_slab[type=bottom]");
+        }
+        for (int x : new int[]{0, W - 1}) for (int z = 1; z <= 3; z++) for (int y = 1; y <= 3; y++) b.set(x, y, z, z == 3 ? log + "[axis=y]" : planks);
+        for (int x : new int[]{3, 7}) for (int y = 1; y <= 3; y++) b.set(x, y, 4, fence);
+        // 작업대: 화살 작업대(목공) 둘 · 제작대 · 숫돌, 처마 밑 뒷벽을 따라
+        b.set(2, 1, 1, "fletching_table");
+        b.set(3, 1, 1, "crafting_table");
+        b.set(4, 1, 1, "fletching_table");
+        b.set(6, 1, 1, "grindstone[face=floor,facing=south]");
+        b.set(7, 1, 1, "barrel[facing=up]");
+        b.set(8, 1, 1, "composter");                                   // 대팻밥 통
+        b.set(2, 2, 0, "lantern[hanging=false]");
+        b.set(8, 2, 0, "lantern[hanging=false]");
+        // 통나무 더미 (동쪽 마당, 눕힌 통나무 2 단)
+        for (int z = 5; z <= 7; z++) {
+            b.set(W - 2, 1, z, log.replace("stripped_", "") + "[axis=z]");
+            b.set(W - 3, 1, z, log.replace("stripped_", "") + "[axis=z]");
+            b.set(W - 2, 2, z, log.replace("stripped_", "") + "[axis=z]");
+        }
+        // 톱질 모탕: 울타리 다리 둘 + 반 블록 판 (서쪽 마당), 옆에 장작 패는 그루터기
+        b.set(2, 1, 6, fence);
+        b.set(4, 1, 6, fence);
+        b.set(3, 1, 6, wood + "_slab[type=top]");
+        b.set(2, 2, 6, wood + "_slab[type=bottom]");
+        b.set(4, 2, 6, wood + "_slab[type=bottom]");
+        b.set(1, 1, 7, log + "[axis=y]");
+        // 남쪽 문
+        int gate = W / 2;
+        b.set(gate, 1, D - 1, wood + "_fence_gate[facing=south,open=true,in_wall=false]");
+        for (int dx : new int[]{-1, 1}) b.set(gate + dx, 2, D - 1, "lantern[hanging=false]");
         return b;
     }
 

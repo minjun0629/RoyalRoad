@@ -43,6 +43,10 @@ public final class SettlementPlanner {
             return x >= minX && x <= maxX && z >= minZ && z <= maxZ;
         }
 
+        int bbArea() {
+            return (maxX - minX + 1) * (maxZ - minZ + 1);
+        }
+
         public boolean overlaps(Structure o, int gap) {
             return minX - gap <= o.maxX && maxX + gap >= o.minX && minZ - gap <= o.maxZ && maxZ + gap >= o.minZ;
         }
@@ -95,8 +99,15 @@ public final class SettlementPlanner {
         return plan(regions, world, seed, keepClear, Set.of());
     }
 
-    /** @param startCities 시작 도시 지역 — 광장에 높은 깃대를 더 세워 멀리서도 보이게 */
     public static SettlementPlanner plan(RegionIndex regions, String world, long seed, List<int[]> keepClear, Set<String> startCities) {
+        return plan(regions, world, seed, keepClear, startCities, List.of());
+    }
+
+    /**
+     * @param startCities 시작 도시 지역 — 광장에 높은 깃대를 더 세워 멀리서도 보이게
+     * @param crowd       생성 주민이 서는 자리 — 가로등 · 노점 · 깃대 같은 작은 장식만 비켜 선다 (건물은 신경 쓰지 않는다)
+     */
+    public static SettlementPlanner plan(RegionIndex regions, String world, long seed, List<int[]> keepClear, Set<String> startCities, List<int[]> crowd) {
         List<Structure> out = new ArrayList<>();
         for (Region r : regions.all()) {
             if (!r.world().equals(world)) continue;
@@ -108,7 +119,7 @@ public final class SettlementPlanner {
             Palette pal = Palette.of(r, regions);
             int cx = (r.minX() + r.maxX()) / 2, cz = (r.minZ() + r.maxZ()) / 2;
             Structure lm = landmark(r, st, cx, cz, town);
-            if (town) town(out, r, pal, cx, cz, rng, keepClear, lm, startCities.contains(r.id()));
+            if (town) town(out, r, pal, cx, cz, rng, keepClear, lm, startCities.contains(r.id()), crowd);
             if (lm != null) out.add(lm);   // 마지막에 그려서 길 · 광장 위에 선다
             if (t.contains("wall")) out.add(new LongWall(r, st));   // 페드라 성벽 · 알 수 없는 장벽 · 추방의 장벽
         }
@@ -146,7 +157,12 @@ public final class SettlementPlanner {
      * 중세 도시: 분수 · 노점 · 가로등이 있는 광장, 돌을 섞어 깐 길, 길을 따라 늘어선 목조 골조 집(문은 길 쪽),
      * 광장 둘레에 성당 · 여관 · 대장간, 바깥에 탑과 성문이 있는 성벽 (설계도 = Medieval)
      */
-    private static void town(List<Structure> out, Region r, Palette p, int cx, int cz, SplittableRandom rng, List<int[]> keepClear, Structure landmark, boolean start) {
+    private static void town(List<Structure> out, Region r, Palette p, int cx, int cz, SplittableRandom rng, List<int[]> keepClear, Structure landmark, boolean start,
+                             List<int[]> crowd) {
+        // 이 도시 둘레의 주민 자리만 (장식이 비켜 설 자리)
+        int crowdReach = townGrid(r)[2] + 16;
+        List<int[]> near = new ArrayList<>();
+        for (int[] k : crowd) if (Math.abs(k[0] - cx) <= crowdReach && Math.abs(k[1] - cz) <= crowdReach) near.add(k);
         int radius = townGrid(r)[2], n = radius / 32;
         List<Structure> roads = new ArrayList<>();
         Structure plaza = new Plaza(r.id(), cx, cz, 10, p);
@@ -168,6 +184,7 @@ public final class SettlementPlanner {
             for (Structure o : placed) if (b.overlaps(o, 0)) return false;
             int gap = 1;   // NPC 자리는 길 위라 건물이 덮지만 않으면 된다
             for (int[] k : keepClear) if (k[0] >= b.minX - gap && k[0] <= b.maxX + gap && k[1] >= b.minZ - gap && k[1] <= b.maxZ + gap) return false;
+            if (b.kind == Kind.DECOR && b.bbArea() <= 25) for (int[] k : near) if (b.covers(k[0], k[1])) return false;
             return true;
         };
         // 광장: 가운데 분수, 네 귀퉁이에 노점 (가운데를 본다), 분수 둘레 가로등
@@ -189,6 +206,10 @@ public final class SettlementPlanner {
         // 광장 북서쪽 칸: 훈련장 (문이 광장 쪽)
         Blueprint yard = Medieval.trainingYard(p, rng);
         tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 4 - yard.w, cz - 15 - yard.d + 1, yard, p));
+        // 광장 남동쪽 칸 안쪽 (대장간 남쪽 · 시장 회관 동쪽): 목공소 마당 (목수의 일터, 화살 작업대 = 목공 제작대, 문이 남쪽 길 쪽).
+        // 북동쪽 칸은 랜드마크 자리라 비운다
+        Blueprint carpentry = Medieval.carpentryYard(p, rng);
+        tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx + 20, cz + 29 - carpentry.d + 1, carpentry, p));
         // 광장 남쪽: 길드 회관 (시계탑 · 파란 깃발) · 시장 회관 (경매장, 노란 깃발)
         Blueprint guild = Medieval.guildHall(p, rng);
         tryPlace(placed, free, new Built(Kind.BUILDING, r.id(), cx - 3 - guild.w, cz + 14, guild, p));

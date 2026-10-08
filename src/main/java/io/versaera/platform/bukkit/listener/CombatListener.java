@@ -58,6 +58,11 @@ public final class CombatListener implements Listener {
     private final Map<String, Map<String, Long>> gearCtx = new ConcurrentHashMap<>();
     /** 입은 장비 + 든 무기의 늘 붙는 능력 합 (세트 포함) — 2초마다 */
     private final Map<UUID, Map<String, Integer>> worn = new ConcurrentHashMap<>();
+    /** 장신구의 타격 능력 (속성 · 치명 · 흡수 …) — 든 무기의 능력에 더한다 */
+    private final Map<UUID, Map<String, Integer>> trinkets = new ConcurrentHashMap<>();
+    static final int ACCESSORY_MAX = 3;
+    static final Set<String> OFFENSIVE = Set.of("fire", "ice", "lightning", "poison", "dark", "holy", "vs_undead", "vs_demon", "vs_large",
+            "vs_dragon", "vs_human", "crit", "pierce", "lifesteal", "slow", "stun");
     private final Map<UUID, Double> itemHealth = new ConcurrentHashMap<>();
     private final Map<UUID, Long> warnedAt = new ConcurrentHashMap<>();
     /** 손질 · 비기 버프: uuid → [끝나는 시각, %] */
@@ -178,6 +183,23 @@ public final class CombatListener implements Listener {
                 ItemType t = codec.types().get(c.typeId());
                 if (usable(owner, t)) list.add(t);
             }
+            // 장신구 (반지 · 목걸이 · 팔찌 · 장갑 · 망토 …): 핫바나 왼손에 두면 효과, 한 사람 최대 3개. 같은 종류는 하나만
+            Map<String, Integer> charm = new HashMap<>();
+            Set<String> charmTypes = new HashSet<>();
+            List<ItemStack> spots = new ArrayList<>();
+            spots.add(p.getInventory().getItemInOffHand());
+            for (int slot = 0; slot < 9; slot++) spots.add(p.getInventory().getItem(slot));
+            for (ItemStack it : spots) {
+                if (charmTypes.size() >= ACCESSORY_MAX) break;
+                String iid = codec.instanceId(it);
+                Cached c = iid == null ? null : lookup(iid, owner);
+                if (c == null) continue;
+                ItemType t = codec.types().get(c.typeId());
+                if (!t.hasTag("accessory") || !usable(owner, t) || !charmTypes.add(t.id())) continue;
+                list.add(t);
+                t.stats().forEach((k, v) -> { if (OFFENSIVE.contains(k)) charm.merge(k, v, Integer::sum); });
+            }
+            trinkets.put(p.getUniqueId(), charm);
             String hand = codec.instanceId(p.getInventory().getItemInMainHand());
             Cached hc = hand == null ? null : lookup(hand, owner);
             Map<String, Integer> total = new HashMap<>(io.versaera.domain.item.ItemOptions.total(list, codec.types().sets()));
@@ -244,7 +266,15 @@ public final class CombatListener implements Listener {
                 double[] pk = perks.getOrDefault(owner, NO_PERKS);
                 double melee = d != null && !d.equals("archery") && pk.length > 3 ? pk[3] : 0;
                 io.versaera.domain.item.ItemOptions.Hit opt = io.versaera.domain.item.ItemOptions.Hit.NONE;
-                if (usable(owner, t)) opt = io.versaera.domain.item.ItemOptions.onHit(t.stats(), io.versaera.domain.item.Quality.statMultiplier(w.quality()), kinds(victim));
+                if (usable(owner, t)) {
+                    Map<String, Integer> st = t.stats();
+                    Map<String, Integer> charm = trinkets.get(attacker.getUniqueId());
+                    if (charm != null && !charm.isEmpty()) {
+                        st = new HashMap<>(st);
+                        for (var ce : charm.entrySet()) st.merge(ce.getKey(), ce.getValue(), Integer::sum);
+                    }
+                    opt = io.versaera.domain.item.ItemOptions.onHit(st, io.versaera.domain.item.Quality.statMultiplier(w.quality()), kinds(victim));
+                }
                 else { attack *= 0.2; warn(attacker, t); }
                 UUID au = attacker.getUniqueId();
                 double buff = 1 + (active(whet, au) + active(destruction, au)) / 100.0;
@@ -430,7 +460,7 @@ public final class CombatListener implements Listener {
         weaponMastery.keySet().removeIf(k -> k.startsWith(prefix));
         UUID u = e.getPlayer().getUniqueId();
         gearCtx.remove(u.toString());
-        for (Map<UUID, ?> m : List.of(worn, itemHealth, warnedAt, whet, polish, destruction, twin, focus)) m.remove(u);
+        for (Map<UUID, ?> m : List.of(worn, trinkets, itemHealth, warnedAt, whet, polish, destruction, twin, focus)) m.remove(u);
     }
 
     /** 처음 접속 시 무기 숙련 캐시 (DB 스레드에서 부름) */

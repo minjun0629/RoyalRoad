@@ -50,7 +50,7 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
                             Expansion expansion) {
     public static final List<String> FILES = List.of("items.yml", "disciplines.yml", "action_stats.yml", "recipes.yml", "resources.yml",
             "regions.yml", "npcs.yml", "bosses.yml", "jobs.yml", "skills.yml", "quests.yml", "market.yml", "places.yml", "dungeons.yml", "world_events.yml", "gates.yml", "origins.yml", "gods.yml", "history.yml", "secret_arts.yml", "field_bosses.yml", "npc_population.yml",
-            "achievements.yml", "pets.yml", "travel.yml", "weather.yml", "raids.yml", "artworks.yml", "guild_quests.yml");
+            "achievements.yml", "pets.yml", "travel.yml", "weather.yml", "raids.yml", "artworks.yml", "guild_quests.yml", "monsters.yml");
 
     public static ContentBundle load(Function<String, InputStream> opener) {
         Map<String, Object> skills = read(opener, "skills.yml"), gods = read(opener, "gods.yml"), items = read(opener, "items.yml");
@@ -113,12 +113,45 @@ public record ContentBundle(List<ItemType> items, List<Discipline> disciplines, 
         return ContentLoader.places(read(opener, "places.yml"), "places.yml");
     }
 
+    /** 이 게임의 오리지널 콘텐츠 (원작에 없는 것) — 같은 이름의 원작 파일에 합친다 */
+    public static final String ORIGINAL_DIR = "original/";
+
     static Map<String, Object> read(Function<String, InputStream> opener, String file) {
+        Map<String, Object> base;
         try (InputStream in = opener.apply(file)) {
             if (in == null) throw new ContentLoader.ContentException("콘텐츠 파일 없음: " + file);
-            return ContentLoader.parse(new String(in.readAllBytes(), StandardCharsets.UTF_8), file);
+            base = ContentLoader.parse(new String(in.readAllBytes(), StandardCharsets.UTF_8), file);
         } catch (IOException e) {
             throw new ContentLoader.ContentException(file, e);
         }
+        try (InputStream in = opener.apply(ORIGINAL_DIR + file)) {
+            if (in == null) return base;
+            return merge(base, ContentLoader.parse(new String(in.readAllBytes(), StandardCharsets.UTF_8), ORIGINAL_DIR + file), ORIGINAL_DIR + file);
+        } catch (IOException e) {
+            throw new ContentLoader.ContentException(ORIGINAL_DIR + file, e);
+        }
+    }
+
+    /** 맨 위 묶음마다: 맵은 항목을 더하고 (같은 id 는 오류 — 원작을 덮어쓰지 않는다), 목록은 이어 붙인다, 값은 원작 파일에 없을 때만 */
+    @SuppressWarnings("unchecked")
+    static Map<String, Object> merge(Map<String, Object> base, Map<String, Object> extra, String file) {
+        Map<String, Object> out = new java.util.LinkedHashMap<>(base);
+        for (var e : extra.entrySet()) {
+            Object have = out.get(e.getKey()), add = e.getValue();
+            if (have == null) out.put(e.getKey(), add);
+            else if (have instanceof Map<?, ?> hm && add instanceof Map<?, ?> am) {
+                Map<String, Object> m = new java.util.LinkedHashMap<>((Map<String, Object>) hm);
+                for (var x : ((Map<String, Object>) am).entrySet()) {
+                    if (m.containsKey(x.getKey())) throw new ContentLoader.ContentException(file + ": " + e.getKey() + "." + x.getKey() + " 가 원작 파일에 이미 있습니다");
+                    m.put(x.getKey(), x.getValue());
+                }
+                out.put(e.getKey(), m);
+            } else if (have instanceof List<?> hl && add instanceof List<?> al) {
+                List<Object> l = new ArrayList<>(hl);
+                l.addAll(al);
+                out.put(e.getKey(), l);
+            } else throw new ContentLoader.ContentException(file + ": " + e.getKey() + " 는 원작 파일의 값과 합칠 수 없습니다");
+        }
+        return out;
     }
 }

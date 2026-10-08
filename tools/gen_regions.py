@@ -507,9 +507,9 @@ r("cloud_plateau", "구름 위 고원", "ORIGINAL", 3, (-3290, 2450, -3010, 2900
 r("crimson_maple_valley", "붉은 단풍 골짜기", "ORIGINAL", 2, (-1500, -2380, -1150, -2100), 12, ["valley", "forest"], "9대 비경 (이 게임) — 하이네프 산속 단풍 골짜기", parent="haineff_mountains")
 r("glacier_grotto", "푸른 빙하 동굴", "ORIGINAL", 3, (2900, -5700, 2960, -5640), 22, ["landmark"], "9대 비경 (이 게임) — 빙원 끝 푸른 얼음 동굴 입구", parent="niflheim_wastes")
 # 수련관: 원작 본문에 위치가 없음
-r("basic_training_hall", "기초 수련관", "CANON", 0, (4010, 1510, 4060, 1560), 25, ["landmark"], "허수아비를 오래 때리는 첫 수련관", parent="serabourg",
+r("basic_training_hall", "기초 수련관", "CANON", 0, (4010, 1510, 4060, 1560), 25, ["landmark", "training"], "허수아비를 오래 때리는 첫 수련관", parent="serabourg",
   changed="원작에 위치가 없어 이 게임은 시작 도시 세라보그 성 한쪽에 둠. 후대에는 마을 아이들도 드나드는 훈련장")
-r("novice_training_hall", "초급 수련관", "CANON", 1, (4340, 1840, 4390, 1890), 25, ["landmark"], "철인 100명과 겨루는 수련관", parent="serabourg",
+r("novice_training_hall", "초급 수련관", "CANON", 1, (4340, 1840, 4390, 1890), 25, ["landmark", "training"], "철인 100명과 겨루는 수련관", parent="serabourg",
   changed="원작에 위치가 없어 이 게임은 세라보그 성 반대편 귀퉁이에 둠")
 r("hero_tower", "영웅의 탑 (중급 수련관)", "CANON", 3, (900, 200, 960, 260), 22, ["landmark"], "층을 오르며 겨루는 중급 수련관", parent="litten_kingdom",
   changed="원작에 위치가 없어 이 게임은 대륙 한가운데 리튼 왕국에 둠")
