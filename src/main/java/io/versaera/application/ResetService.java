@@ -19,10 +19,14 @@ public final class ResetService {
         this.s = s;
     }
 
+    /** 초기화할 수 있나 (길드장이면 안 된다) — 인벤토리를 비우기 전에 먼저 살핀다 */
+    public void check(String uuid) {
+        DomainException.require(repo.guildLedBy(uuid) == null, "reset.guild_leader", "길드장입니다 — 길드를 넘기거나 해산한 뒤 초기화하세요");
+    }
+
     /** @return 지운 행 수 */
     public int player(String uuid, String actor) {
-        String g = repo.guildLedBy(uuid);
-        DomainException.require(g == null, "reset.guild_leader", "길드장입니다 — 길드를 넘기거나 해산한 뒤 초기화하세요");
+        check(uuid);
         int n = tx.inTx(() -> {
             int rows = repo.wipe(uuid);
             s.audit.record("PLAYER_RESET", actor, uuid, rows + " rows", null);

@@ -15,6 +15,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,22 +80,32 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         String id = uuidOf(a[1]);
         if (id == null) { sender.sendMessage(Ui.error("그런 플레이어가 없습니다: " + a[1])); return; }
         String who = sender instanceof Player p ? p.getUniqueId().toString() : "console";
-        Player online = Bukkit.getPlayer(UUID.fromString(id));
+        Plugin plugin = org.bukkit.plugin.java.JavaPlugin.getProvidingPlugin(AdminCommand.class);
         Runnable wipe = () -> async.run("reset", () -> s.reset.player(id, who), n -> {
-            // 저장된 인벤토리 · 위치 (서버 파일)도 지운다 — 다시 들어오면 빈손으로 종족 고르기부터
-            for (org.bukkit.World w : Bukkit.getWorlds()) new File(w.getWorldFolder(), "playerdata/" + id + ".dat").delete();
-            sender.sendMessage(Ui.info(a[1] + " 초기화 (" + n + "건)"));
+            // 저장된 인벤토리 · 위치 (서버 파일)도 지운다 — 다시 들어오면 빈손으로 종족 고르기부터.
+            // .dat_old 도 지운다: 남겨 두면 서버가 .dat 대신 예전 백업(아이템이 든)을 읽을 수 있다
+            int files = 0;
+            for (org.bukkit.World w : Bukkit.getWorlds())
+                for (String f : List.of("playerdata/" + id + ".dat", "playerdata/" + id + ".dat_old", "stats/" + id + ".json", "advancements/" + id + ".json"))
+                    if (new File(w.getWorldFolder(), f).delete()) files++;
+            sender.sendMessage(Ui.info(a[1] + " 초기화 (DB " + n + "건 · 파일 " + files + "개)"));
         }, sender);
-        if (online != null) {
+        // 길드장이면 아무것도 건드리기 전에 멈춘다 (예전에는 인벤토리부터 비우고 DB 에서 실패했다)
+        async.run("reset-check", () -> { s.reset.check(id); return true; }, ok -> {
+            Player online = Bukkit.getPlayer(UUID.fromString(id));
+            if (online == null) { wipe.run(); return; }
+            online.closeInventory();   // 제작 칸 · 커서에 든 것이 가방으로 돌아온 뒤에 비운다
+            online.setItemOnCursor(null);
             online.getInventory().clear();
+            online.getInventory().setArmorContents(new org.bukkit.inventory.ItemStack[4]);
+            online.getInventory().setItemInOffHand(null);
             online.getEnderChest().clear();
             online.setLevel(0);
             online.setExp(0);
+            online.saveData();   // 빈 가방을 먼저 파일에 쓴다 — 파일 지우기가 실패해도 아이템이 돌아오지 않게
             online.kickPlayer(Ui.c("&c초기화되었습니다"));
-            Bukkit.getScheduler().runTaskLater(org.bukkit.plugin.java.JavaPlugin.getProvidingPlugin(AdminCommand.class), wipe, 2L);
-        } else {
-            wipe.run();
-        }
+            Bukkit.getScheduler().runTaskLater(plugin, wipe, 2L);
+        }, sender);
     }
 
     private static String uuidOf(String name) {

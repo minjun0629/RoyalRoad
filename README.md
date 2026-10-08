@@ -32,10 +32,10 @@ gradle build                         # Paper 저장소에서 API 를 받아 빌�
 gradle build -PapiJar=<api.jar>      # 저장소에 접속할 수 없을 때, 가지고 있는 API jar 로 빌드
 ```
 
-결과: `build/libs/VersaEra-0.8.0.jar`
+결과: `build/libs/VersaEra-0.8.1.jar`
 
 ```bash
-gradle release                       # jar 와 리소스팩을 저장소 맨 위(VersaEra-0.8.0.jar · VersaEra-ResourcePack.zip)에 만든다 → 그대로 커밋 · 푸시
+gradle release                       # jar 와 리소스팩을 저장소 맨 위(VersaEra-0.8.1.jar · VersaEra-ResourcePack.zip)에 만든다 → 그대로 커밋 · 푸시
 gradle buildPack                     # 리소스팩만 다시 만들기
 ```
 
@@ -45,7 +45,7 @@ gradle buildPack                     # 리소스팩만 다시 만들기
 
 | 파일 | 할 일 |
 |---|---|
-| [`VersaEra-0.8.0.jar`](VersaEra-0.8.0.jar) | 받아서 서버의 `plugins/` 에 넣고 켜면 끝 |
+| [`VersaEra-0.8.1.jar`](VersaEra-0.8.1.jar) | 받아서 서버의 `plugins/` 에 넣고 켜면 끝 |
 | [`VersaEra-ResourcePack.zip`](VersaEra-ResourcePack.zip) | **받을 필요 없음** — 플러그인이 접속한 플레이어에게 이 파일의 GitHub 주소를 보내고, 플레이어의 게임이 GitHub 에서 직접 받습니다 |
 
 - 서버 포트를 열거나 주소 · 해시를 적을 필요가 없습니다. 플레이어가 어느 IP · 어느 나라에서 접속하든 GitHub 에서 받으므로 그대로 됩니다 (저장소는 공개).
@@ -141,7 +141,6 @@ worlds:
 | 하는 일 | 방법 |
 |---|---|
 | 처음 접속 | 종족 → 성별 → 시작 도시 창 (한 번만). 게임 30일(현실 7.5일) 동안 시작 도시 밖으로 못 나가고 그동안 죽어도 페널티 없음. 보리빵 10개 |
-| 튜토리얼 | 시작 도시를 고르면 위쪽 초록 막대에 할 일이 나온다: 허수아비 30번 → 토끼 · 여우 5마리 → 아마 섬유 6개 → 베틀로 리넨 → 마을 사람 셋과 이야기 → 기술 세 번 → 몬스터 20마리 (단계마다 보상, 마지막에 철 장검). 연습용 목검 · 베틀은 알아서 준다. 목록 `/튜토리얼` · 건너뛰기 `/튜토리얼 건너뛰기` |
 | 수련 | 세라보그 성의 기초 · 초급 수련관 허수아비를 치면 '힘' 스탯 (근접 피해) |
 | 성장 속도 | 오래 하는 게임입니다. 한 숙련을 사냥만으로 중급(11)까지 약 7시간 · 고급(21)까지 약 60시간 · 마스터(31)까지 약 300시간. 레벨이 맞는 몬스터는 7번쯤 쳐야 쓰러지고 너무 약한 상대는 경험치를 거의 주지 않습니다 ([docs/BALANCE.md](docs/BALANCE.md) 「성장 시간표」) |
 | 명성 · 악명 · 출신 | `/명성` |

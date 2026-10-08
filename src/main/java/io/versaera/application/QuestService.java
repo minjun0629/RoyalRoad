@@ -131,7 +131,7 @@ public final class QuestService {
         return repo.find(uuid, questId).map(QuestRepository.Row::state).orElse(null);
     }
 
-    /** 숨은 의뢰를 열고 바로 받는다 (튜토리얼처럼 NPC 없이 시스템이 맡기는 일) */
+    /** 숨은 의뢰를 열고 바로 받는다 (NPC 없이 시스템이 맡기는 일) */
     public void unlockAndAccept(String uuid, String questId, PlayerFacts f) {
         progressRepo.discover(uuid, "quest", questId, clock.nowMillis());
         accept(uuid, questId, f);

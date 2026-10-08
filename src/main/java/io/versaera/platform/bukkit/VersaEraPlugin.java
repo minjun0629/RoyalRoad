@@ -363,10 +363,6 @@ public final class VersaEraPlugin extends JavaPlugin {
         fieldBosses = new io.versaera.platform.bukkit.world.FieldBossRuntime(this, services, async, sessions::deliver);
         io.versaera.platform.bukkit.command.LifeCommands lifeCmd = new io.versaera.platform.bukkit.command.LifeCommands(services, async, codec, combat, fieldBosses, sessions::deliver);
         getCommand("menu").setExecutor(new io.versaera.platform.bukkit.ui.MainMenu());
-        // 튜토리얼 (처음 30 ~ 60 분): 위쪽 막대 · 단계 안내 · 필요한 물건
-        io.versaera.platform.bukkit.world.TutorialRuntime tutorialR = new io.versaera.platform.bukkit.world.TutorialRuntime(this, services, async, sessions::deliver);
-        Bukkit.getPluginManager().registerEvents(tutorialR, this);
-        getCommand("tutorial").setExecutor(tutorialR);
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.HandModels(this, codec), this);   // 손에 든 장비 = 입체 모델
         for (String c : List.of("appraise", "bandage", "whet", "polish", "iron", "roar", "shatter", "fieldboss")) getCommand(c).setExecutor(lifeCmd);
         codec.requirementNames(k -> k.startsWith("mastery.") ? services.growth.discipline(k.substring(8)).name()

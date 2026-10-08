@@ -1725,26 +1725,6 @@ features:
     server_test: BLOCKED
     status: IMPLEMENTED
 
-  - id: TUT-01
-    feature: 튜토리얼 (처음 30 ~ 60 분)
-    category: 안내
-    source: 사용자 요청 (2026-10)
-    source_type: 설계 요구
-    classification: ORIGINAL
-    description: "숨은 tutorial.* 의뢰 7단계를 저절로 받고 끝낸다: 허수아비 → 사냥 → 채집 → 제작 → 대화 → 기술 → 졸업. 보스 막대 · 안내 · 필요한 물건 지급"
-    player_experience: 명령어를 몰라도 첫 시간에 전투 · 채집 · 제작 · NPC · 기술을 한 번씩 해 본다
-    dependencies: [QST-01]
-    implementation: application.TutorialService · platform.bukkit.world.TutorialRuntime · content/original/quests.yml
-    data_model: player_quests (기존)
-    ui: 보스 막대 · /튜토리얼
-    resource_pack: 없음
-    performance_risk: 3초마다 접속자별 DB 조회 1회
-    security_risk: 없음
-    persistence: DB
-    tests: [TutorialTest]
-    server_test: BLOCKED
-    status: IMPLEMENTED
-
   - id: OPS-02
     feature: 재시작해도 이어지는 진행 상태
     category: 운영

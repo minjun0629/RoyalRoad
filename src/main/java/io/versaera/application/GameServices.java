@@ -40,7 +40,6 @@ public final class GameServices {
     public final DeathService deaths;
     public final QuestService quests;
     public final RuntimeStateService state;
-    public final TutorialService tutorial;
     public final GuildService guilds;
     public final MarketService market;
     public final AuctionService auctions;
@@ -115,7 +114,6 @@ public final class GameServices {
         this.gathering = new GatheringService(this, content.resources());
         this.gates = new GateService(content.gates(), regions, growth::level);
         this.origins = new OriginService(tx, new JdbcOriginRepository(db), content.origins(), regions, items, clock, this::rules);
-        this.tutorial = new TutorialService(this);
         this.reputation = new ReputationService(tx, progress, economy, regions, content.gods(), content.temples(), clock);
         deaths.attach(origins, reputation);
         this.arts = new SecretArtService(tx, progress, content.arts(), this, clock);
