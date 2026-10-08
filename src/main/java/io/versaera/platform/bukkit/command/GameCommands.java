@@ -217,7 +217,7 @@ public final class GameCommands implements CommandExecutor {
             if (n <= 0) throw new NumberFormatException();
             then.accept(n);
         } catch (RuntimeException e) {
-            p.sendMessage(Ui.error("금액: 3골드20실버 · 50실버 · 30쿠퍼 (숫자만 쓰면 실버)"));
+            p.sendMessage(Ui.error("금액: 3골드20실버 · 50실버 · 30쿠퍼 (숫자만 쓰면 쿠퍼)"));
         }
     }
 
@@ -243,7 +243,7 @@ public final class GameCommands implements CommandExecutor {
         if (a.length >= 2 && (a[0].equals("등록") || a[0].equals("sell"))) {
             long price;
             price = io.versaera.domain.economy.Money.parse(a[1]);
-            if (price <= 0) { p.sendMessage(Ui.error("/경매 등록 <가격> (예: 3골드20실버 · 50실버 · 숫자만 쓰면 실버)")); return; }
+            if (price <= 0) { p.sendMessage(Ui.error("/경매 등록 <가격> (예: 3골드20실버 · 50실버 · 숫자만 쓰면 쿠퍼)")); return; }
             ItemStack hand = p.getInventory().getItemInMainHand();
             String unique = codec.instanceId(hand);
             if (unique != null) {

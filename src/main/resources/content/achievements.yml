@@ -1,4 +1,4 @@
-# 돈은 실버로 적는다 (소수 가능: 0.3 = 30쿠퍼). 게임 안에서는 1골드 = 100실버 = 10000쿠퍼 (domain.economy.Money)
+# 돈은 쿠퍼로 적는다 (1골드 = 100실버 = 10000쿠퍼, domain.economy.Money). 원작처럼 초반 보수는 쿠퍼, 중반부터 실버
 # 업적 · 칭호 (ACH-01 · ACH-02) — 모두 ORIGINAL.
 # when: 히든 조건과 같은 문법 (counter · mastery · affinity · discovered · all · any). 지역 · 시각 조건은 쓰지 않는다.
 # 쓸 수 있는 행동 기록: kill.monster · death · quest.completed · talk.npc · gift.npc · discover.<종류> · craft.<분야> · gather.<분야>

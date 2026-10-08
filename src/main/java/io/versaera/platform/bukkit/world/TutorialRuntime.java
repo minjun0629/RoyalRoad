@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
- * 튜토리얼 화면 (TutorialService): 위쪽 막대에 지금 단계 · 진행, 단계를 열 때 할 일 안내와 필요한 물건(연습용 목검 · 베틀),
+ * 튜토리얼 화면 (TutorialService): 위쪽 막대에 지금 단계 · 진행, 단계를 열 때 할 일 안내와 필요한 물건(베틀),
  * 끝낼 때 보상 알림. 1 초마다 살핀다. /튜토리얼 · /튜토리얼 건너뛰기.
  */
 public final class TutorialRuntime implements Listener, CommandExecutor {
@@ -36,7 +36,7 @@ public final class TutorialRuntime implements Listener, CommandExecutor {
     private static final Map<String, List<String>> HINTS = Map.of(
             "tutorial.1_training", List.of("&e[튜토리얼] &f베르사 대륙에 온 것을 환영합니다!",
                     "&7마을 광장 &f북서쪽 훈련장&7의 허수아비를 쳐 보세요 — 칠수록 &f힘&7이 붙고 검술 숙련이 오릅니다.",
-                    "&7연습용 목검을 배달함으로 보냈습니다 (가방에 자리가 있으면 바로 들어옵니다). 모든 기능은 &f/메뉴"),
+                    "&7목검이 없으면 훈련장의 &f훈련 교관&7에게 말을 걸어 받으세요. 모든 기능은 &f/메뉴"),
             "tutorial.2_first_hunt", List.of("&e[튜토리얼] &f성문 밖 들판에 토끼 · 여우가 삽니다. 다섯 마리를 잡아 보세요.",
                     "&7몬스터는 레벨에 맞는 상대일수록 경험치가 많고, 너무 약한 상대는 거의 주지 않습니다."),
             "tutorial.3_flax", List.of("&e[튜토리얼] &f들판의 &a풀&f을 부수면 아마 섬유가 나옵니다 (채집 숙련).",
@@ -132,11 +132,6 @@ public final class TutorialRuntime implements Listener, CommandExecutor {
     /** 단계에 필요한 물건 */
     private void give(Player p, String step) {
         switch (step) {
-            case "tutorial.1_training" -> {
-                String id = p.getUniqueId().toString(), name = p.getName();
-                async.run("tutorial-sword", () -> s.items.create("practice_sword", 400, null, "훈련 교관", "tutorial", Map.of(), id, "tutorial:practice_sword:" + id),
-                        it -> { if (p.isOnline()) deliver.accept(p); }, null);
-            }
             case "tutorial.4_weave" -> {
                 ItemStack loom = new ItemStack(Material.LOOM);
                 var meta = loom.getItemMeta();

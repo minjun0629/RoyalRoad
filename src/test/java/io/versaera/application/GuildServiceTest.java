@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class GuildServiceTest {
     private static String rich(TestWorld w) {
         String p = TestWorld.player();
-        w.s.economy.deposit(p, 20_000 * io.versaera.domain.economy.Money.SILVER, "test", "seed:" + p);
+        w.s.economy.deposit(p, 20_000, "test", "seed:" + p);
         return p;
     }
 
@@ -21,7 +21,7 @@ class GuildServiceTest {
             String a = rich(w), b = rich(w), poor = TestWorld.player();
             assertEquals("money.insufficient", assertThrows(DomainException.class, () -> w.s.guilds.create(poor, "가난한 길드", "PO", "r0")).code());
             var g = w.s.guilds.create(a, "새벽 원정대", "DAWN", "r1");
-            assertEquals(20_000 * io.versaera.domain.economy.Money.SILVER - GuildRules.CREATE_COST, w.s.economy.balance(a));
+            assertEquals(20_000 - GuildRules.CREATE_COST, w.s.economy.balance(a));
             assertEquals("guild.taken", assertThrows(DomainException.class, () -> w.s.guilds.create(b, "새벽 원정대", "XX", "r2")).code());
             assertEquals("guild.taken", assertThrows(DomainException.class, () -> w.s.guilds.create(b, "다른 이름", "dawn".toUpperCase(), "r3")).code());
             assertEquals("guild.bad_name", assertThrows(DomainException.class, () -> w.s.guilds.create(b, "<b>x</b>", "AB", "r4")).code());
@@ -65,7 +65,7 @@ class GuildServiceTest {
             w.s.guilds.deposit(m, 3000, "d1");
             w.s.guilds.deposit(m, 3000, "d1");
             assertEquals(3000, w.s.guilds.treasury(g.id()), "같은 요청은 한 번만");
-            assertEquals(20_000 * io.versaera.domain.economy.Money.SILVER - 3000, w.s.economy.balance(m));
+            assertEquals(20_000 - 3000, w.s.economy.balance(m));
             assertEquals(300, w.s.guilds.membership(m).orElseThrow().contribution());
             assertEquals("guild.rank", assertThrows(DomainException.class, () -> w.s.guilds.withdraw(m, 100, "w1")).code());
             assertEquals("money.insufficient", assertThrows(DomainException.class, () -> w.s.guilds.withdraw(lead, 5000, "w2")).code());

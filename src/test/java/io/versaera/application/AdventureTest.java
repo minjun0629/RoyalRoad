@@ -99,7 +99,7 @@ class AdventureTest {
     void guildStorageLimitsWithdrawalsAndWeeklyQuestsPayTheTreasury() throws Exception {
         try (TestWorld w = new TestWorld()) {
             String lead = TestWorld.player(), mem = TestWorld.player();
-            w.s.economy.deposit(lead, 10_000 * io.versaera.domain.economy.Money.SILVER, "test", "t1");
+            w.s.economy.deposit(lead, 10_000, "test", "t1");
             var g = w.s.guilds.create(lead, "새벽단", "DAWN", "g1");
             w.s.guilds.invite(lead, mem);
             w.s.guilds.accept(mem, g.id());
@@ -190,9 +190,9 @@ class AdventureTest {
                 assertTrue(w.s.content.npcs().stream().anyMatch(n -> n.region().equals(port) && w.s.npcWorld.offers(n.id(), "SHIP")), "선장 없는 항구: " + port);
             // 탈것
             String stable = npcWith(w, "STABLE");
-            w.s.economy.deposit(p, 100_000 * io.versaera.domain.economy.Money.SILVER, "test", "m0");
+            w.s.economy.deposit(p, 100_000, "test", "m0");
             var m = w.s.travel.buy(p, stable, "war_horse", "m1");
-            assertEquals(100_000 * io.versaera.domain.economy.Money.SILVER - w.s.travel.kind("war_horse").price(), w.s.economy.balance(p));
+            assertEquals(100_000 - w.s.travel.kind("war_horse").price(), w.s.economy.balance(p));
             assertThrows(DomainException.class, () -> w.s.travel.buy(p, npcWith(w, "CARRIAGE"), "pony", "m2"), "마부는 말을 팔지 않는다");
             assertThrows(DomainException.class, () -> w.s.travel.summon(p, m.id()), "승마 15 부족");
             level(w, p, "riding", 31);

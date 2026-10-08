@@ -17,7 +17,7 @@ public final class GuildRules {
         }
     }
 
-    public static final long CREATE_COST = 5_000 * io.versaera.domain.economy.Money.SILVER;   // 50 골드
+    public static final long CREATE_COST = 5_000;   // 50실버
     public static final int MAX_LEVEL = 10;
     public static final long INVITE_TTL_MS = 5 * 60_000;
     private static final Pattern NAME = Pattern.compile("[가-힣A-Za-z0-9 ]{2,16}");

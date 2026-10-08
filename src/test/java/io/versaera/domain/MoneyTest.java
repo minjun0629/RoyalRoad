@@ -20,7 +20,7 @@ class MoneyTest {
 
     @Test
     void parsesWhatPeopleType() {
-        assertEquals(500, Money.parse("5"), "단위 없으면 실버");
+        assertEquals(5, Money.parse("5"), "단위 없으면 쿠퍼");
         assertEquals(30_000 + 2_000, Money.parse("3골드20실버"));
         assertEquals(30_000 + 2_000 + 7, Money.parse("3g 20s 7c"));
         assertEquals(15_000, Money.parse("1.5골드"));

@@ -60,7 +60,7 @@ class MigratorTest {
             m.migrate(all);
             try (var st = db.connection().createStatement(); var rs = st.executeQuery("SELECT balance FROM wallet WHERE uuid = 'p'")) {
                 assertTrue(rs.next());
-                assertEquals(123 * io.versaera.domain.economy.Money.SILVER, rs.getLong(1), "예전 123 = 123 실버");
+                assertEquals(123, rs.getLong(1), "V10 (×100) 과 V11 (÷100) 을 지나도 예전 123 = 123쿠퍼");
             }
         }
     }

@@ -96,10 +96,10 @@ class JobQuestDeathTest {
             assertEquals("quest.missing_delivery", assertThrows(DomainException.class,
                     () -> w.s.quests.complete(p, "P", "harden.first_coin", null, List.of(mat("oak_timber", 500, 3)))).code());
             w.s.quests.complete(p, "P", "harden.first_coin", null, List.of(mat("oak_timber", 500, 6)));
-            assertEquals(300 * io.versaera.domain.economy.Money.SILVER, w.s.economy.balance(p));
+            assertEquals(300, w.s.economy.balance(p));
             assertEquals(10, w.s.quests.reputations(p).get("harden_merchants"));
             assertThrows(DomainException.class, () -> w.s.quests.complete(p, "P", "harden.first_coin", null, List.of()));
-            assertEquals(300 * io.versaera.domain.economy.Money.SILVER, w.s.economy.balance(p), "보상은 한 번만");
+            assertEquals(300, w.s.economy.balance(p), "보상은 한 번만");
             assertThrows(DomainException.class, () -> w.s.quests.accept(p, "harden.first_coin", f), "일일 퀘스트가 아니면 다시 못 받음");
         }
     }
@@ -119,7 +119,7 @@ class JobQuestDeathTest {
             assertEquals("quest.need_choice", assertThrows(DomainException.class,
                     () -> w.s.quests.complete(p, "P", "harden.price_of_salt", null, List.of(mat("sea_salt", 400, 10)))).code());
             w.s.quests.complete(p, "P", "harden.price_of_salt", "corner_market", List.of(mat("sea_salt", 400, 10)));
-            assertEquals((300 + 900 + 1200) * io.versaera.domain.economy.Money.SILVER, w.s.economy.balance(p));
+            assertEquals((300 + 900 + 1200), w.s.economy.balance(p));
             assertEquals(-5, w.s.quests.reputations(p).get("rosaim_ports"), "15 - 20");
         }
     }

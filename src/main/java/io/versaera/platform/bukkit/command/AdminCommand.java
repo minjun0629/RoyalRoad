@@ -197,9 +197,9 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 }, sender);
             }
             case "money" -> {   // /va money <이름> <+금액|-금액>
-                if (a.length < 3) { sender.sendMessage(Ui.error("/va 돈 <플레이어> <+금액|-금액> (예: +3골드 · -50실버 · 20 = 20실버)")); return; }
+                if (a.length < 3) { sender.sendMessage(Ui.error("/va 돈 <플레이어> <+금액|-금액> (예: +3골드 · -50실버 · 20 = 20쿠퍼)")); return; }
                 String id = uuidOf(a[1]);
-                // "+3골드" · "-50" (단위 없으면 실버) · "20실버5쿠퍼"
+                // "+3골드" · "-50" (단위 없으면 쿠퍼) · "20실버5쿠퍼"
                 boolean minus = a[2].startsWith("-");
                 long parsed = io.versaera.domain.economy.Money.parse(a[2].replaceFirst("^[+-]", ""));
                 long v = parsed < 0 ? 0 : minus ? -parsed : parsed;

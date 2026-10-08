@@ -31,15 +31,15 @@ class DungeonServiceTest {
             assertThrows(DomainException.class, () -> w.s.dungeons.start("aqueduct_cistern", List.of(a), 3), "동시에 두 던전 불가");
             clearPath(w, h);
             assertEquals(2, w.s.dungeons.bossDefeated(h.runId(), Map.of()).size());
-            assertEquals(800 * io.versaera.domain.economy.Money.SILVER, w.s.economy.balance(a));
-            assertEquals(800 * io.versaera.domain.economy.Money.SILVER, w.s.economy.balance(b));
+            assertEquals(800, w.s.economy.balance(a));
+            assertEquals(800, w.s.economy.balance(b));
             assertThrows(DomainException.class, () -> w.s.dungeons.bossDefeated(h.runId(), Map.of()), "끝난 판은 다시 보상 없음");
             assertTrue(w.s.dungeons.cooldownLeft(a, "aqueduct_cistern") > 0);
 
             var again = w.s.dungeons.start("aqueduct_cistern", List.of(a), 100);
             clearPath(w, again);
             assertTrue(w.s.dungeons.bossDefeated(again.runId(), Map.of()).isEmpty(), "재사용 대기 중에는 보상 없음");
-            assertEquals(800 * io.versaera.domain.economy.Money.SILVER, w.s.economy.balance(a));
+            assertEquals(800, w.s.economy.balance(a));
             w.now.addAndGet(w.s.dungeons.dungeon("aqueduct_cistern").cooldownMs());
             var third = w.s.dungeons.start("aqueduct_cistern", List.of(a), 101);
             clearPath(w, third);

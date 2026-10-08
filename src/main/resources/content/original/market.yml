@@ -1,4 +1,4 @@
-# 돈은 실버로 적는다 (소수 가능: 0.3 = 30쿠퍼). 게임 안에서는 1골드 = 100실버 = 10000쿠퍼 (domain.economy.Money)
+# 돈은 쿠퍼로 적는다 (1골드 = 100실버 = 10000쿠퍼, domain.economy.Money). 원작처럼 초반 보수는 쿠퍼, 중반부터 실버
 # 오리지널 콘텐츠 (원작 『달빛조각사』에 없는 이 게임의 것) — 같은 이름의 원작 파일 content/market.yml 에 합쳐진다.
 # tools/gen_originals/*.py 로 생성. 같은 id 가 원작 파일에 있으면 시작할 때 오류 (원작을 덮어쓰지 않는다).
 prices: {mithril_ore: 67, copper_ingot: 17, bronze_ingot: 79, gold_ore: 30, gold_ingot: 83, coal_lump: 4, sulfur: 12, saltpeter: 10, ember_stone: 45, obsidian_shard: 46, storm_glass: 25, star_shard: 140, moonstone: 404, ruby: 313,

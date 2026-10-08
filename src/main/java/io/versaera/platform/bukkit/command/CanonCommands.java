@@ -82,7 +82,7 @@ public final class CanonCommands implements CommandExecutor {
                 }
                 long amount = io.versaera.domain.economy.Money.parse(String.join("", a));
                 if (amount <= 0) {
-                    p.sendMessage(Ui.error("금액을 적으세요 (예: 50실버 · 2골드 · 숫자만 쓰면 실버)"));
+                    p.sendMessage(Ui.error("금액을 적으세요 (예: 50실버 · 2골드 · 숫자만 쓰면 쿠퍼)"));
                     return true;
                 }
                 Region r = s.regions.at(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ());

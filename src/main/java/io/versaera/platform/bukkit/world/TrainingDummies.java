@@ -45,7 +45,8 @@ public final class TrainingDummies implements Listener {
     public TrainingDummies(Plugin plugin, GameServices s, Async async) {
         this.s = s;
         this.async = async;
-        Bukkit.getScheduler().runTaskTimer(plugin, this::flush, 20L, 20L);   // 1초마다 DB 에 (화면 숫자는 칠 때마다 바로)
+        Bukkit.getScheduler().runTaskTimer(plugin, this::flush, 20L, 20L);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::tickDrills, 20L, 2L);   // 타이밍 막대   // 1초마다 DB 에 (화면 숫자는 칠 때마다 바로)
         // 마을 훈련장 (SettlementPlanner: 광장 북서쪽, 너비 11 · 깊이 13, 허수아비 줄은 북쪽에서 셋째 줄) — 그 앞에 갑옷 거치대 허수아비
         for (Region r : s.regions.all()) {
             if (!io.versaera.domain.terrain.SettlementPlanner.isTown(r)) continue;
@@ -110,7 +111,7 @@ public final class TrainingDummies implements Listener {
         if (last != null && now - last < 1000) return;
         lastTarget.put(p.getUniqueId(), now);
         pendingTarget.merge(p.getUniqueId().toString(), 1L, Long::sum);
-        show(p, "hit.archery_training", "과녁");
+        showTarget(p);
     }
 
     private void place(World w, Region r) {
@@ -128,6 +129,21 @@ public final class TrainingDummies implements Listener {
         if (e.getEntity().getScoreboardTags().contains(TAG)) e.setCancelled(true);
     }
 
+    /** 허수아비 앞에서 하는 타이밍 수련 (사람마다 하나) */
+    private static final class Drill {
+        long start, active, lockedUntil, noteUntil;
+        double center;
+        int combo;
+        String note = "";
+    }
+
+    private final Map<UUID, Drill> drills = new ConcurrentHashMap<>();
+    private final Random rng = new Random();
+
+    /**
+     * 허수아비 치기 = 타이밍 미니게임 (TimingBar): 화면 아래 막대 위를 표시가 왕복한다. 노란 칸에서 치면 1번, 가운데 초록에서 치면 2번 센다.
+     * 칸 밖에서 치면 빗나감 — 연속이 끊기고 0.7초 동안 칠 수 없다. 연타로는 늘지 않는다.
+     */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onHit(EntityDamageByEntityEvent e) {
         if (!e.getEntity().getScoreboardTags().contains(TAG)) return;
@@ -135,43 +151,107 @@ public final class TrainingDummies implements Listener {
         if (!(e.getDamager() instanceof Player p)) return;
         long now = System.currentTimeMillis();
         Long last = lastHit.get(p.getUniqueId());
-        if (last != null && now - last < 400) return;   // 연타 매크로 대비: 0.4초에 한 번만 센다
+        if (last != null && now - last < 120) return;   // 한 번 휘두름에 이벤트가 겹쳐 오는 것
         lastHit.put(p.getUniqueId(), now);
-        pending.merge(p.getUniqueId().toString(), 1L, Long::sum);
-        show(p, "hit.training", "허수아비");
+        Drill d = drills.computeIfAbsent(p.getUniqueId(), k -> {
+            Drill n = new Drill();
+            n.start = now;
+            n.center = io.versaera.domain.combat.TimingBar.nextCenter(rng.nextDouble());
+            return n;
+        });
+        boolean fresh = now - d.active > 5000;
+        d.active = now;
+        if (fresh) {   // 처음 (또는 한참 쉬었다가) 치면 막대부터 보여 준다
+            d.start = now;
+            d.combo = 0;
+            note(d, now, "&7막대의 &e노란 칸&7에서 치세요 (가운데 &a초록&7 = 두 배)");
+            show(p, "hit.training", 0);
+            return;
+        }
+        if (now < d.lockedUntil) return;
+        double pos = io.versaera.domain.combat.TimingBar.position(now - d.start, io.versaera.domain.combat.TimingBar.period(d.combo));
+        var g = io.versaera.domain.combat.TimingBar.judge(pos, d.center, io.versaera.domain.combat.TimingBar.width(d.combo));
+        switch (g) {
+            case MISS -> {
+                d.combo = 0;
+                d.lockedUntil = now + io.versaera.domain.combat.TimingBar.MISS_LOCK_MS;
+                note(d, now, "&c빗나감");
+                p.playSound(p.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.7f);
+            }
+            case GOOD -> {
+                d.combo++;
+                note(d, now, "&e좋아 &7+1");
+                p.playSound(p.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.7f, 1.2f);
+            }
+            case PERFECT -> {
+                d.combo++;
+                note(d, now, "&a완벽 &7+2");
+                p.playSound(p.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 1.6f + Math.min(d.combo, 10) * 0.04f);
+            }
+        }
+        if (g.hits > 0) {
+            pending.merge(p.getUniqueId().toString(), (long) g.hits, Long::sum);
+            show(p, "hit.training", g.hits);
+            d.center = io.versaera.domain.combat.TimingBar.nextCenter(rng.nextDouble());   // 다음 칸은 다른 자리에
+            d.start = now;
+        }
+        render(p, d, now);
+    }
+
+    private static void note(Drill d, long now, String text) {
+        d.note = text;
+        d.noteUntil = now + 900;
+    }
+
+    /** 0.1초마다: 수련 중인 사람의 막대를 다시 그린다 (5초 동안 치지 않으면 끝) */
+    private void tickDrills() {
+        long now = System.currentTimeMillis();
+        for (var e : drills.entrySet()) {
+            Drill d = e.getValue();
+            if (now - d.active > 5000) continue;
+            Player p = Bukkit.getPlayer(e.getKey());
+            if (p != null) render(p, d, now);
+        }
+    }
+
+    private void render(Player p, Drill d, long now) {
+        double pos = now < d.lockedUntil ? -1 : io.versaera.domain.combat.TimingBar.position(now - d.start, io.versaera.domain.combat.TimingBar.period(d.combo));
+        Long total = totals.get(p.getUniqueId() + ":hit.training");
+        String text = "&f허수아비 &e" + (total == null ? "…" : total) + "&7회  " + io.versaera.domain.combat.TimingBar.render(pos, d.center, io.versaera.domain.combat.TimingBar.width(d.combo))
+                + "  &7연속 &f" + d.combo + (now < d.noteUntil ? "  " + d.note : "");
+        p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR,
+                net.md_5.bungee.api.chat.TextComponent.fromLegacyText(io.versaera.platform.bukkit.Ui.c(text)));
     }
 
     /** 지금까지 친 수 (DB 기록 + 아직 쓰지 않은 것) — 처음 칠 때 한 번 DB 에서 읽고, 그 뒤로는 칠 때마다 바로 올린다 */
     private final Map<String, Long> totals = new ConcurrentHashMap<>();
     private final java.util.Set<String> loading = ConcurrentHashMap.newKeySet();
 
-    private void show(Player p, String counter, String what) {
+    /** @param add 이번에 더한 수 (0 = 읽어 오기만) */
+    private void show(Player p, String counter, int add) {
         String key = p.getUniqueId() + ":" + counter;
-        Long n = totals.computeIfPresent(key, (k, v) -> v + 1);
-        if (n != null) {
-            bar(p, what, n);
-            return;
-        }
+        if (totals.computeIfPresent(key, (k, v) -> v + add) != null) return;
         if (!loading.add(key)) return;
         String id = p.getUniqueId().toString();
         async.run("training-count", () -> s.growth.counter(id, counter), stored -> {
             loading.remove(key);
             // DB 값 + 아직 쓰지 않은 것 (방금 친 것 포함)
-            long now = stored + (counter.equals("hit.training") ? pending : pendingTarget).getOrDefault(id, 0L);
-            totals.put(key, now);
-            if (p.isOnline()) bar(p, what, now);
+            totals.put(key, stored + (counter.equals("hit.training") ? pending : pendingTarget).getOrDefault(id, 0L));
         }, null);
     }
 
-    private static void bar(Player p, String what, long n) {
+    private void showTarget(Player p) {
+        show(p, "hit.archery_training", 1);
+        Long n = totals.get(p.getUniqueId() + ":hit.archery_training");
         p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR,
-                net.md_5.bungee.api.chat.TextComponent.fromLegacyText(io.versaera.platform.bukkit.Ui.c("&f" + what + " &e" + n + "&7회")));
+                net.md_5.bungee.api.chat.TextComponent.fromLegacyText(io.versaera.platform.bukkit.Ui.c("&f과녁 &e" + (n == null ? "…" : n) + "&7회")));
     }
 
     @EventHandler
     public void onQuit(org.bukkit.event.player.PlayerQuitEvent e) {
         String u = e.getPlayer().getUniqueId().toString();
         totals.keySet().removeIf(k -> k.startsWith(u));
+        drills.remove(e.getPlayer().getUniqueId());
     }
 
     @EventHandler

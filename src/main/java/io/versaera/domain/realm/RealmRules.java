@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public final class RealmRules {
     public static final int MAX_PLOTS = 16, MAX_SHOPS = 5, MAX_STOCK = 27;
-    public static final long SIEGE_MS = 30 * 60_000L, SIEGE_COST = 5_000 * io.versaera.domain.economy.Money.SILVER;   // 50 골드
+    public static final long SIEGE_MS = 30 * 60_000L, SIEGE_COST = 5_000;
     public static final int CAPTURE_SECONDS = 300, CAPTURE_RADIUS = 8, MAX_TAX = 20;
     private static final Set<String> NO_LAND = Set.of("dungeon_site", "landmark", "portal", "wall", "sea", "hole", "sky");
 
@@ -29,8 +29,8 @@ public final class RealmRules {
     public static long plotPrice(Region r) {
         if (r == null || r.danger() >= 6) return -1;
         for (String t : r.tags()) if (NO_LAND.contains(t)) return -1;
-        if (town(r)) return (5_000 + r.danger() * 500L) * io.versaera.domain.economy.Money.SILVER;
-        return (500 + r.danger() * 300L) * io.versaera.domain.economy.Money.SILVER;
+        if (town(r)) return (5_000 + r.danger() * 500L);
+        return (500 + r.danger() * 300L);
     }
 
     /** 땅을 팔면 산 값의 절반 */
@@ -40,10 +40,10 @@ public final class RealmRules {
 
     /** 성 값: 수도(시작 도시) > 성 > 도시 > 전초기지 */
     public static long castlePrice(Region r, boolean capital) {
-        if (capital) return 100_000 * io.versaera.domain.economy.Money.SILVER;   // 1 000 골드
-        if (r.tags().contains("fortress")) return 50_000 * io.versaera.domain.economy.Money.SILVER;
-        if (r.tags().contains("city")) return 30_000 * io.versaera.domain.economy.Money.SILVER;
-        return 15_000 * io.versaera.domain.economy.Money.SILVER;
+        if (capital) return 100_000;   // 10골드
+        if (r.tags().contains("fortress")) return 50_000;
+        if (r.tags().contains("city")) return 30_000;
+        return 15_000;
     }
 
     /** 성의 하루 수입 (현실 하루) = 성 값의 1% */

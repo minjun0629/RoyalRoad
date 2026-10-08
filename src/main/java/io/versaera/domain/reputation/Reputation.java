@@ -59,7 +59,7 @@ public final class Reputation {
 
     /** 신전 기부로 악명 1을 지우는 값: 10 + 악명/10 (쌓인 만큼 비싸다) */
     public static long donationPerPoint(long notoriety) {
-        return (10 + notoriety / 10) * io.versaera.domain.economy.Money.SILVER;   // 쿠퍼 (악명 1 = 10 실버 + …)
+        return (10 + notoriety / 10);   // 쿠퍼
     }
 
     /** 기부금으로 지울 수 있는 악명 (남는 돈은 축복으로 간다) */

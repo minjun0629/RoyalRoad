@@ -37,7 +37,7 @@ class NpcWorldTest {
             assertTrue(w.s.progress.discovered(p, "quest", hidden), "신뢰 = 숨은 의뢰");
             assertTrue(w.s.npcWorld.shopDiscount(p, smith.id()) >= 0.07);
             // 숙련 지도: 하루 한 번, 돈을 내고
-            w.s.economy.deposit(p, 10_000 * io.versaera.domain.economy.Money.SILVER, "test", "t1");
+            w.s.economy.deposit(p, 10_000, "test", "t1");
             var lesson = w.s.npcWorld.train(p, smith.id());
             assertEquals("smithing", lesson.discipline());
             assertTrue(w.s.growth.xp(p, "smithing") > 0);
@@ -92,11 +92,11 @@ class NpcWorldTest {
             w.s.items.confirmDelivered(it.id(), p);
             w.s.items.wear(it.id(), p, 100, false);
             assertThrows(DomainException.class, () -> w.s.npcWorld.repair(p, smith.id(), it.id(), "r0"), "돈이 없으면 못 고친다");
-            w.s.economy.deposit(p, 5000 * io.versaera.domain.economy.Money.SILVER, "test", "t2");
+            w.s.economy.deposit(p, 5000, "test", "t2");
             w.s.npcWorld.repair(p, smith.id(), it.id(), "r1");
             var after = w.s.items.find(it.id()).orElseThrow();
             assertEquals(after.maxDurability(), after.durability());
-            assertTrue(w.s.economy.balance(p) < 5000 * io.versaera.domain.economy.Money.SILVER);
+            assertTrue(w.s.economy.balance(p) < 5000);
         }
     }
 

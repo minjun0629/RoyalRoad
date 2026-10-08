@@ -131,7 +131,7 @@ public final class RealmCommands implements CommandExecutor {
                 if (shop.isEmpty() || a.length < 2) { p.sendMessage(Ui.error("내 상점 블록을 보며 /상점 등록 <가격> [수량]")); return; }
                 long price;
                 price = io.versaera.domain.economy.Money.parse(a[1]);
-                if (price <= 0) { p.sendMessage(Ui.error("가격: 3골드20실버 · 50실버 · 30쿠퍼 (숫자만 쓰면 실버, 띄어 쓰지 말 것)")); return; }
+                if (price <= 0) { p.sendMessage(Ui.error("가격: 3골드20실버 · 50실버 · 30쿠퍼 (숫자만 쓰면 쿠퍼, 띄어 쓰지 말 것)")); return; }
                 ItemStack hand = p.getInventory().getItemInMainHand();
                 String iid = codec.instanceId(hand), type = codec.typeId(hand);
                 if (type == null) { p.sendMessage(Ui.error("이 게임의 아이템만 팔 수 있습니다")); return; }

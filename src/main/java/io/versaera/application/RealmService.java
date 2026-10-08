@@ -36,7 +36,7 @@ public final class RealmService {
     private final List<int[]> npcSpots;
     private final Set<String> capitals = new LinkedHashSet<>();
     private final Map<String, Siege> sieges = new ConcurrentHashMap<>();
-    private volatile long emperorReward = 10_000 * io.versaera.domain.economy.Money.GOLD;
+    private volatile long emperorReward = 100 * io.versaera.domain.economy.Money.GOLD;
 
     RealmService(TxRunner tx, RealmRepository repo, GameServices s, RegionIndex regions, GameClock clock, List<int[]> npcSpots) {
         this.tx = tx;

@@ -87,11 +87,10 @@ public final class ContentLoader {
         return v instanceof Number n ? n.longValue() : v == null ? def : Long.parseLong(String.valueOf(v));
     }
 
-    /** 돈: 파일에는 실버로 (소수 가능), 게임 안에서는 쿠퍼 — {@link io.versaera.domain.economy.Money} */
-    private static long money(Map<String, Object> m, String k, double defSilver) {
+    /** 돈: 파일에도 게임 안에서도 쿠퍼 (1골드 = 100실버 = 10000쿠퍼) — {@link io.versaera.domain.economy.Money} */
+    private static long money(Map<String, Object> m, String k, double def) {
         Object v = m.get(k);
-        double silver = v instanceof Number n ? n.doubleValue() : v == null ? defSilver : Double.parseDouble(String.valueOf(v));
-        return io.versaera.domain.economy.Money.silver(silver);
+        return Math.round(v instanceof Number n ? n.doubleValue() : v == null ? def : Double.parseDouble(String.valueOf(v)));
     }
 
     private static double d(Map<String, Object> m, String k, double def) {
@@ -345,7 +344,7 @@ public final class ContentLoader {
                 d(m, "tax", 0.05), new LinkedHashSet<>(list(m, "cheap")), new LinkedHashSet<>(list(m, "dear"))))) markets.put(m.id(), m);
         Map<String, Long> prices = new LinkedHashMap<>();
         for (Map.Entry<String, Object> e : section(root, "prices", file).entrySet()) {
-            long v = io.versaera.domain.economy.Money.silver(((Number) e.getValue()).doubleValue());   // 실버 → 쿠퍼
+            long v = Math.round(((Number) e.getValue()).doubleValue());   // 쿠퍼
             if (v <= 0) throw new ContentException(file + " / prices / " + e.getKey() + ": 시세는 1 쿠퍼 이상");
             prices.put(e.getKey(), v);
         }
@@ -545,7 +544,7 @@ public final class ContentLoader {
     }
 
     private static io.versaera.domain.travel.TravelNetwork.Mode mode(Map<String, Object> m) {
-        return new io.versaera.domain.travel.TravelNetwork.Mode(i(m, "links", 3), i(m, "max_distance", 4000), money(m, "base", 20), d(m, "per_block", 0.04) * io.versaera.domain.economy.Money.SILVER,
+        return new io.versaera.domain.travel.TravelNetwork.Mode(i(m, "links", 3), i(m, "max_distance", 4000), money(m, "base", 20), d(m, "per_block", 0.04),
                 d(m, "blocks_per_second", 30));
     }
 

@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 /**
  * 돈 단위 (원작 「로열 로드」식): 1 골드 = 100 실버 = 10 000 쿠퍼. 지갑 · 장부 · 가격은 모두 <b>쿠퍼</b> 정수로 다룬다.
- * 콘텐츠 파일(yml)의 돈은 <b>실버</b>로 적는다 (소수 가능: 0.3 = 30 쿠퍼) — 로더가 {@link #silver(double)} 로 쿠퍼로 바꾼다.
+ * 콘텐츠 파일(yml)의 돈도 쿠퍼로 적는다. 원작처럼 초반 보수 · 물가는 쿠퍼, 중반부터 실버, 골드는 귀하다.
  * 원작의 환율은 출처로 확인하지 못해 1:100:100 으로 정했다 (docs/01_RESEARCH.md).
  */
 public final class Money {
@@ -51,7 +51,7 @@ public final class Money {
     private static final Pattern PART = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*(골드|골|g|실버|실|s|쿠퍼|쿠|c)?", Pattern.CASE_INSENSITIVE);
 
     /**
-     * 사람이 친 금액 → 쿠퍼. "3골드20실버" · "3g 20s" · "50쿠퍼" · "1.5골드". 단위 없는 숫자는 <b>실버</b>.
+     * 사람이 친 금액 → 쿠퍼. "3골드20실버" · "3g 20s" · "50쿠퍼" · "1.5골드". 단위 없는 숫자는 <b>쿠퍼</b>.
      * @return 못 읽으면 -1
      */
     public static long parse(String text) {
@@ -65,7 +65,7 @@ public final class Money {
             if (m.start() != end && !t.substring(end, m.start()).isBlank()) return -1;
             if (m.group().isBlank()) break;
             double n = Double.parseDouble(m.group(1));
-            String u = m.group(2) == null ? "실버" : m.group(2).toLowerCase(java.util.Locale.ROOT);
+            String u = m.group(2) == null ? "쿠퍼" : m.group(2).toLowerCase(java.util.Locale.ROOT);
             long unit = switch (u) { case "골드", "골", "g" -> GOLD; case "쿠퍼", "쿠", "c" -> COPPER; default -> SILVER; };
             total += Math.round(n * unit);
             end = m.end();

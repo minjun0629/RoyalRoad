@@ -1,4 +1,4 @@
-# 돈은 실버로 적는다 (소수 가능: 0.3 = 30쿠퍼). 게임 안에서는 1골드 = 100실버 = 10000쿠퍼 (domain.economy.Money)
+# 돈은 쿠퍼로 적는다 (1골드 = 100실버 = 10000쿠퍼, domain.economy.Money). 원작처럼 초반 보수는 쿠퍼, 중반부터 실버
 # 퀘스트 — 모두 ORIGINAL (후대 시대의 새 사건 · 새 인물). 등급: DAILY(일상) · SKILLED(숙련) · PERILOUS(험로) · LEGEND(전설)
 # objectives type: KILL · GATHER · CRAFT · DISCOVER · TALK · DELIVER · AFFINITY · DUNGEON · BOSS
 # reward items: "종류:품질:수량"   choices: 끝낼 때 고르는 선택지 (보상 · 다음 퀘스트가 달라짐)

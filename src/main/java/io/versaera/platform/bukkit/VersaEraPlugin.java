@@ -369,16 +369,18 @@ public final class VersaEraPlugin extends JavaPlugin {
         getCommand("tutorial").setExecutor(tutorialR);
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.HandModels(this, codec), this);   // 손에 든 장비 = 입체 모델
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.HealthBars(this), this);   // 몬스터 머리 위 체력바
+        Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.listener.ReachThroughGrass(), this);   // 평타가 풀에 막히지 않게
         Bukkit.getPluginManager().registerEvents(new io.versaera.platform.bukkit.world.FireGuard(), this);   // 용암 · 번지는 불이 집을 태우지 않게
         for (String c : List.of("appraise", "bandage", "whet", "polish", "iron", "roar", "shatter", "fieldboss")) getCommand(c).setExecutor(lifeCmd);
         codec.requirementNames(k -> k.startsWith("mastery.") ? services.growth.discipline(k.substring(8)).name()
                 : k.startsWith("stat.") ? services.growth.stats().stream().filter(st -> st.id().equals(k.substring(5))).map(st -> st.name()).findFirst().orElse(k)
                 : k.equals("fame") ? "명성" : k);
-        if (getConfig().getLong("emperor.reward_gold", 10_000) == 1_000_000) {   // 0.9 이전: 단위가 하나(지금의 실버)였다 → 같은 가치의 골드
-            getConfig().set("emperor.reward_gold", 10_000);
+        long er = getConfig().getLong("emperor.reward_gold", 100);
+        if (er == 1_000_000 || er == 10_000) {   // 예전 기본값 (단위가 하나였을 때 · 0.9.0) → 같은 가치의 골드
+            getConfig().set("emperor.reward_gold", 100);
             saveConfig();
         }
-        services.realm.emperorReward(getConfig().getLong("emperor.reward_gold", 10_000));
+        services.realm.emperorReward(getConfig().getLong("emperor.reward_gold", 100));
         io.versaera.platform.bukkit.world.RealmRuntime realmR = new io.versaera.platform.bukkit.world.RealmRuntime(this, services, async, exec);
         io.versaera.platform.bukkit.command.RealmCommands realmCmd = new io.versaera.platform.bukkit.command.RealmCommands(services, async, codec, realmR);
         for (String c : List.of("land", "pshop", "castle", "nation", "emperor")) getCommand(c).setExecutor(realmCmd);
